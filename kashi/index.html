@@ -1,0 +1,4132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kāshi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F6F4;--surface:#FFFFFF;--surface2:#EFEFEC;--ink:#111113;--muted:#7C7C80;--line:rgba(17,17,19,.08);
+  --ok:#1F9D6B;--mid:#D99A00;--bad:#E5484D;--accent:#111113;--on-accent:#FFFFFF;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --fa:"Vazirmatn",Tahoma,"Noto Naskh Arabic",sans-serif;
+  --r:16px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B0B0C;--surface:#161618;--surface2:#1F1F22;--ink:#EDEDEF;--muted:#8E8E93;--line:rgba(255,255,255,.08);
+  --ok:#3DD68C;--mid:#F5C842;--bad:#FF6369;--accent:#EDEDEF;--on-accent:#0B0B0C;}}
+:root[data-theme="dark"]{
+  --bg:#0B0B0C;--surface:#161618;--surface2:#1F1F22;--ink:#EDEDEF;--muted:#8E8E93;--line:rgba(255,255,255,.08);
+  --ok:#3DD68C;--mid:#F5C842;--bad:#FF6369;--accent:#EDEDEF;--on-accent:#0B0B0C;}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);letter-spacing:-.006em;min-height:100%;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px));-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.fa{font-family:var(--fa);direction:rtl}
+/* header */
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.4) blur(18px);-webkit-backdrop-filter:saturate(1.4) blur(18px);padding-top:env(safe-area-inset-top,0px)}
+.top-in{max-width:620px;margin:0 auto;padding:14px 20px 12px;display:flex;align-items:baseline;justify-content:space-between}
+.mark{font-weight:700;font-size:17px;letter-spacing:-.02em}
+.mark span{font:500 15px var(--fa);color:var(--muted);margin-left:8px}
+.topline{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.prog{height:2px;background:var(--line)}
+.prog i{display:block;height:100%;background:var(--ink);transition:width .4s ease}
+main{max-width:620px;margin:0 auto;padding:8px 20px 32px}
+/* tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.4) blur(18px);-webkit-backdrop-filter:saturate(1.4) blur(18px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-in{max-width:620px;margin:0 auto;display:flex}
+.tabs button{flex:1;border:0;background:none;padding:9px 0 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer}
+.tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabs button[aria-current="page"]{color:var(--ink)}
+/* shared */
+.eyebrow{font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:28px 4px 10px}
+.group{background:var(--surface);border-radius:var(--r);overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.muted{color:var(--muted)}
+.btn{border:0;border-radius:999px;padding:14px 22px;font-weight:600;font-size:15px;cursor:pointer;background:var(--surface2)}
+.btn.primary{background:var(--accent);color:var(--on-accent);width:100%}
+.btn.primary:focus-visible{outline:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--ink) 18%,transparent)}
+.btn:disabled{opacity:.35;cursor:default}
+.link{border:0;background:none;color:var(--muted);font-weight:500;font-size:14px;padding:10px 12px;cursor:pointer}
+.link:hover{color:var(--ink)}
+.dots{display:inline-flex;gap:4px;vertical-align:middle}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--ink)}
+/* study */
+.study{min-height:calc(100vh - 220px);display:flex;flex-direction:column;justify-content:center;padding:24px 0}
+.chiprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.chip{font-size:12px;font-weight:500;color:var(--muted);background:var(--surface2);padding:5px 10px;border-radius:999px}
+.prompt{font-size:clamp(30px,8.5vw,44px);font-weight:600;letter-spacing:-.03em;line-height:1.12;margin:0 0 36px}
+.answer{width:100%;border:0;border-bottom:1.5px solid var(--line);background:none;color:var(--ink);font:500 30px/1.4 var(--fa);direction:rtl;text-align:right;padding:6px 0 10px;border-radius:0;outline:none;transition:border-color .2s}
+.answer:focus{border-bottom-color:var(--ink)}
+.answer:focus-visible{outline:none}
+.answer::placeholder{color:var(--muted);opacity:.5}
+.answer.ok{border-bottom-color:var(--ok)}
+.answer.bad{border-bottom-color:var(--bad)}
+.hint{font-size:14px;color:var(--muted);min-height:22px;margin-top:10px}
+.fb{display:none;margin-top:18px}
+.fb.show{display:block;animation:rise .25s ease}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.verdict{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
+.verdict::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.fb.ok .verdict{color:var(--ok)}.fb.near .verdict{color:var(--mid)}.fb.bad .verdict{color:var(--bad)}
+.big{font:700 40px/1.35 var(--fa);direction:rtl;text-align:right;margin-top:6px}
+.tr{color:var(--muted);text-align:right;font-size:15px}
+.alt,.yours{color:var(--muted);font-size:13px;margin-top:8px;text-align:right}
+.alt span,.yours span{font:500 16px var(--fa);color:var(--ink)}
+.acts{margin-top:32px}
+.acts .links{display:flex;justify-content:center;gap:8px;margin-top:6px}
+.done{text-align:center;padding:72px 12px}
+.done .ring{width:56px;height:56px;border-radius:50%;background:var(--surface);display:grid;place-items:center;margin:0 auto 18px}
+.done svg{width:26px;height:26px;stroke:var(--ok);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.done h2{font-size:22px;letter-spacing:-.02em;margin:0 0 6px}
+.done p{color:var(--muted);margin:0 auto 24px;max-width:34ch}
+/* map */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.kpi{background:var(--surface);border-radius:var(--r);padding:14px 12px}
+.kpi b{display:block;font-size:24px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;white-space:nowrap;color:var(--muted);display:flex;align-items:center;gap:6px}
+.kpi span::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--c)}
+.pages{display:flex;gap:6px;overflow-x:auto;margin:18px -20px 0;padding:0 20px 2px;scrollbar-width:none}
+.pages::-webkit-scrollbar{display:none}
+.pages button{flex:none;border:0;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:500;background:var(--surface);color:var(--muted);cursor:pointer;font-variant-numeric:tabular-nums}
+.pages button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+.maphead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 2px 10px}
+.maphead small{color:var(--muted);font-size:12px}
+.zoom{display:flex;align-items:center;gap:4px;background:var(--surface);border-radius:999px;padding:3px}
+.zoom button{width:30px;height:30px;border:0;border-radius:50%;background:none;font-size:18px;line-height:1;cursor:pointer}
+.zoom button:disabled{opacity:.3}
+.zoom input{width:84px;accent-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:var(--gap,3px);background:var(--surface);border-radius:var(--r);padding:12px;touch-action:pan-x pan-y}
+.t{border:0;padding:0;margin:0;border-radius:3px;cursor:pointer;aspect-ratio:1;background:var(--c);min-width:0}
+.b3{--c:var(--ok)}.b2{--c:var(--mid)}.b1{--c:var(--bad)}
+.b0{--c:color-mix(in srgb,var(--bad) 22%,var(--surface))}
+.t.sel{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.lbl1 .t,.lbl2 .t{aspect-ratio:auto;min-height:46px;border-radius:8px;padding:6px 7px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:2px;
+  background:color-mix(in srgb,var(--c) 16%,var(--surface));box-shadow:inset 3px 0 0 var(--c);overflow:hidden}
+.lbl1 .b0,.lbl2 .b0{background:var(--surface2);box-shadow:inset 3px 0 0 var(--line)}
+.lbl1 .t.sel,.lbl2 .t.sel{box-shadow:inset 3px 0 0 var(--c),0 0 0 2px var(--ink)}
+.te{font-size:10.5px;line-height:1.2;font-weight:500;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.tf{display:none;font:500 17px/1.3 var(--fa);direction:rtl;text-align:right}
+.lbl2 .t{min-height:72px;padding:9px 10px}
+.lbl2 .te{font-size:13px;-webkit-line-clamp:2}
+.lbl2 .tf{display:block}
+.gridnote{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+.sheet{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:7;padding:0 12px 10px;pointer-events:none}
+.sheet-in{max-width:596px;margin:0 auto;background:var(--surface);border-radius:20px;padding:16px 18px;box-shadow:0 12px 40px rgba(0,0,0,.18),0 0 0 1px var(--line);pointer-events:auto;animation:rise .2s ease}
+.sheet[hidden]{display:none}
+.sheet-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sheet .en{font-weight:600;font-size:17px;letter-spacing:-.01em}
+.sheet .fa1{font:700 30px/1.35 var(--fa);direction:rtl;text-align:right;margin-top:4px}
+.sheet .meta{font-size:13px;color:var(--muted);margin-top:4px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.x{border:0;background:var(--surface2);width:28px;height:28px;border-radius:50%;cursor:pointer;flex:none;font-size:15px;line-height:1}
+/* words */
+.deckrow{display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:14px}
+.deckrow b{font-weight:600}
+.bar{height:6px;border-radius:3px;background:var(--surface2);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.num{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
+.search{width:100%;border:0;border-radius:12px;background:var(--surface);color:var(--ink);font:15px var(--sans);padding:13px 16px}
+.search::placeholder{color:var(--muted)}
+.wl .row{padding:12px 16px}
+.wl .e{font-weight:500}
+.wl .s{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:8px;align-items:center}
+.wl .f{font:500 19px var(--fa);direction:rtl;text-align:right}
+/* grammar */
+details{background:var(--surface);border-radius:var(--r);margin-bottom:8px}
+summary{list-style:none;cursor:pointer;padding:15px 16px;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";width:8px;height:8px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg) translateY(-3px);transition:transform .2s;flex:none}
+details[open] summary::after{transform:rotate(-135deg) translateY(-1px)}
+.gbody{padding:0 16px 14px}
+.gbody p{margin:0 0 10px;color:var(--muted);max-width:62ch}
+.ex{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.ex span:last-child{font:500 18px var(--fa);direction:rtl}
+/* settings */
+.sw{appearance:none;-webkit-appearance:none;width:44px;height:26px;border-radius:999px;background:var(--surface2);position:relative;cursor:pointer;transition:background .2s;flex:none;margin:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw:checked{background:var(--ok)}
+.sw:checked::after{transform:translateX(18px)}
+select{font:15px var(--sans);border:0;background:var(--surface2);color:var(--ink);border-radius:8px;padding:6px 10px}
+.note{color:var(--muted);font-size:13px;margin:10px 4px 0;max-width:60ch}
+.danger{color:var(--bad);background:none;border:0;font-weight:500;padding:14px 16px;width:100%;text-align:left;cursor:pointer}
+.tabs button{position:relative}
+.tabs button.todo::after{content:"";position:absolute;top:7px;left:calc(50% + 9px);width:7px;height:7px;border-radius:50%;background:var(--bad)}
+.spintro{padding:20px 0}
+.spbadge{display:inline-block;font-size:12px;font-weight:500;color:var(--muted);background:var(--surface2);padding:5px 10px;border-radius:999px}
+.sph{font-size:clamp(30px,8vw,40px);letter-spacing:-.035em;line-height:1.1;margin:14px 0 8px}
+.spintro>p.muted{margin:0;max-width:44ch}
+.skrow .s{font-size:12px;margin-top:2px}
+.skbar{display:flex;align-items:center;gap:10px;flex:none}
+.skbar .bar{width:72px}
+.skbar .num{min-width:38px}
+.sptop{position:sticky;top:57px;z-index:4;background:var(--bg);padding:8px 0 4px}
+.tbar{height:4px;border-radius:2px;background:var(--surface2);overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--ink);transition:width .2s linear}
+.spmeta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}
+.spmeta #tcombo{color:var(--ok);font-weight:600}
+.sprint{min-height:auto;justify-content:flex-start;padding-top:28px}
+.sprint .chiprow{margin-bottom:20px;gap:8px;flex-wrap:wrap}
+.sprint .prompt{margin-bottom:28px}
+.tip{background:var(--surface);border-radius:14px;padding:12px 14px;font-size:14px;color:var(--muted);margin-bottom:18px}
+.tip b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
+.newchip{display:inline-flex;align-items:baseline;gap:6px;font-size:13px;background:color-mix(in srgb,var(--mid) 16%,var(--surface));padding:5px 10px;border-radius:999px}
+.newchip em{font-style:normal;font-weight:600;color:var(--mid)}
+.newchip .fa{font-size:16px;font-weight:600}
+.introw{margin:-12px 0 18px}
+.target{font-size:13px;color:var(--muted);margin:-22px 0 22px}
+.target b{color:var(--ink);font-weight:600}
+.gls{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;margin-top:12px}
+.gl{font-size:12px;color:var(--muted);background:var(--surface);border-radius:8px;padding:4px 8px}
+.gl .fa{font-size:15px;color:var(--ink);font-weight:500}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in"><div class="mark">Kāshi<span>کاشی</span></div><div class="topline" id="topline"></div></div><div class="prog"><i id="prog" style="width:0"></i></div></header>
+<main id="view"></main>
+<div class="sheet" id="sheet" hidden></div>
+<nav class="tabs" id="nav" aria-label="Sections"><div class="tabs-in">
+  <button data-v="sprint" aria-current="page"><svg viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></svg>Sprint</button>
+  <button data-v="study"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="13" height="14" rx="2.5"/><path d="M8 3.5h9.5A2.5 2.5 0 0 1 20 6v10.5"/></svg>Study</button>
+  <button data-v="map"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>Map</button>
+  <button data-v="deck"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>Words</button>
+  <button data-v="grammar"><svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>Grammar</button>
+  <button data-v="settings"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg>Settings</button>
+</div></nav>
+<script>
+const RAW=`#A1
+hello|سلام|salām
+goodbye|خداحافظ|khodāhāfez
+thank you|مرسی/ممنون/متشکرم|mersi / mamnun
+please|لطفاً|lotfan
+yes|بله/آره|bale / āre
+no|نه/خیر|na / kheyr
+excuse me; sorry|ببخشید|bebakhshid
+good|خوب|khub
+bad|بد|bad
+name|اسم/نام|esm / nām
+I|من|man
+you (singular)|تو|to
+he; she|او|u
+we|ما|mā
+you (plural, polite)|شما|shomā
+they|آنها/اونا|ānhā / unā
+this|این|in
+that|آن/اون|ān / un
+here|اینجا|injā
+there|آنجا/اونجا|ānjā / unjā
+what|چه/چی|che / chi
+who|چه کسی/کی|che kasi / ki
+where|کجا|kojā
+why|چرا|cherā
+how|چطور/چگونه|chetor
+how many|چند|chand
+how much|چقدر|cheqadr
+which|کدام/کدوم|kodām
+one|یک/یه|yek
+two|دو|do
+three|سه|se
+four|چهار|chahār
+five|پنج|panj
+six|شش|shesh
+seven|هفت|haft
+eight|هشت|hasht
+nine|نه|noh
+ten|ده|dah
+eleven|یازده|yāzdah
+twelve|دوازده|davāzdah
+twenty|بیست|bist
+thirty|سی|si
+forty|چهل|chehel
+fifty|پنجاه|panjāh
+hundred|صد|sad
+thousand|هزار|hezār
+mother|مادر/مامان|mādar
+father|پدر/بابا|pedar
+brother|برادر|barādar
+sister|خواهر|khāhar
+son; boy|پسر|pesar
+daughter; girl|دختر|dokhtar
+child|بچه/کودک|bachche
+husband|شوهر|showhar
+wife; woman|زن|zan
+family|خانواده|khānevāde
+grandmother|مادربزرگ|mādarbozorg
+grandfather|پدربزرگ|pedarbozorg
+friend|دوست|dust
+man|مرد|mard
+person|آدم/شخص|ādam
+people|مردم|mardom
+baby|نوزاد|nowzād
+head|سر|sar
+eye|چشم|cheshm
+ear|گوش|gush
+nose|بینی/دماغ|bini / damāgh
+mouth|دهان/دهن|dahān
+tooth|دندان|dandān
+hand|دست|dast
+foot; leg|پا|pā
+face|صورت|surat
+hair|مو|mu
+heart|قلب/دل|qalb / del
+body|بدن|badan
+water|آب|āb
+bread|نان/نون|nān
+rice|برنج|berenj
+meat|گوشت|gusht
+chicken|مرغ|morgh
+fish|ماهی|māhi
+egg|تخم مرغ|tokhm-e morgh
+cheese|پنیر|panir
+milk|شیر|shir
+tea|چای/چایی|chāy
+coffee|قهوه|qahve
+sugar|شکر|shekar
+salt|نمک|namak
+fruit|میوه|mive
+apple|سیب|sib
+orange|پرتقال|porteqāl
+grape|انگور|angur
+pomegranate|انار|anār
+watermelon|هندوانه|hendevāne
+herbs; greens|سبزی|sabzi
+tomato|گوجه/گوجه فرنگی|gowje
+potato|سیب زمینی|sib-zamini
+onion|پیاز|piyāz
+food|غذا|ghazā
+breakfast|صبحانه|sobhāne
+lunch|ناهار|nāhār
+dinner|شام|shām
+yogurt|ماست|māst
+house; home|خانه/خونه|khāne
+room|اتاق|otāq
+door|در|dar
+window|پنجره|panjere
+table|میز|miz
+chair|صندلی|sandali
+bed|تخت|takht
+kitchen|آشپزخانه|āshpazkhāne
+bathroom|حمام|hammām
+toilet|دستشویی/توالت|dastshuyi
+book|کتاب|ketāb
+pen|خودکار/قلم|khodkār
+paper|کاغذ|kāghaz
+phone|تلفن/گوشی|telefon / gushi
+car|ماشین|māshin
+key|کلید|kelid
+bag|کیف|kif
+clothes|لباس|lebās
+shoe|کفش|kafsh
+city|شهر|shahr
+country|کشور|keshvar
+street|خیابان|khiyābān
+school|مدرسه|madrese
+university|دانشگاه|dāneshgāh
+shop|مغازه|maghāze
+bazaar; market|بازار|bāzār
+hospital|بیمارستان|bimārestān
+restaurant|رستوران|restorān
+hotel|هتل|hotel
+bank|بانک|bānk
+park|پارک|pārk
+mosque|مسجد|masjed
+airport|فرودگاه|forudgāh
+station|ایستگاه|istgāh
+work; job|کار|kār
+office|دفتر/اداره|daftar / edāre
+day|روز|ruz
+night|شب|shab
+morning|صبح|sobh
+afternoon|عصر|asr
+today|امروز|emruz
+tomorrow|فردا|fardā
+yesterday|دیروز|diruz
+week|هفته|hafte
+month|ماه|māh
+year|سال|sāl
+hour; clock|ساعت|sā'at
+minute|دقیقه|daqiqe
+now|الان/اکنون|alān
+time|وقت/زمان|vaqt / zamān
+Saturday|شنبه|shanbe
+Sunday|یکشنبه|yekshanbe
+Monday|دوشنبه|doshanbe
+Tuesday|سه شنبه|seshanbe
+Wednesday|چهارشنبه|chahārshanbe
+Thursday|پنجشنبه|panjshanbe
+Friday|جمعه|jom'e
+big|بزرگ|bozorg
+small|کوچک/کوچیک|kuchek
+new|نو/جدید|now / jadid
+old (thing)|کهنه/قدیمی|kohne / qadimi
+old (person)|پیر|pir
+young|جوان/جوون|javān
+warm|گرم|garm
+cold|سرد|sard
+beautiful|زیبا/قشنگ|zibā / qashang
+long; tall|بلند|boland
+short|کوتاه|kutāh
+happy|خوشحال|khoshhāl
+sad|ناراحت/غمگین|nārāhat / ghamgin
+tired|خسته|khaste
+hungry|گرسنه/گشنه|gorosne
+thirsty|تشنه|teshne
+easy|آسان/راحت|āsān
+difficult|سخت/مشکل|sakht
+cheap|ارزان/ارزون|arzān
+expensive|گران/گرون|gerān
+very|خیلی|kheyli
+a lot; much|زیاد|ziyād
+little; few|کم|kam
+far|دور|dur
+near|نزدیک|nazdik
+fast|تند/سریع|tond / sari'
+slow|آهسته/یواش|āheste / yavāsh
+clean|تمیز|tamiz
+dirty|کثیف|kasif
+sick|مریض/بیمار|mariz / bimār
+ready|آماده|āmāde
+white|سفید|sefid
+black|سیاه/مشکی|siyāh / meshki
+red|قرمز|qermez
+blue|آبی|ābi
+green|سبز|sabz
+yellow|زرد|zard
+to go|رفتن|raftan
+to come|آمدن|āmadan
+to eat|خوردن|khordan
+to drink|نوشیدن|nushidan
+to see|دیدن|didan
+to do; to make|کردن|kardan
+to say|گفتن|goftan
+to want|خواستن|khāstan
+to be able|توانستن|tavānestan
+to know (a fact)|دانستن|dānestan
+to know (a person)|شناختن|shenākhtan
+to have|داشتن|dāshtan
+to be|بودن|budan
+to become|شدن|shodan
+to give|دادن|dādan
+to take; to get|گرفتن|gereftan
+to buy|خریدن|kharidan
+to sell|فروختن|forukhtan
+to read|خواندن|khāndan
+to write|نوشتن|neveshtan
+to speak|حرف زدن/صحبت کردن|harf zadan / sohbat kardan
+to listen|گوش دادن|gush dādan
+to hear|شنیدن|shenidan
+to sleep|خوابیدن|khābidan
+to sit|نشستن|neshastan
+to stand|ایستادن|istādan
+to work|کار کردن|kār kardan
+to live|زندگی کردن|zendegi kardan
+to learn|یاد گرفتن|yād gereftan
+to understand|فهمیدن|fahmidan
+to open|باز کردن|bāz kardan
+to close|بستن|bastan
+to put|گذاشتن|gozāshtan
+to bring|آوردن|āvardan
+to find|پیدا کردن|peydā kardan
+to like; to love|دوست داشتن|dust dāshtan
+to wait|صبر کردن|sabr kardan
+to walk|راه رفتن|rāh raftan
+to run|دویدن|davidan
+to cook|پختن/آشپزی کردن|pokhtan
+to wash|شستن|shostan
+to play|بازی کردن|bāzi kardan
+to ask|پرسیدن|porsidan
+to help|کمک کردن|komak kardan
+to pay|پرداختن/پول دادن|pardākhtan
+to call (phone)|زنگ زدن|zang zadan
+to arrive|رسیدن|residan
+to begin|شروع کردن|shoru' kardan
+to finish|تمام کردن|tamām kardan
+to think|فکر کردن|fekr kardan
+to laugh|خندیدن|khandidan
+to cry|گریه کردن|gerye kardan
+to show|نشان دادن|neshān dādan
+to send|فرستادن|ferestādan
+money|پول|pul
+question|سوال|so'āl
+answer|جواب|javāb
+word|کلمه|kalame
+language; tongue|زبان|zabān
+Persian (language)|فارسی|fārsi
+English (language)|انگلیسی|engelisi
+weather; air|هوا|havā
+sun|خورشید/آفتاب|khorshid / āftāb
+moon|ماه|māh
+rain|باران|bārān
+snow|برف|barf
+sea|دریا|daryā
+mountain|کوه|kuh
+tree|درخت|derakht
+flower|گل|gol
+dog|سگ|sag
+cat|گربه|gorbe
+bird|پرنده|parande
+horse|اسب|asb
+with|با|bā
+without|بدون/بی|bedun / bi
+and|و|va
+or|یا|yā
+but|اما/ولی|ammā / vali
+in|در/تو|dar / tu
+from|از|az
+to (towards)|به|be
+on|روی/رو|ru-ye
+under|زیر|zir
+also; too|هم|ham
+only|فقط|faqat
+again|دوباره|dobāre
+always|همیشه|hamishe
+never|هرگز/هیچ وقت|hargez / hich vaqt
+sometimes|گاهی|gāhi
+all; everyone|همه|hame
+thing|چیز|chiz
+something|چیزی|chizi
+nothing|هیچ چیز/هیچی|hich chiz / hichi
+thirteen|سیزده|sizdah
+fourteen|چهارده|chahārdah
+fifteen|پانزده/پونزده|pānzdah
+sixteen|شانزده|shānzdah
+seventeen|هفده|hefdah
+eighteen|هجده/هیجده|hejdah
+nineteen|نوزده|nuzdah
+sixty|شصت|shast
+seventy|هفتاد|haftād
+eighty|هشتاد|hashtād
+ninety|نود|navad
+two hundred|دویست|devist
+million|میلیون|miliyun
+zero|صفر|sefr
+number|عدد/شماره|adad / shomāre
+half|نصف/نیم|nesf / nim
+second (2nd)|دوم|dovvom
+third|سوم|sevvom
+colour|رنگ|rang
+brown|قهوه ای|qahve-i
+grey|خاکستری|khākestari
+pink|صورتی|surati
+orange (colour)|نارنجی|nārenji
+purple|بنفش|banafsh
+arm|بازو/دست|bāzu
+finger|انگشت|angosht
+neck|گردن|gardan
+back (body)|کمر/پشت|kamar
+stomach; belly|شکم|shekam
+knee|زانو|zānu
+skin|پوست|pust
+blood|خون|khun
+lip|لب|lab
+shoulder|شانه/شونه|shāne
+cucumber|خیار|khiyār
+carrot|هویج|havij
+lemon|لیمو|limu
+banana|موز|mowz
+melon|خربزه|kharboze
+cherry|گیلاس|gilās
+peach|هلو|holu
+strawberry|توت فرنگی|tut-farangi
+lentil|عدس|adas
+bean|لوبیا|lubiyā
+pepper|فلفل|felfel
+garlic|سیر|sir
+juice|آبمیوه|ābmive
+ice cream|بستنی|bastani
+cake|کیک|keyk
+wall|دیوار|divār
+floor|کف/زمین|kaf
+ceiling|سقف|saqf
+stairs|پله|pelle
+roof|پشت بام/بام|posht-e bām
+lamp; light|چراغ|cherāgh
+carpet|فرش|farsh
+sofa|مبل|mobl
+cupboard|کمد|komod
+fridge|یخچال|yakhchāl
+television|تلویزیون|televiziyon
+mirror|آینه|āyene
+towel|حوله|hole
+soap|صابون|sābun
+apartment|آپارتمان|āpārtemān
+shirt|پیراهن/پیرهن|pirāhan
+trousers|شلوار|shalvār
+coat; jacket|کت/پالتو|kot / pālto
+hat|کلاه|kolāh
+sock|جوراب|jurāb
+headscarf|روسری|rusari
+glasses|عینک|eynak
+wristwatch|ساعت مچی|sā'at-e mochi
+ring|انگشتر|angoshtar
+animal|حیوان/حیوون|heyvān
+cow|گاو|gāv
+sheep|گوسفند|gusfand
+goat|بز|boz
+mouse|موش|mush
+lion|شیر|shir
+camel|شتر|shotor
+donkey|الاغ/خر|olāgh / khar
+fly (insect)|مگس|magas
+fire|آتش/آتیش|ātash
+stone|سنگ|sang
+ice|یخ|yakh
+cloud|ابر|abr
+forest|جنگل|jangal
+lake|دریاچه|daryāche
+island|جزیره|jazire
+light (noun)|نور|nur
+ugly|زشت|zesht
+fat|چاق|chāq
+thin|لاغر|lāghar
+wide|پهن/عریض|pahn
+narrow|باریک|bārik
+deep|عمیق/گود|amiq
+dark|تاریک|tārik
+bright; switched on|روشن|rowshan
+wet|خیس|khis
+dry|خشک|khoshk
+hard (not soft)|سفت|seft
+soft|نرم|narm
+round|گرد|gerd
+alive|زنده|zende
+dead|مرده|morde
+married|متاهل|mota'ahhel
+single (unmarried)|مجرد|mojarrad
+healthy|سالم|sālem
+to go out|بیرون رفتن|birun raftan
+to stay|ماندن/موندن|māndan
+to shop|خرید کردن|kharid kardan
+to clean|تمیز کردن|tamiz kardan
+to watch|تماشا کردن|tamāshā kardan
+to count|شمردن|shemordan
+to smile|لبخند زدن|labkhand zadan
+to kiss|بوسیدن|busidan
+to hold; to keep|نگه داشتن|negah dāshtan
+to look|نگاه کردن|negāh kardan
+to look for|گشتن/دنبال گشتن|gashtan
+to turn on|روشن کردن|rowshan kardan
+to turn off|خاموش کردن|khāmush kardan
+everything|همه چیز|hame chiz
+someone|کسی|kasi
+nobody|هیچ کس|hich kas
+other|دیگر/دیگه|digar
+more|بیشتر|bishtar
+less|کمتر|kamtar
+best|بهترین|behtarin
+already; previously|قبلاً|qablan
+every|هر|har
+every day|هر روز|har ruz
+often|اغلب|aghlab
+pharmacy|داروخانه|dārukhāne
+bakery|نانوایی|nānvāyi
+supermarket|سوپرمارکت/فروشگاه|supermārket
+library|کتابخانه|ketābkhāne
+museum|موزه|muze
+cinema|سینما|sinamā
+post office|اداره پست/پست|edāre-ye post
+police|پلیس|polis
+square (in a city)|میدان/میدون|meydān
+bridge|پل|pol
+alley; lane|کوچه|kuche
+building|ساختمان|sākhtemān
+church|کلیسا|kelisā
+weekend|آخر هفته|ākhar-e hafte
+noon|ظهر|zohr
+midnight|نیمه شب|nime-shab
+second (time)|ثانیه|sāniye
+date (calendar)|تاریخ|tārikh
+day after tomorrow|پس فردا|pas-fardā
+day before yesterday|پریروز|pariruz
+tonight|امشب|emshab
+this year|امسال|emsāl
+last year|پارسال|pārsāl
+#A2
+trip; travel|سفر|safar
+ticket|بلیت/بلیط|belit
+train|قطار|qatār
+bus|اتوبوس|otobus
+airplane|هواپیما|havāpeymā
+taxi|تاکسی|tāksi
+road; way|راه|rāh
+map|نقشه|naqshe
+passport|گذرنامه/پاسپورت|gozarnāme
+suitcase|چمدان|chamedān
+left|چپ|chap
+right (direction)|راست|rāst
+straight ahead|مستقیم|mostaqim
+north|شمال|shomāl
+south|جنوب|jonub
+east|شرق|sharq
+west|غرب|gharb
+village|روستا/ده|rustā
+river|رود/رودخانه|rud
+desert|بیابان/کویر|biyābān / kavir
+garden|باغ|bāgh
+sky|آسمان|āsemān
+star|ستاره|setāre
+wind|باد|bād
+season|فصل|fasl
+spring|بهار|bahār
+summer|تابستان|tābestān
+autumn|پاییز|pāyiz
+winter|زمستان|zemestān
+doctor|دکتر/پزشک|doktor / pezeshk
+teacher|معلم|mo'allem
+university student|دانشجو|dāneshju
+pupil|دانش آموز|dānesh-āmuz
+engineer|مهندس|mohandes
+worker|کارگر|kārgar
+boss; manager|رئیس/مدیر|ra'is / modir
+colleague|همکار|hamkār
+neighbour|همسایه|hamsāye
+guest|مهمان|mehmān
+party|مهمانی|mehmāni
+wedding|عروسی|arusi
+birthday|تولد|tavallod
+gift|هدیه/کادو|hediye / kādo
+holidays|تعطیلات|ta'tilāt
+film|فیلم|film
+music|موسیقی|musiqi
+song|آهنگ/ترانه|āhang / tarāne
+game|بازی|bāzi
+sport|ورزش|varzesh
+football|فوتبال|futbāl
+newspaper|روزنامه|ruznāme
+letter|نامه|nāme
+picture; photo|عکس|aks
+computer|کامپیوتر/رایانه|kāmpyuter / rāyāne
+price|قیمت|qeymat
+bottle|بطری|botri
+glass (for drinking)|لیوان|livān
+plate|بشقاب|boshqāb
+spoon|قاشق|qāshoq
+fork|چنگال|changāl
+knife|چاقو|chāqu
+oil|روغن|roghan
+butter|کره|kare
+honey|عسل|asal
+walnut|گردو|gerdu
+pistachio|پسته|peste
+date (fruit)|خرما|khormā
+saffron|زعفران|za'farān
+kebab|کباب|kabāb
+stew|خورش/خورشت|khoresh
+pastry; sweets|شیرینی|shirini
+sweet|شیرین|shirin
+sour|ترش|torsh
+salty|شور|shur
+bitter|تلخ|talkh
+delicious|خوشمزه|khoshmaze
+full (after eating)|سیر|sir
+empty|خالی|khāli
+full|پر|por
+heavy|سنگین|sangin
+light (weight)|سبک|sabok
+strong|قوی|qavi
+weak|ضعیف|za'if
+rich|پولدار/ثروتمند|puldār / servatmand
+poor|فقیر|faqir
+crowded; busy|شلوغ|sholugh
+quiet|ساکت|sāket
+angry|عصبانی|asabāni
+kind|مهربان/مهربون|mehrabān
+lazy|تنبل|tanbal
+clever|باهوش|bāhush
+funny|بامزه/خنده دار|bāmaze
+famous|معروف/مشهور|ma'ruf / mashhur
+important|مهم|mohem
+different|متفاوت|motafāvet
+same|همان/همون|hamān
+correct; right|درست|dorost
+wrong|غلط/اشتباه|ghalat / eshtebāh
+possible|ممکن|momken
+free (of charge)|مجانی/رایگان|majjāni / rāygān
+free (unoccupied)|آزاد|āzād
+open|باز|bāz
+closed|بسته|baste
+first|اول|avval
+last|آخر/آخرین|ākhar
+next|بعدی|ba'di
+before|قبل/پیش|qabl / pish
+after|بعد|ba'd
+early|زود|zud
+late|دیر|dir
+soon|به زودی|be zudi
+still; yet|هنوز|hanuz
+maybe|شاید|shāyad
+together|با هم|bā ham
+alone|تنها|tanhā
+enough|کافی/بس|kāfi / bas
+really|واقعاً|vāqe'an
+because|چون/زیرا|chon / zirā
+if|اگر/اگه|agar
+so; then|پس|pas
+until|تا|tā
+between|بین|beyn
+next to|کنار|kenār
+in front of|جلوی|jelo-ye
+behind|پشت|posht
+inside|داخل|dākhel
+outside|بیرون|birun
+up; above|بالا|bālā
+down; below|پایین|pāyin
+to travel|سفر کردن|safar kardan
+to rent|اجاره کردن|ejāre kardan
+to change|عوض کردن/تغییر دادن|avaz kardan
+to choose|انتخاب کردن|entekhāb kardan
+to forget|فراموش کردن|farāmush kardan
+to remember|به یاد آوردن/یادآوری کردن|be yād āvardan
+to try|سعی کردن|sa'y kardan
+to use|استفاده کردن|estefāde kardan
+to fall|افتادن|oftādan
+to throw|انداختن|andākhtan
+to pull; to draw|کشیدن|keshidan
+to lose|گم کردن|gom kardan
+to win|بردن|bordan
+to meet|ملاقات کردن|molāqāt kardan
+to marry|ازدواج کردن|ezdevāj kardan
+to dance|رقصیدن|raqsidan
+to sing|آواز خواندن|āvāz khāndan
+to swim|شنا کردن|shenā kardan
+to drive|رانندگی کردن|rānandegi kardan
+to fly|پرواز کردن|parvāz kardan
+to return|برگشتن|bargashtan
+to enter|وارد شدن|vāred shodan
+to get up|بلند شدن|boland shodan
+to wake up|بیدار شدن|bidār shodan
+to wear|پوشیدن|pushidan
+to rest|استراحت کردن|esterāhat kardan
+to hurt; to ache|درد کردن|dard kardan
+to believe|باور کردن|bāvar kardan
+to explain|توضیح دادن|towzih dādan
+to repeat|تکرار کردن|tekrār kardan
+to teach|یاد دادن/درس دادن|yād dādan
+to study|درس خواندن|dars khāndan
+to cut|بریدن|boridan
+to build|ساختن|sākhtan
+to break|شکستن|shekastan
+to burn|سوختن|sukhtan
+to hit|زدن|zadan
+to be afraid|ترسیدن|tarsidan
+to decide|تصمیم گرفتن|tasmim gereftan
+to spend (time)|گذراندن|gozarāndan
+to invite|دعوت کردن|da'vat kardan
+to thank|تشکر کردن|tashakkor kardan
+to get tired|خسته شدن|khaste shodan
+to take a photo|عکس گرفتن|aks gereftan
+to be born|به دنیا آمدن|be donyā āmadan
+driver|راننده|rānande
+cook; chef|آشپز|āshpaz
+nurse|پرستار|parastār
+lawyer|وکیل|vakil
+farmer|کشاورز|keshāvarz
+shopkeeper|مغازه دار|maghāzedār
+baker|نانوا|nānvā
+tailor|خیاط|khayyāt
+soldier|سرباز|sarbāz
+artist|هنرمند|honarmand
+singer|خواننده|khānande
+actor|بازیگر|bāzigar
+journalist|خبرنگار/روزنامه نگار|khabarnegār
+employee|کارمند|kārmand
+pilot|خلبان|khalabān
+dentist|دندانپزشک/دندون پزشک|dandānpezeshk
+hairdresser|آرایشگر|ārāyeshgar
+waiter|پیشخدمت/گارسون|pishkhedmat
+merchant|تاجر/بازرگان|tājer
+headache|سردرد|sardard
+fever|تب|tab
+a cold (illness)|سرماخوردگی|sarmākhordegi
+cough|سرفه|sorfe
+pill|قرص|qors
+injection|آمپول|āmpul
+appointment; turn|نوبت/وقت|nowbat
+wound|زخم|zakhm
+accident|تصادف|tasādof
+emergency|اورژانس|urzhāns
+ambulance|آمبولانس|āmbulāns
+patient (noun)|بیمار|bimār
+to catch a cold|سرما خوردن|sarmā khordan
+to cough|سرفه کردن|sorfe kardan
+shopping|خرید|kharid
+customer|مشتری|moshtari
+seller|فروشنده|forushande
+discount|تخفیف|takhfif
+cash|نقد/پول نقد|naqd
+bank card|کارت/کارت بانکی|kārt
+size|اندازه/سایز|andāze
+small change (money)|پول خرد/پول خورد|pul-e khord
+coin|سکه|sekke
+toman|تومان/تومن|tomān
+visa|ویزا/روادید|vizā
+border|مرز|marz
+tourist|گردشگر/توریست|gardeshgar
+guide|راهنما|rāhnamā
+reservation|رزرو|rezerv
+arrival|ورود|vorud
+flight|پرواز|parvāz
+metro|مترو|metro
+bicycle|دوچرخه|docharkhe
+motorbike|موتور/موتورسیکلت|motor
+ship|کشتی|keshti
+boat|قایق|qāyeq
+traffic|ترافیک|terāfik
+crossroads|چهارراه|chahārrāh
+corner|گوشه|gushe
+address|آدرس/نشانی|ādres / neshāni
+distance|فاصله|fāsele
+kilometre|کیلومتر|kilometr
+bored|بی حوصله|bi-howsele
+excited|هیجان زده|hayajān-zade
+surprised|متعجب/تعجب کرده|mota'ajjeb
+jealous|حسود|hasud
+shy|خجالتی|khejālati
+brave|شجاع|shojā'
+friendly; close|صمیمی|samimi
+rude|بی ادب|bi-adab
+hardworking|زحمتکش/سخت کوش|zahmatkesh
+talkative|پرحرف|porharf
+patient (adjective)|صبور|sabur
+lucky|خوش شانس|khosh-shāns
+unlucky|بدشانس|bad-shāns
+dish; container|ظرف|zarf
+to wash the dishes|ظرف شستن|zarf shostan
+to iron|اتو کردن|otu kardan
+to sweep; to vacuum|جارو کردن|jāru kardan
+to tidy up|مرتب کردن|morattab kardan
+rent|اجاره|ejāre
+landlord|صاحبخانه/صاحبخونه|sāhebkhāne
+electricity|برق|barq
+gas|گاز|gāz
+heater|بخاری|bokhāri
+class|کلاس|kelās
+lesson|درس|dars
+homework|تکلیف/مشق|taklif / mashq
+notebook|دفتر|daftar
+pencil|مداد|medād
+board (classroom)|تخته|takhte
+grade; mark|نمره|nomre
+dictionary|فرهنگ لغت/دیکشنری|farhang-e loghat
+sentence|جمله|jomle
+letter (of alphabet)|حرف|harf
+alphabet|الفبا|alefbā
+mathematics|ریاضی|riyāzi
+geography|جغرافیا|joghrāfiyā
+physics|فیزیک|fizik
+chemistry|شیمی|shimi
+biology|زیست شناسی|zist-shenāsi
+meeting|جلسه|jalase
+interview|مصاحبه|mosāhebe
+unemployed|بیکار|bikār
+leave (from work)|مرخصی|morakhasi
+email|ایمیل|imeyl
+message|پیام|payām
+hobby|سرگرمی|sargarmi
+walk; hike|پیاده روی|piyāde-ravi
+picnic|پیک نیک|piknik
+camera|دوربین|durbin
+painting|نقاشی|naqqāshi
+chess|شطرنج|shatranj
+ball|توپ|tup
+team|تیم|tim
+match; competition|مسابقه|mosābeqe
+player|بازیکن|bāzikon
+mountaineering|کوهنوردی|kuhnavardi
+swimming pool|استخر|estakhr
+concert|کنسرت|konsert
+theatre|تئاتر|te'ātr
+novel|رمان|romān
+relative (family)|فامیل/خویشاوند|fāmil
+aunt (father's sister)|عمه|amme
+aunt (mother's sister)|خاله|khāle
+uncle (father's brother)|عمو|amu
+uncle (mother's brother)|دایی|dāyi
+grandchild|نوه|nave
+bride|عروس|arus
+groom; son-in-law|داماد|dāmād
+twins|دوقلو|doqolu
+parents|پدر و مادر/والدین|pedar o mādar / vāledeyn
+interesting|جالب|jāleb
+boring|خسته کننده|khaste-konande
+strange|عجیب|ajib
+normal; ordinary|عادی/معمولی|ādi / ma'muli
+comfortable|راحت|rāhat
+terrible|وحشتناک|vahshatnāk
+excellent|عالی|āli
+complete; perfect|کامل|kāmel
+whole|کل/تمام|kol / tamām
+real|واقعی|vāqe'i
+fake|تقلبی|taqallobi
+fresh|تازه|tāze
+raw|خام|khām
+cooked|پخته|pokhte
+hot (to the touch)|داغ|dāgh
+spicy|تند|tond
+local|محلی|mahalli
+international|بین المللی|beynolmelali
+special|ویژه/مخصوص|vizhe / makhsus
+similar|شبیه|shabih
+busy (person)|مشغول|mashghul
+recently|اخیراً|akhiran
+later|بعداً|ba'dan
+immediately|فوراً|foran
+definitely|حتماً|hatman
+probably|احتمالاً|ehtemālan
+unfortunately|متاسفانه|mota'assefāne
+fortunately|خوشبختانه|khoshbakhtāne
+once|یک بار/یه بار|yek bār
+twice|دو بار|do bār
+everywhere|همه جا|hame jā
+somewhere|جایی|jāyi
+nowhere|هیچ جا|hich jā
+anyway|به هر حال|be har hāl
+too much|زیادی|ziyādi
+this much; so much|اینقدر/این قدر|inqadr
+to repair|تعمیر کردن|ta'mir kardan
+to fill|پر کردن|por kardan
+to empty|خالی کردن|khāli kardan
+to pass (time)|گذشتن|gozashtan
+to pass (an exam)|قبول شدن|qabul shodan
+to lose (a game)|باختن|bākhtan
+to jump|پریدن|paridan
+to climb; go up|بالا رفتن|bālā raftan
+to go down|پایین رفتن|pāyin raftan
+to turn (direction)|پیچیدن|pichidan
+to park|پارک کردن|pārk kardan
+to cross (a street)|رد شدن|rad shodan
+to book; to reserve|رزرو کردن|rezerv kardan
+to cancel|لغو کردن/کنسل کردن|laghv kardan
+to order (food)|سفارش دادن|sefāresh dādan
+to taste|چشیدن|cheshidan
+to boil|جوشیدن|jushidan
+to fry|سرخ کردن|sorkh kardan
+to mix|مخلوط کردن|makhlut kardan
+to pour; to spill|ریختن|rikhtan
+to share; to divide|تقسیم کردن|taqsim kardan
+to hug|بغل کردن|baghal kardan
+to celebrate|جشن گرفتن|jashn gereftan
+to congratulate|تبریک گفتن|tabrik goftan
+to apologise|عذرخواهی کردن|ozrkhāhi kardan
+to lie (tell lies)|دروغ گفتن|dorugh goftan
+to promise|قول دادن|qowl dādan
+to shout|داد زدن|dād zadan
+to knock (on a door)|در زدن|dar zadan
+to push|هل دادن|hol dādan
+to lift; to pick up|بلند کردن|boland kardan
+to hang|آویزان کردن|āvizān kardan
+to hide|قایم کردن/پنهان کردن|qāyem kardan
+to get lost|گم شدن|gom shodan
+to be late|دیر کردن|dir kardan
+to hurry|عجله کردن|ajale kardan
+to get dressed|لباس پوشیدن|lebās pushidan
+to take off (clothes)|درآوردن/در آوردن|darāvardan
+to brush teeth|مسواک زدن|mesvāk zadan
+to shave|اصلاح کردن|eslāh kardan
+to take a shower|دوش گرفتن|dush gereftan
+to rain|باران آمدن/بارون اومدن|bārān āmadan
+to snow|برف آمدن/برف اومدن|barf āmadan
+to plant|کاشتن|kāshtan
+to pick (fruit)|چیدن|chidan
+to feed|غذا دادن|ghazā dādan
+to grow up|بزرگ شدن|bozorg shodan
+to get old|پیر شدن|pir shodan
+to get divorced|طلاق گرفتن|talāq gereftan
+to move house|اسباب کشی کردن|asbābkeshi kardan
+to drop by; to visit|سر زدن|sar zadan
+to note down|یادداشت کردن|yāddāsht kardan
+to print|چاپ کردن|chāp kardan
+to type|تایپ کردن|tāyp kardan
+to sign|امضا کردن|emzā kardan
+to check|بررسی کردن/چک کردن|barresi kardan
+to measure|اندازه گرفتن|andāze gereftan
+to weigh|وزن کردن|vazn kardan
+noise|سر و صدا|sar-o sedā
+voice; sound|صدا|sedā
+smell|بو|bu
+taste; flavour|مزه|maze
+shape|شکل|shekl
+weight|وزن|vazn
+height (of a person)|قد|qad
+celebration; festival|جشن|jashn
+habit|عادت|ādat
+plan; programme|برنامه|barnāme
+fight; quarrel|دعوا|da'vā
+joke|شوخی/جوک|shukhi
+secret|راز|rāz
+invitation|دعوت|da'vat
+list|فهرست/لیست|fehrest
+box|جعبه|ja'be
+basket|سبد|sabad
+rubbish|آشغال/زباله|āshghāl / zobāle
+piece|تکه/تیکه|tekke
+part; section|قسمت/بخش|qesmat / bakhsh
+side|طرف|taraf
+middle|وسط|vasat
+end|پایان/آخر|pāyān
+beginning|شروع/آغاز|shoru' / āghāz
+Nowruz (Persian New Year)|نوروز|nowruz
+kitchen table|میز آشپزخانه|miz-e āshpazkhāne
+pot|قابلمه|qāblame
+pan|ماهیتابه|māhitābe
+kettle|کتری|ketri
+teapot|قوری|quri
+samovar|سماور|samāvar
+oven|فر|fer
+stove|اجاق|ojāq
+blanket|پتو|patu
+pillow|بالش|bālesh
+sheet (bed)|ملافه|malāfe
+curtain|پرده|parde
+drawer|کشو|kesho
+shelf|قفسه|qafase
+tap; faucet|شیر آب|shir-e āb
+bathtub|وان|vān
+toothbrush|مسواک|mesvāk
+toothpaste|خمیردندان|khamir-dandān
+shampoo|شامپو|shāmpo
+comb|شانه|shāne-ye mu
+scissors|قیچی|qeychi
+needle|سوزن|suzan
+thread|نخ|nakh
+button|دکمه|dokme
+pocket|جیب|jib
+belt|کمربند|kamarband
+boots|چکمه|chakme
+slippers|دمپایی|dampāyi
+gloves|دستکش|dastkesh
+umbrella|چتر|chatr
+wallet|کیف پول|kif-e pul
+jewellery|جواهرات/طلا|javāherāt
+gold|طلا|talā
+silver|نقره|noqre
+iron (metal)|آهن|āhan
+wood|چوب|chub
+glass (material)|شیشه|shishe
+plastic|پلاستیک|plāstik
+cotton|پنبه|panbe
+wool|پشم|pashm
+leather|چرم|charm
+rope|طناب|tanāb
+nail (metal)|میخ|mikh
+hammer|چکش|chakosh
+ladder|نردبان|nardebān
+bucket|سطل|satl
+candle|شمع|sham'
+battery|باتری|bātri
+charger|شارژر|shārzher
+screen|صفحه نمایش/صفحه|safhe
+keyboard|صفحه کلید/کیبورد|kibord
+password|رمز/رمز عبور|ramz
+website|سایت/وبسایت|sāyt
+video|ویدیو/فیلم|vide'o
+news programme|اخبار|akhbār
+channel|کانال/شبکه|kānāl
+radio|رادیو|rādiyo
+advertisement|آگهی/تبلیغ|āgahi
+magazine|مجله|majalle
+page|صفحه|safhe
+story book|کتاب داستان|ketāb-e dāstān
+language school|آموزشگاه زبان|āmuzeshgāh-e zabān
+teacher (university)|استاد|ostād
+professor|استاد/پروفسور|ostād
+headmaster|مدیر مدرسه|modir-e madrese
+classmate|همکلاسی|hamkelāsi
+break (rest)|استراحت/زنگ تفریح|zang-e tafrih
+course|دوره|dowre
+kindergarten|مهدکودک|mahd-e kudak
+baby bottle|شیشه شیر|shishe-ye shir
+nappy; diaper|پوشک|pushak
+toy|اسباب بازی|asbāb-bāzi
+pram|کالسکه|kāleske
+cradle|گهواره|gahvāre
+milk (breast)|شیر مادر|shir-e mādar
+to breastfeed|شیر دادن|shir dādan
+to crawl|چهاردست و پا رفتن|chahār dast-o pā raftan
+to put to sleep|خواباندن|khābāndan
+lullaby|لالایی|lālāyi
+to teethe|دندان درآوردن|dandān darāvardan
+nephew; niece (brother's child)|برادرزاده|barādarzāde
+nephew; niece (sister's child)|خواهرزاده|khāharzāde
+cousin (father's brother's child)|پسرعمو/دخترعمو|pesar-amu
+sister-in-law (wife's sister)|خواهرزن|khāharzan
+brother-in-law (wife's brother)|برادرزن|barādarzan
+mother-in-law (wife's mother)|مادرزن/مادرخانم|mādarzan
+fiancé; fiancée|نامزد|nāmzad
+engagement|نامزدی|nāmzadi
+couple|زوج|zowj
+widow|بیوه|bive
+orphan|یتیم|yatim
+guest room|اتاق مهمان|otāq-e mehmān
+courtyard|حیاط|hayāt
+pool (garden)|حوض|howz
+fountain|فواره|favvāre
+tile|کاشی|kāshi
+brick|آجر|ājor
+dome|گنبد|gonbad
+palace|کاخ|kākh
+castle|قلعه|qal'e
+tomb; shrine|آرامگاه/مقبره|ārāmgāh
+ruins|خرابه ها/ویرانه|virāne
+cave|غار|ghār
+valley|دره|darre
+hill|تپه|tappe
+field; plain|دشت|dasht
+waterfall|آبشار|ābshār
+spring (of water)|چشمه|cheshme
+beach|ساحل|sāhel-e daryā
+wave|موج|mowj
+storm|طوفان|tufān
+thunder|رعد|ra'd
+lightning|برق/صاعقه|sā'eqe
+fog|مه|meh
+rainbow|رنگین کمان|rangin-kamān
+heat|گرما|garmā
+cold (noun)|سرما|sarmā
+temperature|دما/درجه حرارت|damā
+degree|درجه|daraje
+shadow; shade|سایه|sāye
+dust|گرد و خاک/خاک|khāk
+soil|خاک|khāk
+grass|چمن/علف|chaman
+leaf|برگ|barg
+root|ریشه|rishe
+seed|دانه/تخم|dāne
+rose|گل رز/گل سرخ|gol-e sorkh
+tulip|لاله|lāle
+jasmine|یاس|yās
+pine tree|کاج|kāj
+cypress|سرو|sarv
+wolf|گرگ|gorg
+bear|خرس|khers
+fox|روباه|rubāh
+rabbit|خرگوش|khargush
+snake|مار|mār
+frog|قورباغه|qurbāghe
+duck|اردک|ordak
+pigeon|کبوتر|kabutar
+nightingale|بلبل|bolbol
+eagle|عقاب|oqāb
+bee|زنبور|zanbur
+ant|مورچه|murche
+butterfly|پروانه|parvāne
+mosquito|پشه|pashe
+spider|عنکبوت|ankabut
+fish (pet)|ماهی قرمز|māhi-ye qermez
+tail|دم|dom
+wing|بال|bāl
+feather|پر|par
+egg (bird)|تخم|tokhm
+nest|لانه|lāne
+zoo|باغ وحش|bāgh-e vahsh
+bread (flat, lavash)|نان لواش|nān-e lavāsh
+barbari bread|نان بربری|nān-e barbari
+flour|آرد|ārd
+dough|خمیر|khamir
+cinnamon|دارچین|dārchin
+turmeric|زردچوبه|zardchube
+cardamom|هل|hel
+rosewater|گلاب|golāb
+mint|نعناع|na'nā'
+parsley|جعفری|ja'fari
+dill|شوید|shevid
+eggplant|بادمجان|bādemjān
+spinach|اسفناج|esfenāj
+pumpkin|کدو حلوایی|kadu halvāyi
+courgette|کدو|kadu
+mushroom|قارچ|qārch
+fig|انجیر|anjir
+apricot|زردآلو|zardālu
+plum|آلو|ālu
+pear|گلابی|golābi
+quince|به|beh
+almond|بادام|bādām
+raisin|کشمش|keshmesh
+sour cherry|آلبالو|ālbālu
+barberry|زرشک|zereshk
+dried lime|لیمو عمانی|limu omāni
+kebab (minced)|کباب کوبیده/کوبیده|kubide
+rice with saffron|چلو|chelow
+mixed rice dish|پلو|polow
+crispy rice|ته دیگ|tahdig
+herb stew|قورمه سبزی|qorme-sabzi
+pomegranate walnut stew|فسنجان/فسنجون|fesenjān
+yogurt drink|دوغ|dugh
+sweet saffron pudding|شله زرد|sholezard
+halva|حلوا|halvā
+thick soup|آش|āsh
+omelette|املت|omlet
+hot chocolate|شیر کاکائو|shir-kākā'o
+cup|فنجان|fenjān
+tray|سینی|sini
+tablecloth (floor)|سفره|sofre
+napkin|دستمال|dastmāl
+breakfast table|میز صبحانه|miz-e sobhāne
+waiter's tip|انعام|en'ām
+menu|منو/صورت غذا|meno
+dish of the day|غذای روز|ghazā-ye ruz
+takeaway|بیرون بر|birunbar
+queue; line|صف|saf
+lift; elevator|آسانسور|āsānsor
+floor (storey)|طبقه|tabaqe
+entrance|ورودی|vorudi
+exit|خروجی|khoruji
+sign (notice)|تابلو|tāblo
+ticket office|باجه بلیت/گیشه|gishe
+lost and found|اشیای گمشده|ashyā-ye gomshode
+parking|پارکینگ|pārking
+petrol station|پمپ بنزین|pomp-e benzin
+petrol|بنزین|benzin
+tyre|لاستیک|lāstik
+seat belt|کمربند ایمنی|kamarband-e imeni
+fine (penalty)|جریمه|jarime
+speed|سرعت|sor'at
+licence|گواهینامه|govāhināme
+#B1
+society|جامعه|jāme'e
+culture|فرهنگ|farhang
+history|تاریخ|tārikh
+government|دولت|dowlat
+law|قانون|qānun
+right (entitlement)|حق|haqq
+problem|مشکل|moshkel
+solution|راه حل|rāh-e hal
+reason|دلیل|dalil
+result|نتیجه|natije
+experience|تجربه|tajrobe
+opinion|نظر|nazar
+idea|ایده/فکر|ide / fekr
+goal|هدف|hadaf
+future|آینده|āyande
+past|گذشته|gozashte
+health|سلامتی|salāmati
+illness|بیماری|bimāri
+medicine|دارو|dāru
+pain|درد|dard
+environment|محیط زیست|mohit-e zist
+nature|طبیعت|tabi'at
+pollution|آلودگی|āludegi
+industry|صنعت|san'at
+company|شرکت|sherkat
+factory|کارخانه|kārkhāne
+salary|حقوق|hoquq
+tax|مالیات|māliyāt
+economy|اقتصاد|eqtesād
+news|خبر/اخبار|khabar / akhbār
+information|اطلاعات|ettelā'āt
+science|علم|elm
+research|تحقیق/پژوهش|tahqiq / pazhuhesh
+education|آموزش/تحصیل|āmuzesh / tahsil
+exam|امتحان|emtehān
+knowledge|دانش|dānesh
+skill|مهارت|mahārat
+memory (recollection)|خاطره|khātere
+dream|رؤیا/خواب|ro'yā / khāb
+feeling|احساس|ehsās
+love|عشق|eshq
+fear|ترس|tars
+hope|امید|omid
+peace|صلح|solh
+war|جنگ|jang
+freedom|آزادی|āzādi
+religion|دین/مذهب|din / mazhab
+art|هنر|honar
+poetry; poem|شعر|she'r
+poet|شاعر|shā'er
+writer|نویسنده|nevisande
+story|داستان/قصه|dāstān / qesse
+meaning|معنی/معنا|ma'ni
+example|مثال|mesāl
+difference|تفاوت/فرق|tafāvot / farq
+change|تغییر|taghyir
+progress|پیشرفت|pishraft
+relationship|رابطه|rābete
+marriage|ازدواج|ezdevāj
+generation|نسل|nasl
+population|جمعیت|jam'iyat
+age|سن|sen
+death|مرگ|marg
+life|زندگی|zendegi
+world|دنیا/جهان|donyā / jahān
+earth; ground|زمین|zamin
+energy|انرژی|enerzhi
+technology|فناوری/تکنولوژی|fanāvari
+responsibility|مسئولیت|mas'uliyat
+decision|تصمیم|tasmim
+choice|انتخاب|entekhāb
+luck; chance|شانس|shāns
+danger|خطر|khatar
+safe|امن|amn
+dangerous|خطرناک|khatarnāk
+necessary|لازم/ضروری|lāzem / zaruri
+natural|طبیعی|tabi'i
+serious|جدی|jeddi
+simple|ساده|sāde
+complicated|پیچیده|pichide
+sure; certain|مطمئن|motma'en
+public|عمومی|omumi
+private|خصوصی|khosusi
+foreign|خارجی|khāreji
+national|ملی|melli
+traditional|سنتی|sonnati
+successful|موفق|movaffaq
+honest|صادق|sādeq
+polite|مودب|mo'addab
+careful|مواظب/مراقب|movāzeb / morāqeb
+worried|نگران|negarān
+calm|آرام|ārām
+usually|معمولاً|ma'mulan
+especially|مخصوصاً/به خصوص|makhsusan
+finally|بالاخره/سرانجام|bel-akhare
+suddenly|ناگهان/یکدفعه|nāgahān
+almost|تقریباً|taqriban
+exactly|دقیقاً|daqiqan
+although|اگرچه/با اینکه|agarche / bā inke
+while|در حالی که|dar hāli ke
+instead of|به جای|be jā-ye
+according to|طبق/بر اساس|tebq-e
+about (a topic)|درباره|darbāre-ye
+during|در طول/طی|dar tul-e
+to discuss|بحث کردن|bahs kardan
+to compare|مقایسه کردن|moqāyese kardan
+to prepare|آماده کردن|āmāde kardan
+to protect|محافظت کردن|mohāfezat kardan
+to improve|بهتر کردن/بهبود دادن|behtar kardan
+to increase|افزایش دادن/زیاد کردن|afzāyesh dādan
+to decrease|کاهش دادن/کم کردن|kāhesh dādan
+to avoid|اجتناب کردن/پرهیز کردن|ejtenāb kardan
+to accept|قبول کردن/پذیرفتن|qabul kardan
+to reject|رد کردن|rad kardan
+to agree|موافقت کردن/موافق بودن|movāfeqat kardan
+to complain|شکایت کردن|shekāyat kardan
+to succeed|موفق شدن|movaffaq shodan
+to borrow|قرض گرفتن|qarz gereftan
+to lend|قرض دادن|qarz dādan
+to save (money)|پس انداز کردن|pasandāz kardan
+to spend (money)|خرج کردن|kharj kardan
+to describe|توصیف کردن|towsif kardan
+to solve|حل کردن|hal kardan
+to guess|حدس زدن|hads zadan
+to notice|متوجه شدن|motavajjeh shodan
+to depend|بستگی داشتن|bastegi dāshtan
+to happen|اتفاق افتادن|ettefāq oftādan
+to seem|به نظر رسیدن|be nazar residan
+to feel|احساس کردن|ehsās kardan
+advice|نصیحت/توصیه|nasihat / towsiye
+agreement (consent)|موافقت|movāfeqat
+aim; purpose|منظور/قصد|manzur / qasd
+ancestor|نیاکان/اجداد|niyākān
+anger|عصبانیت/خشم|asabāniyat / khashm
+announcement|اعلامیه/اطلاعیه|ettelā'iye
+application (form)|درخواست|darkhāst
+area; region|منطقه|mantaqe
+army|ارتش|artesh
+article|مقاله|maqāle
+atmosphere|فضا/جو|fazā / javv
+audience|تماشاگران/مخاطب|mokhātab
+author|نویسنده/مولف|mo'allef
+average (adj.)|متوسط|motavasset
+background|پیشینه/سابقه|sābeqe
+behaviour|رفتار|raftār
+bill; invoice|قبض/صورتحساب|qabz
+blame|تقصیر|taqsir
+branch|شاخه/شعبه|shākhe / sho'be
+budget|بودجه|budje
+career|شغل/حرفه|shoghl / herfe
+cause|علت|ellat
+century|قرن|qarn
+certificate|گواهی/مدرک|govāhi / madrak
+character; personality|شخصیت|shakhsiyat
+charity|خیریه|kheyriye
+childhood|کودکی/بچگی|kudaki / bachegi
+climate|آب و هوا/اقلیم|āb-o havā
+coast|ساحل|sāhel
+comfort|راحتی|rāhati
+community|جامعه/اجتماع|ejtemā'
+condition|شرط/شرایط|shart / sharāyet
+conversation|گفتگو/مکالمه|goftogu
+court|دادگاه|dādgāh
+crime|جرم/جنایت|jorm / jenāyat
+criminal|مجرم/جنایتکار|mojrem
+custom|رسم|rasm
+customs (at a border)|گمرک|gomrok
+damage|خسارت/آسیب|khesārat / āsib
+debt|بدهی/قرض|bedehi
+degree (university)|مدرک تحصیلی/مدرک|madrak
+department|بخش/اداره|bakhsh
+detail|جزئیات|joz'iyāt
+diet|رژیم|rezhim
+direction|جهت/سمت|jahat / samt
+disease|بیماری|bimāri
+duty|وظیفه|vazife
+earthquake|زلزله|zelzele
+effort|تلاش|talāsh
+emotion|عاطفه/احساس|ātefe
+employer|کارفرما|kārfarmā
+enemy|دشمن|doshman
+event|رویداد/اتفاق|ruydād / ettefāq
+expense; cost|هزینه/خرج|hazine / kharj
+expert|کارشناس/متخصص|kārshenās / motakhasses
+fact|واقعیت|vāqe'iyat
+fashion|مد|mod
+fault; defect|عیب/ایراد|eyb / irād
+field (of study)|رشته|reshte
+field (land)|مزرعه|mazra'e
+flood|سیل|seyl
+generosity|سخاوت|sakhāvat
+government office|اداره|edāre
+guest house|مهمانخانه/مسافرخانه|mosāferkhāne
+guilt|گناه/تقصیر|gonāh
+habitat; environment|محیط|mohit
+harm|ضرر/آسیب|zarar
+heritage|میراث|mirās
+hero|قهرمان|qahramān
+holiday (public)|تعطیلی/روز تعطیل|ta'tili
+honour|افتخار|eftekhār
+humour|شوخ طبعی|shukh-tab'i
+income|درآمد|darāmad
+influence (noun)|نفوذ|nofuz
+injury|جراحت/آسیب|jerāhat
+insurance|بیمه|bime
+interest (hobby)|علاقه|alāqe
+interest (on money)|سود/بهره|sud / bahre
+invention|اختراع|ekhterā'
+item|مورد/قلم|mowred
+journey|سفر/مسافرت|mosāferat
+judge|قاضی|qāzi
+kingdom|پادشاهی|pādeshāhi
+king|پادشاه/شاه|pādeshāh / shāh
+queen|ملکه|maleke
+level|سطح|sath
+lie (untruth)|دروغ|dorugh
+limit|حد/محدودیت|hadd
+loan|وام|vām
+loss|ضرر/زیان|zarar / ziyān
+manners|ادب|adab
+material|ماده/جنس|jens
+media|رسانه|resāne
+member|عضو|ozv
+mind|ذهن/فکر|zehn
+mistake (noun)|اشتباه|eshtebāh
+mood|حال/حالت|hāl
+nation|ملت|mellat
+need (noun)|نیاز|niyāz
+neighbourhood|محله|mahalle
+noise pollution|آلودگی صوتی|āludegi-ye sowti
+object|شیء/چیز|shey'
+occasion|مناسبت|monāsebat
+officer; agent|مامور|ma'mur
+organisation|سازمان|sāzmān
+owner|صاحب/مالک|sāheb / mālek
+passenger|مسافر|mosāfer
+payment|پرداخت|pardākht
+permission|اجازه|ejāze
+plan (intention)|قصد/برنامه|qasd
+pleasure|لذت|lezzat
+point (in a discussion)|نکته|nokte
+president|رئیس جمهور|ra'is-jomhur
+pressure|فشار|feshār
+prize|جایزه|jāyeze
+product|محصول|mahsul
+profession|حرفه|herfe
+profit|سود|sud
+project|پروژه|prozhe
+proof|مدرک/اثبات|esbāt
+property|دارایی/ملک|dārāyi / melk
+province|استان|ostān
+punishment|مجازات/تنبیه|mojāzāt / tanbih
+purpose; goal|هدف|hadaf
+quarrel|بحث/دعوا|bahs
+quantity|مقدار|meqdār
+rate|نرخ|nerkh
+receipt|رسید|resid
+recipe|دستور پخت|dastur-e pokht
+region|ناحیه/منطقه|nāhiye
+report|گزارش|gozāresh
+request|درخواست|darkhāst
+revolution|انقلاب|enqelāb
+risk|ریسک/خطر|risk
+rule|قاعده/قانون|qā'ede
+safety|ایمنی/امنیت|imeni
+sale|فروش|forush
+schedule|برنامه زمانی|barnāme-ye zamāni
+scientist|دانشمند|dāneshmand
+shortage|کمبود|kambud
+signature|امضا|emzā
+silence|سکوت|sokut
+situation|وضعیت/موقعیت|vaz'iyat / mowqe'iyat
+source (of information)|منبع|manba'
+speech|سخنرانی|sokhanrāni
+staff|کارکنان|kārkonān
+state; condition|حالت|hālat
+statue|مجسمه|mojassame
+stranger|غریبه|gharibe
+strength|قدرت/نیرو|qodrat / niru
+subject; topic|موضوع|mowzu'
+success|موفقیت|movaffaqiyat
+suggestion|پیشنهاد|pishnahād
+surprise|تعجب/غافلگیری|ta'ajjob
+system|سیستم/نظام|sistem / nezām
+talent|استعداد|este'dād
+thief|دزد|dozd
+thought|فکر/اندیشه|fekr / andishe
+tip (advice)|نکته/راهنمایی|nokte
+tool|ابزار/وسیله|abzār
+tourism|گردشگری|gardeshgari
+trade|تجارت|tejārat
+training|آموزش/تمرین|tamrin
+transport|حمل و نقل|haml-o naql
+trouble|دردسر|dardesar
+truth|حقیقت/راستی|haqiqat
+victory|پیروزی|piruzi
+view (scenery)|منظره|manzare
+violence|خشونت|khoshunat
+visitor|بازدیدکننده|bāzdid-konande
+volunteer|داوطلب|dāvtalab
+waste|اسراف/هدر|esrāf
+wisdom|حکمت/خرد|kherad
+witness|شاهد|shāhed
+youth|جوانی|javāni
+absent|غایب|ghāyeb
+present (here)|حاضر|hāzer
+accurate|دقیق|daqiq
+active|فعال|fa''āl
+annoying|آزاردهنده/اعصاب خردکن|āzār-dahande
+anxious|مضطرب/نگران|moztareb
+available|موجود/در دسترس|mowjud
+aware|آگاه|āgāh
+basic|پایه/اساسی|asāsi
+blind|نابینا/کور|nābinā / kur
+deaf|ناشنوا|nāshenavā
+broken|شکسته/خراب|shekaste / kharāb
+capable|توانا/قادر|tavānā / qāder
+cheerful|شاد|shād
+common|رایج/معمول|rāyej
+confident|مطمئن/با اعتماد به نفس|motma'en
+confused|گیج|gij
+cruel|بی رحم/ظالم|birahm
+curious|کنجکاو|konjkāv
+current|فعلی/کنونی|fe'li
+disappointed|ناامید|nā-omid
+educated|تحصیلکرده|tahsil-karde
+embarrassed|خجالت زده|khejālat-zade
+equal|برابر/مساوی|barābar
+exact|دقیق|daqiq
+extra|اضافی|ezāfi
+familiar|آشنا|āshenā
+fair (just)|منصفانه/عادلانه|monsefāne
+false|غلط/نادرست|nādorost
+fashionable|شیک/مد روز|shik
+flexible|انعطاف پذیر|en'etāf-pazir
+former|سابق|sābeq
+generous|سخاوتمند/دست و دل باز|sakhāvatmand
+grateful|سپاسگزار/ممنون|sepāsgozār
+guilty|مقصر/گناهکار|moqasser
+harmful|مضر|mozerr
+helpful|مفید|mofid
+homesick|دلتنگ|deltang
+huge|عظیم/خیلی بزرگ|azim
+ideal|ایده آل|ide'āl
+illegal|غیرقانونی|gheyr-e qānuni
+legal|قانونی|qānuni
+impossible|غیرممکن|gheyr-e momken
+innocent|بی گناه|bigonāh
+likely|محتمل|mohtamel
+loud|بلند|boland
+lonely|تنها|tanhā
+loyal|وفادار|vafādār
+main|اصلی|asli
+mature|بالغ/پخته|bāleq
+mental|ذهنی/روانی|zehni / ravāni
+physical|جسمی/فیزیکی|jesmi
+narrow-minded|کوته فکر|kutah-fekr
+official|رسمی|rasmi
+ordinary|معمولی|ma'muli
+original|اصلی/اصیل|asil
+own|خود/مال خود|khod
+peaceful|آرام/صلح آمیز|solh-āmiz
+personal|شخصی|shakhsi
+pleasant|دلپذیر/خوشایند|delpazir
+popular|محبوب|mahbub
+positive|مثبت|mosbat
+negative|منفی|manfi
+practical|عملی/کاربردی|amali
+previous|قبلی|qabli
+proud|مغرور/سربلند|sarboland
+pure|خالص/پاک|khāles
+rare|کمیاب/نادر|kamyāb
+reasonable|منطقی/معقول|manteqi
+religious|مذهبی|mazhabi
+responsible|مسئول|mas'ul
+romantic|عاشقانه/رمانتیک|āsheqāne
+rough|زبر|zebr
+rural|روستایی|rustāyi
+urban|شهری|shahri
+selfish|خودخواه|khodkhāh
+severe|شدید|shadid
+silly|احمقانه/مسخره|ahmaqāne
+smooth|صاف|sāf
+social|اجتماعی|ejtemā'i
+spare|یدکی/اضافه|yadaki
+strict|سختگیر|sakhtgir
+stupid|احمق|ahmaq
+sudden|ناگهانی|nāgahāni
+suitable|مناسب|monāseb
+thick|کلفت/ضخیم|koloft
+tidy|مرتب|morattab
+typical|معمولی/نمونه|nemune
+unfair|ناعادلانه|nā-ādelāne
+unknown|ناشناخته|nāshenākhte
+useful|مفید/به درد بخور|mofid
+useless|بی فایده|bi-fāyede
+valuable|باارزش/ارزشمند|arzeshmand
+various|مختلف/گوناگون|mokhtalef
+wild|وحشی|vahshi
+wise|عاقل/دانا|āqel
+worth (adj.)|ارزش دارد|arzesh dārad
+abroad|خارج/خارج از کشور|khārej
+afterwards|بعد از آن/بعدش|ba'd az ān
+ahead|جلو|jelo
+apparently|ظاهراً|zāheran
+carefully|با دقت|bā deqqat
+completely|کاملاً|kāmelan
+directly|مستقیماً|mostaqiman
+easily|به راحتی|be rāhati
+either … or|یا … یا|yā … yā
+neither … nor|نه … نه|na … na
+even|حتی|hattā
+ever|تا حالا/هرگز|tā hālā
+except|به جز/جز|be joz
+forever|برای همیشه|barāye hamishe
+fully|کاملاً|kāmelan
+hardly|به سختی|be sakhti
+however|اما/ولی|ammā
+in fact|در واقع|dar vāqe'
+in general|به طور کلی|be towr-e kolli
+instead|به جایش/در عوض|dar avaz
+luckily|خوشبختانه|khoshbakhtāne
+meanwhile|در همین حال|dar hamin hāl
+mostly|بیشتر/اکثراً|aksaran
+nearly|تقریباً|taqriban
+obviously|معلوم است/واضح است|vāzeh ast
+otherwise|وگرنه|vagarna
+perhaps|شاید|shāyad
+quite|کاملاً/نسبتاً|nesbatan
+rather|نسبتاً|nesbatan
+seriously|جداً|jeddan
+simply|به سادگی/فقط|be sādegi
+so that|تا/تا اینکه|tā
+surely|مطمئناً|motma'enan
+unless|مگر اینکه|magar inke
+whether|آیا/که آیا|āyā
+to add|اضافه کردن|ezāfe kardan
+to admire|تحسین کردن|tahsin kardan
+to admit|اعتراف کردن|e'terāf kardan
+to affect|تأثیر گذاشتن بر|ta'sir gozāshtan
+to allow|اجازه دادن|ejāze dādan
+to appear|ظاهر شدن|zāher shodan
+to apply (for)|درخواست دادن|darkhāst dādan
+to argue|بحث کردن/دعوا کردن|da'vā kardan
+to arrange|ترتیب دادن|tartib dādan
+to arrest|دستگیر کردن|dastgir kardan
+to attack|حمله کردن|hamle kardan
+to attend|حضور داشتن/شرکت کردن|hozur dāshtan
+to attract|جذب کردن|jazb kardan
+to beat (defeat)|شکست دادن|shekast dādan
+to behave|رفتار کردن|raftār kardan
+to bite|گاز گرفتن|gāz gereftan
+to blame|مقصر دانستن|moqasser dānestan
+to breathe|نفس کشیدن|nafas keshidan
+to bury|دفن کردن|dafn kardan
+to calculate|حساب کردن|hesāb kardan
+to cause|باعث شدن|bā'es shodan
+to charge (battery)|شارژ کردن|shārzh kardan
+to cheat|تقلب کردن|taqallob kardan
+to collect|جمع کردن/جمع آوری کردن|jam' kardan
+to communicate|ارتباط برقرار کردن|ertebāt barqarār kardan
+to compete|رقابت کردن|reqābat kardan
+to confirm|تأیید کردن|ta'yid kardan
+to connect|وصل کردن|vasl kardan
+to consist of|تشکیل شدن از|tashkil shodan az
+to contain|شامل بودن|shāmel budan
+to continue|ادامه دادن|edāme dādan
+to control|کنترل کردن|kontrol kardan
+to convince|قانع کردن|qāne' kardan
+to copy|کپی کردن|kopi kardan
+to cover|پوشاندن|pushāndan
+to create|خلق کردن/ایجاد کردن|ijād kardan
+to deal with|کنار آمدن با|kenār āmadan bā
+to defend|دفاع کردن|defā' kardan
+to deliver|تحویل دادن|tahvil dādan
+to deny|انکار کردن|enkār kardan
+to destroy|نابود کردن/خراب کردن|nābud kardan
+to disappear|ناپدید شدن|nāpadid shodan
+to discover|کشف کردن|kashf kardan
+to divide|تقسیم کردن|taqsim kardan
+to doubt|شک کردن|shakk kardan
+to download|دانلود کردن|dānlod kardan
+to earn|درآمد داشتن/پول درآوردن|pul darāvardan
+to educate|تربیت کردن/آموزش دادن|tarbiyat kardan
+to employ|استخدام کردن|estekhdām kardan
+to enjoy|لذت بردن|lezzat bordan
+to escape|فرار کردن|farār kardan
+to exist|وجود داشتن|vojud dāshtan
+to expect|انتظار داشتن|entezār dāshtan
+to experience|تجربه کردن|tajrobe kardan
+to explore|کاوش کردن/گشتن|kāvosh kardan
+to fail|شکست خوردن|shekast khordan
+to fight|جنگیدن/دعوا کردن|jangidan
+to fit|اندازه بودن|andāze budan
+to follow|دنبال کردن|donbāl kardan
+to forgive|بخشیدن|bakhshidan
+to gain weight|چاق شدن|chāq shodan
+to lose weight|لاغر شدن|lāghar shodan
+to gather|جمع شدن|jam' shodan
+to greet|سلام کردن|salām kardan
+to guarantee|تضمین کردن|tazmin kardan
+to hate|متنفر بودن/بدم آمدن|motanaffer budan
+to imagine|تصور کردن/تخیل کردن|tasavvor kardan
+to include|شامل شدن|shāmel shodan
+to inform|اطلاع دادن|ettelā' dādan
+to insist|اصرار کردن|esrār kardan
+to install|نصب کردن|nasb kardan
+to intend|قصد داشتن|qasd dāshtan
+to introduce|معرفی کردن|mo'arrefi kardan
+to invest|سرمایه گذاری کردن|sarmāye-gozāri kardan
+to join|پیوستن|peyvastan
+to judge|قضاوت کردن|qezāvat kardan
+to keep (a promise)|نگه داشتن/وفا کردن|vafā kardan
+to kick|لگد زدن|lagad zadan
+to knit; to weave|بافتن|bāftan
+to last|طول کشیدن|tul keshidan
+to lead|رهبری کردن/هدایت کردن|hedāyat kardan
+to lock|قفل کردن|qofl kardan
+to mention|اشاره کردن|eshāre kardan
+to miss (someone)|دلتنگ شدن/دلم تنگ شدن|deltang shodan
+to miss (a train)|از دست دادن|az dast dādan
+to obey|اطاعت کردن|etā'at kardan
+to offer|پیشنهاد دادن/تعارف کردن|pishnahād dādan
+to organise|سازماندهی کردن/ترتیب دادن|sāzmāndehi kardan
+to own|مالک بودن/داشتن|mālek budan
+to pack|بستن (چمدان)/جمع کردن|bastan
+to perform|اجرا کردن|ejrā kardan
+to persuade|متقاعد کردن|motaqā'ed kardan
+to pray|دعا کردن/نماز خواندن|do'ā kardan
+to prefer|ترجیح دادن|tarjih dādan
+to pretend|وانمود کردن|vānemud kardan
+to produce|تولید کردن|towlid kardan
+to publish|منتشر کردن|montasher kardan
+to punish|تنبیه کردن|tanbih kardan
+to quit|ترک کردن/ول کردن|tark kardan
+to raise (children)|بزرگ کردن|bozorg kardan
+to recognise|شناختن/تشخیص دادن|tashkhis dādan
+to recommend|توصیه کردن|towsiye kardan
+to reduce|کم کردن/کاهش دادن|kam kardan
+to relax|استراحت کردن/آرام شدن|ārām shodan
+to rely on|تکیه کردن به|tekye kardan be
+to remain|باقی ماندن|bāqi māndan
+to remind|یادآوری کردن|yādāvari kardan
+to replace|جایگزین کردن|jāygozin kardan
+to reply|جواب دادن|javāb dādan
+to report|گزارش دادن|gozāresh dādan
+to respect|احترام گذاشتن|ehterām gozāshtan
+to retire|بازنشسته شدن|bāzneshaste shodan
+to ring (bell)|زنگ زدن|zang zadan
+to rob; to steal|دزدیدن|dozdidan
+to satisfy|راضی کردن|rāzi kardan
+to scream|جیغ زدن|jigh zadan
+to search|جستجو کردن|jostoju kardan
+to serve|خدمت کردن|khedmat kardan
+to shake|تکان دادن|tekān dādan
+to shine|درخشیدن|derakhshidan
+to shoot|شلیک کردن|shelik kardan
+to sink|غرق شدن|gharq shodan
+to smell (have a smell)|بو دادن|bu dādan
+to spread|پخش کردن/پخش شدن|pakhsh kardan
+to store|نگهداری کردن|negahdāri kardan
+to suggest|پیشنهاد کردن|pishnahād kardan
+to supply|تأمین کردن|ta'min kardan
+to surround|احاطه کردن|ehāte kardan
+to survive|زنده ماندن|zende māndan
+to swallow|قورت دادن|qurt dādan
+to switch|عوض کردن|avaz kardan
+to tear|پاره کردن|pāre kardan
+to tie|بستن/گره زدن|gereh zadan
+to touch|لمس کردن/دست زدن|lams kardan
+to translate|ترجمه کردن|tarjome kardan
+to treat (medically)|درمان کردن|darmān kardan
+to trust|اعتماد کردن|e'temād kardan
+to vote|رأی دادن|ra'y dādan
+to warn|هشدار دادن|hoshdār dādan
+to waste|هدر دادن|hadar dādan
+to wonder|تعجب کردن/در فکر بودن|ta'ajjob kardan
+to worry|نگران بودن/نگران شدن|negarān budan
+to wrap|پیچیدن/بسته بندی کردن|bastebandi kardan
+accommodation|محل اقامت/اقامتگاه|mahall-e eqāmat
+adult|بزرگسال|bozorgsāl
+adventure|ماجرا|mājarā
+advertisement campaign|تبلیغات|tablighāt
+alarm|زنگ خطر/آژیر|āzhir
+alarm clock|ساعت زنگ دار|sā'at-e zangdār
+ancient|باستانی/قدیمی|bāstāni
+anniversary|سالگرد|sālgard
+apology|عذرخواهی|ozrkhāhi
+architect|معمار|me'mār
+architecture|معماری|me'māri
+attitude|طرز فکر|tarz-e fekr
+bank account|حساب بانکی|hesāb-e bānki
+battle|نبرد|nabard
+birth|تولد/زایمان|tavallod
+bomb|بمب|bomb
+brain|مغز|maghz
+bone|استخوان|ostokhān
+breath|نفس|nafas
+cancer|سرطان|saratān
+capital (city)|پایتخت|pāytakht
+cemetery|قبرستان|qabrestān
+ceremony|مراسم|marāsem
+champion|قهرمان|qahramān
+chapter|فصل|fasl
+checkout; cashier|صندوق|sanduq
+chest|سینه|sine
+choir|گروه کر|goruh-e kor
+climate change|تغییرات آب و هوایی|taghyirāt-e āb-o havāyi
+clinic|درمانگاه|darmāngāh
+coal|زغال سنگ|zoghāl-sang
+collection|مجموعه|majmu'e
+comedy|کمدی|komedi
+competition entry|شرکت در مسابقه|sherkat dar mosābeqe
+confidence (trust)|اطمینان|etminān
+conference|همایش/کنفرانس|hamāyesh
+consequence (result)|عاقبت|āqebat
+container|ظرف|zarf-e negahdāri
+contest|مسابقه|mosābeqe
+cook book|کتاب آشپزی|ketāb-e āshpazi
+cost of living|هزینه زندگی|hazine-ye zendegi
+counter|پیشخوان|pishkhān
+crowd|جمعیت/شلوغی|jam'iyat
+cure|درمان|darmān
+customer service|خدمات مشتری|khadamāt-e moshtari
+daily life|زندگی روزمره|zendegi-ye ruzmarre
+deadline|مهلت|mohlat
+decade|دهه|dahe
+degree (temperature)|درجه|daraje-ye harārat
+delivery|تحویل|tahvil
+design|طراحی|tarrāhi
+dessert|دسر|deser
+device|دستگاه|dastgāh
+diary|دفتر خاطرات|daftar-e khāterāt
+difficulty|سختی/دشواری|dosh-vāri
+disability|معلولیت|ma'luliyat
+discussion|بحث/گفتگو|bahs
+document|سند/مدرک|sanad
+drawing|نقاشی/طراحی|naqqāshi
+drug (illegal)|مواد مخدر|mavādd-e mokhadder
+education system|نظام آموزشی|nezām-e āmuzeshi
+election campaign|تبلیغات انتخاباتی|tablighāt-e entekhābāti
+emergency exit|خروج اضطراری|khoruj-e ezterāri
+engine|موتور|motor
+entertainment|سرگرمی|sargarmi
+entry|ورود|vorud
+equipment|تجهیزات|tajhizāt
+error|خطا|khatā
+evening meal|شام|shām
+excuse|بهانه|bahāne
+exercise|ورزش/تمرین|tamrin
+expression|اصطلاح/عبارت|estelāh
+facility|امکانات|emkānāt
+fan (supporter)|طرفدار|tarafdār
+fan (device)|پنکه|panke
+fee|هزینه/حق|hazine
+festival|جشنواره|jashnvāre
+fiction|داستان/ادبیات داستانی|adabiyāt-e dāstāni
+figure (number)|رقم|raqam
+flag|پرچم|parcham
+flight attendant|مهماندار|mehmāndār
+flu|آنفولانزا|ānfolānzā
+freezer|فریزر|frizer
+friendship|دوستی|dusti
+fuel|سوخت|sukht
+funeral|تشییع جنازه/مراسم ختم|tashyi'-e jenāze
+furniture|مبلمان/اثاثیه|mobleman
+gift shop|فروشگاه سوغاتی|forushgāh-e sowghāti
+souvenir|سوغاتی|sowghāti
+goods|کالا|kālā
+graduate|فارغ التحصیل|fāregh-ottahsil
+grammar|دستور زبان|dastur-e zabān
+guard|نگهبان|negahbān
+gun|اسلحه/تفنگ|aslahe
+happiness|شادی/خوشبختی|shādi
+headline|تیتر|titr
+height (of a thing)|ارتفاع|ertefā'
+highway|بزرگراه|bozorgrāh
+hint|اشاره/سرنخ|sarnakh
+hole|سوراخ|surākh
+honesty|صداقت|sedāqat
+horror film|فیلم ترسناک|film-e tarsnāk
+housework|کارهای خانه|kārhā-ye khāne
+hunger|گرسنگی|gorosnegi
+instruction|دستورالعمل|dasturol'amal
+intelligence|هوش|hush
+invitation card|کارت دعوت|kārt-e da'vat
+jail; prison|زندان|zendān
+kidney|کلیه|kolliye
+liver|کبد/جگر|jegar
+lung|ریه|riye
+laboratory|آزمایشگاه|āzmāyeshgāh
+landing|فرود|forud
+laptop|لپ تاپ|lap-tāp
+laughter|خنده|khande
+leader|رهبر|rahbar
+lecture|سخنرانی|sokhanrāni
+lifestyle|سبک زندگی|sabk-e zendegi
+luggage|بار/چمدان|bār
+machine|ماشین/دستگاه|dastgāh
+mark (stain)|لکه|lakke
+master's degree|کارشناسی ارشد|kārshenāsi-ye arshad
+bachelor's degree|کارشناسی/لیسانس|kārshenāsi
+doctorate; PhD|دکترا|doktorā
+mayor|شهردار|shahrdār
+meal|وعده غذا|va'de-ye ghazā
+minister|وزیر|vazir
+ministry|وزارت/وزارتخانه|vezārat
+moment|لحظه|lahze
+monument|بنای تاریخی|banā-ye tārikhi
+muscle|عضله|azole
+nationality|ملیت|melliyat
+oil (petroleum)|نفت|naft
+opening hours|ساعات کاری|sā'āt-e kāri
+opinion poll|نظرسنجی|nazarsanji
+opposite (noun)|مخالف/متضاد|motazādd
+order (sequence)|ترتیب|tartib
+order (command)|دستور|dastur
+parcel|بسته|baste-ye posti
+path|مسیر|masir
+pension|حقوق بازنشستگی|hoquq-e bāzneshastegi
+performance (show)|اجرا|ejrā
+period (time)|دوره/دوران|dowrān
+photographer|عکاس|akkās
+pilgrimage|زیارت|ziyārat
+planet|سیاره|sayyāre
+plastic bag|کیسه پلاستیکی|kise-ye plāstiki
+port|بندر|bandar
+prayer|دعا/نماز|namāz
+pregnancy|بارداری|bārdāri
+pregnant|باردار/حامله|bārdār
+prescription|نسخه|noskhe
+price list|لیست قیمت|list-e qeymat
+programme (TV)|برنامه تلویزیونی|barnāme
+proverb|ضرب المثل|zarbolmasal
+public transport|حمل و نقل عمومی|haml-o naql-e omumi
+race (competition)|مسابقه دو|mosābeqe-ye dow
+race (ethnicity)|نژاد|nezhād
+recycling|بازیافت|bāzyāft
+refund|بازپرداخت/پس دادن پول|bāzpardākht
+rescue|نجات|nejāt
+retirement|بازنشستگی|bāzneshastegi
+robot|ربات|robāt
+room service|سرویس اتاق|servis-e otāq
+salesman|فروشنده|forushande
+satellite|ماهواره|māhvāre
+scene|صحنه|sahne
+scholarship|بورسیه|burse
+sculpture|مجسمه سازی|mojassame-sāzi
+seat|صندلی/جا|jā
+sense of humour|شوخ طبعی|shukh-tab'i
+shortcut|میانبر|miyānbor
+sight (vision)|بینایی|binā'i
+sign (symptom)|نشانه|neshāne
+skyscraper|آسمانخراش|āsemān-kharāsh
+slogan|شعار|she'ār
+smoking|سیگار کشیدن|sigār keshidan
+speed limit|محدودیت سرعت|mahdudiyat-e sor'at
+stadium|ورزشگاه|varzeshgāh
+stage|صحنه/مرحله|marhale
+stamp|تمبر|tambr
+subject (school)|درس/موضوع|dars
+subtitle|زیرنویس|zirnevis
+suburb|حومه|hume
+surgery|جراحی|jarrāhi
+symptom|علامت/نشانه|alāmat
+temple|معبد|ma'bad
+tent|چادر|chādor
+thanks|تشکر|tashakkor
+theft|دزدی|dozdi
+throat|گلو|galu
+tip (end)|نوک|nok
+toilet paper|دستمال توالت|dastmāl-e towālet
+tragedy|تراژدی/فاجعه|tarāzhedi
+traveller|مسافر|mosāfer
+treatment|درمان|darmān
+tribe|قبیله/ایل|il
+uniform|لباس فرم/یونیفرم|lebās-e form
+universe|جهان هستی/کیهان|keyhān
+vacation|مسافرت/تعطیلات|ta'tilāt
+vehicle|وسیله نقلیه|vasile-ye naqliye
+victim|قربانی|qorbāni
+vote|رأی|ra'y
+wage|مزد/دستمزد|dastmozd
+wedding ring|حلقه ازدواج|halqe-ye ezdevāj
+wildlife|حیات وحش|hayāt-e vahsh
+winner|برنده|barande
+loser|بازنده|bāzande
+wood (forest)|بیشه|bishe
+workshop|کارگاه|kārgāh
+#B2
+consequence|پیامد|payāmad
+phenomenon|پدیده|padide
+crisis|بحران|bohrān
+politics; policy|سیاست|siyāsat
+election|انتخابات|entekhābāt
+parliament|مجلس|majles
+justice|عدالت|edālat
+equality|برابری|barābari
+human rights|حقوق بشر|hoquq-e bashar
+citizen|شهروند|shahrvand
+identity|هویت|hoviyat
+tradition|سنت|sonnat
+value; worth|ارزش|arzesh
+belief|عقیده/باور|aqide / bāvar
+point of view|دیدگاه|didgāh
+approach|رویکرد|ruykard
+argument (reasoning)|استدلال|estedlāl
+evidence|شواهد/مدرک|shavāhed / madrak
+assumption|فرض|farz
+conclusion|نتیجه گیری|natije-giri
+analysis|تحلیل|tahlil
+theory|نظریه|nazariye
+method|روش|ravesh
+structure|ساختار|sākhtār
+process|فرایند/فرآیند|farāyand
+source; resource|منبع|manba'
+capital (money)|سرمایه|sarmāye
+investment|سرمایه گذاری|sarmāye-gozāri
+inflation|تورم|tavarrom
+unemployment|بیکاری|bikāri
+poverty|فقر|faqr
+wealth|ثروت|servat
+growth|رشد|roshd
+competition|رقابت|reqābat
+cooperation|همکاری|hamkāri
+agreement|توافق|tavāfoq
+contract|قرارداد|qarārdād
+negotiation|مذاکره|mozākere
+commitment|تعهد|ta'ahhod
+achievement|دستاورد|dastāvard
+challenge|چالش|chālesh
+opportunity|فرصت|forsat
+threat|تهدید|tahdid
+effect; impact|تأثیر|ta'sir
+aspect|جنبه|jambe
+factor|عامل|āmel
+feature|ویژگی|vizhegi
+quality|کیفیت|keyfiyat
+percent|درصد|darsad
+average|میانگین|miyāngin
+increase (noun)|افزایش|afzāyesh
+decrease (noun)|کاهش|kāhesh
+attention|توجه|tavajjoh
+awareness|آگاهی|āgāhi
+imagination|تخیل|takhayyol
+patience|صبر|sabr
+courage|شجاعت|shojā'at
+self-confidence|اعتماد به نفس|e'temād be nafs
+trust|اعتماد|e'temād
+respect|احترام|ehterām
+pride; arrogance|غرور|ghorur
+shame; embarrassment|خجالت/شرم|khejālat / sharm
+regret|پشیمانی|pashimāni
+missing someone; longing|دلتنگی|deltangi
+loneliness|تنهایی|tanhāyi
+reliable|قابل اعتماد|qābel-e e'temād
+efficient|کارآمد|kārāmad
+obvious|واضح/آشکار|vāzeh / āshkār
+abstract|انتزاعی|entezā'i
+significant|قابل توجه|qābel-e tavajjoh
+temporary|موقت|movaqqat
+permanent|دائمی|dā'emi
+gradual|تدریجی|tadriji
+inevitable|اجتناب ناپذیر|ejtenāb-nāpazir
+relative|نسبی|nesbi
+independent|مستقل|mostaqel
+sensitive|حساس|hassās
+controversial|بحث برانگیز|bahs-barangiz
+nevertheless|با این حال|bā in hāl
+moreover|علاوه بر این|alāve bar in
+therefore|بنابراین|banābarin
+as a result|در نتیجه|dar natije
+in other words|به عبارت دیگر|be ebārat-e digar
+on the other hand|از طرف دیگر|az taraf-e digar
+at least|دست کم/حداقل|dast-e kam / haddeaqal
+(not) at all|اصلاً|aslan
+gradually|کم کم/به تدریج|kam-kam / be tadrij
+to emphasise|تأکید کردن|ta'kid kardan
+to assume|فرض کردن|farz kardan
+to criticise|انتقاد کردن|enteqād kardan
+to justify|توجیه کردن|towjih kardan
+to prove|ثابت کردن|sābet kardan
+to take into account|در نظر گرفتن|dar nazar gereftan
+to influence|تأثیر گذاشتن|ta'sir gozāshtan
+to encourage|تشویق کردن|tashviq kardan
+to prevent|جلوگیری کردن|jelowgiri kardan
+to achieve|به دست آوردن|be dast āvardan
+to manage|مدیریت کردن|modiriyat kardan
+to oppose|مخالفت کردن|mokhālefat kardan
+to support|حمایت کردن|hemāyat kardan
+to negotiate|مذاکره کردن|mozākere kardan
+to exaggerate|اغراق کردن|eghrāq kardan
+to hesitate|تردید کردن|tardid kardan
+to adapt|سازگار شدن|sāzgār shodan
+to realise|پی بردن/متوجه شدن|pey bordan
+to deserve|لیاقت داشتن|liyāqat dāshtan
+to take part|شرکت کردن|sherkat kardan
+to suffer|رنج بردن|ranj bordan
+to express|بیان کردن|bayān kardan
+to predict|پیش بینی کردن|pishbini kardan
+to evaluate|ارزیابی کردن|arzyābi kardan
+abuse (misuse)|سوء استفاده|su'-e estefāde
+access|دسترسی|dastrasi
+accountability|پاسخگویی|pāsokhgu'i
+accusation|اتهام|ettehām
+addiction|اعتیاد|e'tiyād
+administration|مدیریت/اداره|edāre
+adolescence|نوجوانی|nowjavāni
+agriculture|کشاورزی|keshāvarzi
+alliance|اتحاد|ettehād
+ambition|جاه طلبی/بلندپروازی|jāh-talabi
+anxiety|اضطراب|ezterāb
+appearance|ظاهر|zāher
+appreciation|قدردانی|qadrdāni
+authority|اقتدار/مقام|eqtedār
+balance|تعادل|ta'ādol
+barrier|مانع|māne'
+behalf (on behalf of)|از طرف|az taraf-e
+benefit|فایده/منفعت|fāyede
+bias|تعصب/سوگیری|ta'assob
+biography|زندگینامه|zendegi-nāme
+border (limit)|حد و مرز|hadd-o marz
+boundary|مرز|marz
+bribe|رشوه|reshve
+burden|بار/مسئولیت سنگین|bār
+campaign|کارزار/کمپین|kārzār
+candidate|نامزد/کاندیدا|nāmzad
+capacity|ظرفیت|zarfiyat
+censorship|سانسور|sānsur
+circumstance|شرایط|sharāyet
+civilisation|تمدن|tamaddon
+claim|ادعا|edde'ā
+coincidence|تصادف/اتفاق|ettefāq
+colony|مستعمره|mosta'mare
+commerce|بازرگانی|bāzargāni
+comparison|مقایسه|moqāyese
+compensation|جبران/غرامت|gherāmat
+complaint|شکایت|shekāyat
+concept|مفهوم|mafhum
+concern|نگرانی|negarāni
+conflict|درگیری/تعارض|dargiri
+conscience|وجدان|vejdān
+consciousness|آگاهی/هوشیاری|hushyāri
+consensus|اجماع|ejmā'
+constitution|قانون اساسی|qānun-e asāsi
+consumer|مصرف کننده|masraf-konande
+consumption|مصرف|masraf
+context|زمینه|zamine
+contradiction|تناقض|tanāqoz
+contribution|سهم/کمک|sahm
+corruption|فساد|fesād
+creativity|خلاقیت|khallāqiyat
+criterion|معیار|me'yār
+criticism|انتقاد|enteqād
+currency|ارز/پول رایج|arz
+debate|مناظره/بحث|monāzere
+decline|افول/کاهش|oful
+defeat|شکست|shekast
+deficit|کسری|kasri
+delay|تأخیر|ta'khir
+demand|تقاضا|taqāzā
+supply (economics)|عرضه|arze
+democracy|دموکراسی/مردم سالاری|mardom-sālāri
+dependence|وابستگی|vābastegi
+depression|افسردگی|afsordegi
+destiny|سرنوشت|sarnevesht
+dignity|وقار/کرامت|kerāmat
+dilemma|دوراهی/معضل|dorāhi
+disaster|فاجعه|fāje'e
+discipline|نظم/انضباط|nazm
+discrimination|تبعیض|tab'iz
+dispute|اختلاف|ekhtelāf
+diversity|تنوع|tanavvo'
+duty (tax)|عوارض|avārez
+efficiency|کارایی|kārāyi
+emergence|پیدایش|peydāyesh
+emigration|مهاجرت|mohājerat
+immigrant|مهاجر|mohājer
+emphasis|تأکید|ta'kid
+empire|امپراتوری|emperāturi
+encouragement|تشویق|tashviq
+enthusiasm|اشتیاق/شور|eshtiyāq
+entrepreneur|کارآفرین|kārāfarin
+estimate|برآورد/تخمین|takhmin
+ethics|اخلاق|akhlāq
+exception|استثنا|estesnā
+exchange|تبادل/مبادله|tabādol
+exhibition|نمایشگاه|namāyeshgāh
+expectation|انتظار|entezār
+expenditure|هزینه|hazine
+explanation|توضیح|towzih
+export|صادرات|sāderāt
+import|واردات|vāredāt
+failure|شکست|shekast
+faith|ایمان|imān
+fame|شهرت|shohrat
+fate|تقدیر/سرنوشت|taqdir
+flexibility|انعطاف|en'etāf
+foundation|بنیاد/پایه|bonyād
+fraud|کلاهبرداری/تقلب|kolāhbardāri
+frustration|ناکامی/سرخوردگی|nākāmi
+function|کارکرد|kārkard
+fund|صندوق/بودجه|sanduq
+gap|شکاف|shekāf
+globalisation|جهانی شدن|jahāni shodan
+gratitude|سپاسگزاری|sepāsgozāri
+guarantee|ضمانت|zamānat
+guidance|راهنمایی|rāhnamāyi
+harmony|هماهنگی|hamāhangi
+hierarchy|سلسله مراتب|selsele-marāteb
+household|خانوار|khānevār
+hypocrisy|دورویی/ریا|doruyi
+implication|پیامد/مفهوم ضمنی|payāmad
+improvement|بهبود|behbud
+incentive|انگیزه/مشوق|angize
+income tax|مالیات بر درآمد|māliyāt bar darāmad
+infrastructure|زیرساخت|zirsākht
+inheritance|ارث|ers
+initiative|ابتکار|ebtekār
+innovation|نوآوری|nowāvari
+insight|بینش|binesh
+institution|نهاد/موسسه|nahād
+integrity|درستکاری|dorostkāri
+intention|نیت/قصد|niyyat
+interpretation|تفسیر|tafsir
+intervention|مداخله|modākhele
+investigation|تحقیق/بازجویی|tahqiq
+labour|کار/نیروی کار|niru-ye kār
+landscape|چشم انداز|cheshmandāz
+leadership|رهبری|rahbari
+legacy|میراث|mirās
+legislation|قانونگذاری|qānungozāri
+leisure|فراغت|ferāghat
+liberty|آزادی|āzādi
+literacy|سواد|savād
+literature|ادبیات|adabiyāt
+livelihood|معیشت/امرار معاش|ma'ishat
+majority|اکثریت|aksariyat
+minority|اقلیت|aqalliyat
+maturity|بلوغ/پختگی|bolugh
+mechanism|سازوکار|sāzokār
+merit|شایستگی|shāyestegi
+migration|مهاجرت|mohājerat
+misunderstanding|سوءتفاهم|su'-e tafāhom
+motivation|انگیزه|angize
+mystery|راز/معما|mo'ammā
+myth|اسطوره|ostura
+necessity|ضرورت|zarurat
+network|شبکه|shabake
+norm|هنجار|hanjār
+obstacle|مانع|māne'
+occupation (job)|شغل|shoghl
+occupation (military)|اشغال|eshghāl
+outcome|نتیجه/پیامد|natije
+ownership|مالکیت|mālekiyat
+pace|سرعت/آهنگ|sor'at
+participation|مشارکت|moshārekat
+perception|درک/برداشت|bardāsht
+performance|عملکرد|amalkard
+permit|مجوز|mojavvez
+persecution|آزار/تعقیب|āzār
+philosophy|فلسفه|falsafe
+prejudice|پیش داوری|pishdāvari
+priority|اولویت|owlaviyat
+privacy|حریم خصوصی|harim-e khosusi
+privilege|امتیاز|emtiyāz
+procedure|روال/رویه|ravāl
+prosperity|رفاه/رونق|refāh
+protest|اعتراض|e'terāz
+provision|تأمین/تدارک|tadārok
+publicity|تبلیغات|tablighāt
+qualification|صلاحیت/مدرک|salāhiyat
+racism|نژادپرستی|nezhādparasti
+reaction|واکنش|vākonesh
+recession|رکود|rokud
+recovery|بهبودی|behbudi
+reform|اصلاح|eslāh
+refugee|پناهنده|panāhande
+regulation|مقررات|moqarrarāt
+relief|تسکین/آسودگی|āsudegi
+reputation|آبرو/شهرت|āberu
+requirement|الزام/شرط|elzām
+resistance|مقاومت|moqāvemat
+resolution|قطعنامه/تصمیم|qat'nāme
+revenge|انتقام|enteqām
+revenue|درآمد|darāmad
+reward|پاداش|pādāsh
+role|نقش|naqsh
+routine|روال روزمره|ravāl-e ruzmarre
+satisfaction|رضایت|rezāyat
+scandal|رسوایی|rosvāyi
+scarcity|کمیابی|kamyābi
+security|امنیت|amniyat
+self-esteem|عزت نفس|ezzat-e nafs
+sense|حس|hess
+sequence|ترتیب/توالی|tavāli
+settlement|توافق/سکونتگاه|sokunatgāh
+shelter|پناهگاه|panāhgāh
+sincerity|صداقت|sedāqat
+solidarity|همبستگی|hambastegi
+sovereignty|حاکمیت|hākemiyat
+species|گونه|gune
+spirit|روح|ruh
+stability|ثبات|sebāt
+status|جایگاه/وضعیت|jāygāh
+strategy|راهبرد/استراتژی|rāhbord
+stress|استرس/فشار روانی|esteres
+subsidy|یارانه|yārāne
+suffering|رنج|ranj
+surface|سطح|sath
+survey|نظرسنجی|nazarsanji
+suspicion|شک/سوءظن|su'-e zann
+sustainability|پایداری|pāydāri
+symbol|نماد|nemād
+sympathy|همدردی|hamdardi
+tendency|گرایش/تمایل|gerāyesh
+tension|تنش|tanesh
+territory|قلمرو|qalamrow
+tolerance|مدارا/تحمل|modārā / tahammol
+trend|روند|ravand
+uncertainty|عدم قطعیت/بلاتکلیفی|belātaklifi
+unity|وحدت|vahdat
+welfare|رفاه|refāh
+willingness|تمایل|tamāyol
+absurd|پوچ/مسخره|puch
+accessible|قابل دسترس|qābel-e dastras
+adequate|کافی/مناسب|kāfi
+aggressive|پرخاشگر|parkhāshgar
+ambiguous|مبهم|mobham
+anonymous|ناشناس|nāshenās
+appropriate|مناسب/شایسته|shāyeste
+arbitrary|دلبخواهی|delbekhāhi
+authentic|اصیل|asil
+bold|جسور|jasur
+brief|کوتاه/مختصر|mokhtasar
+chronic|مزمن|mozmen
+coherent|منسجم|monsajem
+compatible|سازگار|sāzgār
+competent|شایسته/کاردان|kārdān
+comprehensive|جامع|jāme'
+compulsory|اجباری|ejbāri
+optional|اختیاری|ekhtiyāri
+conservative|محافظه کار|mohāfeze-kār
+considerable|قابل ملاحظه|qābel-e molāheze
+consistent|پیوسته/ثابت|peyvaste
+contemporary|معاصر|mo'āser
+conventional|متعارف|mote'āref
+crucial|حیاتی/بسیار مهم|hayāti
+cultural|فرهنگی|farhangi
+decent|آبرومند/مناسب|āberumand
+deliberate|عمدی|amdi
+democratic|دموکراتیک|demokrātik
+desperate|ناامید/مستاصل|mostā'sal
+distinct|متمایز|motamāyez
+domestic|داخلی|dākheli
+dominant|غالب|ghāleb
+eager|مشتاق|moshtāq
+economic|اقتصادی|eqtesādi
+elderly|سالمند|sālmand
+emotional|احساسی|ehsāsi
+enormous|عظیم|azim
+essential|اساسی/ضروری|asāsi
+ethical|اخلاقی|akhlāqi
+evident|آشکار|āshkār
+excessive|بیش از حد|bish az hadd
+explicit|صریح|sarih
+implicit|ضمنی|zemni
+extreme|افراطی|efrāti
+fierce|شدید/خشن|shadid
+fragile|شکننده|shekanande
+frequent|مکرر|mokarrar
+fundamental|بنیادی|bonyādi
+genuine|واقعی/اصل|vāqe'i
+global|جهانی|jahāni
+hostile|خصمانه|khasmāne
+humble|فروتن/متواضع|forutan
+identical|یکسان|yeksān
+ignorant|نادان|nādān
+immense|بی کران/عظیم|bikarān
+inadequate|ناکافی|nākāfi
+incredible|باورنکردنی|bāvarnakardani
+individual|فردی|fardi
+influential|بانفوذ|bānofuz
+initial|اولیه|avvaliye
+intense|شدید|shadid
+irrelevant|بی ربط|birabt
+relevant|مرتبط|mortabet
+legitimate|مشروع|mashru'
+liberal|آزادیخواه/لیبرال|liberāl
+logical|منطقی|manteqi
+mandatory|الزامی|elzāmi
+massive|گسترده/عظیم|gostarde
+mere|صرف|serf
+minimal|حداقل|haddeaqall
+moderate|میانه رو/معتدل|mo'tadel
+moral|اخلاقی|akhlāqi
+mutual|متقابل|motaqābel
+neutral|بی طرف|bitaraf
+notorious|بدنام|badnām
+numerous|متعدد|mota'added
+objective|عینی/بی طرفانه|eyni
+subjective|ذهنی|zehni
+obscure|گمنام/نامعلوم|gomnām
+optimistic|خوش بین|khoshbin
+pessimistic|بدبین|badbin
+outstanding|برجسته|barjaste
+passionate|پرشور|porshur
+persistent|پیگیر/مداوم|peygir
+plausible|پذیرفتنی|paziroftani
+precise|دقیق|daqiq
+predictable|قابل پیش بینی|qābel-e pishbini
+profound|عمیق|amiq
+prominent|برجسته/سرشناس|sarshenās
+radical|تندرو/ریشه ای|rishe-i
+rational|عقلانی|aqlāni
+reckless|بی پروا|biparvā
+reluctant|بی میل|bimeyl
+remarkable|چشمگیر|cheshmgir
+remote|دورافتاده|dur-oftāde
+resilient|مقاوم/انعطاف پذیر|moqāvem
+rigid|انعطاف ناپذیر/خشک|khoshk
+scarce|کمیاب|kamyāb
+secular|سکولار/غیرمذهبی|sekulār
+sophisticated|پیچیده/پیشرفته|pishrafte
+spontaneous|خودجوش|khodjush
+stable|پایدار/ثابت|pāydār
+straightforward|سرراست/ساده|sarrāst
+subtle|ظریف|zarif
+superficial|سطحی|sathi
+superior|برتر|bartar
+inferior|پست تر/فروتر|forutar
+sustainable|پایدار|pāydār
+tense|پرتنش/عصبی|portanesh
+thorough|کامل/دقیق|daqiq
+trivial|پیش پا افتاده|pish-pā oftāde
+unprecedented|بی سابقه|bisābeqe
+urgent|فوری|fowri
+valid|معتبر|mo'tabar
+vague|مبهم/گنگ|gong
+vital|حیاتی|hayāti
+vulnerable|آسیب پذیر|āsib-pazir
+widespread|گسترده|gostarde
+willing|مایل/حاضر|māyel
+accordingly|بر این اساس|bar in asās
+admittedly|البته/قبول دارم که|qabul dāram ke
+alternatively|از طرف دیگر/در عوض|dar avaz
+approximately|حدوداً|hodudan
+conversely|برعکس|bar'aks
+deliberately|عمداً|amdan
+eventually|سرانجام/در نهایت|dar nahāyat
+furthermore|به علاوه|be alāve
+hence|از این رو|az in ru
+increasingly|به طور فزاینده|be towr-e fazāyande
+inevitably|ناگزیر|nāgozir
+largely|تا حد زیادی|tā hadd-e ziyādi
+merely|صرفاً|serfan
+namely|یعنی|ya'ni
+nonetheless|با این وجود|bā in vojud
+presumably|احتمالاً/لابد|lābod
+primarily|عمدتاً|omdatan
+relatively|نسبتاً|nesbatan
+respectively|به ترتیب|be tartib
+thereby|بدین ترتیب|bedin tartib
+thus|بدین سان/بنابراین|bedin sān
+ultimately|در نهایت|dar nahāyat
+whereas|در حالی که/حال آنکه|hāl ānke
+as long as|تا وقتی که|tā vaqti ke
+as soon as|به محض اینکه|be mahz-e inke
+despite|با وجود/علی رغم|bā vojud-e
+in order to|برای اینکه/به منظور|barāye inke
+in spite of|علی رغم|alā-raghm-e
+provided that|به شرط اینکه|be shart-e inke
+regardless of|صرف نظر از|sarf-e nazar az
+with regard to|در مورد/با توجه به|dar mowred-e
+to abandon|رها کردن/ترک کردن|rahā kardan
+to abolish|لغو کردن|laghv kardan
+to accompany|همراهی کردن|hamrāhi kardan
+to accomplish|انجام دادن|anjām dādan
+to accumulate|انباشتن/جمع کردن|anbāshtan
+to accuse|متهم کردن|mottaham kardan
+to acknowledge|تصدیق کردن|tasdiq kardan
+to acquire|کسب کردن|kasb kardan
+to adjust|تنظیم کردن|tanzim kardan
+to advocate|طرفداری کردن|tarafdāri kardan
+to alter|تغییر دادن|taghyir dādan
+to analyse|تحلیل کردن|tahlil kardan
+to anticipate|پیش بینی کردن/انتظار داشتن|entezār dāshtan
+to appoint|منصوب کردن|mansub kardan
+to approve|تصویب کردن/تأیید کردن|tasvib kardan
+to assess|سنجیدن/ارزیابی کردن|sanjidan
+to attribute|نسبت دادن|nesbat dādan
+to comply|پیروی کردن|peyrovi kardan
+to conceal|پنهان کردن|penhān kardan
+to concentrate|تمرکز کردن|tamarkoz kardan
+to condemn|محکوم کردن|mahkum kardan
+to confess|اعتراف کردن|e'terāf kardan
+to confront|رو به رو شدن با|ru be ru shodan
+to consult|مشورت کردن|mashverat kardan
+to contribute|سهم داشتن/کمک کردن|sahm dāshtan
+to deceive|فریب دادن|farib dādan
+to declare|اعلام کردن|e'lām kardan
+to decline (refuse)|نپذیرفتن/رد کردن|napaziroftan
+to demonstrate|نشان دادن/اثبات کردن|esbāt kardan
+to derive|به دست آوردن/مشتق شدن|moshtaq shodan
+to dismiss|اخراج کردن|ekhrāj kardan
+to distinguish|تشخیص دادن/فرق گذاشتن|farq gozāshtan
+to distribute|توزیع کردن|towzi' kardan
+to dominate|تسلط داشتن|tasallot dāshtan
+to eliminate|حذف کردن|hazf kardan
+to endure|تحمل کردن|tahammol kardan
+to enhance|افزایش دادن/بهبود بخشیدن|behbud bakhshidan
+to ensure|اطمینان حاصل کردن|etminān hāsel kardan
+to establish|تأسیس کردن|ta'sis kardan
+to evolve|تکامل یافتن|takāmol yāftan
+to exceed|فراتر رفتن از|farātar raftan
+to exclude|کنار گذاشتن/مستثنی کردن|kenār gozāshtan
+to expand|گسترش دادن|gostaresh dādan
+to exploit|بهره کشی کردن/سوء استفاده کردن|bahrekeshi kardan
+to facilitate|آسان کردن/تسهیل کردن|tas'hil kardan
+to flourish|شکوفا شدن|shokufā shodan
+to foster|پرورش دادن|parvaresh dādan
+to highlight|برجسته کردن|barjaste kardan
+to hinder|مانع شدن|māne' shodan
+to ignore|نادیده گرفتن|nādide gereftan
+to impose|تحمیل کردن|tahmil kardan
+to imply|دلالت داشتن|delālat dāshtan
+to indicate|نشان دادن/حاکی بودن|hāki budan
+to inherit|به ارث بردن|be ers bordan
+to insult|توهین کردن|towhin kardan
+to interfere|دخالت کردن|dekhālat kardan
+to interpret|تفسیر کردن|tafsir kardan
+to interrupt|حرف کسی را قطع کردن/قطع کردن|qat' kardan
+to investigate|تحقیق کردن/بررسی کردن|tahqiq kardan
+to maintain|حفظ کردن|hefz kardan
+to modify|اصلاح کردن|eslāh kardan
+to monitor|نظارت کردن|nezārat kardan
+to neglect|غفلت کردن|ghoflat kardan
+to observe|مشاهده کردن|moshāhede kardan
+to obtain|به دست آوردن/کسب کردن|kasb kardan
+to occupy|اشغال کردن|eshghāl kardan
+to overcome|غلبه کردن|ghalabe kardan
+to participate|مشارکت کردن|moshārekat kardan
+to postpone|به تعویق انداختن|be ta'viq andākhtan
+to preserve|حفظ کردن/نگه داشتن|hefz kardan
+to prohibit|ممنوع کردن|mamnu' kardan
+to promote|ترویج کردن|tarvij kardan
+to pursue|دنبال کردن|donbāl kardan
+to reconcile|آشتی دادن|āshti dādan
+to reflect|منعکس کردن/تأمل کردن|ta'ammol kardan
+to regret|پشیمان شدن|pashimān shodan
+to reinforce|تقویت کردن|taqviyat kardan
+to resign|استعفا دادن|este'fā dādan
+to resist|مقاومت کردن|moqāvemat kardan
+to restore|بازگرداندن/مرمت کردن|marammat kardan
+to restrict|محدود کردن|mahdud kardan
+to reveal|فاش کردن|fāsh kardan
+to sacrifice|فدا کردن|fadā kardan
+to seize|تصرف کردن/گرفتن|tasarrof kardan
+to simplify|ساده کردن|sāde kardan
+to stimulate|تحریک کردن|tahrik kardan
+to strengthen|تقویت کردن|taqviyat kardan
+to substitute|جانشین کردن|jāneshin kardan
+to summarise|خلاصه کردن|kholāse kardan
+to suppress|سرکوب کردن|sarkub kardan
+to surrender|تسلیم شدن|taslim shodan
+to sustain|حفظ کردن/پایدار نگه داشتن|hefz kardan
+to tolerate|تحمل کردن|tahammol kardan
+to undergo|متحمل شدن|motahammel shodan
+to undermine|تضعیف کردن|taz'if kardan
+to violate|نقض کردن|naqz kardan
+to withdraw|عقب نشینی کردن/برداشت کردن|aqab-neshini kardan
+abundance|فراوانی|farāvāni
+accent|لهجه|lahje
+dialect|گویش|guyesh
+acquaintance|آشنا|āshenā
+administration (government)|دولت/هیئت حاکمه|dowlat
+advantage (edge)|برتری|bartari
+adversity|سختی/مصیبت|mosibat
+aftermath|پیامدها|payāmadhā
+agenda|دستور کار|dastur-e kār
+allegation|ادعا|edde'ā
+allocation|تخصیص|takhsis
+ally|متحد|mottahed
+amendment|اصلاحیه|eslāhiye
+analogy|قیاس|qiyās
+anecdote|حکایت|hekāyat
+anthem|سرود|sorud
+applicant|متقاضی|motaqāzi
+appetite|اشتها|eshtehā
+arrogance|تکبر|takabbor
+aspiration|آرمان/آرزو|ārmān
+assembly|مجمع|majma'
+asset|دارایی|dārāyi
+asylum|پناهندگی|panāhandegi
+atrocity|جنایت/وحشیگری|vahshigari
+auction|حراج|harāj
+autonomy|خودمختاری|khodmokhtāri
+backbone|ستون فقرات|sotun-e faqarāt
+bankruptcy|ورشکستگی|varshekastegi
+betrayal|خیانت|khiyānat
+blessing|نعمت/برکت|ne'mat
+boredom|کسالت/بی حوصلگی|kesālat
+breakthrough|پیشرفت چشمگیر|pishraft-e cheshmgir
+bureaucracy|دیوانسالاری/بوروکراسی|divānsālāri
+calamity|بلا|balā
+calligraphy|خوشنویسی|khoshnevisi
+capitalism|سرمایه داری|sarmāye-dāri
+casualty|تلفات|talafāt
+catastrophe|فاجعه|fāje'e
+ceasefire|آتش بس|ātash-bas
+certainty|یقین|yaqin
+charm|جذابیت|jazzābiyat
+chaos|هرج و مرج|harj-o marj
+charter|منشور|manshur
+clarity|وضوح|vozuh
+clergy|روحانیت|ruhāniyat
+coalition|ائتلاف|e'telāf
+commodity|کالا|kālā
+companion|همدم/همراه|hamdam
+compassion|شفقت/دلسوزی|delsuzi
+compromise|سازش/مصالحه|sāzesh
+confession|اعتراف|e'terāf
+confidentiality|محرمانگی|mahramānegi
+conquest|فتح|fath
+consent|رضایت|rezāyat
+conspiracy|توطئه|towte'e
+contempt|تحقیر|tahqir
+contentment|قناعت/رضایت|qanā'at
+controversy|جنجال|janjāl
+conviction (belief)|اعتقاد|e'teqād
+conviction (legal)|محکومیت|mahkumiyat
+counterpart|همتا|hamtā
+coup|کودتا|kudetā
+courtesy|ادب/نزاکت|nezākat
+craftsmanship|صنعتگری/هنر دست|san'atgari
+credibility|اعتبار|e'tebār
+creditor|طلبکار|talabkār
+debtor|بدهکار|bedehkār
+cruelty|ظلم/بی رحمی|zolm
+curiosity|کنجکاوی|konjkāvi
+custody|حضانت|hezānat
+deadlock|بن بست|bon-bast
+decay|زوال/پوسیدگی|zavāl
+dedication|فداکاری/تعهد|fadākāri
+deficiency|کمبود|kambud
+delegation|هیئت|hey'at
+denial|انکار|enkār
+deposit|سپرده/ودیعه|seporde
+descendant|نواده/فرزند|navāde
+despair|ناامیدی/یأس|ya's
+detention|بازداشت|bāzdāsht
+determination|اراده/عزم|erāde
+devotion|ارادت/سرسپردگی|erādat
+dictatorship|دیکتاتوری|diktātori
+diplomacy|دیپلماسی|diplomāsi
+discourse|گفتمان|goftemān
+disguise|لباس مبدل|lebās-e mobaddal
+disgust|انزجار|enzejār
+distortion|تحریف|tahrif
+doctrine|آموزه/دکترین|āmuze
+donation|اهدا/کمک مالی|ehdā
+drought|خشکسالی|khoshksāli
+duration|مدت|moddat
+dynasty|سلسله|selsele
+ecosystem|زیست بوم|zistbum
+elite|نخبگان|nokhbegān
+eloquence|فصاحت|fesāhat
+embassy|سفارت|sefārat
+ambassador|سفیر|safir
+consulate|کنسولگری|konsulgari
+empathy|همدلی|hamdeli
+endurance|استقامت|esteqāmat
+envy|حسادت|hesādat
+epidemic|همه گیری/اپیدمی|hamegiri
+equity|انصاف|ensāf
+era|عصر/دوران|asr
+essence|جوهر/ذات|zāt
+estate|املاک|amlāk
+exile|تبعید|tab'id
+expertise|تخصص|takhassos
+exploitation|استثمار|estesmār
+extinction|انقراض|enqerāz
+faction|جناح|jenāh
+famine|قحطی|qahti
+fatigue|خستگی|khastegi
+feast|ضیافت/جشن|ziyāfat
+fertility|باروری|bārvari
+fiscal year|سال مالی|sāl-e māli
+folklore|فرهنگ عامه|farhang-e āmme
+forgiveness|بخشش|bakhshesh
+fortune|ثروت/بخت|bakht
+fraction|کسر/بخش کوچک|kasr
+fragrance|عطر/بوی خوش|atr
+friction|اصطکاک/اختلاف|estekāk
+fulfilment|تحقق|tahaqqoq
+genius|نابغه|nābeghe
+glory|شکوه/افتخار|shokuh
+goodwill|حسن نیت|hosn-e niyyat
+grief|اندوه/سوگ|anduh
+grievance|گلایه|gelāye
+gossip|غیبت/شایعه|gheybat
+greed|طمع|tama'
+harassment|آزار|āzār
+hardship|سختی|sakhti
+hatred|نفرت|nefrat
+heir|وارث|vāres
+hospitality|مهمان نوازی|mehmān-navāzi
+hostage|گروگان|gerowgān
+humanity|انسانیت/بشریت|ensāniyat
+humiliation|تحقیر|tahqir-shodegi
+hypothesis|فرضیه|farziye
+ideology|ایدئولوژی|ide'olozhi
+illusion|توهم|tavahhom
+immunity|مصونیت|masuniyat
+impression|برداشت/تأثیر|bardāsht
+incident|حادثه|hādese
+inequality|نابرابری|nābarābari
+ingredient|ماده/مواد اولیه|mavādd-e avvaliye
+injustice|بی عدالتی|bi-edālati
+innocence|بی گناهی|bigonāhi
+inspiration|الهام|elhām
+instinct|غریزه|gharize
+insult (noun)|توهین|towhin
+integration|ادغام/یکپارچگی|yekpārchegi
+intellectual|روشنفکر|rowshanfekr
+interest rate|نرخ بهره|nerkh-e bahre
+irony|طنز/کنایه|kenāye
+jurisdiction|صلاحیت قضایی|salāhiyat-e qazāyi
+kinship|خویشاوندی|khishāvandi
+landmark|نشانه/اثر شاخص|asar-e shākhes
+lawsuit|دعوی/شکایت|da'vā
+liability|بدهی/مسئولیت|mas'uliyat
+lifespan|طول عمر|tul-e omr
+loyalty|وفاداری|vafādāri
+luxury|تجمل|tajammol
+manifesto|بیانیه|bayāniye
+manuscript|نسخه خطی|noskhe-ye khatti
+massacre|قتل عام|qatl-e ām
+mediator|میانجی|miyānji
+melancholy|اندوه/مالیخولیا|mālikhuliyā
+memoir|خاطرات|khāterāt
+mercy|رحم/رحمت|rahm
+metaphor|استعاره|este'āre
+militia|شبه نظامی|shebh-e nezāmi
+misery|بدبختی|badbakhti
+modesty|فروتنی|forutani
+monopoly|انحصار|enhesār
+mortgage|وام مسکن|vām-e maskan
+mourning|عزاداری|azādāri
+municipality|شهرداری|shahrdāri
+mysticism|عرفان|erfān
+mystic|عارف|āref
+negligence|سهل انگاری|sahl-engāri
+nobility|اشرافیت/نجابت|nejābat
+nostalgia|نوستالژی/حسرت گذشته|hasrat
+novelty|تازگی|tāzegi
+nuance|ظرافت|zerāfat
+oath|سوگند|sowgand
+obedience|اطاعت|etā'at
+obsession|وسواس|vasvās
+omission|حذف/جاافتادگی|jā-oftādegi
+opponent|حریف/مخالف|harif
+oppression|ستم/ظلم|setam
+optimism|خوش بینی|khoshbini
+pessimism|بدبینی|badbini
+ornament|زینت|zinat
+outbreak|شیوع|shoyu'
+paradox|تناقض/پارادوکس|pārādoks
+patriotism|میهن پرستی|mihan-parasti
+peasant|دهقان/روستایی|dehqān
+penalty|جریمه/مجازات|mojāzāt
+pension fund|صندوق بازنشستگی|sanduq-e bāzneshastegi
+petition|دادخواست|dādkhāst
+pilgrim|زائر|zā'er
+poll (vote)|رأی گیری|ra'y-giri
+portrait|چهره/پرتره|chehre
+poverty line|خط فقر|khatt-e faqr
+precaution|احتیاط|ehtiyāt
+predecessor|پیشینیان/سلف|salaf
+premise|فرض/مقدمه|moqaddame
+prestige|اعتبار/حیثیت|heysiyat
+prophet|پیامبر|payāmbar
+prose|نثر|nasr
+verse|نظم/بیت|beyt
+provocation|تحریک|tahrik
+prudence|دوراندیشی|durandishi
+rebellion|شورش|shuresh
+reconciliation|آشتی|āshti
+referendum|همه پرسی|hameporsi
+reign|سلطنت|saltanat
+remedy|چاره/درمان|chāre
+remorse|پشیمانی|pashimāni
+renewal|تجدید|tajdid
+repression|سرکوب|sarkub
+resentment|کینه/رنجش|kine
+restriction|محدودیت|mahdudiyat
+retreat|عقب نشینی|aqab-neshini
+reunion|دیدار دوباره|didār-e dobāre
+riddle|معما/چیستان|chistān
+ritual|آیین|āyin
+rivalry|رقابت|reqābat
+rumour|شایعه|shāye'e
+sanction|تحریم|tahrim
+sarcasm|طعنه|ta'ne
+scepticism|شک گرایی|shakkgerāyi
+scholar|دانشمند/محقق|mohaqqeq
+scope|دامنه|dāmane
+scrutiny|بررسی دقیق|barresi-ye daqiq
+self-sufficiency|خودکفایی|khodkafāyi
+sentiment|احساس|ehsās
+shortcoming|کاستی/نقص|kāsti
+siege|محاصره|mohāsere
+slavery|بردگی|bardegi
+smuggling|قاچاق|qāchāq
+solitude|خلوت/تنهایی|khalvat
+sorrow|غم|gham
+speculation|گمانه زنی|gamāne-zani
+stereotype|کلیشه|kelishe
+strike (work)|اعتصاب|e'tesāb
+successor|جانشین|jāneshin
+superstition|خرافات|khorāfāt
+surplus|مازاد|māzād
+surveillance|نظارت|nezārat
+suspect|مظنون|maznun
+taboo|تابو|tābu
+temptation|وسوسه|vasvase
+testimony|شهادت|shahādat
+theology|الهیات|elāhiyāt
+threshold|آستانه|āstāne
+torture|شکنجه|shekanje
+transparency|شفافیت|shaffāfiyat
+treaty|پیمان/معاهده|peymān
+tribute|ادای احترام|adā-ye ehterām
+triumph|پیروزی|piruzi
+turmoil|آشوب|āshub
+tyranny|استبداد|estebdād
+upbringing|تربیت|tarbiyat
+uprising|قیام|qiyām
+utopia|آرمانشهر|ārmānshahr
+vanity|خودپسندی|khodpasandi
+verdict|حکم|hokm
+vice|رذیلت|rezilat
+virtue|فضیلت|fazilat
+vision|چشم انداز/بینش|cheshmandāz
+vow|نذر/پیمان|nazr
+warfare|جنگ/جنگاوری|jang / jangāvari
+worship|عبادت/پرستش|ebādat
+zeal|شور و شوق|shur-o showq
+#Phrases
+how are you?|حالت چطوره/حالتون چطوره/حال شما چطور است/حالت چطور است|hālet chetore
+I'm fine|خوبم/من خوبم|khubam
+good morning|صبح بخیر|sobh bekheyr
+good night|شب بخیر|shab bekheyr
+welcome|خوش آمدید/خوش آمدی/خوش اومدی/خوش اومدید|khosh āmadid
+pleased to meet you|خوشبختم/از آشنایی با شما خوشوقتم|khoshbakhtam
+I don't know|نمی دانم/نمی دونم/نمیدونم|nemidānam / nemidunam
+I understand|می فهمم|mifahmam
+I don't understand|نمی فهمم|nemifahmam
+see you later|بعداً می بینمت/بعدا میبینمت|ba'dan mibinamet
+I'm hungry|گرسنه ام/گشنمه/گرسنه هستم|gorosne-am / gosname
+I'm tired|خسته ام/خسته هستم|khaste-am
+I love you|دوستت دارم|dustet dāram
+I want water|آب می خواهم/آب می خوام|āb mikhāham / āb mikhām
+where is the toilet?|دستشویی کجاست/توالت کجاست|dastshuyi kojāst
+how much is it?|چند است/چنده/قیمتش چنده/قیمتش چند است|chande
+it's very expensive|خیلی گران است/خیلی گرونه/خیلی گران است|kheyli gerune
+the weather is cold|هوا سرد است/هوا سرده|havā sarde
+let's go|برویم/بریم|berim
+come here|بیا اینجا|biyā injā
+wait a moment|یک لحظه صبر کن/یه لحظه صبر کن|ye lahze sabr kon
+speak slowly please|لطفاً آهسته صحبت کنید/لطفا یواش حرف بزن/لطفا آهسته حرف بزنید|lotfan āheste sohbat konid
+no problem|مشکلی نیست/اشکالی نداره/اشکالی ندارد|moshkeli nist
+of course|البته|albatte
+very good|خیلی خوب|kheyli khub
+I'm sorry|متاسفم|mota'assefam
+happy birthday|تولدت مبارک|tavallodet mobārak
+happy new year|سال نو مبارک/نوروز مبارک|sāl-e now mobārak
+enjoy your meal|نوش جان|nush-e jān
+I have a question|یک سوال دارم/یه سوال دارم|ye so'āl dāram
+what time is it?|ساعت چند است/ساعت چنده|sā'at chande
+I'm learning Persian|فارسی یاد می گیرم/دارم فارسی یاد می گیرم/من فارسی یاد می گیرم|fārsi yād migiram
+this is my book|این کتاب من است/این کتاب منه|in ketāb-e man ast
+a good friend|یک دوست خوب/یه دوست خوب|ye dust-e khub
+my mother|مادرم/مادر من|mādaram
+I went home|به خانه رفتم/رفتم خونه/به خونه رفتم/رفتم خانه|be khāne raftam
+he is a doctor|او دکتر است/دکتره/او پزشک است|u doktor ast
+we are here|ما اینجا هستیم/اینجاییم/ما اینجاییم|mā injā hastim
+what is your name?|اسمت چیه/اسم شما چیست/اسمتون چیه|esmet chiye
+I don't have time|وقت ندارم|vaqt nadāram
+it doesn't matter|مهم نیست|mohem nist
+God willing|ان شاء الله/انشالله|inshāllāh
+what's up?|چه خبر|che khabar
+not bad|بد نیستم/بد نیست|bad nistam
+thank you very much|خیلی ممنون/خیلی مرسی/خیلی متشکرم|kheyli mamnun
+you're welcome|خواهش می کنم|khāhesh mikonam
+after you|بفرمایید|befarmāyid
+please come in|بفرمایید تو/بفرمایید داخل|befarmāyid tu
+don't mention it|قابل نداره/قابلی ندارد|qābel nadāre
+I miss you|دلم برات تنگ شده/دلم برایت تنگ شده|delam barāt tang shode
+take care|مواظب خودت باش|movāzeb-e khodet bāsh
+have a good trip|سفر بخیر|safar bekheyr
+good luck|موفق باشی/موفق باشید|movaffaq bāshi
+well done|آفرین|āfarin
+may your hands not hurt (thanks for effort)|دستت درد نکنه/دستت درد نکند|dastet dard nakone
+may you not be tired (greeting to someone working)|خسته نباشی/خسته نباشید|khaste nabāshi
+congratulations|تبریک می گویم/تبریک میگم/مبارک باشه|tabrik migam
+my condolences|تسلیت می گویم/تسلیت میگم|tasliyat migam
+get well soon|بلا دور باشه/زود خوب شو|zud khub sho
+cheers; to your health|به سلامتی|be salāmati
+I agree|موافقم|movāfeqam
+I disagree|مخالفم|mokhālefam
+you're right|حق با توئه/راست میگی/حق با شماست|haqq bā toe
+I'm not sure|مطمئن نیستم|motma'en nistam
+I think so|فکر می کنم/فکر کنم|fekr konam
+I don't think so|فکر نمی کنم/فکر نکنم|fekr nakonam
+it depends|بستگی داره/بستگی دارد|bastegi dāre
+never mind|ولش کن/مهم نیست|velesh kon
+really?|واقعا/جدی|jeddi
+what happened?|چی شد/چه شد/چه اتفاقی افتاد|chi shod
+what's wrong?|چی شده/چه شده|chi shode
+it's nothing|چیزی نیست|chizi nist
+one more time|یک بار دیگر/یه بار دیگه|ye bār-e dige
+what does this mean?|این یعنی چی/این یعنی چه|in ya'ni chi
+how do you say … in Persian?|به فارسی چی میگن/به فارسی چه می گویند|be fārsi chi migan
+I speak a little Persian|یک کم فارسی بلدم/یه کم فارسی بلدم/کمی فارسی حرف می زنم|ye kam fārsi baladam
+do you speak English?|انگلیسی بلدی/انگلیسی بلدید/انگلیسی صحبت می کنید|engelisi baladi
+where are you from?|اهل کجایی/اهل کجا هستید|ahl-e kojāyi
+I'm from Holland|اهل هلندم/اهل هلند هستم/من اهل هلند هستم|ahl-e holand-am
+I live in the Netherlands|در هلند زندگی می کنم/تو هلند زندگی می کنم|dar holand zendegi mikonam
+how old are you?|چند سالته/چند سال دارید/چند سالتونه|chand sālete
+I'm forty years old|چهل سالمه/چهل سال دارم|chehel sālame
+are you married?|ازدواج کردی/متاهل هستید/ازدواج کرده اید|ezdevāj kardi
+I have a son|یک پسر دارم/یه پسر دارم|ye pesar dāram
+what do you do (for work)?|چه کاره ای/کارت چیه/شغل شما چیست|che kāre-i
+I work at a university|در دانشگاه کار می کنم/تو دانشگاه کار میکنم|dar dāneshgāh kār mikonam
+I'm a teacher|معلم هستم/معلمم|mo'allem hastam
+I'm hungry and thirsty|گرسنه و تشنه ام/گشنه و تشنمه|gorosne o teshne-am
+the food is delicious|غذا خوشمزه است/غذا خوشمزه است/غذا خوشمزس/غذا خوشمزه ست|ghazā khoshmaze ast
+I'm full|سیر شدم/سیرم|sir shodam
+the bill, please|صورتحساب لطفاً/لطفا صورتحساب|surathesāb lotfan
+a glass of water|یک لیوان آب/یه لیوان آب|ye livān āb
+two teas please|دو تا چای لطفاً/دو تا چایی لطفا|do tā chāy lotfan
+without sugar|بدون شکر/بی شکر|bedun-e shekar
+I'm vegetarian|گیاهخوار هستم/گیاهخوارم|giyāhkhār hastam
+it's too hot (food)|خیلی داغه/خیلی داغ است|kheyli dāghe
+it's too spicy|خیلی تنده/خیلی تند است|kheyli tonde
+can I have the menu?|منو را می دهید/منو رو میدید|meno ro midid
+where is the station?|ایستگاه کجاست|istgāh kojāst
+how far is it?|چقدر راه است/چقدر راهه|cheqadr rāhe
+turn left|بپیچ به چپ/به چپ بپیچید/بپیچ چپ|bepich chap
+turn right|بپیچ به راست/به راست بپیچید/بپیچ راست|bepich rāst
+go straight|مستقیم برو/مستقیم بروید|mostaqim boro
+stop here|اینجا نگه دار/همینجا نگه دارید|injā negah dār
+I'm lost|گم شده ام/گم شدم|gom shodam
+I need help|کمک لازم دارم/به کمک احتیاج دارم|komak lāzem dāram
+call the police|به پلیس زنگ بزن/پلیس را خبر کنید|be polis zang bezan
+call a doctor|دکتر خبر کن/به دکتر زنگ بزن|doktor khabar kon
+I'm sick|مریضم/مریض هستم|marizam
+my head hurts|سرم درد می کند/سرم درد میکنه|saram dard mikone
+I have a fever|تب دارم|tab dāram
+it's cheap|ارزان است/ارزونه|arzune
+can you give a discount?|تخفیف میدید/تخفیف می دهید|takhfif midid
+I'll take it|برمی دارم/می خرمش/میخرمش|mikharamesh
+I'm just looking|فقط نگاه می کنم/فقط دارم نگاه میکنم|faqat negāh mikonam
+do you have …?|… دارید/… دارین|… dārid
+I don't have money|پول ندارم|pul nadāram
+the room is clean|اتاق تمیز است/اتاق تمیزه|otāq tamiz ast
+is there wifi?|وای فای دارید/اینترنت دارید|vāy-fāy dārid
+what time does it open?|ساعت چند باز می شود/ساعت چند باز میشه|sā'at-e chand bāz mishe
+what time does it close?|ساعت چند بسته می شود/ساعت چند بسته میشه|sā'at-e chand baste mishe
+it's late|دیر است/دیره|dire
+it's early|زود است/زوده|zude
+I'm coming|دارم می آیم/دارم میام/اومدم|dāram miyām
+I'm going|دارم می روم/دارم میرم|dāram miram
+see you tomorrow|فردا می بینمت/تا فردا|fardā mibinamet
+until next time|تا بعد|tā ba'd
+have a nice day|روز خوبی داشته باشی/روز خوش|ruz-e khubi dāshte bāshi
+the weather is nice|هوا خوب است/هوا خوبه|havā khube
+it's raining|باران می آید/بارون میاد|bārun miyād
+it's snowing|برف می آید/برف میاد|barf miyād
+it's hot today|امروز گرم است/امروز گرمه/امروز هوا گرمه|emruz garme
+I'm cold|سردم است/سردمه|sardame
+I'm hot|گرمم است/گرممه|garmame
+I'm bored|حوصله ام سر رفته/حوصلم سر رفته|howsele-am sar rafte
+I'm happy|خوشحالم/خوشحال هستم|khoshhālam
+I'm sad|ناراحتم/غمگینم|nārāhatam
+I'm angry|عصبانی هستم/عصبانیم|asabāniyam
+I'm scared|می ترسم/میترسم|mitarsam
+I'm busy|سرم شلوغ است/سرم شلوغه/مشغولم|saram sholughe
+I'm free tomorrow|فردا آزادم/فردا وقت دارم|fardā āzādam
+I'm sleepy|خوابم می آید/خوابم میاد|khābam miyād
+I'm late|دیرم شده/دیر کردم|diram shode
+I forgot|یادم رفت/فراموش کردم|yādam raft
+I remember|یادم هست/یادمه|yādame
+I like it|خوشم می آید/خوشم میاد/دوستش دارم|khosham miyād
+I don't like it|خوشم نمی آید/خوشم نمیاد/دوستش ندارم|khosham nemiyād
+I want to sleep|می خواهم بخوابم/میخوام بخوابم|mikhām bekhābam
+I want to eat|می خواهم غذا بخورم/میخوام غذا بخورم|mikhām ghazā bekhoram
+I can't|نمی توانم/نمیتونم|nemitunam
+I can|می توانم/میتونم|mitunam
+I have to go|باید بروم/باید برم|bāyad beram
+let me see|بگذار ببینم/بذار ببینم|bezār bebinam
+be careful|مواظب باش/مراقب باش|movāzeb bāsh
+hurry up|عجله کن/زود باش|zud bāsh
+calm down|آرام باش/آروم باش|ārum bāsh
+don't worry|نگران نباش|negarān nabāsh
+it's not important|مهم نیست|mohem nist
+no idea|نمی دانم/هیچ نظری ندارم/نمیدونم|nemidunam
+that's enough|بس است/بسه/کافیه|base
+wait for me|منتظرم باش/صبر کن تا بیام|montazeram bāsh
+call me|به من زنگ بزن/بهم زنگ بزن|behem zang bezan
+write to me|برام بنویس/به من بنویس|barām benevis
+what's the date today?|امروز چندم است/امروز چندمه|emruz chandome
+what day is it today?|امروز چند شنبه است/امروز چه روزی است|emruz chand-shanbe ast
+every morning|هر روز صبح/هر صبح|har ruz sobh
+next week|هفته بعد/هفته آینده|hafte-ye ba'd
+last week|هفته پیش/هفته گذشته|hafte-ye pish
+next year|سال بعد/سال آینده/سال دیگه|sāl-e ba'd
+two hours later|دو ساعت بعد|do sā'at ba'd
+a few days ago|چند روز پیش|chand ruz pish
+at seven o'clock|ساعت هفت|sā'at-e haft
+half past three|سه و نیم|se o nim
+a quarter to five|یک ربع به پنج/یه ربع به پنج|ye rob' be panj
+my phone number|شماره تلفنم/شماره تلفن من|shomāre telefonam
+my father-in-law|پدرزنم/پدرخانمم|pedarzanam
+my son is sleeping|پسرم خوابیده/پسرم خواب است|pesaram khābide
+the baby is crying|بچه دارد گریه می کند/بچه داره گریه میکنه|bachche dāre gerye mikone
+he is hungry|گرسنه است/گشنشه|gorosne ast
+change his nappy|پوشکش را عوض کن/پوشکشو عوض کن|pushakesh ro avaz kon
+come to our house|بیا خانه ما/بیا خونه ما|biyā khune-ye mā
+you're very kind|خیلی لطف داری/خیلی مهربونی/لطف دارید|kheyli lotf dāri
+I'm honoured|خوشحال شدم/افتخار دادید|eftekhār dādid
+be my guest|مهمون من باش/مهمان من باشید|mehmun-e man bāsh
+please sit down|بفرمایید بنشینید/بفرمایید بشینید|befarmāyid beshinid
+help yourself|بفرمایید|befarmāyid
+I'm full, thank you|سیرم ممنون/ممنون سیر شدم|siram mamnun
+may it be sweet (enjoy it)|نوش جان|nush-e jān
+see you soon|به زودی می بینمت/به امید دیدار|be omid-e didār
+goodbye (formal)|خدانگهدار/به امید دیدار|khodānegahdār
+God bless (goodbye)|خدا حافظ/خداحافظ شما|khodāhāfez
+in my opinion|به نظر من/به نظرم|be nazar-e man
+for example|برای مثال/مثلاً|masalan
+that is to say|یعنی|ya'ni
+by the way|راستی|rāsti
+in any case|در هر صورت|dar har surat
+as far as I know|تا جایی که می دانم/تا جایی که میدونم|tā jāyi ke midunam
+to be honest|راستش/راستش را بخواهی|rāstesh
+it's up to you|هر طور راحتی/به خودت بستگی داره|har towr rāhati
+it's my fault|تقصیر من است/تقصیر منه|taqsir-e mane
+it's not my fault|تقصیر من نیست|taqsir-e man nist
+what a pity|حیف شد/چه حیف|heyf shod
+what a surprise|چه غافلگیری/چه جالب|che ghāfelgiri
+how beautiful!|چقدر زیبا/چه قشنگ|che qashang
+how interesting!|چه جالب|che jāleb
+how nice!|چه خوب|che khub
+excuse me, where is …?|ببخشید … کجاست|bebakhshid … kojāst
+could you help me?|می شود کمکم کنید/میشه کمکم کنید|mishe komakam konid
+could you repeat that?|می شود تکرار کنید/میشه تکرار کنید|mishe tekrār konid
+could you write it down?|می شود بنویسید/میشه بنویسید|mishe benevisid
+I'd like a ticket|یک بلیت می خواهم/یه بلیط میخوام|ye belit mikhām
+one-way or return?|یک طرفه یا رفت و برگشت|yek-tarafe yā raft-o bargasht
+when does the train leave?|قطار کی حرکت می کند/قطار کی حرکت میکنه|qatār key harekat mikone
+is this seat free?|این صندلی خالی است/این صندلی خالیه|in sandali khāliye
+I have a reservation|رزرو دارم|rezerv dāram
+for two nights|برای دو شب|barāye do shab
+it doesn't work|کار نمی کند/کار نمیکنه|kār nemikone
+it's broken|خراب است/خرابه|kharābe
+I lost my key|کلیدم را گم کردم/کلیدمو گم کردم|kelidam ro gom kardam
+where do you live?|کجا زندگی می کنی/کجا زندگی می کنید|kojā zendegi mikoni
+I've been to Iran|ایران رفته ام/ایران بوده ام|irān rafte-am
+I want to learn Persian|می خواهم فارسی یاد بگیرم/میخوام فارسی یاد بگیرم|mikhām fārsi yād begiram
+my Persian is weak|فارسیم ضعیفه/فارسی من ضعیف است|fārsim za'ife
+you speak Persian well|فارسی را خوب صحبت می کنی/فارسیت خوبه|fārsit khube
+slowly, slowly|یواش یواش/کم کم|yavāsh yavāsh
+little by little|کم کم|kam kam
+it's a long story|داستانش طولانی است/قصه اش طولانیه|dāstānesh tulāniye
+I'm on my way|تو راهم/در راه هستم|tu rāham
+I'll be there in ten minutes|ده دقیقه دیگه می رسم/ده دقیقه دیگر می رسم|dah daqiqe dige miresam`;
+const GRAMMAR=[
+{lvl:"A1",t:"Pronouns and “to be”",n:"Persian drops the subject pronoun freely. “To be” is either the full verb هستم، هستی، است، هستیم، هستید، هستند or a short ending: ‑am, ‑i, ‑ast (spoken ‑e), ‑im, ‑id, ‑and. Negative: نیستم، نیستی، نیست…",d:[["I am a student","من دانشجو هستم/دانشجو هستم/دانشجوام/من دانشجوام"],["you are tired","تو خسته ای/خسته ای/تو خسته هستی"],["they are not here","آنها اینجا نیستند/اونا اینجا نیستن/اینجا نیستند"]]},
+{lvl:"A1",t:"Plurals",n:"‑hā works for almost everything and is standard in speech. ‑ān is more formal and used mainly for people and some animate nouns.",d:[["the books","کتاب ها"],["the children","بچه ها"],["women (formal)","زنان"]]},
+{lvl:"A1",t:"Ezafe",n:"An unwritten ‑e links a noun to its adjective or possessor: ketāb‑e bozorg. After a vowel it becomes ‑ye, written ی after ا or و, and often ی or ٔ after silent ه.",d:[["the red car","ماشین قرمز"],["Ali's house","خانه علی/خانه ی علی/خونه علی"],["the big city","شهر بزرگ"]]},
+{lvl:"A1",t:"Possessive endings",n:"Attach ‑am, ‑at, ‑ash, ‑emān, ‑etān, ‑eshān directly to the noun: ketābam “my book”. Spoken: ‑emun, ‑etun, ‑eshun.",d:[["my name","اسمم"],["his book","کتابش"],["our house","خانه مان/خونمون/خانه ما"]]},
+{lvl:"A1",t:"Present tense",n:"mi‑ + present stem + personal ending (‑am, ‑i, ‑ad, ‑im, ‑id, ‑and). Present stems are irregular and must be learned: raftan → rav, khordan → khor, khāndan → khān.",d:[["I go","می روم/میرم/من می روم"],["she eats","می خورد/میخوره/او می خورد"],["we read","می خوانیم/میخونیم/ما می خوانیم"]]},
+{lvl:"A1",t:"Negation",n:"Prefix na‑ (ne‑ before mi‑): nemiravam “I don't go”. “Not to be” is nist. “To have” takes no mi‑: dāram → nadāram.",d:[["I don't go","نمی روم/نمیرم"],["it is not","نیست"],["I don't have","ندارم"]]},
+{lvl:"A1",t:"Object marker rā",n:"A definite direct object takes را (spoken ‑o / ‑ro). Indefinite objects don't.",d:[["I see the book","کتاب را می بینم/کتابو میبینم"],["I love her","او را دوست دارم/دوستش دارم"],["I bought a car","یک ماشین خریدم/یه ماشین خریدم/ماشینی خریدم"]]},
+{lvl:"A2",t:"Simple past",n:"Past stem (infinitive minus ‑an) + ending; 3rd singular has no ending: raft “he went”. Negative: naraftam.",d:[["I went","رفتم"],["we ate","خوردیم"],["they came","آمدند/اومدن"]]},
+{lvl:"A2",t:"Present progressive",n:"dāshtan (present) + the present tense: dāram miravam “I am going”. It has no negative form; use the plain negative present.",d:[["I'm going","دارم می روم/دارم میرم"],["she is eating","دارد می خورد/داره میخوره"],["we are working","داریم کار می کنیم/داریم کار میکنیم"]]},
+{lvl:"A2",t:"Future",n:"Formal: khāh‑ + ending + short past stem: khāham raft. In speech the present tense is used for the future.",d:[["I will go","خواهم رفت"],["they will come","خواهند آمد"],["we will see","خواهیم دید"]]},
+{lvl:"A2",t:"Imperative",n:"be‑ + present stem (singular), + ‑id for plural/polite. Negative: na‑. be‑ often becomes bo‑ or bi‑: boro, biyā.",d:[["go!","برو"],["come!","بیا"],["don't go!","نرو"],["please sit (polite)","بنشینید/بشینید/لطفاً بنشینید"]]},
+{lvl:"A2",t:"Comparative and superlative",n:"‑tar makes the comparative; ‑tarin the superlative, which comes before the noun: bozorgtarin shahr. “Than” is az. Irregular: khub → behtar.",d:[["bigger","بزرگتر"],["the biggest city","بزرگترین شهر"],["better than me","بهتر از من"]]},
+{lvl:"A2",t:"Indefinite: yek and ‑i",n:"yek (spoken ye) before the noun or ‑i after it marks “a / some”; both together is common in speech.",d:[["a book","یک کتاب/کتابی/یه کتاب"],["a man came","مردی آمد/یک مرد آمد/یه مرد اومد"]]},
+{lvl:"B1",t:"Past progressive",n:"mi‑ + past stem + ending: miraftam “I was going / used to go”. dāshtan in the past adds emphasis: dāshtam miraftam.",d:[["I was going","داشتم می رفتم/می رفتم"],["we used to live here","اینجا زندگی می کردیم/ما اینجا زندگی می کردیم"]]},
+{lvl:"B1",t:"Present perfect",n:"Past participle (past stem + ‑e) + short “to be”: rafte‑am “I have gone”. 3rd singular: rafte ast, spoken rafte.",d:[["I have gone","رفته ام"],["she has eaten","خورده است/خورده"],["have you seen?","دیده ای/دیدی"]]},
+{lvl:"B1",t:"Past perfect",n:"Past participle + past of budan: rafte budam “I had gone”.",d:[["I had gone","رفته بودم"],["they had come","آمده بودند/اومده بودن"]]},
+{lvl:"B1",t:"Subjunctive",n:"be‑ + present stem + ending. Used after khāstan, bāyad, shāyad, tavānestan and many conjunctions: mikhāham beravam “I want to go”.",d:[["I want to go","می خواهم بروم/میخوام برم"],["I must read","باید بخوانم/باید بخونم"],["maybe he'll come","شاید بیاید/شاید بیاد"],["I can speak","می توانم صحبت کنم/میتونم حرف بزنم"]]},
+{lvl:"B1",t:"Relative clauses",n:"The head noun takes ‑i, followed by ke: mardi ke āmad “the man who came”. There is no separate who/which/that.",d:[["the man who came","مردی که آمد/مردی که اومد"],["the book that I read","کتابی که خواندم/کتابی که خوندم"]]},
+{lvl:"B1",t:"Real conditionals",n:"agar + subjunctive (or simple past) in the if‑clause, present or future in the main clause.",d:[["if you come, I'll go","اگر بیایی می روم/اگه بیای میرم/اگر بیایی، می روم"],["if it rains, we stay","اگر باران بیاید می مانیم/اگه بارون بیاد میمونیم"]]},
+{lvl:"B2",t:"Past subjunctive",n:"Past participle + subjunctive of budan (bāsham, bāshi, bāshad…): shāyad rafte bāshad “he may have gone”.",d:[["he may have gone","شاید رفته باشد/شاید رفته باشه"],["I must have forgotten","باید فراموش کرده باشم/لابد فراموش کرده ام"]]},
+{lvl:"B2",t:"Unreal conditionals",n:"agar + past progressive in both clauses for unreal present and past: agar midānestam, miāmadam. Past perfect sharpens the past: agar dide budam…",d:[["if I knew, I would come","اگر می دانستم می آمدم/اگه میدونستم میومدم"],["if I had money","اگر پول داشتم/اگه پول داشتم"]]},
+{lvl:"B2",t:"Passive",n:"Past participle + shodan: neveshte shod “it was written”. Speech often prefers an impersonal 3rd plural active instead.",d:[["it was written","نوشته شد"],["the door was opened","در باز شد"],["it will be built","ساخته خواهد شد/ساخته می شود"]]},
+{lvl:"B2",t:"Causatives",n:"Present stem + ‑ān‑ forms a causative verb: khandidan “laugh” → khandāndan “make laugh”. Many compound verbs swap shodan ↔ kardan instead.",d:[["to make laugh","خنداندن"],["to make run","دواندن"],["to make someone understand","فهماندن"]]},
+{lvl:"B2",t:"Formal vs spoken",n:"Spoken Tehrani shortens stems (miravad → mire, miguyad → mige), ‑ān → ‑un (nān → nun), ast → ‑e, and rā → ‑o.",d:[["he says (spoken)","میگه/می گه"],["he goes (spoken)","میره/می ره"],["bread (spoken)","نون"]]}
+];
+
+const DECKS=["A1","A2","B1","B2"];
+const INTERVALS=[0,1,3,7,14,30,60,120,240]; // days per level
+const MAXL=8, MASTER=6;
+// ---------- cards ----------
+const CARDS=[];
+(function(){
+  let lvl="A1";
+  RAW.trim().split("\n").forEach(l=>{
+    if(l.startsWith("#")){lvl=l.slice(1).trim();return;}
+    const [en,fa,tr]=l.split("|");
+    CARDS.push({id:lvl+":"+en,deck:lvl,en,fa:fa.split("/"),tr:tr||""});
+  });
+  GRAMMAR.forEach(g=>g.d.forEach(([en,fa])=>CARDS.push({id:"G:"+en,deck:"Grammar",sub:g.lvl+" · "+g.t,en,fa:fa.split("/"),tr:""})));
+})();
+const BYID=Object.fromEntries(CARDS.map(c=>[c.id,c]));
+// ---------- state ----------
+const today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5);
+const DEF={p:{},s:{decks:["A1"],newPerDay:10,theme:"auto",zoom:1,gmax:"auto",sprintMin:5},g:{},sp:{streak:0,last:0,best:0,hist:{}},d:{day:0,newDone:0,reviewed:0},t:0};
+let S=JSON.parse(JSON.stringify(DEF));
+const LSK="kashi-v1";
+try{const x=JSON.parse(localStorage.getItem(LSK)||"null");if(x)S=merge(x);}catch(e){}
+function merge(x){return{p:x.p||{},s:Object.assign({},DEF.s,x.s||{}),d:Object.assign({},DEF.d,x.d||{}),g:x.g||{},sp:Object.assign({streak:0,last:0,best:0,hist:{}},x.sp||{}),t:x.t||0};}
+let dbRef=null,saveT=null;
+function save(){
+  S.t=Date.now();
+  try{localStorage.setItem(LSK,JSON.stringify(S));}catch(e){}
+  clearTimeout(saveT);
+  saveT=setTimeout(()=>{if(dbRef)dbRef.set(S).catch(()=>{});},1200);
+}
+(async()=>{
+  try{
+    if(!window.claude||!claude.use)return;
+    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!db||!user)return;
+    const uid=await user.id(); if(!uid)return;
+    dbRef=db.doc("data/users/"+uid+"/srs");
+    const snap=await dbRef.get();
+    if(snap.exists){const r=merge(snap.data());if(r.t>S.t){S=r;try{localStorage.setItem(LSK,JSON.stringify(S));}catch(e){}applyTheme();render();}}
+    else if(S.t)dbRef.set(S).catch(()=>{});
+  }catch(e){dbRef=null;}
+})();
+function rollDay(){if(S.d.day!==today()){S.d={day:today(),newDone:0,reviewed:0};}}
+function applyTheme(){if(S.s.theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.dataset.theme=S.s.theme;}
+applyTheme();
+// ---------- matching ----------
+function norm(s){
+  return s.normalize("NFC").replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/[ۀة]/g,"ه").replace(/[أإ]/g,"ا")
+   .replace(/[\u064B-\u065F\u0670\u0640]/g,"").replace(/[\s\u200c\u200d\u00a0.,،؛;:!?؟«»"'()\-]/g,"").toLowerCase();
+}
+function lev(a,b){const m=a.length,n=b.length;let p=Array.from({length:n+1},(_,i)=>i);
+  for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[n];}
+function grade(card,input){
+  const x=norm(input); if(!x)return"empty";
+  if(card.fa.some(f=>norm(f)===x))return"ok";
+  if(card.fa.some(f=>{const y=norm(f);return y.length>=4&&lev(x,y)===1;}))return"near";
+  return"bad";
+}
+// ---------- scheduling ----------
+function st(id){return S.p[id];}
+function due(id){const p=st(id);return !!p&&p.due<=today();}
+function inDecks(c){return S.s.decks.includes(c.deck)&&DECKS.includes(c.deck);}
+let Q=[],cur=null,phase="ask",hinted=false,lapsed=new Set(),sessionDone=0;
+function buildQueue(){
+  rollDay();
+  const rev=CARDS.filter(c=>inDecks(c)&&due(c.id));
+  shuffle(rev);
+  const room=Math.max(0,S.s.newPerDay-S.d.newDone);
+  const fresh=CARDS.filter(c=>inDecks(c)&&!st(c.id)).slice(0,room);
+  // interleave new cards among reviews
+  Q=rev.slice(0,300);
+  fresh.forEach((c,i)=>Q.splice(Math.min(Q.length,Math.floor((i+1)*Q.length/(fresh.length+1))+i),0,c));
+  lapsed=new Set();
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function schedule(card,result){
+  const isNew=!st(card.id);
+  let p=st(card.id)||{l:0,due:today(),n:0,w:0};
+  p.n++;
+  if(isNew){S.d.newDone++;}else if(!lapsed.has(card.id)&&p.l>0){S.d.reviewed++;}
+  if(result==="bad"){
+    p.w++; p.l=0; p.due=today(); lapsed.add(card.id);
+    Q.splice(Math.min(3,Q.length),0,card); // see it again shortly
+  }else if(lapsed.has(card.id)||hinted){
+    p.l=Math.max(p.l,1); p.due=today()+1; lapsed.delete(card.id);
+  }else{
+    p.l=Math.min(MAXL,p.l+1); p.due=today()+INTERVALS[p.l];
+  }
+  S.p[card.id]=p; save();
+}
+// ---------- counts ----------
+function counts(deck){
+  const cs=CARDS.filter(c=>deck?c.deck===deck:inDecks(c));
+  let n=0,learn=0,mast=0,d=0;
+  cs.forEach(c=>{const p=st(c.id);if(!p)n++;else if(p.l>=MASTER)mast++;else learn++;if(due(c.id))d++;});
+  return{total:cs.length,n,learn,mast,due:d};
+}
+// ---------- rendering ----------
+const V=document.getElementById("view"),NAV=document.getElementById("nav"),SHEET=document.getElementById("sheet");
+let view="sprint";
+NAV.addEventListener("click",e=>{const b=e.target.closest("button");if(b)go(b.dataset.v);});
+function go(v){
+  if(view==="sprint"&&v!=="sprint")stopSprint();
+  if(phase==="shown"&&cur)schedule(cur,pending);
+  cur=null;phase="ask";pending=null;view=v;
+  NAV.querySelectorAll("button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
+  if(v==="study")buildQueue();
+  closeSheet();render();window.scrollTo(0,0);
+}
+function esc(s){return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
+function meter(l){let h="";for(let i=1;i<=MAXL;i++)h+=`<i class="${i<=l?"on":""}"></i>`;return`<span class="dots" aria-label="Level ${l} of ${MAXL}">${h}</span>`;}
+function render(){({sprint:rSprint,study:rStudy,map:rMap,deck:rDeck,grammar:rGrammar,settings:rSettings})[view]();topline();}
+function topline(){
+  rollDay();
+  const c=counts(),newLeft=Math.min(c.n,Math.max(0,S.s.newPerDay-S.d.newDone)),done=S.d.reviewed+S.d.newDone;
+  const left=c.due+newLeft;
+  document.getElementById("topline").textContent=left?`${left} left today`:`${done} done today`;
+  NAV.querySelector('[data-v="sprint"]').classList.toggle("todo",S.sp.last!==today());
+  document.getElementById("prog").style.width=(done+left?100*done/(done+left):0)+"%";
+}
+// ---------- study: every word asked through a sentence ----------
+let curQ=null;
+function rStudy(){
+  if(phase!=="shown"||!cur){cur=Q.shift()||null;phase="ask";hinted=false;curQ=cur?askFor(cur.id,unlockedLv()):null;}
+  if(!cur){
+    const c=counts();
+    V.innerHTML=`<div class="done"><div class="ring"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>All caught up</h2>
+      <p>${c.n?`You've done today's ${S.s.newPerDay} new words. Come back tomorrow, or keep going.`:`Every word in your selected levels has been introduced. Add a level in Settings.`}</p>
+      ${c.n?`<button class="btn" id="more">10 more new words</button>`:""}</div>`;
+    const m=document.getElementById("more");
+    if(m)m.onclick=()=>{S.s.newPerDay=S.d.newDone+10;save();buildQueue();render();};
+    return;
+  }
+  const p=st(cur.id),l=p?p.l:0,q=curQ;
+  V.innerHTML=`<section class="study">
+    <div class="chiprow"><span class="chip">${esc(cur.deck)}${p?"":" · New word"}</span>${meter(l)}</div>
+    ${!p?`<div class="introw"><span class="newchip"><em>New</em> ${esc(enOf(cur))} <span class="fa">${esc(cur.fa[0])}</span> <span class="muted">${esc((cur.tr||"").split(" / ")[0])}</span></span></div>`:""}
+    <h1 class="prompt">${esc(q?q.en:cur.en)}</h1>
+    ${q?`<div class="target">Word: <b>${esc(enOf(cur))}</b></div>`:""}
+    <input class="answer" id="ans" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="fa" dir="rtl" placeholder="به فارسی" aria-label="Your Persian answer">
+    <div class="hint" id="hint"></div>
+    <div class="fb" id="fb" aria-live="polite"></div>
+    <div class="acts" id="acts"><button class="btn primary" id="go">Check</button>
+      <div class="links"><button class="link" id="hintb">Hint</button><button class="link" id="skip">Reveal</button></div></div>
+  </section>`;
+  const ans=document.getElementById("ans");
+  ans.focus({preventScroll:true});
+  ans.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();act();}});
+  document.getElementById("go").onclick=act;
+  document.getElementById("hintb").onclick=()=>{
+    hinted=true;const f=cur.fa[0];
+    document.getElementById("hint").innerHTML=(cur.tr?`${esc(enOf(cur))} sounds like <i>${esc(cur.tr.split(" / ")[0])}</i>`:`${esc(enOf(cur))} starts with <span class="fa" style="font-size:18px;color:var(--ink)">${esc(f.split(" ")[0])}</span>`)+(q&&q.words.length>1?` · ${q.words.filter(x=>x!==cur.id).map(x=>`<span class="fa" style="color:var(--ink)">${esc(BYID[x].fa[0])}</span>`).join(" ")}`:"");
+    ans.focus();
+  };
+  document.getElementById("skip").onclick=()=>{if(phase==="ask")check(true);};
+}
+function act(){if(phase==="ask")check(false);else next();}
+function check(giveUp){
+  const ans=document.getElementById("ans"),q=curQ;
+  const r=giveUp?"bad":q?gradeSent(q,ans.value):grade(cur,ans.value);
+  if(r==="empty"){ans.focus();return;}
+  phase="shown";ans.readOnly=true;ans.classList.add(r==="bad"?"bad":"ok");
+  const fb=document.getElementById("fb");
+  const verdict={ok:hinted?"Correct, with a hint":"Correct",near:"Almost — one letter off",bad:giveUp?"Answer":"Not quite"}[r];
+  fb.className="fb show "+r;
+  const gl=q?q.words.map(id=>BYID[id]).filter(Boolean).map(c=>`<span class="gl"><span class="fa">${esc(c.fa[0])}</span> ${esc(enOf(c).replace(/^to /,""))}</span>`).join(""):"";
+  fb.innerHTML=`<div class="verdict">${verdict}</div>
+    <div class="big">${esc(q?q.canon:cur.fa[0])}</div>
+    ${cur.tr?`<div class="tr">${esc(cur.fa[0])} · ${esc(cur.tr)}</div>`:""}
+    ${!q&&cur.fa.length>1?`<div class="alt">Also: ${cur.fa.slice(1).map(x=>`<span>${esc(x)}</span>`).join(" · ")}</div>`:""}
+    ${r!=="ok"&&ans.value.trim()?`<div class="yours">You typed <span>${esc(ans.value)}</span></div>`:""}
+    ${r==="bad"&&gl?`<div class="gls">${gl}</div>`:""}`;
+  pending=r==="near"?"ok":r;
+  document.getElementById("acts").innerHTML=`<button class="btn primary" id="nx">Next</button>${r==="bad"&&!giveUp?`<div class="links"><button class="link" id="ovr">I was right</button></div>`:""}`;
+  document.getElementById("nx").onclick=next;
+  const o=document.getElementById("ovr");if(o)o.onclick=()=>{pending="ok";next();};
+  document.getElementById("nx").focus({preventScroll:true});
+}
+let pending=null;
+function settleQ(q,res){ // grammar points + reinforcement of the other words in the sentence
+  if(!q)return;const good=res!=="bad";
+  q.skills.forEach(k=>{const s=gs(k);s.n++;if(good)s.ok++;s.r.push(good?1:0);if(s.r.length>30)s.r.shift();});
+  if(good)q.words.forEach(id=>{if(id===q.target)return;const p=S.p[id];if(p&&p.due<=today()&&p.l>0){p.l=Math.min(MAXL,p.l+1);p.due=today()+INTERVALS[p.l];}});
+}
+function next(){settleQ(curQ,pending);schedule(cur,pending);cur=null;curQ=null;phase="ask";pending=null;render();}
+document.addEventListener("keydown",e=>{if(view==="study"&&phase==="shown"&&e.key==="Enter"&&document.activeElement?.id!=="ans"&&document.activeElement?.id!=="nx"){e.preventDefault();next();}});
+// ---------- map ----------
+const PER=500,ZOOMS=[25,20,15,10,6,3];
+let mapPage=0,mapSel=-1;
+function band(c){const p=st(c.id);if(!p)return 0;if(p.l>=MASTER)return 3;if(p.l>=1)return 2;return 1;}
+function zoomIdx(){return Math.min(ZOOMS.length-1,Math.max(0,S.s.zoom|0));}
+function rMap(){
+  const MC=CARDS.filter(c=>DECKS.includes(c.deck)),pages=Math.ceil(MC.length/PER);
+  mapPage=Math.min(Math.max(0,mapPage),pages-1);
+  const tot=[0,0,0,0];MC.forEach(c=>tot[band(c)]++);
+  let tabs="";for(let i=0;i<pages;i++){const a=i*PER+1,b=Math.min(MC.length,(i+1)*PER);tabs+=`<button role="tab" aria-selected="${i===mapPage}" data-p="${i}">${a}–${b}</button>`;}
+  V.innerHTML=`<div class="kpis">
+    <div class="kpi" style="--c:var(--ok)"><b>${tot[3]}</b><span>Learned well</span></div>
+    <div class="kpi" style="--c:var(--mid)"><b>${tot[2]}</b><span>Basic</span></div>
+    <div class="kpi" style="--c:var(--bad)"><b>${tot[1]+tot[0]}</b><span>Not yet</span></div></div>
+    <div class="pages" role="tablist" id="pages">${tabs}</div>
+    <div class="maphead"><small id="pinfo"></small>
+      <div class="zoom"><button id="zo" aria-label="Zoom out">−</button><input type="range" id="zr" min="0" max="${ZOOMS.length-1}" step="1" aria-label="Zoom"><button id="zi" aria-label="Zoom in">+</button></div></div>
+    <div class="grid" id="grid"></div>
+    <div class="gridnote">Pinch or use + to zoom. Zoom in to read the words.</div>`;
+  document.getElementById("pages").onclick=e=>{const b=e.target.closest("button");if(!b)return;mapPage=+b.dataset.p;
+    document.querySelectorAll("#pages button").forEach(x=>x.setAttribute("aria-selected",x===b));drawGrid();};
+  document.getElementById("zo").onclick=()=>setZoom(zoomIdx()-1);
+  document.getElementById("zi").onclick=()=>setZoom(zoomIdx()+1);
+  document.getElementById("zr").oninput=e=>setZoom(+e.target.value);
+  const g=document.getElementById("grid");
+  g.onclick=e=>{const b=e.target.closest(".t");if(!b)return;
+    g.querySelectorAll(".sel").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");mapSel=+b.dataset.i;openSheet(CARDS[mapSel]);};
+  // pinch to zoom
+  let d0=0;
+  const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+  g.addEventListener("touchstart",e=>{if(e.touches.length===2)d0=dist(e.touches);},{passive:true});
+  g.addEventListener("touchmove",e=>{if(e.touches.length!==2||!d0)return;e.preventDefault();
+    const d=dist(e.touches),r=d/d0;if(r>1.25){setZoom(zoomIdx()+1);d0=d;}else if(r<0.8){setZoom(zoomIdx()-1);d0=d;}},{passive:false});
+  g.addEventListener("touchend",()=>{d0=0;});
+  let acc=0;
+  g.addEventListener("wheel",e=>{if(!e.ctrlKey)return;e.preventDefault();acc+=e.deltaY;
+    if(acc<-40){setZoom(zoomIdx()+1);acc=0;}else if(acc>40){setZoom(zoomIdx()-1);acc=0;}},{passive:false});
+  drawGrid();
+}
+function setZoom(z){
+  z=Math.min(ZOOMS.length-1,Math.max(0,z));if(z===zoomIdx()&&document.getElementById("grid").dataset.z==z)return;
+  S.s.zoom=z;save();drawGrid();
+  if(mapSel>=0){const el=document.querySelector(`#grid [data-i="${mapSel}"]`);if(el)el.scrollIntoView({block:"center",behavior:"smooth"});}
+}
+function drawGrid(){
+  const g=document.getElementById("grid");if(!g)return;
+  const z=zoomIdx(),cols=ZOOMS[z],lbl=cols<=6?2:cols<=10?1:0;
+  const MC=CARDS.filter(c=>DECKS.includes(c.deck)),a=mapPage*PER,slice=MC.slice(a,a+PER);
+  const pg=[0,0,0,0];slice.forEach(c=>pg[band(c)]++);
+  g.dataset.z=z;g.className="grid lbl"+lbl;
+  g.style.setProperty("--cols",cols);g.style.setProperty("--gap",lbl?"6px":cols>20?"2px":"3px");
+  g.innerHTML=slice.map((c,i)=>`<button class="t b${band(c)}${CARDS.indexOf(c)===mapSel?" sel":""}" data-i="${CARDS.indexOf(c)}" aria-label="${esc(c.en)}">${lbl?`<span class="te">${esc(c.en)}</span><span class="tf">${esc(c.fa[0])}</span>`:""}</button>`).join("");
+  document.getElementById("zr").value=z;
+  document.getElementById("zo").disabled=z===0;document.getElementById("zi").disabled=z===ZOOMS.length-1;
+  const decks=[...new Set(slice.map(c=>c.deck))].join(", ");
+  document.getElementById("pinfo").innerHTML=`${decks} · <span style="color:var(--ok)">${pg[3]}</span> · <span style="color:var(--mid)">${pg[2]}</span> · <span style="color:var(--bad)">${pg[1]+pg[0]}</span>`;
+}
+function openSheet(c){
+  const p=st(c.id),b=band(c),lab=["Not seen yet","Missed","Basic","Learned well"][b],col=["var(--muted)","var(--bad)","var(--mid)","var(--ok)"][b];
+  SHEET.innerHTML=`<div class="sheet-in"><div class="sheet-top"><div class="en">${esc(c.en)}</div><button class="x" id="sx" aria-label="Close">✕</button></div>
+    <div class="fa1">${esc(c.fa[0])}</div>
+    <div class="meta"><span style="color:${col};font-weight:600">${lab}</span>${p?meter(p.l):""}${c.tr?`<span>${esc(c.tr)}</span>`:""}<span>${c.deck}</span>${p&&p.n?`<span>${p.n-p.w}/${p.n} right</span>`:""}</div></div>`;
+  SHEET.hidden=false;document.getElementById("sx").onclick=closeSheet;
+}
+function closeSheet(){SHEET.hidden=true;SHEET.innerHTML="";}
+// ---------- words ----------
+function rDeck(){
+  let h=`<div class="eyebrow">Progress</div><div class="group">`;
+  DECKS.forEach(d=>{
+    const c=counts(d),w=x=>(100*x/c.total).toFixed(1)+"%";
+    h+=`<div class="row deckrow"><b>${d}</b><div class="bar"><i style="width:${w(c.mast)};background:var(--ok)"></i><i style="width:${w(c.learn)};background:var(--mid)"></i></div><span class="num">${c.mast+c.learn}/${c.total}</span></div>`;
+  });
+  h+=`</div><div class="eyebrow">All words</div><input class="search" id="q" placeholder="Search English or Persian" aria-label="Search words"><div class="group wl" id="list" style="margin-top:10px"></div>`;
+  V.innerHTML=h;
+  const q=document.getElementById("q"),L=document.getElementById("list");
+  const draw=()=>{
+    const s=q.value.trim().toLowerCase(),sn=norm(q.value);
+    const rows=CARDS.filter(c=>!s||c.en.toLowerCase().includes(s)||(sn&&c.fa.some(f=>norm(f).includes(sn)))).slice(0,120);
+    L.innerHTML=rows.map(c=>{const p=st(c.id);return`<div class="row"><div><div class="e">${esc(c.en)}</div><div class="s">${c.deck}${p?meter(p.l):" · new"}</div></div><span class="f">${esc(c.fa[0])}</span></div>`;}).join("")||`<div class="row muted">No matches</div>`;
+  };
+  q.oninput=draw;draw();
+}
+// ---------- grammar ----------
+function rGrammar(){
+  const lv=unlockedLv();
+  let h=`<div class="eyebrow">Your grammar · from sprints</div><div class="group">${Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv).map(skillRow).join("")}</div><p class="note">Accuracy over your last 30 sentences that used each pattern. Unlocked up to ${LEVELS[lv]}.</p>`;
+  ["A1","A2","B1","B2"].forEach(l=>{
+    h+=`<div class="eyebrow">${l}</div>`;
+    GRAMMAR.filter(g=>g.lvl===l).forEach(g=>{
+      h+=`<details><summary>${esc(g.t)}</summary><div class="gbody"><p>${esc(g.n)}</p>${g.d.map(([e,f])=>`<div class="ex"><span>${esc(e)}</span><span>${esc(f.split("/")[0])}</span></div>`).join("")}</div></details>`;
+    });
+  });
+  h+=`<p class="note">The examples are practice cards in the Grammar set. Switch it on in Settings.</p>`;
+  V.innerHTML=h;
+}
+// ---------- settings ----------
+function rSettings(){
+  V.innerHTML=`<div class="eyebrow">Study these levels</div><div class="group">${DECKS.map(d=>`<label class="row"><span>${d} <span class="muted">${counts(d).total}</span></span><input class="sw" type="checkbox" data-d="${d}" ${S.s.decks.includes(d)?"checked":""}></label>`).join("")}</div>
+  <div class="eyebrow">Pace</div><div class="group">
+    <label class="row">New words per day<select id="npd">${[5,10,15,20,30,50].map(n=>`<option ${n===S.s.newPerDay?"selected":""}>${n}</option>`).join("")}</select></label>
+    <label class="row">Sprint length<select id="spm">${[3,5,10].map(n=>`<option value="${n}" ${n===(S.s.sprintMin||5)?"selected":""}>${n} min</option>`).join("")}</select></label>
+    <label class="row">Sprint grammar<select id="gmx">${[["auto","Unlock as I improve"],["A1","A1 only"],["A2","Up to A2"],["B1","Up to B1"],["B2","Up to B2"]].map(([v,t])=>`<option value="${v}" ${v===S.s.gmax?"selected":""}>${t}</option>`).join("")}</select></label>
+    <label class="row">Appearance<select id="th">${[["auto","Automatic"],["light","Light"],["dark","Dark"]].map(([v,t])=>`<option value="${v}" ${v===S.s.theme?"selected":""}>${t}</option>`).join("")}</select></label>
+  </div>
+  <p class="note">A correct answer moves a word up one of 8 levels; the next review comes after 1, 3, 7, 14, 30, 60, 120, then 240 days. A miss resets it. Level 6 and up counts as learned well. Spaces, half-spaces, Arabic ي/ك and vowel marks are ignored.</p>
+  <div class="eyebrow">Data</div><div class="group"><button class="danger" id="reset">Erase all progress</button></div>`;
+  V.querySelectorAll("input[data-d]").forEach(i=>i.onchange=()=>{
+    const d=i.dataset.d;S.s.decks=i.checked?[...new Set([...S.s.decks,d])]:S.s.decks.filter(x=>x!==d);save();topline();});
+  document.getElementById("npd").onchange=e=>{S.s.newPerDay=+e.target.value;save();topline();};
+  document.getElementById("spm").onchange=e=>{S.s.sprintMin=+e.target.value;save();};
+  document.getElementById("gmx").onchange=e=>{S.s.gmax=e.target.value;save();};
+  document.getElementById("th").onchange=e=>{S.s.theme=e.target.value;applyTheme();save();};
+  document.getElementById("reset").onclick=()=>{if(confirm("Erase all progress? Levels and review dates for every word will be lost.")){S.p={};S.g={};S.sp={streak:0,last:0,best:0,hist:{}};S.d={day:today(),newDone:0,reviewed:0};save();rSettings();topline();}};
+}
+// ---------- sentence generator ----------
+// nouns: [card id, english, plural, categories, possessable, "to" phrase (places)]
+const LEX_N=[
+["A1:house; home","house","houses","place thing",1,"home"],["A1:book","book","books","text thing",1],["A1:car","car","cars","thing wash",1],
+["A1:door","door","doors","open thing",0],["A1:window","window","windows","open thing",0],["A1:bread","bread","bread","food",0],
+["A1:water","water","water","drink",0],["A1:tea","tea","tea","drink",0],["A1:milk","milk","milk","drink",0],["A1:apple","apple","apples","food",0],
+["A1:rice","rice","rice","food",0],["A1:meat","meat","meat","food",0],["A1:cheese","cheese","cheese","food",0],["A1:fish","fish","fish","food animal",0],
+["A1:coffee","coffee","coffee","drink",0],["A1:food","food","food","food",1],["A1:pen","pen","pens","thing",1],["A1:bag","bag","bags","thing open",1],
+["A1:phone","phone","phones","thing",1],["A1:key","key","keys","thing",1],["A1:clothes","clothes","clothes","thing wash",1],["A2:letter","letter","letters","text thing",1],
+["A2:newspaper","newspaper","newspapers","text thing",0],["A1:city","city","cities","place",1,"to the city"],["A1:school","school","schools","place",1,"to school"],
+["A1:shop","shop","shops","place",1,"to the shop"],["A1:park","park","parks","place",0,"to the park"],["A1:university","university","universities","place",1,"to university"],
+["A1:room","room","rooms","place",1,"to the room"],["A1:restaurant","restaurant","restaurants","place",0,"to the restaurant"],["A1:hospital","hospital","hospitals","place",0,"to the hospital"],
+["A2:garden","garden","gardens","place",1,"to the garden"],["A1:friend","friend","friends","person",1],["A2:teacher","teacher","teachers","person",1],["A1:child","child","children","person",1],
+["A2:doctor","doctor","doctors","person",1],["A1:mother","mother","mothers","person",1],["A1:father","father","fathers","person",1],["A1:brother","brother","brothers","person",1],
+["A1:sister","sister","sisters","person",1],["A1:cat","cat","cats","animal",1],["A1:dog","dog","dogs","animal",1],["A1:table","table","tables","thing",1],
+["A1:chair","chair","chairs","thing",0],["A2:plate","plate","plates","thing wash",0],["A2:glass (for drinking)","glass","glasses","thing wash",0],
+["A1:shoe","shoe","shoes","thing",1],["A1:fruit","fruit","fruits","food",0],["A2:gift","gift","gifts","thing",1],["A2:song","song","songs","media",0],
+["A2:film","film","films","media",0],["A1:word","word","words","word",0],["A1:question","question","questions","word",0]];
+// adjectives: [card id, english, comparative, categories (or "pp" for person predicates)]
+const LEX_A=[
+["A1:big","big","bigger","thing place animal"],["A1:small","small","smaller","thing place animal"],["A1:new","new","newer","thing text place"],
+["A1:old (thing)","old","older","thing text place"],["A1:beautiful","beautiful","more beautiful","thing place animal text"],["A1:good","good","better","thing text place food drink person animal"],
+["A1:bad","bad","worse","thing text place food drink"],["A1:clean","clean","cleaner","thing place"],["A1:dirty","dirty","dirtier","thing place"],
+["A1:cheap","cheap","cheaper","thing food text"],["A1:expensive","expensive","more expensive","thing food place"],["A1:warm","warm","warmer","food drink place"],
+["A1:cold","cold","colder","food drink place"],["A2:delicious","delicious","more delicious","food drink"],["A2:sweet","sweet","sweeter","food drink"],
+["A1:tired","tired","more tired","person animal pp"],["A1:happy","happy","happier","person pp"],["A2:kind","kind","kinder","person animal pp"],
+["A1:young","young","younger","person pp"],["A1:old (person)","old","older","person animal pp"],["A1:long; tall","tall","taller","person pp"],
+["A2:interesting","interesting","more interesting","text place"],["A2:fresh","fresh","fresher","food drink"],["A1:hungry","hungry","hungrier","pp animal"],
+["A1:thirsty","thirsty","thirstier","pp"],["A1:sick","sick","sicker","pp animal"],["A1:ready","ready","readier","pp food"],["A1:sad","sad","sadder","pp person"]];
+// verbs
+const LEX_V=[
+{id:"A1:to go",en:["go","goes","went","gone","going"],p:"رو",t:"رفت",sub:"برو",sp:"ر",spSub:"بر",imp:"برو",intr:1,place:1},
+{id:"A1:to come",en:["come","comes","came","come","coming"],p:"آی",t:"آمد",sub:"بیای",sp:"ا",spSub:"بیا",spT:"اومد",imp:"بیا",impPl:"بیایید",neg:"نیا",negPl:"نیایید",intr:1,place:1},
+{id:"A1:to eat",en:["eat","eats","ate","eaten","eating"],p:"خور",t:"خورد",intr:1,obj:"food",pass:1},
+{id:"A1:to drink",en:["drink","drinks","drank","drunk","drinking"],p:"نوش",t:"نوشید",intr:1,obj:"drink",pass:1},
+{id:"A1:to see",en:["see","sees","saw","seen","seeing"],p:"بین",t:"دید",obj:"thing person animal place media",noProg:1,pass:1},
+{id:"A1:to read",en:["read","reads","read","read","reading"],p:"خوان",t:"خواند",sp:"خون",spT:"خوند",intr:1,obj:"text word",pass:1},
+{id:"A1:to write",en:["write","writes","wrote","written","writing"],p:"نویس",t:"نوشت",intr:1,obj:"text word",pass:1},
+{id:"A1:to buy",en:["buy","buys","bought","bought","buying"],p:"خر",t:"خرید",obj:"food drink text thing",pass:1},
+{id:"A1:to sleep",en:["sleep","sleeps","slept","slept","sleeping"],p:"خواب",t:"خوابید",intr:1},
+{id:"A1:to sit",en:["sit","sits","sat","sat","sitting"],p:"نشین",t:"نشست",sub:"بنشین",sp:"شین",spSub:"بشین",intr:1},
+{id:"A1:to bring",en:["bring","brings","brought","brought","bringing"],p:"آور",t:"آورد",sub:"بیاور",sp:"ار",spSub:"بیار",neg:"نیاور",spNeg:"نیار",obj:"food drink text thing",pass:1},
+{id:"A1:to wash",en:["wash","washes","washed","washed","washing"],p:"شوی",t:"شست",sp:"شور",imp:"بشوی",spSub:"بشور",obj:"wash",pass:1},
+{id:"A1:to cook",en:["cook","cooks","cooked","cooked","cooking"],p:"پز",t:"پخت",obj:"food",pass:1},
+{id:"A1:to close",en:["close","closes","closed","closed","closing"],p:"بند",t:"بست",obj:"open",pass:1},
+{id:"A1:to understand",en:["understand","understands","understood","understood","understanding"],p:"فهم",t:"فهمید",intr:1,noProg:1},
+{id:"A1:to know (a fact)",en:["know","knows","knew","known","knowing"],p:"دان",t:"دانست",sp:"دون",spT:"دونست",intr:1,noProg:1,noModal:1},
+{id:"A1:to work",en:["work","works","worked","worked","working"],pre:"کار",b:"k",intr:1},
+{id:"A1:to speak",en:["speak","speaks","spoke","spoken","speaking"],pre:"حرف",b:"z",intr:1},
+{id:"A1:to play",en:["play","plays","played","played","playing"],pre:"بازی",b:"k",intr:1},
+{id:"A1:to learn",en:["learn","learns","learned","learned","learning"],pre:"یاد",b:"g",intr:1},
+{id:"A1:to open",en:["open","opens","opened","opened","opening"],pre:"باز",b:"k",obj:"open",pass:1},
+{id:"A1:to find",en:["find","finds","found","found","finding"],pre:"پیدا",b:"k",obj:"thing text",noProg:1,pass:1},
+{id:"A1:to like; to love",en:["like","likes","liked","liked","liking"],pre:"دوست",b:"d",obj:"food drink text thing person animal place media",noProg:1,noModal:0,stative:1},
+{id:"A1:to help",en:["help","helps","helped","helped","helping"],pre:"کمک",b:"k",intr:1}];
+const BASEV={k:{p:"کن",t:"کرد",sub:"کن"},z:{p:"زن",t:"زد",sub:"بزن"},g:{p:"گیر",t:"گرفت",sub:"بگیر"},d:{p:"دار",t:"داشت",sub:"داشته باش",noMi:1}};
+const SKILLS={
+ ezafe:["A1","Ezafe (noun + adjective)","The adjective follows the noun, joined by an unwritten -e: ketāb-e khub. After ه you may write ی or ٔ; after ا or و write ی."],
+ demo:["A1","This / that","in = this, ān (spoken un) = that. They come before the noun and the noun stays singular-looking: in ketāb."],
+ plural:["A1","Plural -hā","Add ‑hā (ها) to almost any noun: ketāb‑hā. With an adjective it becomes ‑hā‑ye: ketābhā‑ye khub."],
+ poss:["A1","Possessive endings","‑am, ‑at, ‑ash, ‑emān, ‑etān, ‑eshān go on the last word of the phrase: ketābam, ketāb‑e khubam."],
+ be:["A1","To be","Short endings ‑am, ‑i, ast, ‑im, ‑id, ‑and, or the full hastam… Spoken 3rd person: ‑e (khube)."],
+ pres:["A1","Present tense","mi‑ + present stem + ending: mi‑rav‑am. Compound verbs keep their first part in front: kār mikonam."],
+ neg:["A1","Negation","Prefix na‑, or ne‑ before mi‑: nemiravam, naraftam, nist."],
+ ra:["A1","Object marker rā","A definite object takes را (spoken ‑o / ro) and comes before the verb: nān rā mikhoram."],
+ prep:["A1","Prepositions","Place words come before the noun: zir-e miz, ru-ye miz, bā dust, bedun-e pul."],
+ ques:["A1","Question words","kojā, chi/che, ki, cherā, chetor, chand, kodām. In speech kojāst, chiye, kiye."],
+ num:["A1","Numbers + noun","The noun stays singular after a number: se ketāb. Speech often adds tā: se tā ketāb."],
+ to:["A1","Direction be","be + place before the verb: be madrese miravam. Spoken often drops be: madrese miram."],
+ past:["A2","Simple past","Past stem + ending; 3rd singular has no ending: raftam, raft."],
+ prog:["A2","Present progressive","dāshtan + present tense: dāram mikhoram."],
+ fut:["A2","Future","khāh‑ + ending + short past stem: khāham raft."],
+ imp:["A2","Imperative","be‑ + present stem: bokhor! Plural/polite adds ‑id. Negative: nakhor!"],
+ comp:["A2","Comparative & superlative","‑tar = more: bozorgtar. ‑tarin before the noun = most: bozorgtarin khāne."],
+ pastprog:["B1","Past progressive","mi‑ + past stem + ending: miraftam (I was going / used to go)."],
+ perf:["B1","Present perfect","Past participle (past stem + e) + ‑am, ‑i, ast…: rafte‑am."],
+ subj:["B1","Subjunctive","After khāstan, tavānestan, bāyad: be‑ + present stem + ending: mikhāham beravam."],
+ pluperf:["B2","Past perfect","Participle + bud‑am…: rafte budam."],
+ pastsubj:["B2","Past subjunctive","shāyad + participle + bāsham…: shāyad rafte bāshad."],
+ passive:["B2","Passive","Participle + shodan: nān khorde shod. Compound verbs swap kardan for shodan: dar bāz shod."]};
+const LEVELS=["A1","A2","B1","B2"];
+const NB=new Map(LEX_N.map(n=>[n[0],n])),AB=new Map(LEX_A.map(a=>[a[0],a]));
+const fa=id=>(BYID[id]||{fa:[""]}).fa;
+const PRON=[["من"],["تو"],["او","اون"],["ما"],["شما"],["آنها","اونا","ایشان"]];
+const EN_SUBJ=()=>["I","you",Math.random()<.5?"he":"she","we","you (pl.)","they"];
+const END_F=["م","ی","د","یم","ید","ند"],END_S=["م","ی","ه","یم","ین","ن"],END_T=["م","ی","","یم","ید","ند"],END_TS=["م","ی","","یم","ین","ن"];
+const ZW="‌";
+const last=w=>w.slice(-1);
+const J=(x,s)=>("اآدذرزژو".includes(x.slice(-1))?x+s:x+"\u200c"+s);
+const isV=w=>"اوی".includes(last(w)),isH=w=>last(w)==="ه";
+// ---- noun phrase pieces (each returns array of alternative strings) ----
+function ez(n){ // noun with ezafe linker
+  return n.flatMap(x=>isH(x)?[x,x+ZW+"ی",x+"ٔ"]:last(x)==="ا"||last(x)==="و"?[x+"ی"]:last(x)==="ی"?[x,x+"ی"]:[x]);}
+function plur(n,ezafe){return n.flatMap(x=>{const r=[J(x,"ها")];if(!isH(x)&&!isV(x))r.push(x+"ا");return ezafe?r.map(y=>y.endsWith("ها")?y+"ی":y+"ی"):r;});}
+function possf(w,p){ // possessive suffix on last word
+  const F=["م","ت","ش","مان","تان","شان"],S=["م","ت","ش","مون","تون","شون"],H=["ام","ات","اش","مان","تان","شان"];
+  return w.flatMap(x=>isH(x)?[x+ZW+H[p],x+ZW+S[p],x.slice(0,-1)+S[p]]:isV(x)?[x+"ی"+F[p],x+"ی"+S[p]]:[x+F[p],x+S[p]]);}
+function obj(n){return n.flatMap(x=>{const r=[x+" را",x+" رو"];if(!isH(x)&&!isV(x))r.push(x+"و");return r;});}
+function cop3(a){ // "is" after predicate
+  return a.flatMap(x=>{const r=[x+" است",x+" هست"];if(isH(x)||last(x)==="ا"||last(x)==="و")r.push(x+"ست",x+ZW+"ست");else r.push(x+"ه");return r;});}
+function copP(a,p){ // pronoun subject + adjective
+  if(p===2)return cop3(a);
+  const full=["هستم","هستی","است","هستیم","هستید","هستند"],sp=["م","ی","","یم","ین","ن"];
+  return a.flatMap(x=>{const r=[x+" "+full[p]];if(p===4)r.push(x+" هستین");if(p===5)r.push(x+" هستن");
+    if(isH(x))r.push(x+ZW+["ام","ای","","ایم","اید","اند"][p],x+ZW+["ام","ای","","ایم","این","ان"][p]);
+    else if(!isV(x))r.push(x+["م","ی","","یم","ید","ند"][p],x+sp[p]);return r;});}
+// ---- verb forms ----
+function vb(v){return v.b?BASEV[v.b]:v;}
+function pre(v,arr){return v.pre?arr.map(x=>v.pre+" "+x):arr;}
+function spE(stem,p){return p===2&&"او".includes(last(stem))?"د":END_S[p];}
+function presF(v,p,neg){const b=vb(v);
+  if(b.noMi)return pre(v,[(neg?"ن":"")+b.p+END_F[p],(neg?"ن":"")+b.p+END_S[p]]);
+  const mi=neg?"نمی":"می",out=[mi+ZW+b.p+END_F[p]];
+  const s=b.sp||b.p;out.push(mi+s+spE(s,p));if(p===4)out.push(mi+ZW+b.p+"ین");
+  return pre(v,out);}
+function negT(t){return t[0]==="آ"?"نیا"+t.slice(1):t.startsWith("او")?"نیو"+t.slice(2):"ن"+t;}
+function pastF(v,p,neg){const b=vb(v),ts=[b.t];if(b.spT)ts.push(b.spT);
+  return pre(v,ts.flatMap(t=>{const x=neg?negT(t):t;return[x+END_T[p],x+END_TS[p]];}));}
+function pastProgF(v,p){const b=vb(v),ts=[b.t];if(b.spT)ts.push(b.spT);
+  return pre(v,ts.flatMap(t=>[ "می"+ZW+t+END_T[p],"می"+t+END_TS[p]]));}
+function ppF(v){const b=vb(v),ts=[b.t];if(b.spT)ts.push(b.spT);return ts.map(t=>t+"ه");}
+function perfF(v,p){const c=["ام","ای","است","ایم","اید","اند"];
+  return pre(v,ppF(v).flatMap(x=>{const r=p===2?[x+" است",x]:[x+ZW+c[p],x+" "+c[p]];if(p===4)r.push(x+ZW+"این");if(p===5)r.push(x+ZW+"ان");return r;}));}
+function pluF(v,p){return pre(v,ppF(v).flatMap(x=>[x+" بود"+END_T[p],x+" بود"+END_TS[p]]));}
+function pastSubjF(v,p){return pre(v,ppF(v).flatMap(x=>[x+" باش"+END_F[p],x+" باش"+END_S[p]]));}
+function futF(v,p){const b=vb(v);return pre(v,["خواه"+END_F[p]+" "+b.t]);}
+function subF(v,p){const b=vb(v);const f=b.sub||("ب"+b.p);const r=[f+END_F[p]];
+  const s=b.spSub||(b.sp?"ب"+b.sp:f);r.push(s+spE(s,p));if(p===4)r.push(f+"ین");return pre(v,r);}
+function progAux(p){return["دار"+END_F[p],"دار"+END_S[p]].concat(p===4?["دارین"]:[]);}
+function modalAux(m,p){
+  if(m==="must")return["باید"];
+  if(m==="want")return["می"+ZW+"خواه"+END_F[p],"میخوا"+spE("خوا",p)];
+  return["می"+ZW+"توان"+END_F[p],"میتون"+spE("تون",p)];}
+function impF(v,pl,neg){const b=vb(v);let f,s;
+  if(neg){f=v.neg||("ن"+b.p);s=v.spNeg||(b.sp?"ن"+b.sp:f);if(v.b==="k"){f="نکن";s=f;}else if(v.b==="z"){f="نزن";s=f;}else if(v.b==="g"){f="نگیر";s=f;}
+    return pre(v,pl?[ (v.negPl||f+"ید"),s+"ین",f+"ین"]:[f,s]);}
+  f=v.imp||(v.b?b.sub:(b.sub||"ب"+b.p));s=v.spSub||f;
+  return pre(v,pl?[(v.impPl||f+"ید"),s+"ین",f+"ین"]:[f,s]);}
+// ---- English ----
+function enV(v,p,tense,neg){const e=v.en,s3=p===2,be=["am","are","is","are","are","are"][p],was=(p===0||p===2)?"was":"were";
+  switch(tense){
+  case"pres":return neg?(s3?"doesn't ":"don't ")+e[0]:(s3?e[1]:e[0]);
+  case"past":return neg?"didn't "+e[0]:e[2];
+  case"prog":return be+" "+e[4];
+  case"fut":return"will "+e[0];
+  case"pastprog":return v.noProg?"used to "+e[0]:was+" "+e[4];
+  case"perf":return(s3?"has ":"have ")+e[3];
+  case"pluperf":return"had "+e[3];
+  case"pastsubj":return"may have "+e[3];
+  case"want":return(s3?"wants":"want")+" to "+e[0];
+  case"can":return"can "+e[0];
+  case"must":return"must "+e[0];}}
+// ---- word picking: known words first, at most one new word per sentence ----
+function wgt(id){const p=S.p[id];return(p.due<=today()?3:1)*(1+(MAXL-p.l)/2);}
+function pick(ids,ctx){
+  const known=ids.filter(id=>S.p[id]&&BYID[id]),fresh=ids.filter(id=>!S.p[id]&&BYID[id]);
+  const wantNew=!ctx.nw&&fresh.length&&(known.length<3||Math.random()<ctx.newRate);
+  if(known.length&&!wantNew){let t=known.reduce((a,id)=>a+wgt(id),0)*Math.random();for(const id of known){t-=wgt(id);if(t<=0)return id;}return known[0];}
+  if(!ctx.nw&&fresh.length){const id=fresh[Math.floor(Math.random()*fresh.length)];ctx.nw=id;return id;}
+  return null;}
+const catOK=(n,cats)=>cats.split(" ").some(c=>n[3].split(" ").includes(c));
+function pickN(ctx,filter){const id=pick(LEX_N.filter(filter).map(n=>n[0]),ctx);return id&&NB.get(id);}
+function pickA(ctx,filter){const id=pick(LEX_A.filter(filter).map(a=>a[0]),ctx);return id&&AB.get(id);}
+function pickV(ctx,filter){const id=pick(LEX_V.filter(filter).map(v=>v.id),ctx);return id&&LEX_V.find(v=>v.id===id);}
+const adjFor=n=>a=>catOK(n,a[3].replace("pp",""));
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+// ---- patterns: each returns {en, seqs:[[slot,...],...], skills, words} or null ----
+function S_(...slots){return slots;}
+function npPhrase(ctx,opts){ // returns {en,fa:[alts],n,a}
+  const n=pickN(ctx,opts.nf||(()=>true));if(!n)return null;
+  let a=null;if(opts.adj){a=pickA(ctx,adjFor(n));if(!a)return null;}
+  return{n,a};}
+const GEN={
+ ezafe(ctx){const r=npPhrase(ctx,{adj:1});if(!r)return null;const{n,a}=r;
+   const sup=ctx.lv>=1&&Math.random()<.2,cmp=!sup&&ctx.lv>=1&&Math.random()<.2;
+   if(sup)return{en:`the ${a[2].startsWith("more ")?"most "+a[1]:a[2].replace(/er$/,"est").replace("better","best").replace("worse","worst")} ${n[1]}`,seqs:[[fa(a[0]).flatMap(x=>x==="خوب"?["بهترین"]:[J(x,"ترین"),x+"ترین"]),fa(n[0])]],skills:["comp"],words:[n[0],a[0]]};
+   return{en:`${cmp?"a "+a[2]:a[1]} ${n[1]}`,seqs:[[ez(fa(n[0])),cmp?fa(a[0]).flatMap(x=>x==="خوب"?["بهتر"]:[J(x,"تر"),x+"تر"]):fa(a[0])]],skills:cmp?["ezafe","comp"]:["ezafe"],words:[n[0],a[0]]};},
+ demo(ctx){const pl=Math.random()<.35,adj=Math.random()<.35,far=Math.random()<.5;
+   const r=npPhrase(ctx,{adj});if(!r)return null;const{n,a}=r;
+   const d=far?["آن","اون"]:["این"];let np;
+   if(pl&&a)np=[plur(fa(n[0]),1),fa(a[0])];else if(pl)np=[plur(fa(n[0]))];else if(a)np=[ez(fa(n[0])),fa(a[0])];else np=[fa(n[0])];
+   return{en:`${pl?(far?"those":"these"):(far?"that":"this")} ${a?a[1]+" ":""}${pl?n[2]:n[1]}`,seqs:[[d,...np]],skills:["demo"].concat(pl?["plural"]:[],a?["ezafe"]:[]),words:[n[0]].concat(a?[a[0]]:[])};},
+ plural(ctx){const adj=Math.random()<.5;const r=npPhrase(ctx,{adj,nf:n=>n[2]!==n[1]});if(!r)return null;const{n,a}=r;
+   return{en:a?`${a[1]} ${n[2]}`:`the ${n[2]}`,seqs:[a?[plur(fa(n[0]),1),fa(a[0])]:[plur(fa(n[0]))]],skills:a?["plural","ezafe"]:["plural"],words:[n[0]].concat(a?[a[0]]:[])};},
+ poss(ctx){const p=Math.floor(Math.random()*6),adj=Math.random()<.3;const r=npPhrase(ctx,{adj,nf:n=>n[4]});if(!r)return null;const{n,a}=r;
+   const own=["my","your",Math.random()<.5?"his":"her","our","your (pl.)","their"][p];
+   const mine=["من","تو","او","ما","شما","آنها"][p];
+   const seqs=a?[[ez(fa(n[0])),possf(fa(a[0]),p)],[ez(fa(n[0])),ez(fa(a[0])),[mine]]]:[[possf(fa(n[0]),p)],[ez(fa(n[0])),[mine]]];
+   return{en:`${own} ${a?a[1]+" ":""}${n[1]}`,seqs,skills:a?["poss","ezafe"]:["poss"],words:[n[0]].concat(a?[a[0]]:[])};},
+ be(ctx,o={}){const neg=o.neg??(ctx.has("neg")&&Math.random()<.3),past=o.past??(ctx.has("past")&&Math.random()<.25);
+   const pron=Math.random()<.45;
+   if(pron){const a=pickA(ctx,a=>a[3].includes("pp"));if(!a)return null;const p=Math.floor(Math.random()*6);const sub=EN_SUBJ()[p];
+     const beE=past?((p===0||p===2)?"was":"were"):["am","are","is","are","are","are"][p];
+     let v;if(past)v=fa(a[0]).flatMap(x=>[x+" بود"+END_T[p],x+" بود"+END_TS[p]]);
+     else if(neg)v=fa(a[0]).flatMap(x=>[x+" نیست"+END_T[p],x+" نیست"+END_TS[p]]);else v=copP(fa(a[0]),p);
+     if(past&&neg)v=fa(a[0]).flatMap(x=>[x+" نبود"+END_T[p],x+" نبود"+END_TS[p]]);
+     return{en:`${cap(sub)} ${beE}${neg?" not":""} ${a[1]}`,seqs:[[PRON[p].concat([""]),v]],skills:["be"].concat(neg?["neg"]:[],past?["past"]:[]),words:[a[0]]};}
+   const n=pickN(ctx,n=>!n[3].includes("person")||true);if(!n)return null;const a=pickA(ctx,adjFor(n));if(!a)return null;
+   let v=past?fa(a[0]).map(x=>x+(neg?" نبود":" بود")):neg?fa(a[0]).map(x=>x+" نیست"):cop3(fa(a[0]));
+   return{en:`The ${n[1]} ${past?"was":"is"}${neg?" not":""} ${a[1]}`,seqs:[[fa(n[0]),v]],skills:["be"].concat(neg?["neg"]:[],past?["past"]:[]),words:[n[0],a[0]]};},
+ verb(ctx,tense,neg,force){ // general clause
+   const v=pickV(ctx,v=>{if(tense==="prog"&&v.noProg)return false;if(v.stative&&!["pres","past"].includes(tense))return false;
+     if(force==="ra"&&!v.obj)return false;if(force==="to"&&!v.place)return false;if(!force&&!v.intr&&!v.obj)return false;
+     if(["want","can","must"].includes(tense)&&v.noModal)return false;return true;});
+   if(!v)return null;
+   let comp=null,compE="";
+   const useObj=force==="ra"||(force!=="to"&&v.obj&&(!v.intr||Math.random()<.45)&&ctx.has("ra"));
+   const usePlace=force==="to"||(!useObj&&v.place&&Math.random()<.6&&ctx.has("to"));
+   if(useObj){const n=pickN(ctx,n=>catOK(n,v.obj));if(!n)return null;comp={n,fa:obj(fa(n[0])),k:"ra"};compE=" the "+n[1];}
+   else if(usePlace){const n=pickN(ctx,n=>n[5]);if(!n)return null;const f=fa(n[0]);comp={n,fa:f.map(x=>"به "+x).concat(f),k:"to"};compE=" "+n[5];}
+   else if(!v.intr)return null;
+   const p=Math.floor(Math.random()*6),sub=EN_SUBJ()[p];
+   let vf,aux=null;
+   switch(tense){case"pres":vf=presF(v,p,neg);break;case"past":vf=pastF(v,p,neg);break;
+     case"prog":vf=presF(v,p,false);aux=progAux(p);break;case"fut":vf=futF(v,p);break;
+     case"pastprog":vf=pastProgF(v,p);break;case"perf":vf=perfF(v,p);break;case"pluperf":vf=pluF(v,p);break;
+     case"pastsubj":vf=pastSubjF(v,p);aux=["شاید"];break;
+     default:vf=subF(v,p);aux=modalAux(tense,p);}
+   const pr=PRON[p].concat([""]),c=comp?[comp.fa]:[];
+   let seqs=[[pr,...c,vf]];
+   if(aux)seqs=[[pr,aux,...c,vf],[pr,...c,aux,vf]];
+   if(tense==="pastsubj")seqs.unshift([aux,pr,...c,vf]);
+   const skills=[{pres:"pres",past:"past",prog:"prog",fut:"fut",pastprog:"pastprog",perf:"perf",pluperf:"pluperf",pastsubj:"pastsubj",want:"subj",can:"subj",must:"subj"}[tense]].concat(neg?["neg"]:[],comp?[comp.k]:[]);
+   return{en:`${cap(sub)} ${enV(v,p,tense,neg)}${compE}`,seqs,skills,words:[v.id].concat(comp?[comp.n[0]]:[])};},
+ imp(ctx){const neg=Math.random()<.35,pl=Math.random()<.35;
+   const v=pickV(ctx,v=>!v.stative&&(v.intr||v.obj));if(!v)return null;
+   let comp=null;if(v.obj&&(!v.intr||Math.random()<.5)){const n=pickN(ctx,n=>catOK(n,v.obj));if(!n)return null;comp=n;}
+   const vf=impF(v,pl,neg);
+   return{en:`${neg?"Don't "+v.en[0]:cap(v.en[0])}${comp?" the "+comp[1]:""}!${pl?" (pl.)":""}`,seqs:[[...(comp?[obj(fa(comp[0]))]:[]),vf]],skills:["imp"].concat(neg?["neg"]:[],comp?["ra"]:[]),words:[v.id].concat(comp?[comp[0]]:[])};},
+ passive(ctx){const v=pickV(ctx,v=>v.pass);if(!v)return null;const n=pickN(ctx,n=>catOK(n,v.obj));if(!n)return null;
+   const vf=v.pre?[v.pre+" شد"]:ppF(v).map(x=>x+" شد");
+   return{en:`The ${n[1]} was ${v.en[3]}`,seqs:[[fa(n[0]),vf]],skills:["passive"],words:[v.id,n[0]]};},
+ comp(ctx){const n=pickN(ctx,()=>true);if(!n)return null;const a=pickA(ctx,adjFor(n));if(!a)return null;
+   const c=fa(a[0]).flatMap(x=>x==="خوب"?["بهتر"]:[J(x,"تر"),x+"تر"]);
+   return{en:`The ${n[1]} is ${a[2]}`,seqs:[[fa(n[0]),cop3(c)]],skills:["comp","be"],words:[n[0],a[0]]};}
+};
+function genFor(skill,ctx){
+  switch(skill){
+   case"ezafe":return Math.random()<.6?GEN.ezafe(ctx):GEN.demo(ctx);
+   case"demo":return GEN.demo(ctx);case"plural":return GEN.plural(ctx);case"poss":return GEN.poss(ctx);
+   case"be":return GEN.be(ctx);
+   case"neg":return Math.random()<.4?GEN.be(ctx,{neg:true}):GEN.verb(ctx,ctx.has("past")&&Math.random()<.4?"past":"pres",true);
+   case"pres":return GEN.verb(ctx,"pres",ctx.has("neg")&&Math.random()<.2);
+   case"ra":return GEN.verb(ctx,["pres","past","prog","fut"].filter(t=>ctx.has(t)||t==="pres")[Math.floor(Math.random()*4)]||"pres",false,"ra");
+   case"to":return GEN.verb(ctx,ctx.has("past")&&Math.random()<.4?"past":"pres",false,"to");
+   case"past":return Math.random()<.2?GEN.be(ctx,{past:true}):GEN.verb(ctx,"past",ctx.has("neg")&&Math.random()<.25);
+   case"prog":case"fut":case"pastprog":case"perf":case"pluperf":case"pastsubj":return GEN.verb(ctx,skill,false);
+   case"subj":return GEN.verb(ctx,["want","can","must"][Math.floor(Math.random()*3)],false);
+   case"imp":return GEN.imp(ctx);case"comp":return Math.random()<.5?GEN.comp(ctx):GEN.ezafe(ctx);
+   case"passive":return GEN.passive(ctx);}
+}
+// enumerate accepted answers
+function accepts(seqs){const out=new Set();
+  for(const seq of seqs){let acc=[""];for(const slot of seq){const nx=[];for(const a of acc)for(const s of slot)nx.push(a+" "+s);acc=nx.length>4000?nx.slice(0,4000):nx;}
+    acc.forEach(x=>out.add(norm(x)));}
+  return out;}
+function canon(seqs){return seqs[0].map(s=>s[0]).filter(Boolean).join(" ").replace(/\s+/g," ").trim();}
+
+// ---------- sprint ----------
+const SK_LV=k=>LEVELS.indexOf(SKILLS[k][0]);
+function gs(k){return S.g[k]||(S.g[k]={n:0,ok:0,r:[]});}
+function sAcc(k){const r=gs(k).r;return r.length?r.reduce((a,b)=>a+b,0)/r.length:null;}
+function unlockedLv(){
+  if(S.s.gmax!=="auto")return LEVELS.indexOf(S.s.gmax);
+  let lv=0;
+  for(let L=0;L<3;L++){
+    const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)===L);
+    const n=ks.reduce((a,k)=>a+gs(k).n,0),r=ks.flatMap(k=>gs(k).r);
+    const acc=r.length?r.reduce((a,b)=>a+b,0)/r.length:0;
+    if(n>=40&&acc>=.75)lv=L+1;else break;
+  }
+  return lv;}
+let SP=null; // running sprint
+function chooseSkill(lv,lastK){
+  const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv&&!(lastK.length>=2&&lastK.slice(-2).every(x=>x===k)));
+  const w=ks.map(k=>{const s=gs(k),a=sAcc(k);let x=s.n<8?3:.6+2.5*(1-a);if(SK_LV(k)===lv&&lv>0)x*=1.5;return x;});
+  let t=w.reduce((a,b)=>a+b,0)*Math.random();for(let i=0;i<ks.length;i++){t-=w[i];if(t<=0)return ks[i];}return ks[0];}
+function makeItem(){
+  const lv=unlockedLv();
+  if(Math.random()<.5){
+    const pool=Object.keys(S.p).filter(id=>BYID[id]&&DECKS.includes(BYID[id].deck)&&!SP.tw.has(id));
+    pool.sort((a,b)=>(S.p[a].due-S.p[b].due)||(S.p[a].l-S.p[b].l));
+    for(const id of pool.slice(0,30).sort(()=>Math.random()-.5).slice(0,6)){
+      const q=askFor(id,lv);if(q&&!SP.seen.has(q.en)&&q.skills.length){SP.tw.add(id);SP.seen.add(q.en);return{...q,newId:null,retry:false};}}
+  }
+  for(let i=0;i<40;i++){
+    const k=chooseSkill(lv,SP.lastK);
+    const ctx={nw:null,newRate:SP.newIds.length<8?.2:0,lv,has:x=>SK_LV(x)<=lv};
+    const r=genFor(k,ctx);
+    if(!r||SP.seen.has(r.en))continue;
+    SP.lastK.push(k);SP.seen.add(r.en);
+    return{...r,target:k,acc:accepts(r.seqs),canon:canon(r.seqs),newId:ctx.nw,retry:false};
+  }
+  return null;}
+function gradeSent(it,input){
+  const x=norm(input);if(!x)return"empty";
+  if(it.acc.has(x))return"ok";
+  if(x.length>=5){for(const a of it.acc){if(Math.abs(a.length-x.length)<=1&&lev(a,x)<=1)return"near";}}
+  return"bad";}
+const SPRINT_SEC=()=>(S.s.sprintMin||5)*60;
+function rSprint(){
+  if(SP&&SP.state!=="done")return;
+  if(SP&&SP.state==="done")return drawSummary();
+  rollDay();
+  const lv=unlockedLv(),doneToday=S.sp.last===today();
+  const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv).sort((a,b)=>(sAcc(a)??-1)-(sAcc(b)??-1));
+  const known=Object.keys(S.p).length;
+  V.innerHTML=`<section class="spintro">
+    <div class="spbadge">${doneToday?"Done today":"Today's sprint"}</div>
+    <h1 class="sph">${S.s.sprintMin||5}-minute sprint</h1>
+    <p class="muted">Short sentences built from words you're learning, with at most one new word each. Every sentence also trains grammar, scored over many sentences.</p>
+    <div class="kpis" style="margin:22px 0">
+      <div class="kpi" style="--c:var(--ok)"><b>${S.sp.streak||0}</b><span>Day streak</span></div>
+      <div class="kpi" style="--c:var(--ink)"><b>${LEVELS[lv]}</b><span>Grammar level</span></div>
+      <div class="kpi" style="--c:var(--mid)"><b>${known}</b><span>Words in play</span></div></div>
+    <button class="btn primary" id="spgo">${doneToday?"Sprint again":"Start sprint"}</button>
+    ${known<10?`<p class="note" style="text-align:center">You know few words yet, so each sentence will introduce one.</p>`:""}
+    <div class="eyebrow">Grammar · weakest first</div>
+    <div class="group">${ks.map(skillRow).join("")}</div>
+    ${lv<3&&S.s.gmax==="auto"?`<p class="note">${LEVELS[lv+1]} patterns unlock once you average 75% over 40+ ${LEVELS[lv]} sentences.</p>`:""}
+  </section>`;
+  document.getElementById("spgo").onclick=startSprint;}
+function skillRow(k){const s=gs(k),a=sAcc(k);
+  return`<div class="row skrow"><div><div>${SKILLS[k][1]}</div><div class="s muted">${SKILLS[k][0]} · ${s.n} sentence${s.n===1?"":"s"}</div></div>
+   <div class="skbar"><div class="bar"><i style="width:${a==null?0:a*100}%;background:${a==null?"var(--line)":a>=.8?"var(--ok)":a>=.55?"var(--mid)":"var(--bad)"}"></i></div><span class="num">${a==null?"–":Math.round(a*100)+"%"}</span></div></div>`;}
+function startSprint(){
+  SP={state:"ask",left:SPRINT_SEC()*1000,t0:performance.now(),paused:false,seen:new Set(),lastK:[],newIds:[],boosted:new Set(),tw:new Set(),
+      queue:[],n:0,ok:0,combo:0,best:0,skillRes:{},cur:null,done:false};
+  V.innerHTML=`<div class="sptop"><div class="tbar"><i id="tbar"></i></div><div class="spmeta"><span id="tclock"></span><span id="tcombo"></span><span id="tscore"></span></div></div>
+  <section class="study sprint">
+    <div id="stip"></div>
+    <div class="chiprow"><span class="chip" id="schip"></span><span id="snew"></span></div>
+    <h1 class="prompt" id="sprompt"></h1>
+    <input class="answer" id="sans" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="fa" dir="rtl" placeholder="به فارسی" aria-label="Your Persian answer">
+    <div class="fb" id="sfb" aria-live="polite"></div>
+    <div class="acts" id="sacts"></div>
+  </section>`;
+  const a=document.getElementById("sans");
+  a.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();spAct();}});
+  SP.timer=setInterval(tick,200);
+  nextItem();}
+function tick(){
+  if(!SP||SP.state==="done")return;
+  const now=performance.now();
+  if(!SP.paused&&!document.hidden)SP.left-=now-SP.t0;
+  SP.t0=now;
+  if(SP.left<=0){SP.left=0;SP.last=true;}
+  const t=Math.ceil(SP.left/1000),el=document.getElementById("tclock");
+  if(el)el.textContent=SP.last?"Last one":`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
+  const b=document.getElementById("tbar");if(b)b.style.width=(100*SP.left/(SPRINT_SEC()*1000))+"%";}
+function nextItem(){
+  if(SP.last){return finishSprint();}
+  let it=null;
+  const qi=SP.queue.findIndex(q=>q.wait<=0);
+  SP.queue.forEach(q=>q.wait--);
+  if(qi>=0)it=SP.queue.splice(qi,1)[0].it;else it=makeItem();
+  if(!it){return finishSprint();}
+  SP.cur=it;SP.state="ask";SP.paused=false;
+  const k=SKILLS[it.target]?it.target:it.skills[0],s=gs(k);
+  document.getElementById("stip").innerHTML=s.n===0&&!it.retry?`<div class="tip"><b>New pattern · ${SKILLS[k][1]}</b>${esc(SKILLS[k][2])}</div>`:"";
+  document.getElementById("schip").textContent=it.retry?"Again":it.skills.map(x=>SKILLS[x][1].split(" (")[0]).join(" · ");
+  const nw=it.newId&&BYID[it.newId];
+  document.getElementById("snew").innerHTML=nw?`<span class="newchip"><em>New</em> ${esc(nw.en.split(";")[0])} <span class="fa">${esc(nw.fa[0])}</span> <span class="muted">${esc((nw.tr||"").split(" / ")[0])}</span></span>`:"";
+  document.getElementById("sprompt").textContent=it.en;
+  const a=document.getElementById("sans");a.value="";a.readOnly=false;a.className="answer";a.focus({preventScroll:true});
+  document.getElementById("sfb").className="fb";document.getElementById("sfb").innerHTML="";
+  document.getElementById("sacts").innerHTML=`<button class="btn primary" id="scheck">Check</button><div class="links"><button class="link" id="sskip">I don't know</button><button class="link" id="sstop">End sprint</button></div>`;
+  document.getElementById("scheck").onclick=spAct;
+  document.getElementById("sskip").onclick=()=>spCheck(true);
+  document.getElementById("sstop").onclick=()=>{SP.last=true;finishSprint();};
+  drawScore();}
+function drawScore(){
+  document.getElementById("tscore").textContent=`${SP.ok}/${SP.n}`;
+  document.getElementById("tcombo").textContent=SP.combo>=3?`${SP.combo} in a row`:"";}
+function spAct(){if(!SP)return;if(SP.state==="ask")spCheck(false);else if(SP.state==="shown")advance();}
+function spCheck(giveUp){
+  const it=SP.cur,a=document.getElementById("sans");
+  const r=giveUp?"bad":gradeSent(it,a.value);
+  if(r==="empty"){a.focus();return;}
+  const good=r!=="bad";
+  SP.n++;if(good){SP.ok++;SP.combo++;SP.best=Math.max(SP.best,SP.combo);}else SP.combo=0;
+  // grammar: every skill in the sentence gets a data point
+  it.skills.forEach(k=>{const s=gs(k);s.n++;if(good)s.ok++;s.r.push(good?1:0);if(s.r.length>30)s.r.shift();
+    const sr=SP.skillRes[k]||(SP.skillRes[k]={n:0,ok:0});sr.n++;if(good)sr.ok++;});
+  // vocabulary
+  it.words.forEach(id=>{
+    if(id===it.newId&&!S.p[id]){S.p[id]={l:good?1:0,due:today()+(good?1:0),n:1,w:good?0:1};SP.newIds.push(id);S.d.newDone++;return;}
+    const p=S.p[id];if(!p)return;
+    if(good&&!it.retry&&p.due<=today()&&!SP.boosted.has(id)){p.l=Math.min(MAXL,p.l+1);p.due=today()+INTERVALS[p.l];p.n++;SP.boosted.add(id);S.d.reviewed++;}
+  });
+  if(!good)SP.queue.push({it:{...it,retry:true,newId:null},wait:3});
+  save();
+  a.readOnly=true;a.classList.add(good?"ok":"bad");
+  const fb=document.getElementById("sfb");
+  fb.className="fb show "+r;
+  const gl=it.words.map(id=>BYID[id]).filter(Boolean).map(c=>`<span class="gl"><span class="fa">${esc(c.fa[0])}</span> ${esc(c.en.split(";")[0].replace(/^to /,""))}</span>`).join("");
+  fb.innerHTML=`<div class="verdict">${{ok:"Correct",near:"Almost — one letter off",bad:giveUp?"Answer":"Not quite"}[r]}</div>
+    <div class="big">${esc(it.canon)}</div>
+    ${r!=="ok"&&a.value.trim()?`<div class="yours">You typed <span>${esc(a.value)}</span></div>`:""}
+    ${good?"":`<div class="gls">${gl}</div><div class="alt">${it.skills.map(k=>SKILLS[k][1]).join(" · ")} — this one comes back in a moment.</div>`}`;
+  drawScore();
+  if(r==="ok"){SP.state="auto";document.getElementById("sacts").innerHTML="";SP.autoT=setTimeout(advance,900);}
+  else{SP.state="shown";SP.paused=r==="bad";
+    document.getElementById("sacts").innerHTML=`<button class="btn primary" id="snext">Next</button>${r==="bad"&&!giveUp?`<div class="links"><button class="link" id="sovr">I was right</button></div>`:""}`;
+    document.getElementById("snext").onclick=advance;
+    const o=document.getElementById("sovr");
+    if(o)o.onclick=()=>{ // undo the miss
+      SP.ok++;SP.combo=1;it.skills.forEach(k=>{const s=gs(k);s.ok++;s.r[s.r.length-1]=1;SP.skillRes[k].ok++;});
+      SP.queue.pop();save();advance();};
+    a.focus({preventScroll:true});}}
+function advance(){if(!SP)return;clearTimeout(SP.autoT);nextItem();}
+function finishSprint(){
+  if(!SP||SP.state==="done")return;
+  clearInterval(SP.timer);clearTimeout(SP.autoT);
+  const full=SP.left<=0;SP.state="done";
+  rollDay();const d=today();
+  if(full&&SP.n>0){if(S.sp.last!==d){S.sp.streak=S.sp.last===d-1?(S.sp.streak||0)+1:1;S.sp.last=d;}S.sp.best=Math.max(S.sp.best||0,S.sp.streak);}
+  const h=S.sp.hist[d]||(S.sp.hist[d]={n:0,ok:0});h.n+=SP.n;h.ok+=SP.ok;
+  save();topline();drawSummary();}
+function drawSummary(){
+  const pct=SP.n?Math.round(100*SP.ok/SP.n):0,ks=Object.keys(SP.skillRes).sort((a,b)=>(sAcc(a)??0)-(sAcc(b)??0));
+  const weak=ks.find(k=>(sAcc(k)??1)<.7);
+  V.innerHTML=`<section class="spintro">
+    <div class="spbadge">${SP.left<=0?"Sprint complete":"Sprint ended"}</div>
+    <h1 class="sph">${pct}% correct</h1>
+    <div class="kpis" style="margin:18px 0">
+      <div class="kpi" style="--c:var(--ok)"><b>${SP.ok}/${SP.n}</b><span>Sentences</span></div>
+      <div class="kpi" style="--c:var(--mid)"><b>${SP.best}</b><span>Best run</span></div>
+      <div class="kpi" style="--c:var(--ink)"><b>${S.sp.streak||0}</b><span>Day streak</span></div></div>
+    ${SP.newIds.length?`<div class="eyebrow">New words</div><div class="group">${SP.newIds.map(id=>{const c=BYID[id];return`<div class="row"><span>${esc(c.en)}</span><span class="fa" style="font-size:19px">${esc(c.fa[0])}</span></div>`;}).join("")}</div>`:""}
+    <div class="eyebrow">Grammar this sprint</div>
+    <div class="group">${ks.map(k=>{const r=SP.skillRes[k];return skillRow(k).replace('<div class="s muted">',`<div class="s muted">${r.ok}/${r.n} today · `);}).join("")||'<div class="row muted">No sentences</div>'}</div>
+    <p class="note">${weak?`Tomorrow's sprint leans on ${SKILLS[weak][1].toLowerCase()}.`:"Percentages are over your last 30 sentences per pattern."} ${SP.boosted.size} review word${SP.boosted.size===1?"":"s"} reinforced.</p>
+    <div style="margin-top:20px"><button class="btn primary" id="spagain">Another sprint</button></div>
+    <div class="links" style="display:flex;justify-content:center"><button class="link" id="spclose">Back</button></div>
+  </section>`;
+  document.getElementById("spagain").onclick=startSprint;
+  document.getElementById("spclose").onclick=()=>{SP=null;render();};}
+
+function stopSprint(){if(SP&&SP.state!=="done"){if(SP.n){SP.left=Math.max(SP.left,1);finishSprint();}else{clearInterval(SP.timer);clearTimeout(SP.autoT);}}SP=null;}
+
+// ---------- every word asked through a sentence ----------
+const OBJ_DECKS=["A1","A2","B1","B2"];
+// simple-verb stems (infinitive -> present stem and irregular pieces)
+const SV={"آمدن":{p:"آی",sub:"بیای",sp:"ا",spSub:"بیا",imp:"بیا",neg:"نیا",spT:"اومد"},"آوردن":{p:"آور",sub:"بیاور",sp:"ار",spSub:"بیار",imp:"بیاور",neg:"نیاور",spNeg:"نیار"},
+"افتادن":{p:"افت",sub:"بیفت",imp:"بیفت",neg:"نیفت"},"انداختن":{p:"انداز",sub:"بینداز",imp:"بینداز",neg:"نینداز"},"ایستادن":{p:"ایست",sub:"بایست",imp:"بایست",neg:"نایست",negT:"نایستاد"},
+"باختن":{p:"باز"},"بخشیدن":{p:"بخش"},"بردن":{p:"بر"},"برگشتن":{pre:"بر",p:"گرد",t:"گشت",sub:"گرد",imp:"گرد"},"بریدن":{p:"بر"},"بستن":{p:"بند"},"بوسیدن":{p:"بوس"},
+"ترسیدن":{p:"ترس"},"جنگیدن":{p:"جنگ"},"جوشیدن":{p:"جوش"},"خریدن":{p:"خر"},"خندیدن":{p:"خند"},"خواباندن":{p:"خوابان"},"خوابیدن":{p:"خواب"},
+"خواندن":{p:"خوان",sp:"خون",spT:"خوند"},"خوردن":{p:"خور"},"دادن":{p:"ده",sp:"د",spSub:"بد"},"داشتن":{p:"دار",noMi:1},"دانستن":{p:"دان",sp:"دون",spT:"دونست"},
+"درآوردن":{pre:"در",p:"آور",t:"آورد",sub:"بیاور",sp:"ار",spSub:"بیار",imp:"بیاور",neg:"نیاور"},"درخشیدن":{p:"درخش"},"دزدیدن":{p:"دزد"},"دویدن":{p:"دو"},"دیدن":{p:"بین"},
+"رسیدن":{p:"رس"},"رفتن":{p:"رو",sp:"ر",spSub:"بر",imp:"برو"},"رقصیدن":{p:"رقص"},"ریختن":{p:"ریز"},"زدن":{p:"زن"},"ساختن":{p:"ساز"},"سنجیدن":{p:"سنج"},"سوختن":{p:"سوز"},
+"شدن":{p:"شو",sp:"ش",spSub:"بش",imp:"شو",sub2:"شو"},"شستن":{p:"شوی",sp:"شور",spSub:"بشور",imp:"بشوی"},"شمردن":{p:"شمار",sp:"شمر"},"شناختن":{p:"شناس"},"شنیدن":{p:"شنو"},
+"شکستن":{p:"شکن"},"فرستادن":{p:"فرست"},"فروختن":{p:"فروش"},"فهمیدن":{p:"فهم"},"ماندن":{p:"مان",sp:"مون",spT:"موند"},"نشستن":{p:"نشین",sub:"بنشین",sp:"شین",spSub:"بشین",imp:"بنشین"},
+"نوشتن":{p:"نویس"},"نوشیدن":{p:"نوش"},"پختن":{p:"پز"},"پرداختن":{p:"پرداز"},"پرسیدن":{p:"پرس"},"پریدن":{p:"پر"},"پوشاندن":{p:"پوشان"},"پوشیدن":{p:"پوش"},
+"پیوستن":{p:"پیوند"},"پیچیدن":{p:"پیچ"},"چشیدن":{p:"چش"},"چیدن":{p:"چین"},"کاشتن":{p:"کار"},"کردن":{p:"کن",sub:"کن",sub2:"بکن"},"کشیدن":{p:"کش"},
+"گذاشتن":{p:"گذار",sp:"ذار",spSub:"بذار"},"گذراندن":{p:"گذران"},"گذشتن":{p:"گذر"},"گرفتن":{p:"گیر"},"گشتن":{p:"گرد"},"گفتن":{p:"گوی",sp:"گ",spSub:"بگ",imp:"بگو"},
+"یافتن":{p:"یاب"},"پذیرفتن":{p:"پذیر"},"بازگرداندن":{p:"بازگردان",sub:"بازگردان",imp:"بازگردان"},"بافتن":{p:"باف"}};
+function verbFormsOf(card){ // -> array of verb objects usable by gen.js form functions
+  const out=[];
+  for(const alt of card.fa){
+    const toks=alt.trim().split(/\s+/),inf=toks[toks.length-1];
+    if(!inf.endsWith("ن")||/[()]/.test(alt)||["از","با","به","بر"].includes(inf))continue;
+    const sv=SV[inf];if(!sv)continue;
+    const pre=[...toks.slice(0,-1),sv.pre].filter(Boolean).join(" ");
+    const v=Object.assign({},sv,{t:sv.t||inf.slice(0,-1)});delete v.pre;
+    if(pre){v.pre=pre;if(inf==="کردن"){v.sub="کن";delete v.sub2;}}
+    out.push(v);
+  }
+  return out;}
+// adjectives: P = describes people, otherwise things
+const ADJ_P=new Set("old (person)|young|happy|sad|tired|hungry|thirsty|sick|ready|fat|thin|alive|dead|married|single (unmarried)|healthy|full (after eating)|strong|weak|rich|poor|angry|kind|lazy|clever|funny|famous|bored|excited|surprised|jealous|shy|brave|friendly; close|rude|hardworking|talkative|patient (adjective)|lucky|unlucky|unemployed|busy (person)|sure; certain|successful|honest|polite|careful|worried|calm|absent|present (here)|active|anxious|aware|blind|deaf|capable|cheerful|confident|confused|cruel|curious|disappointed|educated|embarrassed|generous|grateful|guilty|homesick|innocent|lonely|loyal|mature|narrow-minded|proud|religious|responsible|selfish|strict|stupid|wise|pregnant|independent|sensitive|aggressive|bold|competent|conservative|desperate|eager|elderly|emotional|hostile|humble|ignorant|influential|liberal|notorious|optimistic|pessimistic|passionate|persistent|prominent|reckless|reluctant|resilient|tense|willing".split("|"));
+const ADJ_T=new Set("good|bad|big|small|new|old (thing)|warm|cold|beautiful|long; tall|short|easy|difficult|cheap|expensive|far|near|fast|slow|clean|dirty|ugly|wide|narrow|deep|dark|bright; switched on|wet|dry|hard (not soft)|soft|round|sweet|sour|salty|bitter|delicious|empty|full|heavy|light (weight)|crowded; busy|quiet|important|different|correct; right|wrong|possible|free (of charge)|free (unoccupied)|open|closed|interesting|boring|strange|normal; ordinary|comfortable|terrible|excellent|complete; perfect|real|fake|fresh|raw|cooked|hot (to the touch)|spicy|local|international|special|similar|safe|dangerous|necessary|natural|serious|simple|complicated|public|private|foreign|national|traditional|average (adj.)|accurate|annoying|available|basic|broken|common|current|equal|exact|extra|familiar|fair (just)|false|fashionable|flexible|former|harmful|helpful|huge|ideal|illegal|legal|impossible|likely|loud|main|mental|physical|official|ordinary|original|peaceful|personal|pleasant|popular|positive|negative|practical|previous|pure|rare|reasonable|romantic|rough|rural|urban|severe|silly|smooth|social|spare|sudden|suitable|thick|tidy|typical|unfair|unknown|useful|useless|valuable|wild|ancient|reliable|efficient|obvious|abstract|significant|temporary|permanent|gradual|inevitable|relative|controversial|absurd|accessible|adequate|ambiguous|anonymous|appropriate|arbitrary|authentic|brief|chronic|coherent|compatible|comprehensive|compulsory|optional|considerable|consistent|contemporary|conventional|crucial|cultural|decent|deliberate|democratic|distinct|domestic|dominant|economic|enormous|essential|ethical|evident|excessive|explicit|implicit|extreme|fierce|fragile|frequent|fundamental|genuine|global|identical|immense|inadequate|incredible|individual|initial|intense|irrelevant|relevant|legitimate|logical|mandatory|massive|minimal|moderate|moral|mutual|neutral|objective|subjective|obscure|outstanding|plausible|precise|predictable|profound|radical|rational|remarkable|remote|rigid|scarce|secular|sophisticated|spontaneous|stable|straightforward|subtle|superficial|superior|inferior|sustainable|thorough|trivial|unprecedented|urgent|valid|vague|vital|vulnerable|widespread".split("|"));
+const COLORS=new Set("white|black|red|blue|green|yellow|brown|grey|pink|orange (colour)|purple".split("|"));
+// time & frequency words: [english, position, tense]  pre = before the verb in English, end = after
+const ADV={"always":["always","pre","pres"],"sometimes":["sometimes","pre","pres"],"often":["often","pre","pres"],"usually":["usually","pre","pres"],
+"never":["never","pre","never"],"already; previously":["already","pre","past"],"recently":["recently","pre","past"],"finally":["finally","pre","past"],"suddenly":["suddenly","pre","past"],
+"definitely":["will definitely","modal","fut"],"probably":["will probably","modal","fut"],"maybe":["maybe","maybe","subj"],"perhaps":["perhaps","maybe","subj"],
+"also; too":["too","also","pres"],"today":["today","end","pres"],"tomorrow":["tomorrow","end","fut"],"yesterday":["yesterday","end","past"],"now":["now","end","prog"],
+"tonight":["tonight","end","fut"],"this year":["this year","end","pres"],"last year":["last year","end","past"],"day after tomorrow":["the day after tomorrow","end","fut"],
+"day before yesterday":["the day before yesterday","end","past"],"later":["later","end","fut"],"soon":["soon","end","fut"],"immediately":["immediately","end","fut"],
+"early":["early","end","pres"],"late":["late","end","past"],"together":["together","end","together"],"alone":["alone","end","pres"],"again":["again","end","pres"],
+"every day":["every day","end","pres"],"Saturday":["on Saturday","end","fut"],"Sunday":["on Sunday","end","fut"],"Monday":["on Monday","end","fut"],"Tuesday":["on Tuesday","end","fut"],
+"Wednesday":["on Wednesday","end","fut"],"Thursday":["on Thursday","end","fut"],"Friday":["on Friday","end","fut"],"morning":["in the morning","end","pres"],
+"afternoon":["in the afternoon","end","pres"],"night":["at night","end","pres"],"noon":["at noon","end","pres"],"weekend":["at the weekend","end","pres"],"usually ":null};
+const PREP={"in":["in",["در","تو","توی"],"place open thing"],"on":["on",["روی","رو","بر روی"],"surface"],"under":["under",["زیر"],"surface"],"behind":["behind",["پشت"],"place open"],
+"next to":["next to",["کنار","پهلوی"],"surface open"],"in front of":["in front of",["جلوی","جلو","مقابل"],"place open"],"inside":["inside",["داخل","توی","درون"],"place"]};
+const PREP_OBJ={place:["A1:house; home","A1:room","A1:school","A1:car","A1:shop","A1:park","A2:garden"],open:["A1:door","A1:window","A1:house; home","A1:car"],
+  surface:["A1:table","A1:chair","A1:bed","A1:car"],thing:["A1:bag"]};
+const PREP_SUBJ=["A1:cat","A1:dog","A1:book","A1:key","A1:phone","A1:bag","A1:pen","A1:child","A2:letter","A1:money"];
+const NUMS="one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|two hundred|thousand|million".split("|");
+const PRONS={"I":0,"you (singular)":1,"he; she":2,"we":3,"you (plural, polite)":4,"they":5};
+const SKIP_N=new Set("hello|goodbye|thank you|please|yes|no|excuse me; sorry|here|there|this|that|what|who|where|why|how|how many|how much|which|with|without|and|or|but|in|from|on|under|very|a lot; much|little; few|only|all; everyone|thing|something|nothing|everything|someone|nobody|other|more|less|best|every|half|second (2nd)|third|zero|first|last|next|before|after|still; yet|enough|really|because|if|so; then|until|between|next to|in front of|behind|inside|outside|up; above|down; below|left|right (direction)|straight ahead|once|twice|everywhere|somewhere|nowhere|anyway|too much|this much; so much|same|whole|people|parents|twins|clothes|glasses|trousers|scissors|ruins|holidays|stairs|news|goods|staff|manners|thanks|human rights|evidence|customs (at a border)|details|herbs; greens".split("|"));
+// classify every objective card once
+const WT={};
+(function(){
+  for(const c of CARDS){
+    if(!OBJ_DECKS.includes(c.deck))continue;
+    const e=c.en;
+    if(e==="to want"||e==="to be able"||e==="to have"){WT[c.id]={t:"MOD",k:e};continue;}
+    if(e.startsWith("to ")){const vs=verbFormsOf(c);if(vs.length&&!/^to (be able|want|have|be|become)$/.test(e))WT[c.id]={t:"V",vs};continue;}
+    if(e in PRONS){WT[c.id]={t:"PRON",p:PRONS[e]};continue;}
+    if(ADV[e]){WT[c.id]={t:"ADV",a:ADV[e]};continue;}
+    if(PREP[e]){WT[c.id]={t:"PREP",a:PREP[e]};continue;}
+    if(NUMS.includes(e)){WT[c.id]={t:"NUM"};continue;}
+    if(COLORS.has(e)){WT[c.id]={t:"COL"};continue;}
+    if(ADJ_P.has(e)){WT[c.id]={t:"A",p:1};continue;}
+    if(ADJ_T.has(e)){WT[c.id]={t:"A",p:0};continue;}
+    if(["what","who","where","why","how","how many","how much","which","here","there","this","that","and","or","without","with"].includes(e)){WT[c.id]={t:"Q",k:e};continue;}
+    if(SKIP_N.has(e)||/ly$/.test(e)&&c.deck!=="A1"&&!/^(butterfly|melancholy|monopoly|ally|assembly)$/.test(e))continue;
+    if(/^(A1|A2|B1|B2)$/.test(c.deck)&&!/[…]/.test(e))WT[c.id]={t:"N"};
+  }})();
+// phrases & grammar examples as question material: which objective words do they contain?
+const PHR=[];
+(function(){
+  const idx=new Map();
+  for(const c of CARDS){if(!OBJ_DECKS.includes(c.deck))continue;for(const f of c.fa){const k=norm(f);if(f.trim().split(/\s+/).length===1&&k&&!idx.has(k))idx.set(k,c.id);}}
+  for(const c of CARDS){if(OBJ_DECKS.includes(c.deck)||c.fa[0].trim().split(/\s+/).length<2||/spoken/.test(c.en))continue;
+    const ids=[...new Set(c.fa[0].replace(/[؟?!،.]/g,"").split(/\s+/).map(t=>idx.get(norm(t))).filter(Boolean))];
+    if(ids.length)PHR.push({c,ids});}})();
+function compEn(E){const IR={far:"farther",little:"less",much:"more"};if(IR[E])return IR[E];const L=LEX_A.find(a=>a[1]===E);if(L)return L[2];if(/^(good|bad)$/.test(E))return{good:"better",bad:"worse"}[E];
+  if(/\s/.test(E)||E.length>6||/ed$|ing$|ful$|ous$|ive$|al$|ic$/.test(E))return"more "+E;
+  if(/^(big|hot|thin|fat|wet|sad|red)$/.test(E))return E+E.slice(-1)+"er";if(/y$/.test(E))return E.slice(0,-1)+"ier";if(/e$/.test(E))return E+"r";return E+"er";}
+const enOf=c=>c.en.split(";")[0].replace(/^a /,"").trim();
+const enBase=c=>enOf(c).replace(/^to /,"");
+const known=id=>!!S.p[id];
+function knownFrom(ids){const k=ids.filter(id=>known(id)&&BYID[id]);return k.length?k[Math.floor(Math.random()*k.length)]:null;}
+const knownLex=(f)=>{const k=LEX_N.filter(n=>known(n[0])&&f(n));return k.length?k[Math.floor(Math.random()*k.length)]:null;};
+const knownVerb=(f)=>{const k=LEX_V.filter(v=>known(v.id)&&f(v));return k.length?k[Math.floor(Math.random()*k.length)]:null;};
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const optPron=p=>PRON[p].concat([""]);
+// ---- frames per word type: each returns {en, seqs, skills, words} or null ----
+function framesFor(id,has){
+  const c=BYID[id],w=WT[id],F=fa(id),out=[];
+  if(!w)return out;
+  const E=enOf(c);
+  if(w.t==="N"){
+    out.push(()=>{const t=Math.random()<.5;return{en:`${t?"this":"that"} ${E}`,seqs:[[t?["این"]:["آن","اون"],F]],skills:["demo"],words:[id]};});
+    out.push(()=>({en:`about the ${E}`,seqs:[[["درباره‌ی","درباره","در مورد","راجع به"],F]],skills:["ezafe"],words:[id]}));
+    out.push(()=>({en:`without ${E}`,seqs:[[["بدون","بی"],F]],skills:["prep"],words:[id]}));
+    out.push(()=>({en:`The ${E} is important`,seqs:[[F,cop3(["مهم"])]],skills:["be"],words:[id]}));
+    if(has("ra")&&has("neg"))out.push(()=>({en:`I don't like the ${E}`,seqs:[[optPron(0),obj(F),["دوست ندارم"]]],skills:["ra","neg"],words:[id]}));
+  }
+  if(w.t==="A"||w.t==="COL"){
+    if(w.t==="COL"){out.push(()=>{const n=knownLex(n=>/thing|place/.test(n[3]));if(!n)return null;return{en:`the ${E} ${n[1]}`,seqs:[[ez(fa(n[0])),F]],skills:["ezafe"],words:[id,n[0]]};});
+      out.push(()=>{const n=knownLex(n=>/thing/.test(n[3])&&n[1]!==n[2]);if(!n)return null;return{en:`The ${n[1]} is ${E}`,seqs:[[fa(n[0]),cop3(F)]],skills:["be"],words:[id,n[0]]};});}
+    else{
+      out.push(()=>({en:`very ${E}`,seqs:[[["خیلی"],F]],skills:[],words:[id]}));
+      if(w.p){out.push(()=>{const p=rnd([0,0,2,3,5]),s=EN_SUBJ()[p];return{en:`${cap(s)} ${["am","are","is","are","are","are"][p]} ${E}`,seqs:[[optPron(p),copP(F,p)]],skills:["be"],words:[id]};});
+        if(has("neg"))out.push(()=>{const p=rnd([0,2,3]),s=EN_SUBJ()[p];return{en:`${cap(s)} ${["am","are","is","are","are","are"][p]} not ${E}`,seqs:[[optPron(p),F.flatMap(x=>[x+" نیست"+END_T[p],x+" نیست"+END_TS[p]])]],skills:["be","neg"],words:[id]};});}
+      else{out.push(()=>({en:`It is ${E}`,seqs:[[["این","آن","اون",""],cop3(F)]],skills:["be"],words:[id]}));
+        if(has("neg"))out.push(()=>({en:`It isn't ${E}`,seqs:[[["این","آن","اون",""],F.map(x=>x+" نیست")]],skills:["be","neg"],words:[id]}));}
+      if(has("comp")&&!w.p&&F.every(x=>!x.includes(" ")))out.push(()=>({en:`It is ${compEn(E)}`,seqs:[[["این","آن","اون",""],cop3(F.flatMap(x=>x==="خوب"?["بهتر"]:[J(x,"تر"),x+"تر"]))]],skills:["comp","be"],words:[id]}));
+    }
+  }
+  if(w.t==="V"){
+    const v=w.vs[0],vs=w.vs,isBe=/^to be /.test(c.en),base=enBase(c),U=(f)=>vs.flatMap(f);
+    if(!isBe&&!v.noMi){
+      out.push(()=>{const p=rnd([0,3,5]);return{en:`${cap(EN_SUBJ()[p])} ${base}`,seqs:[[optPron(p),U(x=>presF(x,p,false))]],skills:["pres"],words:[id]};});
+      if(has("neg"))out.push(()=>{const p=rnd([0,3,5]);return{en:`${cap(EN_SUBJ()[p])} don't ${base}`,seqs:[[optPron(p),U(x=>presF(x,p,true))]],skills:["pres","neg"],words:[id]};});
+      if(has("past")&&has("neg"))out.push(()=>{const p=rnd([0,2,3,5]);return{en:`${cap(EN_SUBJ()[p])} didn't ${base}`,seqs:[[optPron(p),U(x=>pastF(x,p,true))]],skills:["past","neg"],words:[id]};});
+      if(has("imp"))out.push(()=>{const n=Math.random()<.4;return{en:n?`Don't ${base}!`:`${cap(base)}!`,seqs:[[U(x=>impF(x,false,n))]],skills:n?["imp","neg"]:["imp"],words:[id]};});
+    }
+    if(v.noMi&&!isBe){out.push(()=>{const p=rnd([0,3]);return{en:`${cap(EN_SUBJ()[p])} ${base}`,seqs:[[optPron(p),U(x=>presF(x,p,false))]],skills:["pres"],words:[id]};});
+      if(c.en.startsWith("to like")&&has("ra"))out.push(()=>{const n=knownLex(n=>/food|drink|animal|place|thing/.test(n[3]));if(!n)return null;const p=rnd([0,3]),ng=has("neg")&&Math.random()<.4;
+        return{en:`${cap(EN_SUBJ()[p])} ${ng?"don't ":""}like the ${n[1]}`,seqs:[[optPron(p),obj(fa(n[0])),U(x=>presF(x,p,ng))]],skills:ng?["ra","neg"]:["ra"],words:[id,n[0]]};});}
+    if(has("subj")&&!v.noMi)out.push(()=>{const p=rnd([0,1,3]),m=rnd(["want","can","must"]);
+      return{en:`${cap(EN_SUBJ()[p])} ${m==="want"?(p===2?"wants":"want")+" to":m} ${base}`,seqs:[[optPron(p),modalAux(m,p),U(x=>subF(x,p))]],skills:["subj"],words:[id]};});
+    if(has("fut")&&!v.noMi)out.push(()=>{const p=rnd([0,3,5]);return{en:`${cap(EN_SUBJ()[p])} will ${base}`,seqs:[[optPron(p),U(x=>futF(x,p))]],skills:["fut"],words:[id]};});
+  }
+  if(w.t==="ADV"){const[ae,pos,tense]=w.a;
+    out.push(()=>{const v=knownVerb(v=>v.intr&&!v.noProg&&!v.stative);if(!v)return null;
+      let p=rnd([0,1,3,5]);if(tense==="together")p=rnd([3,5]);
+      const S=cap(EN_SUBJ()[p]),advF=F;let en,vf,sk;
+      const futOK=has("fut");
+      switch(tense){
+        case"pres":case"together":en=pos==="pre"?`${S} ${ae} ${enV(v,p,"pres")}`:`${S} ${enV(v,p,"pres")} ${ae}`;vf=presF(v,p,false);sk=["pres"];break;
+        case"past":en=pos==="pre"?`${S} ${ae} ${enV(v,p,"past")}`:`${S} ${enV(v,p,"past")} ${ae}`;vf=pastF(v,p,false);sk=["past"];if(!has("past"))return null;break;
+        case"prog":en=`${S} ${enV(v,p,"prog")} ${ae}`;vf=presF(v,p,false).concat(progAux(p).flatMap(a=>presF(v,p,false).map(x=>a+" "+x)));sk=["pres"];break;
+        case"fut":en=pos==="modal"?`${S} ${ae} ${v.en[0]}`:futOK?`${S} will ${v.en[0]} ${ae}`:`${S} ${enV(v,p,"prog")} ${ae}`;vf=presF(v,p,false).concat(futOK?futF(v,p):[]);sk=["pres"];break;
+        case"never":en=`${S} never ${enV(v,p,"pres")}`;vf=presF(v,p,true);sk=["neg"];if(!has("neg"))return null;break;
+        case"subj":if(!has("subj"))return null;en=`${cap(ae)} ${EN_SUBJ()[p]} will ${v.en[0]}`;vf=subF(v,p);sk=["subj"];break;
+      }
+      if(tense==="pres"&&pos==="also"){}
+      if(pos==="also")return{en:`${S} ${enV(v,p,"pres")} too`,seqs:[[PRON[p],F,presF(v,p,false)]],skills:["pres"],words:[id,v.id]};
+      return{en,seqs:[[optPron(p),advF,vf],[advF,optPron(p),vf]],skills:sk,words:[id,v.id]};});}
+  if(w.t==="MOD"){
+    if(w.k==="to want")out.push(()=>{const n=knownLex(n=>/food|drink/.test(n[3]));if(!n)return null;const p=rnd([0,3]);
+      return{en:`${cap(EN_SUBJ()[p])} want ${n[1]}`,seqs:[[optPron(p),fa(n[0]),["می‌خواه"+END_F[p],"میخوا"+spE("خوا",p)]]],skills:["pres"],words:[id,n[0]]};});
+    if(w.k==="to have")out.push(()=>{const n=knownLex(n=>/thing|animal/.test(n[3])&&n[1]!==n[2]);if(!n)return null;const p=rnd([0,3]),ng=has("neg")&&Math.random()<.35;
+      return{en:`${cap(EN_SUBJ()[p])} ${ng?"don't have a":"have a"} ${n[1]}`,seqs:[[optPron(p),ng?[""]:["یک","یه",""],fa(n[0]),[(ng?"ن":"")+"دار"+END_F[p],(ng?"ن":"")+"دار"+END_S[p]]]],skills:ng?["pres","neg"]:["pres"],words:[id,n[0]]};});
+    if(w.k==="to be able")out.push(()=>{const v=knownVerb(v=>v.intr&&!v.noModal&&!v.stative);if(!v)return null;const p=rnd([0,1,3]),ng=has("neg")&&Math.random()<.35;
+      return{en:`${cap(EN_SUBJ()[p])} ${ng?"can't":"can"} ${v.en[0]}`,seqs:[[optPron(p),[(ng?"نمی":"می")+"‌توان"+END_F[p],(ng?"نمی":"می")+"تون"+spE("تون",p)],subF(v,p)]],skills:["subj"].concat(ng?["neg"]:[]),words:[id,v.id]};});}
+  if(w.t==="PREP"){const[pe,pf,cats]=w.a;
+    out.push(()=>{const sid=knownFrom(PREP_SUBJ),oid=knownFrom(cats.split(" ").flatMap(k=>PREP_OBJ[k]||[]));if(!sid||!oid||sid===oid)return null;
+      return{en:`The ${enOf(BYID[sid])} is ${pe} the ${enOf(BYID[oid])}`,seqs:[[fa(sid),pf,cop3(fa(oid))]],skills:["prep","be"],words:[id,sid,oid]};});}
+  if(w.t==="NUM"){out.push(()=>{const n=knownLex(n=>n[2]!==n[1]&&/thing|animal|person|text|food/.test(n[3])&&n[0]!=="A1:food");if(!n)return null;
+      return{en:`${/^(hundred|thousand|million)$/.test(E)?"a "+E:E} ${E==="one"?n[1]:n[2]}`,seqs:[[F,["","تا"],fa(n[0])]],skills:["num"],words:[id,n[0]]};});}
+  if(w.t==="PRON"){out.push(()=>{const v=knownVerb(v=>v.intr&&!v.stative);if(!v)return null;const p=w.p;
+      return{en:`${cap(EN_SUBJ()[p])} ${enV(v,p,"pres")} too`,seqs:[[PRON[p],["هم"],presF(v,p,false)]],skills:["pres"],words:[id,v.id]};});}
+  if(w.t==="Q"){const k=w.k;
+    const qn=f=>knownLex(f);
+    out.push(()=>{let n;switch(k){
+      case"where":n=qn(()=>true);return n&&{en:`Where is the ${n[1]}?`,seqs:[[fa(n[0]),["کجاست","کجا است","کجاس"]]],skills:["ques"],words:[id,n[0]]};
+      case"what":{const t=Math.random()<.5;return{en:`What is ${t?"this":"that"}?`,seqs:[[t?["این"]:["آن","اون"],["چیست","چیه","چی است","چه است"]]],skills:["ques"],words:[id]};}
+      case"who":n=qn(n=>n[3].includes("person"));return n?{en:`Who is the ${n[1]}?`,seqs:[[fa(n[0]),["کیست","کیه","کی است"]]],skills:["ques"],words:[id,n[0]]}:{en:"Who is he?",seqs:[[["او","اون"],["کیست","کیه","کی است"]]],skills:["ques"],words:[id]};
+      case"why":{const v=knownVerb(v=>v.intr&&!v.stative);return v&&{en:`Why do you ${v.en[0]}?`,seqs:[[["چرا"],optPron(1),presF(v,1,false)]],skills:["ques","pres"],words:[id,v.id]};}
+      case"how":n=qn(n=>/person|place|food/.test(n[3]));return n&&{en:`How is the ${n[1]}?`,seqs:[[fa(n[0]),["چطور است","چطوره","چگونه است"]]],skills:["ques"],words:[id,n[0]]};
+      case"how many":n=qn(n=>n[2]!==n[1]&&/thing|person|animal/.test(n[3]));return n&&{en:`How many ${n[2]}?`,seqs:[[["چند","چندتا","چند تا"],fa(n[0])]],skills:["ques","num"],words:[id,n[0]]};
+      case"how much":n=qn(n=>/thing|food|drink/.test(n[3]));return n&&{en:`How much is the ${n[1]}?`,seqs:[[fa(n[0]),["چند است","چنده","چقدر است","چقدره"]],[["قیمت"],ez(fa(n[0])),["چند است","چنده","چقدر است","چقدره"]]],skills:["ques"],words:[id,n[0]]};
+      case"which":n=qn(()=>true);return n&&{en:`which ${n[1]}?`,seqs:[[["کدام","کدوم"],fa(n[0])]],skills:["ques"],words:[id,n[0]]};
+      case"here":case"there":n=qn(()=>true);return n&&{en:`The ${n[1]} is ${k}`,seqs:[[fa(n[0]),k==="here"?["اینجاست","اینجا است","اینجاس","اینجا هست"]:["آنجاست","آنجا است","اونجاست","اونجاس","اونجا هست"]]],skills:["be"],words:[id,n[0]]};
+      case"this":case"that":n=qn(()=>true);return n&&{en:`${k} ${n[1]}`,seqs:[[k==="this"?["این"]:["آن","اون"],fa(n[0])]],skills:["demo"],words:[id,n[0]]};
+      case"and":case"or":{const a=qn(n=>/food|drink/.test(n[3]));const b=qn(n=>/food|drink/.test(n[3])&&a&&n[0]!==a[0]);
+        return a&&b&&{en:`${a[1]} ${k} ${b[1]}`+(k==="or"?"?":""),seqs:[[fa(a[0]),k==="and"?["و"]:["یا"],fa(b[0])]],skills:[],words:[id,a[0],b[0]]};}
+      case"with":case"without":n=qn(n=>/person|food|drink|thing/.test(n[3]));return n&&{en:`${k} ${k==="with"?"the ":""}${n[1]}`,seqs:[[k==="with"?["با"]:["بدون","بی"],fa(n[0])]],skills:["prep"],words:[id,n[0]]};
+    }return null;});}
+  return out;}
+// phrases containing the word
+function phraseFor(id){
+  const ok=PHR.filter(x=>x.ids.includes(id)&&x.ids.every(o=>o===id||known(o)));
+  if(!ok.length)return null;const x=rnd(ok);
+  return{en:x.c.en,seqs:x.c.fa.map(f=>[[f]]),skills:[],words:x.ids,phrase:true};}
+// build a question for a target word
+function askFor(id,lv){
+  const has=k=>!SKILLS[k]||SK_LV(k)<=lv;
+  const fr=framesFor(id,has).sort(()=>Math.random()-.5);
+  if(Math.random()<.3){const p=phraseFor(id);if(p)fr.unshift(()=>p);}
+  for(const f of fr){const r=f();if(r&&r.seqs)return{...r,target:id,acc:accepts(r.seqs),canon:canon(r.seqs),newId:known(id)?null:id};}
+  const p=phraseFor(id);if(p)return{...p,target:id,acc:accepts(p.seqs),canon:canon(p.seqs),newId:known(id)?null:id};
+  return null;}
+
+buildQueue();render();
+</script>
+</body>
+</html>
