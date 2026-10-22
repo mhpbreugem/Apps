@@ -258,9 +258,9 @@ function framesFor(id,has){
     out.push(()=>({en:`very ${E}`,seqs:[[["très "+a.f,"très "+aF(a.f,a.tag)]]],skills:[],words:[id]}));
     if(person){out.push(()=>{const s=subjPick([0,2,2,3,5]);const forms=[];for(const g of (s.p===2?[s.g]:["m","f"])){const sp=s.p===5?(g==="f"?"elles":"ils"):subj(s.p,g);forms.push(EL([sp,conj("être").p[s.p],aForm(a.f,a.tag,g,s.p>=3)]));}
         return{en:`${cap(s.en)} ${["am","are","is","are","are","are"][s.p]} ${E}`,seqs:[[cS(forms)]],skills:["etre","adj"],words:[id]};});}
-    else{out.push(()=>({en:`It is ${E}`,seqs:[[["C'est "+a.f,"c'est "+a.f]]],skills:["etre"],words:[id]}));
+    else{out.push(()=>({en:`It is ${E}`,seqs:[[["C'est "+a.f,"Il est "+a.f,"Elle est "+aF(a.f,a.tag),"Ça, c'est "+a.f]]],skills:["etre"],words:[id]}));
       out.push(()=>{const n=knownN(r=>/thing|place|food|text/.test(r[3]));if(!n)return null;return{en:enNP(n,rnd(["def","ind"])==="def"?"def":"def",{adj:a}),seqs:[[NPf(n,"def",{adj:a})]],skills:["adj","art"],words:[id,n.id]};});
-      if(has("neg"))out.push(()=>({en:`It isn't ${E}`,seqs:[[["Ce n'est pas "+a.f,"C'est pas "+a.f]]],skills:["etre","neg"],words:[id]}));}
+      if(has("neg"))out.push(()=>({en:`It isn't ${E}`,seqs:[[["Ce n'est pas "+a.f,"C'est pas "+a.f,"Il n'est pas "+a.f,"Elle n'est pas "+aF(a.f,a.tag),"Il est pas "+a.f]]],skills:["etre","neg"],words:[id]}));}
     if(color)out.push(()=>{const n=knownN(r=>/thing/.test(r[3])&&r[1]!==r[2]);if(!n)return null;return{en:enNP(n,"ind",{adj:a}),seqs:[[NPf(n,"ind",{adj:a})]],skills:["adj"],words:[id,n.id]};});}
   if(w.t==="V"){const vs=w.vs,base=enBase(c),isBe=/^to be /.test(c.en);const V={fr:vs,en:[base,en3(base),"","",""]};
     if(!isBe){out.push(()=>{const s=subjPick([0,3,5]);return{en:`${cap(s.en)} ${base}`,seqs:[[vbForms(V,s,"pres",{})]],skills:["pres"],words:[id]};});

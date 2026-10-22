@@ -893,7 +893,7 @@ const SKILLS={
  passive:["B2","Passive","Participle + shodan: nān khorde shod. Compound verbs swap kardan for shodan: dar bāz shod."]};
 const NB=new Map(LEX_N.map(n=>[n[0],n])),AB=new Map(LEX_A.map(a=>[a[0],a]));
 const fa=id=>(BYID[id]||{fa:[""]}).fa;
-const PRON=[["من"],["تو"],["او","اون"],["ما"],["شما"],["آنها","اونا","ایشان"]];
+const PRON=[["من"],["تو"],["او","اون","وی"],["ما"],["شما"],["آنها","اونا","اونها","آنان","ایشان","ایشون"]];
 const END_F=["م","ی","د","یم","ید","ند"],END_S=["م","ی","ه","یم","ین","ن"],END_T=["م","ی","","یم","ید","ند"],END_TS=["م","ی","","یم","ین","ن"];
 const ZW="‌";
 const last=w=>w.slice(-1);
@@ -908,13 +908,15 @@ function possf(w,p){ // possessive suffix on last word
   return w.flatMap(x=>isH(x)?[x+ZW+H[p],x+ZW+S[p],x.slice(0,-1)+S[p]]:isV(x)?[x+"ی"+F[p],x+"ی"+S[p]]:[x+F[p],x+S[p]]);}
 function obj(n){return n.flatMap(x=>{const r=[x+" را",x+" رو"];if(!isH(x)&&!isV(x))r.push(x+"و");return r;});}
 function cop3(a){ // "is" after predicate
-  return a.flatMap(x=>{const r=[x+" است",x+" هست"];if(isH(x)||last(x)==="ا"||last(x)==="و")r.push(x+"ست",x+ZW+"ست");else r.push(x+"ه");return r;});}
+  return a.flatMap(x=>{const r=[x+" است",x+" هست"];if(isH(x)||last(x)==="ا"||last(x)==="و")r.push(x+"ست",x+ZW+"ست");else r.push(x+"ه");if(last(x)==="ی")r.push(x+"ست");return r;});}
 function copP(a,p){ // pronoun subject + adjective
   if(p===2)return cop3(a);
   const full=["هستم","هستی","است","هستیم","هستید","هستند"],sp=["م","ی","","یم","ین","ن"];
   return a.flatMap(x=>{const r=[x+" "+full[p]];if(p===4)r.push(x+" هستین");if(p===5)r.push(x+" هستن");
-    if(isH(x))r.push(x+ZW+["ام","ای","","ایم","اید","اند"][p],x+ZW+["ام","ای","","ایم","این","ان"][p]);
-    else if(!isV(x))r.push(x+["م","ی","","یم","ید","ند"][p],x+sp[p]);return r;});}
+    if(isH(x)||last(x)==="ی")r.push(x+ZW+["ام","ای","","ایم","اید","اند"][p],x+ZW+["ام","ای","","ایم","این","ان"][p]);
+    if(isH(x)&&p!==2)r.push(x.slice(0,-1)+["م","ی","","یم","ین","ن"][p]); // spoken: خستم، خستی
+    if(last(x)==="ا"||last(x)==="و")r.push(x+["یم","یی","","ییم","یید","یند"][p],x+["یم","یی","","ییم","یین","ین"][p]);
+    if(!isH(x)&&!isV(x))r.push(x+["م","ی","","یم","ید","ند"][p],x+sp[p]);return r;});}
 // ---- verb forms ----
 function vb(v){return v.b?BASEV[v.b]:v;}
 function pre(v,arr){return v.pre?arr.map(x=>v.pre+" "+x):arr;}
@@ -981,7 +983,8 @@ const GEN={
  poss(ctx){const p=Math.floor(Math.random()*6),adj=Math.random()<.3;const r=npPhrase(ctx,{adj,nf:n=>n[4]});if(!r)return null;const{n,a}=r;
    const own=["my","your",Math.random()<.5?"his":"her","our","your (pl.)","their"][p];
    const mine=["من","تو","او","ما","شما","آنها"][p];
-   const seqs=a?[[ez(fa(n[0])),possf(fa(a[0]),p)],[ez(fa(n[0])),ez(fa(a[0])),[mine]]]:[[possf(fa(n[0]),p)],[ez(fa(n[0])),[mine]]];
+   const khod=[["خودم","خودم"],["خودت","خودت"],["خودش","خودش"],["خودمان","خودمون"],["خودتان","خودتون"],["خودشان","خودشون"]][p];
+   const seqs=a?[[ez(fa(n[0])),possf(fa(a[0]),p)],[ez(fa(n[0])),ez(fa(a[0])),[mine]],[ez(fa(n[0])),ez(fa(a[0])),khod]]:[[possf(fa(n[0]),p)],[ez(fa(n[0])),[mine]],[ez(fa(n[0])),khod]];
    return{en:`${own} ${a?a[1]+" ":""}${n[1]}`,seqs,skills:a?["poss","ezafe"]:["poss"],words:[n[0]].concat(a?[a[0]]:[])};},
  be(ctx,o={}){const neg=o.neg??(ctx.has("neg")&&Math.random()<.3),past=o.past??(ctx.has("past")&&Math.random()<.25);
    const pron=Math.random()<.45;
@@ -1022,7 +1025,7 @@ const GEN={
    const v=pickV(ctx,v=>!v.stative&&(v.intr||v.obj));if(!v)return null;
    let comp=null;if(v.obj&&(!v.intr||Math.random()<.5)){const n=pickN(ctx,n=>catOK(n,v.obj));if(!n)return null;comp=n;}
    const vf=impF(v,pl,neg);
-   return{en:`${neg?"Don't "+v.en[0]:cap(v.en[0])}${comp?" the "+comp[1]:""}!${pl?" (pl.)":""}`,seqs:[[...(comp?[obj(fa(comp[0]))]:[]),vf]],skills:["imp"].concat(neg?["neg"]:[],comp?["ra"]:[]),words:[v.id].concat(comp?[comp[0]]:[])};},
+   return{en:`${neg?"Don't "+v.en[0]:cap(v.en[0])}${comp?" the "+comp[1]:""}!${pl?" (pl.)":""}`,seqs:[[pl?["شما",""]:["تو",""],...(comp?[obj(fa(comp[0]))]:[]),vf]],skills:["imp"].concat(neg?["neg"]:[],comp?["ra"]:[]),words:[v.id].concat(comp?[comp[0]]:[])};},
  passive(ctx){const v=pickV(ctx,v=>v.pass);if(!v)return null;const n=pickN(ctx,n=>catOK(n,v.obj));if(!n)return null;
    const vf=v.pre?[v.pre+" شد"]:ppF(v).map(x=>x+" شد");
    return{en:`The ${n[1]} was ${v.en[3]}`,seqs:[[fa(n[0]),vf]],skills:["passive"],words:[v.id,n[0]]};},
@@ -1211,11 +1214,11 @@ function framesFor(id,has){
   if(w.t==="Q"){const k=w.k;
     const qn=f=>knownLex(f);
     out.push(()=>{let n;switch(k){
-      case"where":n=qn(()=>true);return n&&{en:`Where is the ${n[1]}?`,seqs:[[fa(n[0]),["کجاست","کجا است","کجاس"]]],skills:["ques"],words:[id,n[0]]};
+      case"where":n=qn(()=>true);return n&&{en:`Where is the ${n[1]}?`,seqs:[[fa(n[0]),["کجاست","کجا است","کجاس","کجا هست"]]],skills:["ques"],words:[id,n[0]]};
       case"what":{const t=Math.random()<.5;return{en:`What is ${t?"this":"that"}?`,seqs:[[t?["این"]:["آن","اون"],["چیست","چیه","چی است","چه است"]]],skills:["ques"],words:[id]};}
       case"who":n=qn(n=>n[3].includes("person"));return n?{en:`Who is the ${n[1]}?`,seqs:[[fa(n[0]),["کیست","کیه","کی است"]]],skills:["ques"],words:[id,n[0]]}:{en:"Who is he?",seqs:[[["او","اون"],["کیست","کیه","کی است"]]],skills:["ques"],words:[id]};
       case"why":{const v=knownVerb(v=>v.intr&&!v.stative);return v&&{en:`Why do you ${v.en[0]}?`,seqs:[[["چرا"],optPron(1),presF(v,1,false)]],skills:["ques","pres"],words:[id,v.id]};}
-      case"how":n=qn(n=>/person|place|food/.test(n[3]));return n&&{en:`How is the ${n[1]}?`,seqs:[[fa(n[0]),["چطور است","چطوره","چگونه است"]]],skills:["ques"],words:[id,n[0]]};
+      case"how":n=qn(n=>/person|place|food/.test(n[3]));return n&&{en:`How is the ${n[1]}?`,seqs:[[fa(n[0]),["چطور است","چطوره","چگونه است","چطور هست"]]],skills:["ques"],words:[id,n[0]]};
       case"how many":n=qn(n=>n[2]!==n[1]&&/thing|person|animal/.test(n[3]));return n&&{en:`How many ${n[2]}?`,seqs:[[["چند","چندتا","چند تا"],fa(n[0])]],skills:["ques","num"],words:[id,n[0]]};
       case"how much":n=qn(n=>/thing|food|drink/.test(n[3]));return n&&{en:`How much is the ${n[1]}?`,seqs:[[fa(n[0]),["چند است","چنده","چقدر است","چقدره"]],[["قیمت"],ez(fa(n[0])),["چند است","چنده","چقدر است","چقدره"]]],skills:["ques"],words:[id,n[0]]};
       case"which":n=qn(()=>true);return n&&{en:`which ${n[1]}?`,seqs:[[["کدام","کدوم"],fa(n[0])]],skills:["ques"],words:[id,n[0]]};
@@ -1718,9 +1721,9 @@ function framesFor(id,has){
     out.push(()=>({en:`very ${E}`,seqs:[[["très "+a.f,"très "+aF(a.f,a.tag)]]],skills:[],words:[id]}));
     if(person){out.push(()=>{const s=subjPick([0,2,2,3,5]);const forms=[];for(const g of (s.p===2?[s.g]:["m","f"])){const sp=s.p===5?(g==="f"?"elles":"ils"):subj(s.p,g);forms.push(EL([sp,conj("être").p[s.p],aForm(a.f,a.tag,g,s.p>=3)]));}
         return{en:`${cap(s.en)} ${["am","are","is","are","are","are"][s.p]} ${E}`,seqs:[[cS(forms)]],skills:["etre","adj"],words:[id]};});}
-    else{out.push(()=>({en:`It is ${E}`,seqs:[[["C'est "+a.f,"c'est "+a.f]]],skills:["etre"],words:[id]}));
+    else{out.push(()=>({en:`It is ${E}`,seqs:[[["C'est "+a.f,"Il est "+a.f,"Elle est "+aF(a.f,a.tag),"Ça, c'est "+a.f]]],skills:["etre"],words:[id]}));
       out.push(()=>{const n=knownN(r=>/thing|place|food|text/.test(r[3]));if(!n)return null;return{en:enNP(n,rnd(["def","ind"])==="def"?"def":"def",{adj:a}),seqs:[[NPf(n,"def",{adj:a})]],skills:["adj","art"],words:[id,n.id]};});
-      if(has("neg"))out.push(()=>({en:`It isn't ${E}`,seqs:[[["Ce n'est pas "+a.f,"C'est pas "+a.f]]],skills:["etre","neg"],words:[id]}));}
+      if(has("neg"))out.push(()=>({en:`It isn't ${E}`,seqs:[[["Ce n'est pas "+a.f,"C'est pas "+a.f,"Il n'est pas "+a.f,"Elle n'est pas "+aF(a.f,a.tag),"Il est pas "+a.f]]],skills:["etre","neg"],words:[id]}));}
     if(color)out.push(()=>{const n=knownN(r=>/thing/.test(r[3])&&r[1]!==r[2]);if(!n)return null;return{en:enNP(n,"ind",{adj:a}),seqs:[[NPf(n,"ind",{adj:a})]],skills:["adj"],words:[id,n.id]};});}
   if(w.t==="V"){const vs=w.vs,base=enBase(c),isBe=/^to be /.test(c.en);const V={fr:vs,en:[base,en3(base),"","",""]};
     if(!isBe){out.push(()=>{const s=subjPick([0,3,5]);return{en:`${cap(s.en)} ${base}`,seqs:[[vbForms(V,s,"pres",{})]],skills:["pres"],words:[id]};});
