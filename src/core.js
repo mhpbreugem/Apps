@@ -24,6 +24,7 @@ const IC={
  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
  hour:'<path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9"/>',repeat:'<path d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4"/>',
  question:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
+ trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>'};
 const ic=(n,c="")=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 // ---------- languages ----------
@@ -289,7 +290,7 @@ function rSprint(){
     <div class="kpis">
       <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${P.sp.streak||0}</b></div>
       <div class="kpi" style="--c:var(--ink)">${ic("cap")}<b>${LEVELS[lv]}</b></div>
-      <div class="kpi" style="--c:var(--ok)">${ic("stack")}<b>${Object.keys(P.p).length}</b></div></div>
+      <div class="kpi" style="--c:var(--ok)">${ic("trophy")}<b>${P.sp.rec||0}</b></div></div>
     <button class="btn primary" id="spgo" aria-label="Start">${ic(doneToday?"repeat":"play")}</button>
     <div class="eyebrow">${ic("cap","s")}</div>
     <div class="group">${ks.map(k=>skillRow(k)).join("")}</div>`;
@@ -297,7 +298,11 @@ function rSprint(){
 function startSprint(){
   SP={state:"ask",left:SPRINT_SEC()*1000,t0:performance.now(),paused:false,seen:new Set(),lastK:[],newIds:[],boosted:new Set(),tw:new Set(),
       queue:[],n:0,ok:0,combo:0,best:0,skillRes:{},cur:null};
-  V.innerHTML=`<div class="sptop"><div class="tbar"><i id="tbar"></i></div><div class="spmeta"><span>${ic("timer","s")}<b id="tclock"></b></span><span class="combo" id="tcombo"></span><span>${ic("check","s")}<b id="tscore"></b></span></div></div>
+  V.innerHTML=`<div class="sptop"><div class="race">
+    <div class="clockring" id="cring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" class="rbg"/><circle cx="22" cy="22" r="19" class="rfg" id="rfg"/></svg><b id="tclock"></b></div>
+    <div class="combo" id="tcombo"></div>
+    <div class="score"><b id="tscore">0</b><span>${ic("trophy","s")}<i id="trec">${P.sp.rec||0}</i></span></div></div>
+    <div class="tbar"><i id="tbar"></i></div></div>
   <section class="study sprint">
     <div id="stip"></div>
     <div class="chiprow" id="schips"></div>
@@ -315,7 +320,9 @@ function tick(){
   if(SP.left<=0){SP.left=0;SP.last=true;}
   const t=Math.ceil(SP.left/1000),el=document.getElementById("tclock");
   if(el)el.textContent=SP.last?"0:00":`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
-  const b=document.getElementById("tbar");if(b)b.style.width=(100*SP.left/(SPRINT_SEC()*1000))+"%";}
+  const frac=SP.left/(SPRINT_SEC()*1000),b=document.getElementById("tbar");if(b)b.style.width=(100*frac)+"%";
+  const r=document.getElementById("rfg");if(r)r.style.strokeDashoffset=String(119.4*(1-frac));
+  const cr=document.getElementById("cring");if(cr)cr.classList.toggle("hurry",SP.left<=10000);}
 function nextItem(){
   if(SP.last)return finishSprint();
   let it=null;const qi=SP.queue.findIndex(q=>q.wait<=0);SP.queue.forEach(q=>q.wait--);
@@ -335,13 +342,14 @@ function nextItem(){
   document.getElementById("sskip").onclick=()=>spCheck(true);
   document.getElementById("sstop").onclick=()=>{SP.last=true;finishSprint();};
   drawScore();}
-function drawScore(){document.getElementById("tscore").textContent=`${SP.ok}/${SP.n}`;
+function drawScore(){const sc=document.getElementById("tscore");sc.textContent=SP.ok;sc.classList.toggle("beat",SP.ok>(P.sp.rec||0)&&(P.sp.rec||0)>0);
+  sc.classList.remove("pop");void sc.offsetWidth;if(SP.n&&SP.lastGood)sc.classList.add("pop");
   document.getElementById("tcombo").innerHTML=SP.combo>=3?`${ic("flame","s")}${SP.combo}`:"";}
 function spAct(){if(!SP)return;if(SP.state==="ask")spCheck(false);else if(SP.state==="shown")advance();}
 function spCheck(giveUp){
   const it=SP.cur,a=document.getElementById("sans");
   const r=giveUp?"bad":gradeSent(it,a.value);if(r==="empty"){a.focus();return;}
-  const good=r!=="bad";
+  const good=r!=="bad";SP.lastGood=good;
   SP.n++;if(good){SP.ok++;SP.combo++;SP.best=Math.max(SP.best,SP.combo);}else SP.combo=0;
   recordSkills(it.skills,good);
   it.skills.forEach(k=>{if(!SKILLS[k])return;const sr=SP.skillRes[k]||(SP.skillRes[k]={n:0,ok:0});sr.n++;if(good)sr.ok++;});
@@ -354,7 +362,7 @@ function spCheck(giveUp){
   a.readOnly=true;a.classList.add(good?"ok":"bad");
   const fb=document.getElementById("sfb");fb.className="fb show "+r;fb.innerHTML=fbHTML(r,it.canon,a.value,it.words);
   drawScore();
-  if(r==="ok"){SP.state="auto";document.getElementById("sacts").innerHTML="";SP.autoT=setTimeout(advance,900);}
+  if(r==="ok"){SP.state="auto";document.getElementById("sacts").innerHTML="";SP.autoT=setTimeout(advance,650);}
   else{SP.state="shown";SP.paused=r==="bad";
     document.getElementById("sacts").innerHTML=`<button class="btn primary" id="snext" aria-label="Next">${ic("arrow")}</button>${r==="bad"&&!giveUp?`<div class="icons"><button class="ibtn" id="sovr" aria-label="I was right">${ic("thumb")}</button></div>`:""}`;
     document.getElementById("snext").onclick=advance;
@@ -366,14 +374,17 @@ function finishSprint(){
   if(!SP||SP.state==="done")return;
   clearInterval(SP.timer);clearTimeout(SP.autoT);
   const full=SP.left<=0;SP.state="done";rollDay();const d=today();
+  SP.prevRec=P.sp.rec||0;if(full&&SP.ok>SP.prevRec)P.sp.rec=SP.ok;
   if(full&&SP.n>0){if(P.sp.last!==d){P.sp.streak=P.sp.last===d-1?(P.sp.streak||0)+1:1;P.sp.last=d;}P.sp.best=Math.max(P.sp.best||0,P.sp.streak);}
   const h=P.sp.hist[d]||(P.sp.hist[d]={n:0,ok:0});h.n+=SP.n;h.ok+=SP.ok;
   save();topline();if(view==="sprint")drawSummary();}
 function drawSummary(){
   const pct=SP.n?Math.round(100*SP.ok/SP.n):0,ks=Object.keys(SP.skillRes).sort((a,b)=>(sAcc(a)??0)-(sAcc(b)??0));
-  V.innerHTML=`<div class="hero"><div class="clock" style="color:var(--ok)">${ic("check")}</div><div class="min">${pct}%</div></div>
+  const rec=SP.ok>SP.prevRec&&SP.left<=0;
+  V.innerHTML=`<div class="hero"><div class="clock" style="color:${rec?"var(--mid)":"var(--ok)"}">${ic(rec?"trophy":"check")}</div><div class="min">${SP.ok}</div>
+      <div class="muted" style="display:flex;justify-content:center;gap:6px;align-items:center">${ic("trophy","s")}${Math.max(SP.prevRec,P.sp.rec||0)}${rec?` <span class="badge new">${ic("spark","s")}</span>`:""}</div></div>
     <div class="kpis">
-      <div class="kpi" style="--c:var(--ok)">${ic("check")}<b>${SP.ok}/${SP.n}</b></div>
+      <div class="kpi" style="--c:var(--ok)">${ic("check")}<b>${pct}%</b></div>
       <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${SP.best}</b></div>
       <div class="kpi" style="--c:var(--ink)">${ic("calendar")}<b>${P.sp.streak||0}</b></div></div>
     ${SP.newIds.length?`<div class="eyebrow">${ic("spark","s")}</div><div class="group">${SP.newIds.map(id=>{const c=BYID[id];return`<div class="row"><span>${esc(enOf(c))}</span><span class="tg" style="font-size:19px">${esc(c.fa[0])}</span></div>`;}).join("")}</div>`:""}

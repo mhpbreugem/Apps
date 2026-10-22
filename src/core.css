@@ -103,8 +103,25 @@ main{max-width:620px;margin:0 auto;padding:8px 20px 32px}
 .kpi b{font-size:24px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
 .kpi svg.i{color:var(--c,var(--muted))}
 .sq{display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--c)}
-.sptop{position:sticky;top:51px;z-index:4;background:var(--bg);padding:8px 0 4px}
-.tbar{height:4px;border-radius:2px;background:var(--surface2);overflow:hidden}
+.sptop{position:sticky;top:51px;z-index:4;background:var(--bg);padding:10px 0 6px}
+.race{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.clockring{position:relative;width:76px;height:76px;display:grid;place-items:center}
+.clockring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.clockring circle{fill:none;stroke-width:4}
+.clockring .rbg{stroke:var(--surface2)}
+.clockring .rfg{stroke:var(--ink);stroke-linecap:round;stroke-dasharray:119.4;stroke-dashoffset:0;transition:stroke-dashoffset .2s linear}
+.clockring b{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.clockring.hurry .rfg{stroke:var(--bad)}.clockring.hurry b{color:var(--bad);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+.race .combo{display:flex;align-items:center;gap:4px;font-size:18px;font-weight:700;color:var(--mid)}
+.score{display:flex;flex-direction:column;align-items:flex-end;line-height:1}
+.score b{font-size:46px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.score b.beat{color:var(--mid)}
+.score b.pop{animation:pop .3s ease}
+@keyframes pop{40%{transform:scale(1.18)}}
+.score span{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted);font-weight:600;margin-top:4px}
+.score span i{font-style:normal}
+.tbar{height:3px;border-radius:2px;background:var(--surface2);overflow:hidden}
 .tbar i{display:block;height:100%;background:var(--ink);transition:width .2s linear}
 .spmeta{display:flex;justify-content:space-between;align-items:center;font-size:15px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;font-weight:600}
 .spmeta span{display:flex;align-items:center;gap:5px}
