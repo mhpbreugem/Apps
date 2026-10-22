@@ -3262,7 +3262,8 @@ function buildQueue(){
   const rev=CARDS.filter(c=>inDecks(c)&&due(c.id));
   shuffle(rev);
   const room=Math.max(0,S.s.newPerDay-S.d.newDone);
-  const fresh=CARDS.filter(c=>inDecks(c)&&!st(c.id)).slice(0,room);
+  const fresh=CARDS.filter(c=>inDecks(c)&&!st(c.id)).map((c,i)=>[c,i])
+    .sort((x,y)=>DECKS.indexOf(x[0].deck)-DECKS.indexOf(y[0].deck)||sentRank(x[0])-sentRank(y[0])||x[1]-y[1]).map(x=>x[0]).slice(0,room);
   // interleave new cards among reviews
   Q=rev.slice(0,300);
   fresh.forEach((c,i)=>Q.splice(Math.min(Q.length,Math.floor((i+1)*Q.length/(fresh.length+1))+i),0,c));
@@ -3937,6 +3938,11 @@ function drawSummary(){
 function stopSprint(){if(SP&&SP.state!=="done"){if(SP.n){SP.left=Math.max(SP.left,1);finishSprint();}else{clearInterval(SP.timer);clearTimeout(SP.autoT);}}SP=null;}
 
 // ---------- every word asked through a sentence ----------
+// order for introducing new words: sentence-ready words first, so sentences start from the first session
+function sentRank(c){
+  if(LEX_V.some(v=>v.id===c.id)||LEX_N.some(n=>n[0]===c.id)||LEX_A.some(a=>a[0]===c.id))return 0;
+  const w=WT[c.id];if(!w)return 3;
+  return ["N","A","V","MOD"].includes(w.t)?1:2;}
 const OBJ_DECKS=["A1","A2","B1","B2"];
 // simple-verb stems (infinitive -> present stem and irregular pieces)
 const SV={"آمدن":{p:"آی",sub:"بیای",sp:"ا",spSub:"بیا",imp:"بیا",neg:"نیا",spT:"اومد"},"آوردن":{p:"آور",sub:"بیاور",sp:"ار",spSub:"بیار",imp:"بیاور",neg:"نیاور",spNeg:"نیار"},
