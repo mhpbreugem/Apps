@@ -183,9 +183,18 @@ function go(v){
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 const T=s=>`<span class="tg">${esc(s)}</span>`;
 function meter(l){let h="";for(let i=1;i<=MAXL;i++)h+=`<i class="${i<=l?"on":""}"></i>`;return`<span class="dots" aria-label="Level ${l} of ${MAXL}">${h}</span>`;}
+// keep the answer screen pinned above the on-screen keyboard (no page scroll)
+function lockState(){const on=(view==="study"&&!!cur)||(view==="sprint"&&!!SP&&SP.state!=="done");
+  document.body.classList.toggle("lock",on);document.documentElement.classList.toggle("lock",on);if(on)window.scrollTo(0,0);}
+function fitVV(){const vv=window.visualViewport,h=vv?vv.height:window.innerHeight;
+  document.documentElement.style.setProperty("--vvh",h+"px");
+  document.body.classList.toggle("kb",!!vv&&vv.height<window.innerHeight*0.78||!!vv&&screen.height&&vv.height<screen.height*0.62);
+  if(document.body.classList.contains("lock"))window.scrollTo(0,0);}
+if(window.visualViewport){visualViewport.addEventListener("resize",fitVV);visualViewport.addEventListener("scroll",fitVV);}
+window.addEventListener("resize",fitVV);document.addEventListener("focusin",()=>setTimeout(fitVV,60));document.addEventListener("focusout",()=>setTimeout(fitVV,60));
 function render(){
   if(!PK||view==="langs"){rLangs();topline();return;}
-  ({sprint:rSprint,study:rStudy,map:rMap,deck:rDeck,grammar:rGrammar,settings:rSettings})[view]();topline();}
+  ({sprint:rSprint,study:rStudy,map:rMap,deck:rDeck,grammar:rGrammar,settings:rSettings})[view]();topline();lockState();fitVV();}
 function topline(){
   const lb=document.getElementById("langbtn");
   if(!PK){lb.innerHTML=ic("globe");document.getElementById("topline").innerHTML="";return;}
@@ -229,7 +238,7 @@ function rStudy(){
   document.getElementById("go").onclick=act;
   document.getElementById("hintb").onclick=e=>{hinted=true;e.currentTarget.classList.add("on");
     const others=q?q.words.filter(x=>x!==cur.id&&BYID[x]).map(x=>T(BYID[x].fa[0])).join(" "):"";
-    document.getElementById("hint").innerHTML=`${ic("key","s")}${cur.tr?`<i>${esc(cur.tr.split(" / ")[0])}</i>`:T(cur.fa[0].slice(0,2)+"…")}${others?` ${ic("plus","s")} ${others}`:""}`;ans.focus();};
+    document.getElementById("hint").innerHTML=`${ic("key","s")}${cur.tr?`<i>${esc(cur.tr.split(" / ")[0])}</i>`:T(cur.fa[0].slice(0,2)+"…")}${others?` ${ic("plus","s")} ${others}`:""}`;ans.focus({preventScroll:true});};
   document.getElementById("skip").onclick=()=>{if(phase==="ask")check(true);};}
 function act(){if(phase==="ask")check(false);else next();}
 function fbHTML(r,canonTxt,typed,words,extra){
@@ -241,7 +250,7 @@ function fbHTML(r,canonTxt,typed,words,extra){
 function check(giveUp){
   const ans=document.getElementById("ans"),q=curQ;
   const r=giveUp?"bad":q?gradeSent(q,ans.value):grade(cur,ans.value);
-  if(r==="empty"){ans.focus();return;}
+  if(r==="empty"){ans.focus({preventScroll:true});return;}
   phase="shown";ans.readOnly=true;ans.classList.add(r==="bad"?"bad":"ok");
   const fb=document.getElementById("fb");fb.className="fb show "+r;
   fb.innerHTML=fbHTML(r,q?q.canon:cur.fa[0],ans.value,q?q.words:null,
@@ -314,7 +323,7 @@ function startSprint(){
     <div class="actrow" id="sacts"></div>
   </section>`;
   document.getElementById("sans").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();spAct();}});
-  SP.timer=setInterval(tick,200);nextItem();}
+  SP.timer=setInterval(tick,200);lockState();fitVV();nextItem();}
 function tick(){
   if(!SP||SP.state==="done")return;
   const now=performance.now();if(!SP.paused&&!document.hidden)SP.left-=now-SP.t0;SP.t0=now;
@@ -350,7 +359,7 @@ function drawScore(){const sc=document.getElementById("tscore");sc.textContent=S
 function spAct(){if(!SP)return;if(SP.state==="ask")spCheck(false);else if(SP.state==="shown")advance();}
 function spCheck(giveUp){
   const it=SP.cur,a=document.getElementById("sans");
-  const r=giveUp?"bad":gradeSent(it,a.value);if(r==="empty"){a.focus();return;}
+  const r=giveUp?"bad":gradeSent(it,a.value);if(r==="empty"){a.focus({preventScroll:true});return;}
   const good=r!=="bad";SP.lastGood=good;
   const free=!good&&!!it.newId&&!P.p[it.newId]; // the one new word: no penalty
   if(!free){SP.n++;if(good){SP.ok++;SP.combo++;SP.best=Math.max(SP.best,SP.combo);}else SP.combo=0;
@@ -381,7 +390,7 @@ function finishSprint(){
   SP.prevRec=P.sp.rec||0;if(full&&SP.ok>SP.prevRec)P.sp.rec=SP.ok;
   if(full&&SP.n>0){if(P.sp.last!==d){P.sp.streak=P.sp.last===d-1?(P.sp.streak||0)+1:1;P.sp.last=d;}P.sp.best=Math.max(P.sp.best||0,P.sp.streak);}
   const h=P.sp.hist[d]||(P.sp.hist[d]={n:0,ok:0});h.n+=SP.n;h.ok+=SP.ok;
-  save();topline();if(view==="sprint")drawSummary();}
+  save();topline();lockState();if(view==="sprint")drawSummary();}
 function drawSummary(){
   const pct=SP.n?Math.round(100*SP.ok/SP.n):0,ks=Object.keys(SP.skillRes).sort((a,b)=>(sAcc(a)??0)-(sAcc(b)??0));
   const rec=SP.ok>SP.prevRec&&SP.left<=0;
@@ -396,7 +405,7 @@ function drawSummary(){
     <div class="group">${ks.map(k=>{const r=SP.skillRes[k];return skillRow(k,`${r.ok}/${r.n} · `);}).join("")}</div>
     <div class="acts"><button class="btn primary" id="spagain" aria-label="Again">${ic("repeat")}</button><div class="icons"><button class="ibtn" id="spclose" aria-label="Close">${ic("close")}</button></div></div>`;
   document.getElementById("spagain").onclick=startSprint;
-  document.getElementById("spclose").onclick=()=>{SP=null;render();};}
+  document.getElementById("spclose").onclick=()=>{SP=null;render();};lockState();}
 function stopSprint(){if(SP&&SP.state!=="done"){if(SP.n){SP.left=Math.max(SP.left,1);finishSprint();}else{clearInterval(SP.timer);clearTimeout(SP.autoT);}}SP=null;}
 // ---------- map ----------
 const PER=500,ZOOMS=[25,20,15,10,6,3];
