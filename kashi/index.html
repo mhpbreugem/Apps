@@ -113,19 +113,19 @@ main{max-width:620px;margin:0 auto;padding:8px 20px 32px}
 .kpi b{font-size:24px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
 .kpi svg.i{color:var(--c,var(--muted))}
 .sq{display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--c)}
-.sptop{position:sticky;top:51px;z-index:4;background:var(--bg);padding:10px 0 6px}
-.race{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.clockring{position:relative;width:76px;height:76px;display:grid;place-items:center}
+.sptop{position:sticky;top:51px;z-index:4;background:var(--bg);padding:6px 0 4px}
+.race{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.clockring{position:relative;width:50px;height:50px;display:grid;place-items:center}
 .clockring svg{position:absolute;inset:0;transform:rotate(-90deg)}
 .clockring circle{fill:none;stroke-width:4}
 .clockring .rbg{stroke:var(--surface2)}
 .clockring .rfg{stroke:var(--ink);stroke-linecap:round;stroke-dasharray:119.4;stroke-dashoffset:0;transition:stroke-dashoffset .2s linear}
-.clockring b{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.clockring b{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .clockring.hurry .rfg{stroke:var(--bad)}.clockring.hurry b{color:var(--bad);animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.45}}
-.race .combo{display:flex;align-items:center;gap:4px;font-size:18px;font-weight:700;color:var(--mid)}
+.race .combo{display:flex;align-items:center;gap:4px;font-size:15px;font-weight:700;color:var(--mid)}
 .score{display:flex;flex-direction:column;align-items:flex-end;line-height:1}
-.score b{font-size:46px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.score b{font-size:30px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .score b.beat{color:var(--mid)}
 .score b.pop{animation:pop .3s ease}
 @keyframes pop{40%{transform:scale(1.18)}}
@@ -221,6 +221,15 @@ details[open] summary::after{transform:rotate(-135deg) translateY(-1px)}
 .pickhead svg.i{width:40px;height:40px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
+.actrow{margin-top:28px;display:flex;align-items:center;gap:14px}
+.actrow .btn.primary{flex:1;width:auto}
+.actrow .ibtn{width:54px;height:54px;flex:none}
+.ibtn.ghost{background:none;pointer-events:none}
+.target .badge{margin-left:4px}
+.sprint .prompt{margin-bottom:10px}
+.sprint .chiprow{margin-bottom:16px}
+.study .prompt{margin-bottom:10px}
+
 </style>
 </head>
 <body>
@@ -263,6 +272,7 @@ const IC={
  hour:'<path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9"/>',repeat:'<path d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4"/>',
  question:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/>',
+ skip:'<path d="M5 5l9 7-9 7zM17 5v14"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>'};
 const ic=(n,c="")=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 // ---------- languages ----------
@@ -381,10 +391,12 @@ function buildQueue(){
 function schedule(card,result){
   const isNew=!st(card.id);let p=st(card.id)||{l:0,due:today(),n:0,w:0};p.n++;
   if(isNew)P.d.newDone++;else if(!lapsed.has(card.id)&&p.l>0)P.d.reviewed++;
-  if(result==="bad"){p.w++;p.l=0;p.due=today();lapsed.add(card.id);Q.splice(Math.min(3,Q.length),0,card);}
+  if(result==="bad"){if(!isNew)miss(card.id,p);else{p.l=0;p.due=today();}lapsed.add(card.id);Q.splice(Math.min(3,Q.length),0,card);}
   else if(lapsed.has(card.id)||hinted){p.l=Math.max(p.l,1);p.due=today()+1;lapsed.delete(card.id);}
   else{p.l=Math.min(MAXL,p.l+1);p.due=today()+INTERVALS[p.l];}
   P.p[card.id]=p;save();}
+// a miss drops 3 levels; the second miss resets the word to level 0
+function miss(id,p){p=p||P.p[id];if(!p)return;p.w=(p.w||0)+1;p.st=(p.st||0)+1;if(p.st>=2){p.l=0;p.st=0;}else p.l=Math.max(0,p.l-3);p.due=today();}
 function counts(deck){
   const cs=CARDS.filter(c=>deck?c.deck===deck:inDecks(c));let n=0,learn=0,mast=0,d=0;
   cs.forEach(c=>{const p=st(c.id);if(!p)n++;else if(p.l>=MASTER)mast++;else learn++;if(due(c.id))d++;});
@@ -451,15 +463,13 @@ function rStudy(){
     return;}
   const p=st(cur.id),l=p?p.l:0,q=curQ;
   V.innerHTML=`<section class="study">
-    <div class="chiprow"><span class="badge">${esc(cur.deck)}</span>${p?meter(l):`<span class="badge new">${ic("spark","s")}</span>`}</div>
-    ${!p?introHTML(cur):""}
+    <div class="chiprow"><span class="badge">${esc(cur.deck)}</span>${p?meter(l):""}</div>
     <h1 class="prompt">${esc(q?q.en:cur.en)}</h1>
-    ${q?`<div class="target">${ic("key","s")}<b>${esc(enOf(cur))}</b></div>`:""}
+    ${q?`<div class="target">${ic("key","s")}<b>${esc(enOf(cur))}</b>${p?"":`<span class="badge new">${ic("spark","s")}</span>`}</div>`:""}
     <input class="answer" id="ans" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="${PK.code}" placeholder="${PK.flag} …" aria-label="Answer">
     <div class="hint" id="hint"></div>
     <div class="fb" id="fb" aria-live="polite"></div>
-    <div class="acts" id="acts"><button class="btn primary" id="go" aria-label="Check">${ic("check")}</button>
-      <div class="icons"><button class="ibtn" id="hintb" aria-label="Hint">${ic("bulb")}</button><button class="ibtn" id="skip" aria-label="Show answer">${ic("eye")}</button></div></div>
+    <div class="actrow" id="acts"><button class="ibtn" id="skip" aria-label="Pass">${ic("skip")}</button><button class="btn primary" id="go" aria-label="Check">${ic("check")}</button><button class="ibtn" id="hintb" aria-label="Hint">${ic("bulb")}</button></div>
   </section>`;
   const ans=document.getElementById("ans");ans.focus({preventScroll:true});
   ans.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();act();}});
@@ -485,7 +495,7 @@ function check(giveUp){
     (cur.tr?`<div class="tr">${T(cur.fa[0])} · ${esc(cur.tr)}</div>`:(q?`<div class="tr">${T(cur.fa[0])}</div>`:""))+
     (!q&&cur.fa.length>1?`<div class="alt">${ic("plus","s")}${cur.fa.slice(1).map(T).join(" · ")}</div>`:""));
   pending=r==="near"?"ok":r;
-  document.getElementById("acts").innerHTML=`<button class="btn primary" id="nx" aria-label="Next">${ic("arrow")}</button>${r==="bad"&&!giveUp?`<div class="icons"><button class="ibtn" id="ovr" aria-label="I was right">${ic("thumb")}</button></div>`:""}`;
+  document.getElementById("acts").innerHTML=`<span class="ibtn ghost"></span><button class="btn primary" id="nx" aria-label="Next">${ic("arrow")}</button>${r==="bad"&&!giveUp?`<button class="ibtn" id="ovr" aria-label="I was right">${ic("thumb")}</button>`:`<span class="ibtn ghost"></span>`}`;
   document.getElementById("nx").onclick=()=>next();
   const o=document.getElementById("ovr");if(o)o.onclick=()=>{pending="ok";next();};
   document.getElementById("nx").focus({preventScroll:true});}
@@ -544,11 +554,11 @@ function startSprint(){
   <section class="study sprint">
     <div id="stip"></div>
     <div class="chiprow" id="schips"></div>
-    <div id="snew"></div>
     <h1 class="prompt" id="sprompt"></h1>
+    <div class="target" id="snew"></div>
     <input class="answer" id="sans" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="${PK.code}" placeholder="${PK.flag} …" aria-label="Answer">
     <div class="fb" id="sfb" aria-live="polite"></div>
-    <div class="acts" id="sacts"></div>
+    <div class="actrow" id="sacts"></div>
   </section>`;
   document.getElementById("sans").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();spAct();}});
   SP.timer=setInterval(tick,200);nextItem();}
@@ -570,12 +580,13 @@ function nextItem(){
   const k=SKILLS[it.target]?it.target:it.skills[0],s=k?gs(k):{n:1};
   document.getElementById("stip").innerHTML=k&&s.n===0&&!it.retry?`<div class="tip">${ic("bulb","s")}<div><b>${esc(SKILLS[k][1])}</b>${esc(SKILLS[k][2])}</div></div>`:"";
   document.getElementById("schips").innerHTML=it.retry?`<span class="badge">${ic("repeat","s")}</span>`:it.skills.filter(x=>SKILLS[x]).map(x=>`<span class="badge">${esc(SKILLS[x][1].split(" (")[0])}</span>`).join("");
-  const nw=it.newId&&BYID[it.newId];
-  document.getElementById("snew").innerHTML=nw?introHTML(nw):"";
+  const key=BYID[it.target]?BYID[it.target]:it.newId&&BYID[it.newId];
+  const sn=document.getElementById("snew");sn.style.display=key?"":"none";
+  sn.innerHTML=key?`${ic("key","s")}<b>${esc(enOf(key))}</b>${it.newId===key.id||!P.p[key.id]?`<span class="badge new">${ic("spark","s")}</span>`:""}`:"";
   document.getElementById("sprompt").textContent=it.en;
   const a=document.getElementById("sans");a.value="";a.readOnly=false;a.className="answer";a.focus({preventScroll:true});
   const fb=document.getElementById("sfb");fb.className="fb";fb.innerHTML="";
-  document.getElementById("sacts").innerHTML=`<button class="btn primary" id="scheck" aria-label="Check">${ic("check")}</button><div class="icons"><button class="ibtn" id="sskip" aria-label="Show answer">${ic("eye")}</button><button class="ibtn" id="sstop" aria-label="End">${ic("stop")}</button></div>`;
+  document.getElementById("sacts").innerHTML=`<button class="ibtn" id="sskip" aria-label="Pass">${ic("skip")}</button><button class="btn primary" id="scheck" aria-label="Check">${ic("check")}</button><button class="ibtn" id="sstop" aria-label="End">${ic("stop")}</button>`;
   document.getElementById("scheck").onclick=spAct;
   document.getElementById("sskip").onclick=()=>spCheck(true);
   document.getElementById("sstop").onclick=()=>{SP.last=true;finishSprint();};
@@ -588,9 +599,11 @@ function spCheck(giveUp){
   const it=SP.cur,a=document.getElementById("sans");
   const r=giveUp?"bad":gradeSent(it,a.value);if(r==="empty"){a.focus();return;}
   const good=r!=="bad";SP.lastGood=good;
-  SP.n++;if(good){SP.ok++;SP.combo++;SP.best=Math.max(SP.best,SP.combo);}else SP.combo=0;
-  recordSkills(it.skills,good);
-  it.skills.forEach(k=>{if(!SKILLS[k])return;const sr=SP.skillRes[k]||(SP.skillRes[k]={n:0,ok:0});sr.n++;if(good)sr.ok++;});
+  const free=!good&&!!it.newId&&!P.p[it.newId]; // the one new word: no penalty
+  if(!free){SP.n++;if(good){SP.ok++;SP.combo++;SP.best=Math.max(SP.best,SP.combo);}else SP.combo=0;
+    recordSkills(it.skills,good);
+    it.skills.forEach(k=>{if(!SKILLS[k])return;const sr=SP.skillRes[k]||(SP.skillRes[k]={n:0,ok:0});sr.n++;if(good)sr.ok++;});}
+  if(!good&&!free&&BYID[it.target]&&P.p[it.target]&&!it.retry)miss(it.target);
   it.words.forEach(id=>{
     if(id===it.newId&&!P.p[id]){P.p[id]={l:good?1:0,due:today()+(good?1:0),n:1,w:good?0:1};SP.newIds.push(id);P.d.newDone++;return;}
     const p=P.p[id];if(!p)return;
@@ -602,7 +615,7 @@ function spCheck(giveUp){
   drawScore();
   if(r==="ok"){SP.state="auto";document.getElementById("sacts").innerHTML="";SP.autoT=setTimeout(advance,650);}
   else{SP.state="shown";SP.paused=r==="bad";
-    document.getElementById("sacts").innerHTML=`<button class="btn primary" id="snext" aria-label="Next">${ic("arrow")}</button>${r==="bad"&&!giveUp?`<div class="icons"><button class="ibtn" id="sovr" aria-label="I was right">${ic("thumb")}</button></div>`:""}`;
+    document.getElementById("sacts").innerHTML=`<span class="ibtn ghost"></span><button class="btn primary" id="snext" aria-label="Next">${ic("arrow")}</button>${r==="bad"&&!giveUp?`<button class="ibtn" id="sovr" aria-label="I was right">${ic("thumb")}</button>`:`<span class="ibtn ghost"></span>`}`;
     document.getElementById("snext").onclick=advance;
     const o=document.getElementById("sovr");
     if(o)o.onclick=()=>{SP.ok++;SP.combo=1;it.skills.forEach(k=>{if(!SKILLS[k])return;const s=gs(k);s.ok++;s.r[s.r.length-1]=1;SP.skillRes[k].ok++;});SP.queue.pop();save();advance();};
