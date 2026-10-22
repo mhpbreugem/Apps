@@ -225,9 +225,7 @@ function rStudy(){
     return;}
   const p=st(cur.id),l=p?p.l:0,q=curQ;
   V.innerHTML=`<section class="study">
-    <div class="chiprow"><span class="badge">${esc(cur.deck)}</span>${p?meter(l):""}</div>
     <h1 class="prompt">${esc(q?q.en:cur.en)}</h1>
-    ${q?`<div class="target">${ic("key","s")}<b>${esc(enOf(cur))}</b>${p?"":`<span class="badge new">${ic("spark","s")}</span>`}</div>`:""}
     <input class="answer" id="ans" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="${PK.code}" placeholder="${PK.flag} …" aria-label="Answer">
     <div class="hint" id="hint"></div>
     <div class="fb" id="fb" aria-live="polite"></div>
@@ -314,10 +312,7 @@ function startSprint(){
     <div class="score"><b id="tscore">0</b><span>${ic("trophy","s")}<i id="trec">${P.sp.rec||0}</i></span></div></div>
     <div class="tbar"><i id="tbar"></i></div></div>
   <section class="study sprint">
-    <div id="stip"></div>
-    <div class="chiprow" id="schips"></div>
     <h1 class="prompt" id="sprompt"></h1>
-    <div class="target" id="snew"></div>
     <input class="answer" id="sans" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="${PK.code}" placeholder="${PK.flag} …" aria-label="Answer">
     <div class="fb" id="sfb" aria-live="polite"></div>
     <div class="actrow" id="sacts"></div>
@@ -339,12 +334,6 @@ function nextItem(){
   it=qi>=0?SP.queue.splice(qi,1)[0].it:makeItem();
   if(!it)return finishSprint();
   SP.cur=it;SP.state="ask";SP.paused=false;
-  const k=SKILLS[it.target]?it.target:it.skills[0],s=k?gs(k):{n:1};
-  document.getElementById("stip").innerHTML=k&&s.n===0&&!it.retry?`<div class="tip">${ic("bulb","s")}<div><b>${esc(SKILLS[k][1])}</b>${esc(SKILLS[k][2])}</div></div>`:"";
-  document.getElementById("schips").innerHTML=it.retry?`<span class="badge">${ic("repeat","s")}</span>`:it.skills.filter(x=>SKILLS[x]).map(x=>`<span class="badge">${esc(SKILLS[x][1].split(" (")[0])}</span>`).join("");
-  const key=BYID[it.target]?BYID[it.target]:it.newId&&BYID[it.newId];
-  const sn=document.getElementById("snew");sn.style.display=key?"":"none";
-  sn.innerHTML=key?`${ic("key","s")}<b>${esc(enOf(key))}</b>${it.newId===key.id||!P.p[key.id]?`<span class="badge new">${ic("spark","s")}</span>`:""}`:"";
   document.getElementById("sprompt").textContent=it.en;
   const a=document.getElementById("sans");a.value="";a.readOnly=false;a.className="answer";a.focus({preventScroll:true});
   const fb=document.getElementById("sfb");fb.className="fb";fb.innerHTML="";
