@@ -1,0 +1,330 @@
+trip; travel|voyage|m
+ticket|billet/ticket|m
+train|train|m
+bus|bus/autobus|m
+airplane|avion|m
+taxi|taxi|m
+road; way|route/chemin|f
+map|carte|f
+passport|passeport|m
+suitcase|valise|f
+left|gauche|x
+right (direction)|droite|x
+straight ahead|tout droit|x
+north|nord|m
+south|sud|m
+east|est|m
+west|ouest|m
+village|village|m
+river|rivière/fleuve|f
+desert|désert|m
+garden|jardin|m
+sky|ciel|m
+star|étoile|f
+wind|vent|m
+season|saison|f
+spring|printemps|m
+summer|été|m
+autumn|automne|m
+winter|hiver|m
+doctor|médecin/docteur|m
+teacher|professeur/enseignant|m
+university student|étudiant/étudiante|m
+pupil|élève|mf
+engineer|ingénieur|m
+worker|ouvrier/travailleur|m
+boss; manager|patron/chef|m
+colleague|collègue|mf
+neighbour|voisin/voisine|m
+guest|invité/invitée|m
+party|fête/soirée|f
+wedding|mariage|m
+birthday|anniversaire|m
+gift|cadeau|m
+holidays|vacances|fpl
+film|film|m
+music|musique|f
+song|chanson|f
+game|jeu|m
+sport|sport|m
+football|football/foot|m
+newspaper|journal|m
+letter|lettre|f
+picture; photo|photo/image|f
+computer|ordinateur|m
+price|prix|m
+bottle|bouteille|f
+glass (for drinking)|verre|m
+plate|assiette|f
+spoon|cuillère/cuiller|f
+fork|fourchette|f
+knife|couteau|m
+oil|huile|f
+butter|beurre|m
+honey|miel|m
+walnut|noix|f
+pistachio|pistache|f
+date (fruit)|datte|f
+saffron|safran|m
+kebab|brochette/kebab|f
+stew|ragoût|m
+pastry; sweets|pâtisserie/gâteaux|f
+sweet|sucré|a
+sour|acide/aigre|a
+salty|salé|a
+bitter|amer|a
+delicious|délicieux|a
+full (after eating)|rassasié|a
+empty|vide|a
+full|plein|a
+heavy|lourd|a
+light (weight)|léger|a
+strong|fort|a
+weak|faible|a
+rich|riche|a
+poor|pauvre|a
+crowded; busy|bondé/animé|a
+quiet|calme/tranquille|a
+angry|en colère/fâché|a:inv
+kind|gentil/aimable|a
+lazy|paresseux|a
+clever|intelligent/malin|a
+funny|drôle/amusant|a
+famous|célèbre/connu|a
+important|important|a
+different|différent|a
+same|même|a
+correct; right|correct/juste|a
+wrong|faux/incorrect|a
+possible|possible|a
+free (of charge)|gratuit|a
+free (unoccupied)|libre|a
+open|ouvert|a
+closed|fermé|a
+first|premier|a
+last|dernier|a
+next|prochain/suivant|a
+before|avant|x
+after|après|x
+early|tôt/de bonne heure|x
+late|tard/en retard|x
+soon|bientôt|x
+still; yet|encore/toujours|x
+maybe|peut-être|x
+together|ensemble|x
+alone|seul|a
+enough|assez|x
+really|vraiment|x
+because|parce que|x
+if|si|x
+so; then|donc/alors|x
+until|jusqu'à|x
+between|entre|x
+next to|à côté de|x
+in front of|devant|x
+behind|derrière|x
+inside|dedans/à l'intérieur|x
+outside|dehors/à l'extérieur|x
+up; above|en haut/au-dessus|x
+down; below|en bas/en dessous|x
+to travel|voyager|v
+to rent|louer|v
+to change|changer|v
+to choose|choisir|v
+to forget|oublier|v
+to remember|se souvenir/se rappeler|v
+to try|essayer|v
+to use|utiliser|v
+to fall|tomber|v
+to throw|jeter/lancer|v
+to pull; to draw|tirer/dessiner|v
+to lose|perdre|v
+to win|gagner|v
+to meet|rencontrer|v
+to marry|épouser/se marier|v
+to dance|danser|v
+to sing|chanter|v
+to swim|nager|v
+to drive|conduire|v
+to fly|voler|v
+to return|revenir/rentrer/retourner|v
+to enter|entrer|v
+to get up|se lever|v
+to wake up|se réveiller|v
+to wear|porter|v
+to rest|se reposer|v
+to hurt; to ache|faire mal|v
+to believe|croire|v
+to explain|expliquer|v
+to repeat|répéter|v
+to teach|enseigner/apprendre|v
+to study|étudier|v
+to cut|couper|v
+to build|construire|v
+to break|casser/briser|v
+to burn|brûler|v
+to hit|frapper|v
+to be afraid|avoir peur|v
+to decide|décider|v
+to spend (time)|passer|v
+to invite|inviter|v
+to thank|remercier|v
+to get tired|se fatiguer|v
+to take a photo|prendre une photo|v
+to be born|naître|v
+driver|chauffeur/conducteur|m
+cook; chef|cuisinier/chef|m
+nurse|infirmier/infirmière|m
+lawyer|avocat/avocate|m
+farmer|agriculteur/fermier|m
+shopkeeper|commerçant|m
+baker|boulanger/boulangère|m
+tailor|tailleur/couturier|m
+soldier|soldat|m
+artist|artiste|mf
+singer|chanteur/chanteuse|m
+actor|acteur/actrice|m
+journalist|journaliste|mf
+employee|employé/employée|m
+pilot|pilote|mf
+dentist|dentiste|mf
+hairdresser|coiffeur/coiffeuse|m
+waiter|serveur/serveuse|m
+merchant|marchand/commerçant|m
+headache|mal de tête|m
+fever|fièvre|f
+a cold (illness)|rhume|m
+cough|toux|f
+pill|comprimé/pilule|m
+injection|piqûre/injection|f
+appointment; turn|rendez-vous/tour|m
+wound|blessure|f
+accident|accident|m
+emergency|urgence|f
+ambulance|ambulance|f
+patient (noun)|patient/patiente|m
+to catch a cold|attraper un rhume|v
+to cough|tousser|v
+shopping|courses/shopping|fpl
+customer|client/cliente|m
+seller|vendeur/vendeuse|m
+discount|réduction/remise|f
+cash|espèces/liquide|fpl
+bank card|carte bancaire|f
+size|taille/pointure|f
+small change (money)|monnaie|f
+coin|pièce|f
+toman|toman|m
+visa|visa|m
+border|frontière|f
+tourist|touriste|mf
+guide|guide|m
+reservation|réservation|f
+arrival|arrivée|f
+flight|vol|m
+metro|métro|m
+bicycle|vélo/bicyclette|m
+motorbike|moto|f
+ship|bateau/navire|m
+boat|bateau/barque|m
+traffic|circulation/trafic|f
+crossroads|carrefour|m
+corner|coin|m
+address|adresse|f
+distance|distance|f
+kilometre|kilomètre|m
+bored|ennuyé|a
+excited|excité/enthousiaste|a
+surprised|surpris|a:surprise
+jealous|jaloux|a
+shy|timide|a
+brave|courageux|a
+friendly; close|amical/proche|a
+rude|impoli/grossier|a
+hardworking|travailleur/travailleuse|a:travailleuse
+talkative|bavard|a
+patient (adjective)|patient|a
+lucky|chanceux|a
+unlucky|malchanceux|a
+dish; container|plat/récipient|m
+to wash the dishes|faire la vaisselle|v
+to iron|repasser|v
+to sweep; to vacuum|balayer/passer l'aspirateur|v
+to tidy up|ranger|v
+rent|loyer|m
+landlord|propriétaire|mf
+electricity|électricité|f
+gas|gaz|m
+heater|radiateur/chauffage|m
+class|classe/cours|f
+lesson|leçon/cours|f
+homework|devoirs|mpl
+notebook|cahier/carnet|m
+pencil|crayon|m
+board (classroom)|tableau|m
+grade; mark|note|f
+dictionary|dictionnaire|m
+sentence|phrase|f
+letter (of alphabet)|lettre|f
+alphabet|alphabet|m
+mathematics|mathématiques/maths|fpl
+geography|géographie|f
+physics|physique|f
+chemistry|chimie|f
+biology|biologie|f
+meeting|réunion|f
+interview|entretien/interview|m
+unemployed|au chômage/chômeur|a:inv
+leave (from work)|congé|m
+email|e-mail/courriel|m
+message|message|m
+hobby|loisir/passe-temps|m
+walk; hike|promenade/randonnée|f
+picnic|pique-nique|m
+camera|appareil photo|m
+painting|peinture/tableau|f
+chess|échecs|mpl
+ball|ballon/balle|m
+team|équipe|f
+match; competition|match/compétition|m
+player|joueur/joueuse|m
+mountaineering|alpinisme|m
+swimming pool|piscine|f
+concert|concert|m
+theatre|théâtre|m
+novel|roman|m
+relative (family)|parent/proche|m
+aunt (father's sister)|tante|f
+aunt (mother's sister)|tante|f
+uncle (father's brother)|oncle|m
+uncle (mother's brother)|oncle|m
+grandchild|petit-enfant/petit-fils/petite-fille|m
+bride|mariée|f
+groom; son-in-law|marié/gendre|m
+twins|jumeaux/jumelles|mpl
+parents|parents|mpl
+interesting|intéressant|a
+boring|ennuyeux|a
+strange|étrange/bizarre|a
+normal; ordinary|normal/ordinaire|a
+comfortable|confortable|a
+terrible|terrible/affreux|a
+excellent|excellent|a
+complete; perfect|complet/parfait|a
+whole|entier|a
+real|vrai/réel|a
+fake|faux|a
+fresh|frais|a
+raw|cru|a
+cooked|cuit|a
+hot (to the touch)|chaud/brûlant|a
+spicy|épicé/piquant|a
+local|local|a
+international|international|a
+special|spécial|a
+similar|semblable/similaire|a
+busy (person)|occupé|a
+recently|récemment|x
+later|plus tard|x
+immediately|immédiatement/tout de suite|x
+definitely|certainement/sûrement|x
