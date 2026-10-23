@@ -36,13 +36,15 @@ const PACKS={};
 // ---------- state ----------
 const today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5);
 const LDEF=()=>({p:{},g:{},sp:{streak:0,last:0,best:0,hist:{}},d:{day:0,newDone:0,reviewed:0},decks:["A1"],npd:10,gmax:"auto"});
-let S={v:2,s:{theme:"auto",lang:null,zoom:1,sprintMin:5},L:{},t:0};
+let S={v:2,s:{theme:"auto",lang:null,zoom:1,sprintMin:2,m2:1},L:{},t:0};
 const LSK="kashi-v2";
 function mergeL(x){const d=LDEF();return Object.assign(d,x||{},{sp:Object.assign(d.sp,(x||{}).sp||{}),d:Object.assign(d.d,(x||{}).d||{})});}
 function fromV1(x){ // the original Persian-only save
-  return{v:2,s:{theme:(x.s||{}).theme||"auto",lang:"fa",zoom:(x.s||{}).zoom??1,sprintMin:(x.s||{}).sprintMin||5},
+  return{v:2,s:{theme:(x.s||{}).theme||"auto",lang:"fa",zoom:(x.s||{}).zoom??1,sprintMin:2,m2:1},
     L:{fa:mergeL({p:x.p||{},g:x.g||{},sp:x.sp,d:x.d,decks:((x.s||{}).decks||["A1"]).filter(d=>/^[ABC][12]$/.test(d)),npd:(x.s||{}).newPerDay||10,gmax:(x.s||{}).gmax||"auto"})},t:x.t||0};}
-function mergeS(x){if(!x)return null;if(!x.v)return fromV1(x);const L={};for(const k in x.L||{})L[k]=mergeL(x.L[k]);return{v:2,s:Object.assign({theme:"auto",lang:null,zoom:1,sprintMin:5},x.s||{}),L,t:x.t||0};}
+function mergeS(x){if(!x)return null;if(!x.v)return fromV1(x);const L={};for(const k in x.L||{})L[k]=mergeL(x.L[k]);const s=Object.assign({theme:"auto",lang:null,zoom:1,sprintMin:2},x.s||{});if(!s.m2){s.sprintMin=2;s.m2=1;} // challenges are 2 minutes
+  for(const k in L){const sp=L[k].sp;if(!sp.recs){sp.recs={};if(sp.rec)sp.recs[5]=sp.rec;}}
+  return{v:2,s,L,t:x.t||0};}
 try{const x=JSON.parse(localStorage.getItem(LSK)||"null")||JSON.parse(localStorage.getItem("kashi-v1")||"null");const m=mergeS(x);if(m)S=m;}catch(e){}
 let P=null; // progress of the active language
 let dbRef=null,saveT=null;
@@ -266,7 +268,19 @@ function next(silent){
 document.addEventListener("keydown",e=>{if(view==="study"&&phase==="shown"&&e.key==="Enter"&&document.activeElement?.id!=="ans"&&document.activeElement?.id!=="nx"){e.preventDefault();next();}});
 // ---------- sprint ----------
 let SP=null;
-const SPRINT_SEC=()=>(S.s.sprintMin||5)*60;
+const SPRINT_SEC=()=>(S.s.sprintMin||2)*60;
+// record per challenge length
+const recOf=()=>((P.sp.recs||(P.sp.recs={}))[S.s.sprintMin||2])||0;
+// weekly calendar of completed challenges
+function calHTML(weeks){
+  const td=today(),mon=td-((td+3)%7),H=P.sp.hist||{};let rows="";
+  for(let w=weeks-1;w>=0;w--){const start=mon-7*w;let tot=0,cells="";
+    for(let i=0;i<7;i++){const d=start+i,c=(H[d]&&H[d].c)||0;tot+=c;
+      cells+=`<i class="cd${d>td?" fut":""}${d===td?" now":""}" style="--a:${c?Math.min(1,.25+.25*c):0}">${c||""}</i>`;}
+    const dt=new Date((start)*864e5);const lab=dt.toLocaleDateString(undefined,{day:"numeric",month:"short",timeZone:"UTC"});
+    rows+=`<div class="cw"><span class="cl">${lab}</span>${cells}<b class="ct${tot?"":" z"}">${tot}</b></div>`;}
+  const dn=[...Array(7)].map((_,i)=>new Date((4+i)*864e5).toLocaleDateString(undefined,{weekday:"narrow",timeZone:"UTC"}));
+  return`<div class="cal"><div class="cw ch"><span class="cl"></span>${dn.map(x=>`<i>${x}</i>`).join("")}<b class="ct">${ic("bolt","s")}</b></div>${rows}</div>`;}
 function chooseSkill(lv,lastK){
   const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv&&!(lastK.length>=2&&lastK.slice(-2).every(x=>x===k)));
   const w=ks.map(k=>{const s=gs(k),a=sAcc(k);let x=s.n<8?3:.6+2.5*(1-a);if(SK_LV(k)===lv&&lv>0)x*=1.5;return x;});
@@ -295,12 +309,13 @@ function rSprint(){
   rollDay();
   const lv=unlockedLv(),doneToday=P.sp.last===today();
   const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv).sort((a,b)=>(sAcc(a)??-1)-(sAcc(b)??-1));
-  V.innerHTML=`<div class="hero"><div class="clock">${ic(doneToday?"check":"timer")}</div><div class="min">${S.s.sprintMin||5}:00</div></div>
+  V.innerHTML=`<div class="hero"><div class="clock">${ic(doneToday?"check":"timer")}</div><div class="min">${S.s.sprintMin||2}:00</div></div>
     <div class="kpis">
       <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${P.sp.streak||0}</b></div>
       <div class="kpi" style="--c:var(--ink)">${ic("cap")}<b>${LEVELS[lv]}</b></div>
-      <div class="kpi" style="--c:var(--ok)">${ic("trophy")}<b>${P.sp.rec||0}</b></div></div>
+      <div class="kpi" style="--c:var(--ok)">${ic("trophy")}<b>${recOf()}</b></div></div>
     <button class="btn primary" id="spgo" aria-label="Start">${ic(doneToday?"repeat":"play")}</button>
+    <div class="eyebrow">${ic("calendar","s")}</div>${calHTML(10)}
     <div class="eyebrow">${ic("cap","s")}</div>
     <div class="group">${ks.map(k=>skillRow(k)).join("")}</div>`;
   document.getElementById("spgo").onclick=startSprint;}
@@ -310,7 +325,7 @@ function startSprint(){
   V.innerHTML=`<div class="sptop"><div class="race">
     <div class="clockring" id="cring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" class="rbg"/><circle cx="22" cy="22" r="19" class="rfg" id="rfg"/></svg><b id="tclock"></b></div>
     <div class="combo" id="tcombo"></div>
-    <div class="score"><b id="tscore">0</b><span>${ic("trophy","s")}<i id="trec">${P.sp.rec||0}</i></span></div></div>
+    <div class="score"><b id="tscore">0</b><span>${ic("trophy","s")}<i id="trec">${recOf()}</i></span></div></div>
     <div class="tbar"><i id="tbar"></i></div></div>
   <section class="study sprint">
     <h1 class="prompt" id="sprompt"></h1>
@@ -343,7 +358,7 @@ function nextItem(){
   document.getElementById("sskip").onclick=()=>spCheck(true);
   document.getElementById("sstop").onclick=()=>{SP.last=true;finishSprint();};
   drawScore();}
-function drawScore(){const sc=document.getElementById("tscore");sc.textContent=SP.ok;sc.classList.toggle("beat",SP.ok>(P.sp.rec||0)&&(P.sp.rec||0)>0);
+function drawScore(){const sc=document.getElementById("tscore");sc.textContent=SP.ok;sc.classList.toggle("beat",SP.ok>recOf()&&recOf()>0);
   sc.classList.remove("pop");void sc.offsetWidth;if(SP.n&&SP.lastGood)sc.classList.add("pop");
   document.getElementById("tcombo").innerHTML=SP.combo>=3?`${ic("flame","s")}${SP.combo}`:"";}
 function spAct(){if(!SP)return;if(SP.state==="ask")spCheck(false);else if(SP.state==="shown")advance();}
@@ -377,20 +392,21 @@ function finishSprint(){
   if(!SP||SP.state==="done")return;
   clearInterval(SP.timer);clearTimeout(SP.autoT);
   const full=SP.left<=0;SP.state="done";rollDay();const d=today();
-  SP.prevRec=P.sp.rec||0;if(full&&SP.ok>SP.prevRec)P.sp.rec=SP.ok;
+  SP.prevRec=recOf();if(full&&SP.ok>SP.prevRec)P.sp.recs[S.s.sprintMin||2]=SP.ok;
   if(full&&SP.n>0){if(P.sp.last!==d){P.sp.streak=P.sp.last===d-1?(P.sp.streak||0)+1:1;P.sp.last=d;}P.sp.best=Math.max(P.sp.best||0,P.sp.streak);}
-  const h=P.sp.hist[d]||(P.sp.hist[d]={n:0,ok:0});h.n+=SP.n;h.ok+=SP.ok;
+  const h=P.sp.hist[d]||(P.sp.hist[d]={n:0,ok:0});h.n+=SP.n;h.ok+=SP.ok;if(full)h.c=(h.c||0)+1;
   save();topline();lockState();if(view==="sprint")drawSummary();}
 function drawSummary(){
   const pct=SP.n?Math.round(100*SP.ok/SP.n):0,ks=Object.keys(SP.skillRes).sort((a,b)=>(sAcc(a)??0)-(sAcc(b)??0));
   const rec=SP.ok>SP.prevRec&&SP.left<=0;
   V.innerHTML=`<div class="hero"><div class="clock" style="color:${rec?"var(--mid)":"var(--ok)"}">${ic(rec?"trophy":"check")}</div><div class="min">${SP.ok}</div>
-      <div class="muted" style="display:flex;justify-content:center;gap:6px;align-items:center">${ic("trophy","s")}${Math.max(SP.prevRec,P.sp.rec||0)}${rec?` <span class="badge new">${ic("spark","s")}</span>`:""}</div></div>
+      <div class="muted" style="display:flex;justify-content:center;gap:6px;align-items:center">${ic("trophy","s")}${Math.max(SP.prevRec,recOf())}${rec?` <span class="badge new">${ic("spark","s")}</span>`:""}</div></div>
     <div class="kpis">
       <div class="kpi" style="--c:var(--ok)">${ic("check")}<b>${pct}%</b></div>
       <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${SP.best}</b></div>
       <div class="kpi" style="--c:var(--ink)">${ic("calendar")}<b>${P.sp.streak||0}</b></div></div>
     ${SP.newIds.length?`<div class="eyebrow">${ic("spark","s")}</div><div class="group">${SP.newIds.map(id=>{const c=BYID[id];return`<div class="row"><span>${esc(enOf(c))}</span><span class="tg" style="font-size:19px">${esc(c.fa[0])}</span></div>`;}).join("")}</div>`:""}
+    <div class="eyebrow">${ic("calendar","s")}</div>${calHTML(4)}
     <div class="eyebrow">${ic("cap","s")}</div>
     <div class="group">${ks.map(k=>{const r=SP.skillRes[k];return skillRow(k,`${r.ok}/${r.n} · `);}).join("")}</div>
     <div class="acts"><button class="btn primary" id="spagain" aria-label="Again">${ic("repeat")}</button><div class="icons"><button class="ibtn" id="spclose" aria-label="Close">${ic("close")}</button></div></div>`;
@@ -485,9 +501,9 @@ function rSettings(){
   const NP=[5,10,15,20,30,50];
   document.getElementById("n-").onclick=()=>{P.npd=NP[Math.max(0,NP.indexOf(P.npd)-1)]??5;set();rSettings();};
   document.getElementById("n+").onclick=()=>{P.npd=NP[Math.min(NP.length-1,NP.indexOf(P.npd)+1)]??10;set();rSettings();};
-  const SM=[3,5,10,15];
-  document.getElementById("m-").onclick=()=>{S.s.sprintMin=SM[Math.max(0,SM.indexOf(S.s.sprintMin)-1)]??5;set();rSettings();};
-  document.getElementById("m+").onclick=()=>{S.s.sprintMin=SM[Math.min(SM.length-1,SM.indexOf(S.s.sprintMin)+1)]??5;set();rSettings();};
+  const SM=[1,2,3,5,10];
+  document.getElementById("m-").onclick=()=>{S.s.sprintMin=SM[Math.max(0,SM.indexOf(S.s.sprintMin)-1)]??2;set();rSettings();};
+  document.getElementById("m+").onclick=()=>{S.s.sprintMin=SM[Math.min(SM.length-1,SM.indexOf(S.s.sprintMin)+1)]??2;set();rSettings();};
   document.getElementById("gc").onclick=e=>{const b=e.target.closest("button");if(!b)return;P.gmax=b.dataset.g;set();rSettings();};
   document.getElementById("thc").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.s.theme=b.dataset.t;applyTheme();set();rSettings();};
   const r=document.getElementById("reset");
