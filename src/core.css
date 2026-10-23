@@ -239,10 +239,13 @@ body.kb .actrow .ibtn{width:46px;height:46px}
 body.kb .actrow .btn{padding:11px 18px}
 body.kb .fb{margin-top:8px}
 body.kb .big{font-size:26px;margin-top:4px}
-body.kb .gls,body.kb .tr{display:none}
+body.kb .gls{display:none}
 body.kb .hint{min-height:0;margin-top:4px}
 body.kb .sptop{padding:2px 0}
 body.kb .clockring{width:42px;height:42px}
 body.kb .clockring b{font-size:11px}
 body.kb .verdict{width:26px;height:26px}
 body.kb .score b{font-size:24px}
+
+.tr.ph{font-size:17px;color:var(--ink);opacity:.72;font-style:italic;text-align:start;margin-top:2px}
+body.kb .tr.ph{font-size:15px}

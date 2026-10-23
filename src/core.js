@@ -251,8 +251,9 @@ function check(giveUp){
   if(r==="empty"){ans.focus({preventScroll:true});return;}
   phase="shown";ans.readOnly=true;ans.classList.add(r==="bad"?"bad":"ok");
   const fb=document.getElementById("fb");fb.className="fb show "+r;
+  const tl=q?(q.tr||(PK.translit?PK.translit(q.canon):"")):cur.tr;
   fb.innerHTML=fbHTML(r,q?q.canon:cur.fa[0],ans.value,q?q.words:null,
-    (cur.tr?`<div class="tr">${T(cur.fa[0])} · ${esc(cur.tr)}</div>`:(q?`<div class="tr">${T(cur.fa[0])}</div>`:""))+
+    (tl?`<div class="tr ph">${esc(tl)}</div>`:"")+
     (!q&&cur.fa.length>1?`<div class="alt">${ic("plus","s")}${cur.fa.slice(1).map(T).join(" · ")}</div>`:""));
   pending=r==="near"?"ok":r;
   document.getElementById("acts").innerHTML=`<span class="ibtn ghost"></span><button class="btn primary" id="nx" aria-label="Next">${ic("arrow")}</button>${r==="bad"&&!giveUp?`<button class="ibtn" id="ovr" aria-label="I was right">${ic("thumb")}</button>`:`<span class="ibtn ghost"></span>`}`;
@@ -362,7 +363,7 @@ function spCheck(giveUp){
   if(!good)SP.queue.push({it:{...it,retry:true,newId:null},wait:3});
   save();
   a.readOnly=true;a.classList.add(good?"ok":"bad");
-  const fb=document.getElementById("sfb");fb.className="fb show "+r;fb.innerHTML=fbHTML(r,it.canon,a.value,it.words);
+  const fb=document.getElementById("sfb");fb.className="fb show "+r;const tl=it.tr||(PK.translit?PK.translit(it.canon):"");fb.innerHTML=fbHTML(r,it.canon,a.value,it.words,tl?`<div class="tr ph">${esc(tl)}</div>`:"");
   drawScore();
   if(r==="ok"){SP.state="auto";document.getElementById("sacts").innerHTML="";SP.autoT=setTimeout(advance,650);}
   else{SP.state="shown";SP.paused=r==="bad";

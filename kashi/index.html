@@ -249,13 +249,16 @@ body.kb .actrow .ibtn{width:46px;height:46px}
 body.kb .actrow .btn{padding:11px 18px}
 body.kb .fb{margin-top:8px}
 body.kb .big{font-size:26px;margin-top:4px}
-body.kb .gls,body.kb .tr{display:none}
+body.kb .gls{display:none}
 body.kb .hint{min-height:0;margin-top:4px}
 body.kb .sptop{padding:2px 0}
 body.kb .clockring{width:42px;height:42px}
 body.kb .clockring b{font-size:11px}
 body.kb .verdict{width:26px;height:26px}
 body.kb .score b{font-size:24px}
+
+.tr.ph{font-size:17px;color:var(--ink);opacity:.72;font-style:italic;text-align:start;margin-top:2px}
+body.kb .tr.ph{font-size:15px}
 
 </style>
 </head>
@@ -525,8 +528,9 @@ function check(giveUp){
   if(r==="empty"){ans.focus({preventScroll:true});return;}
   phase="shown";ans.readOnly=true;ans.classList.add(r==="bad"?"bad":"ok");
   const fb=document.getElementById("fb");fb.className="fb show "+r;
+  const tl=q?(q.tr||(PK.translit?PK.translit(q.canon):"")):cur.tr;
   fb.innerHTML=fbHTML(r,q?q.canon:cur.fa[0],ans.value,q?q.words:null,
-    (cur.tr?`<div class="tr">${T(cur.fa[0])} · ${esc(cur.tr)}</div>`:(q?`<div class="tr">${T(cur.fa[0])}</div>`:""))+
+    (tl?`<div class="tr ph">${esc(tl)}</div>`:"")+
     (!q&&cur.fa.length>1?`<div class="alt">${ic("plus","s")}${cur.fa.slice(1).map(T).join(" · ")}</div>`:""));
   pending=r==="near"?"ok":r;
   document.getElementById("acts").innerHTML=`<span class="ibtn ghost"></span><button class="btn primary" id="nx" aria-label="Next">${ic("arrow")}</button>${r==="bad"&&!giveUp?`<button class="ibtn" id="ovr" aria-label="I was right">${ic("thumb")}</button>`:`<span class="ibtn ghost"></span>`}`;
@@ -636,7 +640,7 @@ function spCheck(giveUp){
   if(!good)SP.queue.push({it:{...it,retry:true,newId:null},wait:3});
   save();
   a.readOnly=true;a.classList.add(good?"ok":"bad");
-  const fb=document.getElementById("sfb");fb.className="fb show "+r;fb.innerHTML=fbHTML(r,it.canon,a.value,it.words);
+  const fb=document.getElementById("sfb");fb.className="fb show "+r;const tl=it.tr||(PK.translit?PK.translit(it.canon):"");fb.innerHTML=fbHTML(r,it.canon,a.value,it.words,tl?`<div class="tr ph">${esc(tl)}</div>`:"");
   drawScore();
   if(r==="ok"){SP.state="auto";document.getElementById("sacts").innerHTML="";SP.autoT=setTimeout(advance,650);}
   else{SP.state="shown";SP.paused=r==="bad";
@@ -1025,7 +1029,7 @@ const GEN={
    const v=pickV(ctx,v=>!v.stative&&(v.intr||v.obj));if(!v)return null;
    let comp=null;if(v.obj&&(!v.intr||Math.random()<.5)){const n=pickN(ctx,n=>catOK(n,v.obj));if(!n)return null;comp=n;}
    const vf=impF(v,pl,neg);
-   return{en:`${neg?"Don't "+v.en[0]:cap(v.en[0])}${comp?" the "+comp[1]:""}!${pl?" (pl.)":""}`,seqs:[[pl?["شما",""]:["تو",""],...(comp?[obj(fa(comp[0]))]:[]),vf]],skills:["imp"].concat(neg?["neg"]:[],comp?["ra"]:[]),words:[v.id].concat(comp?[comp[0]]:[])};},
+   return{en:`${neg?"Don't "+v.en[0]:cap(v.en[0])}${comp?" the "+comp[1]:""}!${pl?" (pl.)":""}`,seqs:[[pl?["","شما"]:["","تو"],...(comp?[obj(fa(comp[0]))]:[]),vf]],skills:["imp"].concat(neg?["neg"]:[],comp?["ra"]:[]),words:[v.id].concat(comp?[comp[0]]:[])};},
  passive(ctx){const v=pickV(ctx,v=>v.pass);if(!v)return null;const n=pickN(ctx,n=>catOK(n,v.obj));if(!n)return null;
    const vf=v.pre?[v.pre+" شد"]:ppF(v).map(x=>x+" شد");
    return{en:`The ${n[1]} was ${v.en[3]}`,seqs:[[fa(n[0]),vf]],skills:["passive"],words:[v.id,n[0]]};},
@@ -1230,10 +1234,85 @@ function framesFor(id,has){
     }return null;});}
   return out;}
 // phrases containing the word
+// ---- phonetic (Latin) rendering of an answer sentence ----
+const translit=(()=>{
+  const clean=s=>String(s).replace(/[ً-ْٰ]/g,"").replace(/ي/g,"ی").replace(/ك/g,"ک").trim();
+  const D=new Map(),PAST=new Map(),ADJS=new Set(),NOUNS=new Set();
+  const put=(f,t)=>{f=clean(f);if(!f||!t||/…/.test(f+t))return;if(!D.has(f))D.set(f,t);const g=f.replace(/‌/g,"");if(!D.has(g))D.set(g,t);};
+  const FW={"من":"man","تو":"to","او":"u","اون":"un","وی":"vey","ما":"mā","شما":"shomā","آنها":"ānhā","اونا":"unā","اونها":"unhā","آنان":"ānān","ایشان":"ishān","ایشون":"ishun",
+    "این":"in","آن":"ān","را":"rā","رو":"ro","به":"be","در":"dar","با":"bā","بی":"bi","بدون":"bedun","از":"az","تا":"tā","هم":"ham","و":"va","یا":"yā","که":"ke",
+    "است":"ast","هست":"hast","نیست":"nist","بود":"bud","نبود":"nabud","شد":"shod","باید":"bāyad","شاید":"shāyad","خیلی":"kheyli","یک":"yek","یه":"ye","چند":"chand",
+    "درباره":"darbāre","درباره‌ی":"darbāre-ye","در مورد":"dar mowred-e","مورد":"mowred-e","راجع":"rāje'","کجاست":"kojāst","کجاس":"kojās","کجا":"kojā","چیست":"chist","چیه":"chiye","چی":"chi",
+    "کیست":"kist","کیه":"kiye","کی":"ki","چطور":"chetor","چطوره":"chetore","چگونه":"chegune","چنده":"chande","چقدر":"cheqadr","چقدره":"cheqadre","چندتا":"chandtā","کدام":"kodām","کدوم":"kodum","چرا":"cherā",
+    "اینجاست":"injāst","اینجاس":"injās","آنجاست":"ānjāst","اونجاست":"unjāst","اونجاس":"unjās","خودم":"khodam","خودت":"khodet","خودش":"khodesh","خودمان":"khodemān","خودمون":"khodemun",
+    "خودتان":"khodetān","خودتون":"khodetun","خودشان":"khodeshān","خودشون":"khodeshun","قیمت":"qeymat","زیر":"zir","روی":"ru-ye","پشت":"posht","کنار":"kenār","جلوی":"jelo-ye","جلو":"jelo","داخل":"dākhel","توی":"tu-ye"};
+  const PRES={"رو":"rav","ر":"r","آی":"āy","ا":"ā","خور":"khor","نوش":"nush","بین":"bin","خوان":"khān","خون":"khun","نویس":"nevis","خر":"khar","خواب":"khāb","نشین":"neshin","شین":"shin",
+    "آور":"āvar","ار":"ār","شوی":"shuy","شور":"shur","پز":"paz","بند":"band","فهم":"fahm","دان":"dān","دون":"dun","کن":"kon","زن":"zan","گیر":"gir","دار":"dār","خواه":"khāh","خوا":"khā",
+    "توان":"tavān","تون":"tun","باش":"bāsh","شو":"shav","ش":"sh","ده":"dah","د":"d","گوی":"gu","گ":"g","بر":"bar","گذار":"gozār","ذار":"zār","کش":"kesh","ترس":"tars","رس":"res",
+    "ساز":"sāz","فروش":"forush","شناس":"shenās","شنو":"shenav","پرس":"pors","پوش":"push","گرد":"gard","مان":"mān","مون":"mun","افت":"oft","انداز":"andāz","ایست":"ist","بخش":"bakhsh",
+    "بوس":"bus","خند":"khand","دو":"dav","ریز":"riz","شکن":"shekan","فرست":"ferest","کار":"kār","چین":"chin","یاب":"yāb","پذیر":"pazir","گذر":"gozar","پیچ":"pich","چش":"chesh","جنگ":"jang","دزد":"dozd","رقص":"raqs","سوز":"suz"};
+  const SPEC={"بیای":"biyāy","بیا":"biyā","بیاور":"biyāvar","بیار":"biyār","برو":"boro","بر":"ber","بشین":"beshin","بنشین":"beneshin","بشور":"beshur","بشوی":"beshuy","بکن":"bokon",
+    "بزن":"bezan","بگیر":"begir","بگ":"beg","بگو":"begu","بد":"bed","بده":"bede","بش":"besh","بشو":"beshav","نیا":"nayā","نیاور":"nayāvar","نیار":"nayār","نرو":"naro","نکن":"nakon","نزن":"nazan","نگیر":"nagir","بیفت":"biyoft","بینداز":"biyandāz"};
+  const ENDS=[["یم","im"],["ید","id"],["ند","and"],["ین","in"],["م","am"],["ی","i"],["د","ad"],["ن","an"],["ه","e"],["",""]];
+  const ENDS_P=[["یم","im"],["ید","id"],["ند","and"],["ین","in"],["م","am"],["ی","i"],["ن","an"],["",""]];
+  const NSUF=[["های","hā-ye"],["ترین","tarin"],["ها","hā"],["تر","tar"],["مان","emān"],["تان","etān"],["شان","eshān"],["مون","emun"],["تون","etun"],["شون","eshun"],
+    ["ست","st"],["م","am"],["ت","at"],["ش","ash"],["ی","i"],["ه","e"],["و","o"],["ا","ā"]];
+  const ZSUF={"ها":"hā","های":"hā-ye","ام":"-am","ای":"-i","ایم":"-im","اید":"-id","اند":"-and","این":"-in","ان":"-an","اش":"-ash","ات":"-at","ی":"-ye","تر":"tar","ترین":"tarin",
+    "ست":"st","مان":"mān","تان":"tān","شان":"shān","مون":"mun","تون":"tun","شون":"shun","یم":"-yam"};
+  for(const k in FW)put(k,FW[k]);
+  const SPLIT=[];
+  for(const c of CARDS){if(!c.tr)continue;const fs=c.fa.map(clean),ts=c.tr.split(/\s*\/\s*/).map(x=>x.trim()).filter(Boolean);
+    const w=WT[c.id];
+    fs.forEach((f,i)=>{if(i>=ts.length&&i>0)return;let t=ts[Math.min(i,ts.length-1)];if(!/ی$/.test(f))t=t.replace(/-y?e$/,"");
+      put(f,t);const fw=f.split(/\s+/),tw=t.split(/\s+/);
+      if(fw.length>1&&fw.length===tw.length)fw.forEach((x,j)=>SPLIT.push([x,tw[j].replace(/-y?e$/,"")]));
+      if(c.en.startsWith("to ")){const lf=fw[fw.length-1],lt=tw[tw.length-1];if(/ن$/.test(lf)&&/an$/.test(lt)&&!PAST.has(lf.slice(0,-1)))PAST.set(lf.slice(0,-1),lt.slice(0,-2));}
+      if(FW[f]===undefined){if(w&&w.t==="N")NOUNS.add(f);if(w&&(w.t==="A"||w.t==="COL"))ADJS.add(f);}});}
+  SPLIT.forEach(([x,t])=>put(x,t));
+  const V=/[aāeiou]$/;
+  const join=(a,b)=>{if(!b)return a;if(b[0]==="-")return a+b;if(V.test(a)&&/^a[mn]?$/.test(b))return a+b.slice(1);if(V.test(a)&&b==="e")return a;return a+b;};
+  function core(x,order){ // stem + ending
+    for(const src of order)for(const[e,t]of(src===PAST?ENDS_P:ENDS)){if(e&&!x.endsWith(e))continue;const st=e?x.slice(0,-e.length):x;
+      if(src===SPEC&&SPEC[st])return join(SPEC[st],t);
+      if(src===PRES&&PRES[st]!==undefined&&st)return join(PRES[st],t);
+      if(src===PAST&&PAST.has(st))return join(PAST.get(st),t);}
+    return null;}
+  const LET={"ا":"ā","آ":"ā","ب":"b","پ":"p","ت":"t","ث":"s","ج":"j","چ":"ch","ح":"h","خ":"kh","د":"d","ذ":"z","ر":"r","ز":"z","ژ":"zh","س":"s","ش":"sh","ص":"s","ض":"z","ط":"t",
+    "ظ":"z","ع":"'","غ":"gh","ف":"f","ق":"q","ک":"k","گ":"g","ل":"l","م":"m","ن":"n","ء":"'","ئ":"'","أ":"a","ؤ":"o","ۀ":"e-ye","ة":"e"};
+  function letters(w){let o="";const a=[...w];a.forEach((ch,i)=>{const nx=a[i+1],pv=a[i-1];
+    if(ch==="و")o+=(!pv||"اوی".includes(nx||"")?"v":"u");else if(ch==="ی")o+=("اوی".includes(nx||"")?"y":"i");
+    else if(ch==="ه")o+=(i===a.length-1?"e":"h");else if(ch==="ا"&&i===0)o+="a";else o+=LET[ch]||"";});return o;}
+  function word(w){
+    w=clean(w);if(!w)return"";if(D.has(w))return D.get(w);if(SPEC[w])return SPEC[w];
+    if(w.includes("‌")){const ps=w.split("‌");
+      if(ps[0]==="می"||ps[0]==="نمی"){const r=core(ps.slice(1).join(""),[PRES,PAST]);if(r)return(ps[0]==="می"?"mi":"nemi")+r;}
+      let out=word(ps[0]);for(const p of ps.slice(1))out=ZSUF[p]!==undefined?(p==="ی"&&!/[eā]$/.test(out)?out+"-e":join(out,ZSUF[p])):out+"-"+word(p);return out;}
+    for(const[p,t]of[["نمی","nemi"],["می","mi"]])if(w.startsWith(p)&&w.length>p.length){const r=core(w.slice(p.length),[PRES,PAST]);if(r)return t+r;}
+    if(w.endsWith("ه")&&PAST.has(w.slice(0,-1)))return PAST.get(w.slice(0,-1))+"e"; // past participle
+    let r=core(w,[PAST]);if(r)return r;
+    r=core(w,[SPEC]);if(r)return r;
+    if(w[0]==="ن"&&w.length>2){r=core(w.slice(1),[PAST,PRES]);if(r)return(/^[āa]/.test(r)?"naiy":"na")+r.replace(/^ā/,"ā");}
+    if(w[0]==="ب"&&w.length>2){r=core(w.slice(1),[PRES]);if(r)return"be"+r;}
+    for(const[e,t]of NSUF){if(!w.endsWith(e)||w.length<=e.length)continue;const b=w.slice(0,-e.length);
+      if(D.has(b))return join(D.get(b),t);if(D.has(b+"ه"))return join(D.get(b+"ه").replace(/e$/,""),t);}
+    r=core(w,[PRES]);if(r)return r;
+    return letters(w);}
+  const COP=/^(است|هست|نیست|بود|نبود|هستم|هستی|هستیم|هستید|هستند|هستین|هستن|نیستم|نیستی|نیستیم|نیستید|نیستند)$/;
+  const PREZ=new Set(["زیر","پشت","کنار","داخل","بدون","بالا","پایین","مثل","برای"]);
+  const PRN=new Set(["من","تو","او","ما","شما","آنها","خودم","خودت","خودش","خودمان","خودتان","خودشان"]);
+  return function(s){
+    const tk=String(s).replace(/[؟?!.،,]/g," ").split(/\s+/).filter(Boolean).map(clean);
+    const out=tk.map(word);
+    for(let i=0;i<tk.length-1;i++){const a=tk[i],b=tk[i+1],c=tk[i+2]||"";if(/-ye?$|ye$/.test(out[i]))continue;
+      const noun=NOUNS.has(a),nx=ADJS.has(b)||NOUNS.has(b)||PRN.has(b);
+      if((noun&&nx&&!(ADJS.has(b)&&COP.test(c)))||(PREZ.has(a)&&(NOUNS.has(b)||PRN.has(b))))out[i]+=V.test(out[i])?"-ye":"-e";}
+    const t=out.join(" ").replace(/\s+/g," ").trim();return t?t[0].toUpperCase()+t.slice(1):t;};
+})();
+
 function phraseFor(id){
   const ok=PHR.filter(x=>x.ids.includes(id)&&x.ids.every(o=>o===id||known(o)));
   if(!ok.length)return null;const x=rnd(ok);
-  return{en:x.c.en,seqs:x.c.fa.map(f=>[[f]]),skills:[],words:x.ids,phrase:true};}
+  return{en:x.c.en,seqs:x.c.fa.map(f=>[[f]]),skills:[],words:x.ids,phrase:true,tr:(x.c.tr||"").split(" / ")[0]};}
 // build a question for a target word
 function askFor(id,lv){
   const has=k=>!SKILLS[k]||SK_LV(k)<=lv;
@@ -1244,7 +1323,7 @@ function askFor(id,lv){
   return null;}
 
 
-return{skills:SKILLS,genFor,askFor,sentRank};
+return{skills:SKILLS,genFor,askFor,sentRank,translit};
 }};
 
 boot();
