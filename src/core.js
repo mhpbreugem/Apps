@@ -26,6 +26,8 @@ const IC={
  question:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17.5v.01"/>',
  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4"/>',
  skip:'<path d="M5 5l9 7-9 7zM17 5v14"/>',
+ cloud:'<path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.6 4.2 4.2 0 0 0 7 18z"/>',
+ download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',upload:'<path d="M12 16V5M7 10l5-5 5 5M5 20h14"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>'};
 const ic=(n,c="")=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 // ---------- languages ----------
@@ -49,7 +51,7 @@ try{const x=JSON.parse(localStorage.getItem(LSK)||"null")||JSON.parse(localStora
 let P=null; // progress of the active language
 let dbRef=null,saveT=null;
 function save(){S.t=Date.now();try{localStorage.setItem(LSK,JSON.stringify(S));}catch(e){}
-  clearTimeout(saveT);saveT=setTimeout(()=>{if(dbRef)dbRef.set(S).catch(()=>{});},1200);}
+  clearTimeout(saveT);saveT=setTimeout(()=>{if(dbRef)dbRef.set(S).catch(()=>{});},1200);if(typeof ghSchedule==="function")ghSchedule();}
 (async()=>{try{
   if(!window.claude||!claude.use)return;
   const[db,user]=await Promise.all([claude.use("db"),claude.use("user")]);if(!db||!user)return;
@@ -494,6 +496,13 @@ function rSettings(){
     <div class="row"><span class="lab">${ic("cap")}</span><div class="chips" id="gc">${gChips}</div></div>
     <div class="row"><span class="lab">${ic("sun")}</span><div class="chips" id="thc">${th}</div></div>
   </div>
+  <div class="group" style="margin-top:12px">
+    <div class="row"><span class="lab">${ic("cloud")}<span id="ghs">${GH.tok?ghIcon():""}</span></span>
+      <div class="ghbox">${GH.tok?`<button class="ibtn sm" id="ghsync" aria-label="Sync now">${ic("repeat","s")}</button><button class="ibtn sm" id="ghoff" aria-label="Disconnect">${ic("x","s")}</button>`
+        :`<input id="ght" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub token">`}</div></div>
+    <div class="row"><span class="lab">${ic("download")}${ic("upload","s")}</span><div class="chips">
+      <button id="exp" aria-label="Export">${ic("download","s")}</button><button id="imp" aria-label="Import">${ic("upload","s")}</button><input type="file" id="impf" accept=".json,application/json" hidden></div></div>
+  </div>
   <div class="group" style="margin-top:12px"><button class="danger" id="reset" aria-label="Erase progress">${ic("trash")}<span id="rst"></span></button></div>`;
   const set=()=>{save();topline();};
   document.getElementById("lvc").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset.d;
@@ -506,15 +515,79 @@ function rSettings(){
   document.getElementById("m+").onclick=()=>{S.s.sprintMin=SM[Math.min(SM.length-1,SM.indexOf(S.s.sprintMin)+1)]??2;set();rSettings();};
   document.getElementById("gc").onclick=e=>{const b=e.target.closest("button");if(!b)return;P.gmax=b.dataset.g;set();rSettings();};
   document.getElementById("thc").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.s.theme=b.dataset.t;applyTheme();set();rSettings();};
+  const t=document.getElementById("ght");
+  if(t){const go=()=>{const v=t.value.trim();if(v.length<20)return;GH.tok=v;GH.id=null;try{localStorage.setItem("kashi-gh",v);localStorage.removeItem("kashi-gist");}catch(e){}rSettings();ghSync();};
+    t.addEventListener("change",go);t.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go();}});}
+  const gs_=document.getElementById("ghsync");if(gs_)gs_.onclick=()=>ghSync();
+  const go_=document.getElementById("ghoff");if(go_)go_.onclick=()=>{GH.tok=null;GH.id=null;GH.state="off";try{localStorage.removeItem("kashi-gh");localStorage.removeItem("kashi-gist");}catch(e){}rSettings();};
+  document.getElementById("exp").onclick=exportProgress;
+  const f=document.getElementById("impf");document.getElementById("imp").onclick=()=>f.click();
+  f.onchange=()=>{if(!f.files[0])return;importProgress(f.files[0],ok=>{const b=document.getElementById("imp");if(b)b.innerHTML=ok?ic("check","s"):ic("x","s");topline();if(ok)ghSchedule();});};
   const r=document.getElementById("reset");
   r.onclick=()=>{if(!r.classList.contains("arm")){r.classList.add("arm");document.getElementById("rst").innerHTML=`${ic("question","s")}`;setTimeout(()=>{r.classList.remove("arm");const x=document.getElementById("rst");if(x)x.innerHTML="";},4000);return;}
     S.L[PK.code]=LDEF();activate(PK.code);set();rSettings();};}
+// ---------- cloud sync via a secret GitHub gist ----------
+const GHF="kashi-progress.json";
+const GH={tok:null,id:null,state:"off",busy:false,again:false};
+try{GH.tok=localStorage.getItem("kashi-gh");GH.id=localStorage.getItem("kashi-gist");}catch(e){}
+// combine two saves without losing progress on either side
+function mergeStates(a,b){
+  if(!a)return b;if(!b)return a;
+  const n=(a.t||0)>=(b.t||0)?a:b,o=n===a?b:a,cl=x=>JSON.parse(JSON.stringify(x));
+  const out={v:2,s:Object.assign({},o.s||{},n.s||{}),L:{},t:Math.max(a.t||0,b.t||0)};
+  for(const k of new Set([...Object.keys(a.L||{}),...Object.keys(b.L||{})])){
+    const x=n.L&&n.L[k],y=o.L&&o.L[k];if(!x||!y){out.L[k]=mergeL(cl(x||y));continue;}
+    const L=mergeL(cl(x));
+    for(const id in y.p||{}){const p=y.p[id],q=L.p[id];if(!q||(p.n||0)>(q.n||0))L.p[id]=p;}
+    for(const s in y.g||{}){const p=y.g[s],q=L.g[s];if(!q||(p.n||0)>(q.n||0))L.g[s]=p;}
+    const sp=L.sp,so=y.sp||{};sp.best=Math.max(sp.best||0,so.best||0);
+    if((so.last||0)>(sp.last||0)){sp.last=so.last;sp.streak=so.streak;}
+    sp.recs=sp.recs||{};for(const m in so.recs||{})sp.recs[m]=Math.max(sp.recs[m]||0,so.recs[m]);
+    sp.hist=sp.hist||{};for(const d in so.hist||{}){const h=sp.hist[d],g=so.hist[d];
+      sp.hist[d]=!h?g:{n:Math.max(h.n||0,g.n||0),ok:Math.max(h.ok||0,g.ok||0),c:Math.max(h.c||0,g.c||0)};}
+    if(y.d&&L.d&&y.d.day===L.d.day){L.d.newDone=Math.max(L.d.newDone,y.d.newDone);L.d.reviewed=Math.max(L.d.reviewed,y.d.reviewed);}
+    out.L[k]=L;}
+  return out;}
+async function gh(path,opt={}){
+  const r=await fetch("https://api.github.com"+path,Object.assign({cache:"no-store"},opt,{headers:Object.assign({"Authorization":"Bearer "+GH.tok,"Accept":"application/vnd.github+json"},opt.body?{"Content-Type":"application/json"}:{})}));
+  if(!r.ok){const e=new Error(r.status);e.status=r.status;throw e;}return r.status===204?null:r.json();}
+function ghIcon(){return{ok:`<span style="color:var(--ok)">${ic("check","s")}</span>`,busy:`<span class="spin">${ic("repeat","s")}</span>`,err:`<span style="color:var(--bad)">${ic("x","s")}</span>`}[GH.state]||"";}
+function ghSet(st){GH.state=st;const el=document.getElementById("ghs");if(el)el.innerHTML=ghIcon();const t=document.getElementById("ghtop");if(t)t.innerHTML=GH.tok&&st==="err"?`<span style="color:var(--bad)">${ic("cloud","s")}</span>`:"";}
+async function ghFind(){
+  if(GH.id)return GH.id;
+  for(let page=1;page<=10;page++){const l=await gh(`/gists?per_page=100&page=${page}`);const g=l.find(x=>x.files&&x.files[GHF]);
+    if(g){GH.id=g.id;try{localStorage.setItem("kashi-gist",g.id);}catch(e){}break;}if(l.length<100)break;}
+  return GH.id;}
+async function ghRead(){const id=await ghFind();if(!id)return null;const g=await gh("/gists/"+id);const f=g.files[GHF];if(!f)return null;
+  let txt=f.content;if(f.truncated)txt=await(await fetch(f.raw_url,{cache:"no-store"})).text();return mergeS(JSON.parse(txt));}
+async function ghWrite(){const body={description:"Kāshi progress",files:{[GHF]:{content:JSON.stringify(S)}}};
+  if(GH.id)await gh("/gists/"+GH.id,{method:"PATCH",body:JSON.stringify(body)});
+  else{const g=await gh("/gists",{method:"POST",body:JSON.stringify(Object.assign(body,{public:false}))});GH.id=g.id;try{localStorage.setItem("kashi-gist",g.id);}catch(e){}}}
+async function ghSync(){ // pull, merge, push
+  if(!GH.tok)return;if(GH.busy){GH.again=true;return;}GH.busy=true;ghSet("busy");
+  try{
+    const remote=await ghRead();
+    const running=view==="sprint"&&SP&&SP.state!=="done";
+    if(remote&&!running){const before=JSON.stringify(S),m=mergeStates(S,remote);
+      if(JSON.stringify(m)!==before){S=m;try{localStorage.setItem(LSK,JSON.stringify(S));}catch(e){}applyTheme();
+        if(S.s.lang&&PACKS[S.s.lang]){activate(S.s.lang,true);if(!(view==="study"&&phase==="shown")){if(view==="study"){cur=null;buildQueue();}render();}}}}
+    if(!remote||JSON.stringify(remote)!==JSON.stringify(S))await ghWrite();
+    ghSet("ok");}
+  catch(e){if(e.status===404){GH.id=null;try{localStorage.removeItem("kashi-gist");}catch(x){}}ghSet("err");}
+  GH.busy=false;if(GH.again){GH.again=false;setTimeout(ghSync,500);}}
+let ghT=null;
+function ghSchedule(){if(!GH.tok)return;clearTimeout(ghT);ghT=setTimeout(ghSync,5000);}
+document.addEventListener("visibilitychange",()=>{if(!GH.tok)return;if(document.visibilityState==="visible")ghSync();else{clearTimeout(ghT);ghSync();}});
+// ---------- export / import ----------
+function exportProgress(){const b=new Blob([JSON.stringify(S)],{type:"application/json"});const a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download="kashi-progress-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+function importProgress(file,done){const r=new FileReader();r.onload=()=>{let ok=false;try{const x=mergeS(JSON.parse(r.result));if(x){S=mergeStates(S,x);save();if(S.s.lang&&PACKS[S.s.lang])activate(S.s.lang,true);ok=true;}}catch(e){}done(ok);};r.readAsText(file);}
 // ---------- start ----------
 function boot(){
   if(S.s.lang&&PACKS[S.s.lang]){activate(S.s.lang,true);buildQueue();}
   else view="langs";
   NAV.querySelectorAll("button").forEach(x=>{if(x.dataset.v===view)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
-  render();}
+  render();if(GH.tok)ghSync();}
 // ---------- shared core lexicon (English semantics; packs map keys to their own cards) ----------
 const CORE_N=[["house; home","house","houses","place thing",1,"home"],["book","book","books","text thing",1],["car","car","cars","thing wash",1],["door","door","doors","open thing",0],["window","window","windows","open thing",0],["bread","bread","bread","food",0],["water","water","water","drink",0],["tea","tea","tea","drink",0],["milk","milk","milk","drink",0],["apple","apple","apples","food",0],["rice","rice","rice","food",0],["meat","meat","meat","food",0],["cheese","cheese","cheese","food",0],["fish","fish","fish","food animal",0],["coffee","coffee","coffee","drink",0],["food","food","food","food",1],["pen","pen","pens","thing",1],["bag","bag","bags","thing open",1],["phone","phone","phones","thing",1],["key","key","keys","thing",1],["clothes","clothes","clothes","thing wash",1],["letter","letter","letters","text thing",1],["newspaper","newspaper","newspapers","text thing",0],["city","city","cities","place",1,"to the city"],["school","school","schools","place",1,"to school"],["shop","shop","shops","place",1,"to the shop"],["park","park","parks","place",0,"to the park"],["university","university","universities","place",1,"to university"],["room","room","rooms","place",1,"to the room"],["restaurant","restaurant","restaurants","place",0,"to the restaurant"],["hospital","hospital","hospitals","place",0,"to the hospital"],["garden","garden","gardens","place",1,"to the garden"],["friend","friend","friends","person",1],["teacher","teacher","teachers","person",1],["child","child","children","person",1],["doctor","doctor","doctors","person",1],["mother","mother","mothers","person",1],["father","father","fathers","person",1],["brother","brother","brothers","person",1],["sister","sister","sisters","person",1],["cat","cat","cats","animal",1],["dog","dog","dogs","animal",1],["table","table","tables","thing",1],["chair","chair","chairs","thing",0],["plate","plate","plates","thing wash",0],["glass (for drinking)","glass","glasses","thing wash",0],["shoe","shoe","shoes","thing",1],["fruit","fruit","fruits","food",0],["gift","gift","gifts","thing",1],["song","song","songs","media",0],["film","film","films","media",0],["word","word","words","word",0],["question","question","questions","word",0]];
 const CORE_A=[["big","big","bigger","thing place animal"],["small","small","smaller","thing place animal"],["new","new","newer","thing text place"],["old (thing)","old","older","thing text place"],["beautiful","beautiful","more beautiful","thing place animal text"],["good","good","better","thing text place food drink person animal"],["bad","bad","worse","thing text place food drink"],["clean","clean","cleaner","thing place"],["dirty","dirty","dirtier","thing place"],["cheap","cheap","cheaper","thing food text"],["expensive","expensive","more expensive","thing food place"],["warm","warm","warmer","food drink place"],["cold","cold","colder","food drink place"],["delicious","delicious","more delicious","food drink"],["sweet","sweet","sweeter","food drink"],["tired","tired","more tired","person animal pp"],["happy","happy","happier","person pp"],["kind","kind","kinder","person animal pp"],["young","young","younger","person pp"],["old (person)","old","older","person animal pp"],["long; tall","tall","taller","person pp"],["interesting","interesting","more interesting","text place"],["fresh","fresh","fresher","food drink"],["hungry","hungry","hungrier","pp animal"],["thirsty","thirsty","thirstier","pp"],["sick","sick","sicker","pp animal"],["ready","ready","readier","pp food"],["sad","sad","sadder","pp person"]];
