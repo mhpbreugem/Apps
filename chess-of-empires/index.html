@@ -379,6 +379,10 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     <div class="netjoin"><input id="joinCode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="CODE" aria-label="Game code"><button id="joinBtn">Join as Black</button></div>
     <p id="netStatus" class="onote" style="min-height:1em"></p>
   </div>
+  <div class="seg" id="homeSeg">
+    <button data-h="3">Home 3×3, no home gathering</button>
+    <button data-h="4">Home 4×4, gathers at home</button>
+  </div>
   <div class="seg" id="diceSeg">
     <button data-s="0">Normal dice</button>
     <button data-s="1">Always succeed (100%)</button>
@@ -448,7 +452,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     <h3>Resources</h3>
     <ul>
       <li><b>Food buys people and horses:</b> every chess-piece unit and its checkers. <b>Wood buys the empire:</b> buildings, their checkers, the ages and machines (the trebuchet). Gold is the gold checker.</li>
-      <li><b>Everything gathers on 4+.</b> In your home quadrant a villager gathers food or wood, your choice; in the food quadrant a5–d8 food; in the wood quadrant e1–h4 wood. Food and wood hold 0–6 each.</li>
+      <li><b>Everything gathers on 4+.</b> Your home (3×3: White a1–c3, Black f6–h8) gives nothing. A villager in the food field (a5–d8, plus a4–c4 and e6–e8) gathers food; in the wood field (e1–h4, plus d1–d3 and f5–h5) wood. Food and wood hold 0–6 each.</li>
       <li>One mill and one lumber camp, in the fields and the forest only: for one action every villager next to it, standing in the same field or forest, rolls. The Town Center is not a mill.</li>
       <li><b>Odds</b>: when a game is started with “Always succeed (100%)”, every die shows a 6, so gathering, mining and attacks by dice never fail.</li>
       <li><b>Gold</b>: from the Castle Age a villager standing on one of the <b>four centre squares</b> (d4, e4, d5, e5) takes one of the opponent’s reserve checkers as gold on 4+. Or <b>trade</b>: with a villager on a8 (food post) or h1 (wood post), buy gold for one action: pay 6 of that resource, or 6 in any mix if you hold both posts (no dice) and take one of the opponent’s reserve checkers as gold. Anyone may stand on a corner. If their reserve is empty, the gold checker comes out of their food or wood instead, their choice. Hold at most 2 gold at any time; spend as much as you like. Spent gold goes back to its owner’s reserve.</li>
@@ -468,7 +472,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     </ul>
     <h3>Buildings</h3>
     <ul>
-      <li><b>Barracks</b>: home quadrant only (White a1–d4, Black e5–h8), built two checkers high: 2 wood + 2 checkers. <b>Mill</b> and <b>lumber camp</b>: 1 wood + 1 checker, from the Dark Age; one of each at most.</li>
+      <li><b>Barracks</b>: home only (White a1–c3, Black f6–h8), built two checkers high: 2 wood + 2 checkers. <b>Mill</b> and <b>lumber camp</b>: 1 wood + 1 checker, from the Dark Age; one of each at most.</li>
       <li>A <b>crown</b> is a chess piece set on a building. <b>Watch tower</b>: from the Feudal Age a rook on a mill or camp, 3 wood; shoots exactly 2, one action. It climbs like a unit: a second checker (1 wood) from the Castle Age, +1 hit point; a gold checker in the Imperial Age, +1 attack. <b>Castle</b>: from the Castle Age the queen on the barracks, 4 wood; shoots 1–2, one action.</li>
       <li>A crowned building shoots while the piece stands; hits take its checkers first. Shots deal 1, or 2 with gold. The Town Center shoots 1–2 away, like the castle, from the start, for one action.</li>
       <li>The <b>trebuchet</b> is a coin, not a rook: its checkers are its hit points. Moves 1 in any direction, shoots exactly 3 away in every direction. It ignores building defence.</li>
@@ -596,7 +600,8 @@ const isUnit = p => UNITS.includes(p.k);
 const isBld = p => p.k === "K" || p.k === "B" || p.k === "camp";
 const CR = () => !!(G && G.rules && G.rules.crown);
 const stackB = p => p.k === "camp" || (CR() && p.k === "B" && !G.rules.qb);   // crown rules: buildings that are plain checker stacks
-const homeQ = (s, f, r) => { const T = tc(s); return !!T && !isGold(f, r) && (f <= 3) === (T.f <= 3) && (r <= 3) === (T.r <= 3); };
+const homeQ = (s, f, r) => { const T = tc(s); if (!T || isGold(f, r)) return false; if (G.rules.home3) return (T.f <= 3 ? f <= 2 : f >= 5) && (T.r <= 3 ? r <= 2 : r >= 5);   // home3: a 3 x 3 home
+  return (f <= 3) === (T.f <= 3) && (r <= 3) === (T.r <= 3); };
 function fireAt(b, f, r) {   // can this building's arrows reach (f, r)?
   const d = cd(f, r, b.f, b.r);
   if (!CR() || b.k === "K") return d === 2 || (d === 1 && (hasMH(b.o) || (CR() && !!G.rules.tcNear)));
@@ -608,7 +613,12 @@ const GS = () => G.rules.goldRes ? G.res : G.stock;   // gold of colour c: that 
 const goldLimit = s => G.rules.gold2 ? 2 : age(s) >= 3 ? 99 : 2;
 const QD = 2;   // quadrant rule: every square in a resource quadrant counts as distance 2 (3+ gathers)
 const geoRes = res => G.rules.swapFields ? (res === FOOD ? WOOD : FOOD) : res;   // test: fields swapped
-const inQuad = (f, r, res) => !isGold(f, r) && (geoRes(res) === FOOD ? f <= 3 && r >= 4 : f >= 4 && r <= 3);
+const inQuad = (f, r, res) => {
+  if (isGold(f, r)) return false;
+  const food = geoRes(res) === FOOD;
+  if (G.rules.home3) return food ? (f <= 3 && r >= 4) || (r === 3 && f <= 2) || (f === 4 && r >= 5) : (f >= 4 && r <= 3) || (f === 3 && r <= 2) || (r === 4 && f >= 5);   // the fields grow into the old homes
+  return food ? f <= 3 && r >= 4 : f >= 4 && r <= 3;
+};
 function quadDist(f, r, res) {   // effective distance for the quadrant rule (outside: 6 + steps to the quadrant)
   const c = geoRes(res) === FOOD ? [0, 7] : [7, 0];
   if (f === c[0] && r === c[1] && !G.rules.trade) return 0;
@@ -834,8 +844,8 @@ function pieceActions(p) {
     if (!G.rules.chk) { const B0 = barracks(s);
       if (B0 && nextTo(p, B0) && B0.st.length < bMax(B0))
         mk("repair", `Repair the ${name(B0)}`, "1 wood · +1 checker", G.wood[s] >= 1 && resOk(s), G.res[s] <= 0 ? "reserve empty" : "needs 1 wood", {target: B0}); }
-    mk("barracks", "Build barracks", CR() ? `${HB()} wood + ${HB()} checker${HB() > 1 ? "s" : ""} · home quadrant` : "2 wood + 1 checker", A >= BAGE() && !barracks(s) && G.wood[s] >= (CR() ? HB() : 2) && (G.res[s] >= HB() || (!!G.rules.piles && G.res[s] + G.food[s] + G.wood[s] >= HB())) && bSq.length > 0,
-       A < BAGE() ? "needs the Feudal Age" : barracks(s) ? "you have one" : G.wood[s] < (CR() ? HB() : 2) ? `needs ${CR() ? HB() : 2} wood` : G.res[s] <= 0 ? "reserve empty" : CR() ? "stand next to a free square in your home quadrant" : "no room", {squares: bSq});
+    mk("barracks", "Build barracks", CR() ? `${HB()} wood + ${HB()} checker${HB() > 1 ? "s" : ""} · home` : "2 wood + 1 checker", A >= BAGE() && !barracks(s) && G.wood[s] >= (CR() ? HB() : 2) && (G.res[s] >= HB() || (!!G.rules.piles && G.res[s] + G.food[s] + G.wood[s] >= HB())) && bSq.length > 0,
+       A < BAGE() ? "needs the Feudal Age" : barracks(s) ? "you have one" : G.wood[s] < (CR() ? HB() : 2) ? `needs ${CR() ? HB() : 2} wood` : G.res[s] <= 0 ? "reserve empty" : CR() ? "stand next to a free square in your home" : "no room", {squares: bSq});
     const b = barracks(s), tcv = tc(s);
     if (!(G.rules.chk && G.rules.bTrain) && b && nextTo(p, b)) {
       const r = resOk(s);
@@ -884,7 +894,7 @@ function pieceActions(p) {
     mk("train", "Train villager", freeTrain ? "free" : `${VCOST()} food`, pawns(s) < 8 && sq.length > 0 && (G.food[s] >= VCOST() || freeTrain),
        pawns(s) >= 8 ? "all 8 pawns in use" : sq.length === 0 ? "no room" : `needs ${VCOST()} food`, {squares: sq, free: freeTrain});
     if (CR() && G.rules.tcMill) { const crew = tcCrew(p);
-      for (const res of [FOOD, WOOD]) mk("tcgather", `Home crew gathers ${RES[res]}`, `${crew.length} ${crew.length === 1 ? "villager rolls" : "villagers roll"}, 5+ each gives 1`, crew.length > 0, "no villager next to it in the home quadrant", {res}); }
+      for (const res of [FOOD, WOOD]) mk("tcgather", `Home crew gathers ${RES[res]}`, `${crew.length} ${crew.length === 1 ? "villager rolls" : "villagers roll"}, 5+ each gives 1`, crew.length > 0, "no villager next to it in the home", {res}); }
     if (A < 3) {
       const c = ageCost(A + 1);
       const needK = !!G.rules.needCamp && A === 0 && !camps(s).length, needB = G.rules.needB && A === 1 && !barracks(s), needC = !!G.rules.needC && A === 2 && !(barracks(s) && barracks(s).cr), dmgTC = G.rules.chk && G.pile[s] > 0;
@@ -1882,7 +1892,7 @@ function loadPeer() {
   peerLib = new Promise(res => { const sc = document.createElement("script"); sc.src = PEERJS; sc.onload = () => res(!!window.Peer); sc.onerror = () => { peerLib = null; res(false); }; document.head.appendChild(sc); });
   return peerLib;
 }
-const NOTNET = "Online play could not start here. Open the game at mhpbreugem.github.io/chess-of-empires";
+const NOTNET = "Online play could not start here. Open the game at mhpbreugem.github.io/Apps/chess-of-empires";
 function netSay(t) {
   const el = document.getElementById("netStatus");
   if (menu.open && el) el.textContent = t; else { UI.msg = t; render(); }
@@ -1893,7 +1903,7 @@ function netLeave() {
   try { if (NET.peer) NET.peer.destroy(); } catch (e) {}
   Object.assign(NET, {peer: null, conn: null, code: null, side: null, v: 0, ready: false, black: false, linked: false, err: ""});
 }
-const WEB = "https://mhpbreugem.github.io/chess-of-empires/";
+const WEB = "https://mhpbreugem.github.io/Apps/chess-of-empires/";
 const onWeb = () => /^https?:$/.test(location.protocol) && !/claude|anthropic|usercontent/.test(location.hostname) && location.hostname !== "";
 const netLink = code => (onWeb() ? location.origin + location.pathname : WEB) + "#join=" + code;
 async function netShare() {
@@ -1921,7 +1931,7 @@ function netApply(m) {
     G = JSON.parse(m.state); G.mode = "online"; G.net = Object.assign(net, {v: m.v, met: true}); NET.v = m.v;
     UI.sel = null; UI.mode = null; UI.busy = false;
     const e = G.log[G.log.length - 1]; if (e && e.s !== null && e.s !== NET.side) UI.msg = `${SIDE[e.s]} ${e.t}.`;
-    try { localStorage.setItem("eightranks-fan-v121", JSON.stringify(G)); } catch (x) {} libSave();
+    try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); } catch (x) {} libSave();
     document.getElementById("over").classList.remove("show");
     render(); if (G.winner !== null) finish();
     if (was !== null && G.turn === NET.side && was !== G.turn && navigator.vibrate) try { navigator.vibrate(120); } catch (x) {}
@@ -1938,7 +1948,7 @@ function netAttach(c) {
       const first = !G.net.guest; G.net.guest = m.token;
       NET.linked = true; NET.black = true; G.net.met = true; NET.err = "";
       if (first) UI.msg = "Your opponent has joined. You move first.";
-      try { localStorage.setItem("eightranks-fan-v121", JSON.stringify(G)); } catch (x) {}
+      try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); } catch (x) {}
       netSend(); render(); return;
     }
     if (m.t === "full") { const c0 = NET.code; netLeave(); G.mode = "hot"; G.net = null; UI.msg = `Game ${c0} already has two players. Playing on this phone instead.`; render(); return; }
@@ -2073,7 +2083,7 @@ const cloudOn = () => byLink() && !!G.net.blob;
 const cloudKey = () => linkP(G) + "|" + G.winner;
 const shortCode = c => String(c || "").slice(-4).toUpperCase();
 function cloudBody() { const g = JSON.parse(JSON.stringify(G, (k, v) => k === "net" ? undefined : v)); g.log = g.log.slice(-60); return JSON.stringify({app: "coe", p: linkP(G), s: G.net.side, g}); }
-function cloudStore() { try { localStorage.setItem("eightranks-fan-v121", JSON.stringify(G)); } catch (e) {} libSave(); }
+function cloudStore() { try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); } catch (e) {} libSave(); }
 let cloudBusy = false;
 async function cloudPush() {
   if (!cloudOn() || SIM || cloudBusy) return;
@@ -2162,7 +2172,7 @@ document.getElementById("joinCode").addEventListener("keydown", e => { if (e.key
 document.addEventListener("visibilitychange", () => { if (!document.hidden && G && G.mode === "online" && NET.side === 1 && !NET.linked) netConnect(); });
 
 /* ================= persistence ================= */
-function save() { if (SIM) return; if (G && G.mode === "online") netPush(); try { localStorage.setItem("eightranks-fan-v121", JSON.stringify(G)); } catch (e) {} libSave(); if (cloudOn()) setTimeout(cloudPush, 0); }
+function save() { if (SIM) return; if (G && G.mode === "online") netPush(); try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); } catch (e) {} libSave(); if (cloudOn()) setTimeout(cloudPush, 0); }
 /* ================= saved games: one browser, several games ================= */
 const LIB = "coe-games", LIBMAX = 12;
 function libGet() { try { const o = JSON.parse(localStorage.getItem(LIB) || "{}"); return o && typeof o === "object" ? o : {}; } catch (e) { return {}; } }
@@ -2203,7 +2213,7 @@ function libOpen(id) {
   if (G && gameId() !== id) save();
   netLeave(); clearTimeout(autoT);
   G = g; UI = {sel: null, mode: null, msg: "", busy: false};
-  try { localStorage.setItem("eightranks-fan-v121", JSON.stringify(G)); localStorage.setItem("coe-current", id); } catch (e) {}
+  try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); localStorage.setItem("coe-current", id); } catch (e) {}
   document.getElementById("over").classList.remove("show");
   if (menu.open) menu.close();
   render(); if (G.winner !== null) finish();
@@ -2216,7 +2226,7 @@ document.getElementById("libList").addEventListener("click", e => {
   if (b.dataset.del) { const lib = libGet(); delete lib[b.dataset.del]; libPut(lib); libList(); }
 });
 function load() {
-  try { const t = localStorage.getItem("eightranks-fan-v121"); if (!t) return false; const g = JSON.parse(t); if (!g || !g.pcs) return false; G = g; return true; }
+  try { const t = localStorage.getItem("eightranks-fan-v122"); if (!t) return false; const g = JSON.parse(t); if (!g || !g.pcs) return false; G = g; return true; }
   catch (e) { return false; }
 }
 
@@ -2276,8 +2286,8 @@ function renderBoard() {
     else for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) if (isRock(f, r)) g.push(rockSmall(f, r)); }
   // quadrant outlines
   if (G.rules.quadrant) for (const [shape, col] of [
-      [G.rules.raidGold ? [[-0.5, 3.5], [3.5, 3.5], [3.5, 7.5], [-0.5, 7.5]] : [[-0.5, 3.5], [2.5, 3.5], [2.5, 4.5], [3.5, 4.5], [3.5, 7.5], [-0.5, 7.5]], "#4f8a1f"],
-      [G.rules.raidGold ? [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [3.5, 3.5]] : [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [4.5, 3.5], [4.5, 2.5], [3.5, 2.5]], "#9a4f12"]]) {
+      [G.rules.home3 ? [[-0.5, 2.5], [2.5, 2.5], [2.5, 4.5], [4.5, 4.5], [4.5, 7.5], [-0.5, 7.5]] : G.rules.raidGold ? [[-0.5, 3.5], [3.5, 3.5], [3.5, 7.5], [-0.5, 7.5]] : [[-0.5, 3.5], [2.5, 3.5], [2.5, 4.5], [3.5, 4.5], [3.5, 7.5], [-0.5, 7.5]], "#4f8a1f"],
+      [G.rules.home3 ? [[7.5, 4.5], [4.5, 4.5], [4.5, 2.5], [2.5, 2.5], [2.5, -0.5], [7.5, -0.5]] : G.rules.raidGold ? [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [3.5, 3.5]] : [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [4.5, 3.5], [4.5, 2.5], [3.5, 2.5]], "#9a4f12"]]) {
     const pts = shape.map(([f, r]) => pos(f, r).join(",")).join(" ");
     g.push(`<polygon points="${pts}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" pointer-events="none"/>`);
   }
@@ -2962,18 +2972,19 @@ document.getElementById("endBtn").addEventListener("click", async () => {
   if (isAI(G.turn)) await runAI();
 });
 const menu = document.getElementById("menu"), rulesDlg = document.getElementById("rulesDlg"), logDlg = document.getElementById("logDlg");
-let menuSure = false, menuMode = "ai", menuDiff = 10, menuCastle = "4,2", menuMap = "open";
+let menuHome3 = true, menuSure = false, menuMode = "ai", menuDiff = 10, menuCastle = "4,2", menuMap = "open";
 function openMenu() {
   menuMode = G ? (byLink() ? "link" : G.mode === "hot" || G.mode === "watch" || G.mode === "online" ? G.mode : "ai") : "ai";
   const r = G ? G.rules : {};
   menuMap = r.rocks ? (r.rockMap || (r.rockShape === "plus" ? "plus" : "r2")) : "open";
   menuDiff = G && G.level ? G.level[1] : 10;
-  menuSure = !!r.sure;
+  menuSure = !!r.sure; menuHome3 = G ? !!r.home3 : true;
   menuCastle = G && G.rules.costs && G.rules.costs[2] ? G.rules.costs[2][0] + "," + G.rules.costs[2][1] : "4,2";
   segUpdate(); libList(); menu.showModal();
 }
 function segUpdate() {
   document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === menuMode));
+  document.querySelectorAll("#homeSeg button").forEach(b => b.classList.toggle("on", (b.dataset.h === "3") === menuHome3));
   document.querySelectorAll("#diceSeg button").forEach(b => b.classList.toggle("on", (b.dataset.s === "1") === menuSure));
   document.querySelectorAll("#diffSeg button").forEach(b => b.classList.toggle("on", +b.dataset.d === menuDiff));
   document.getElementById("diffSeg").style.display = menuMode === "ai" || menuMode === "watch" ? "flex" : "none";
@@ -2991,6 +3002,7 @@ document.getElementById("ckSeg").addEventListener("click", e => { const b = e.ta
 document.getElementById("lookSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setLook(b.dataset.l); segUpdate(); render(); aoeWalk(document.body); if (!aoeOn()) location.reload(); } });
 document.getElementById("viewSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setView(b.dataset.v); segUpdate(); render(); } });
 
+document.getElementById("homeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuHome3 = b.dataset.h === "3"; segUpdate(); } });
 document.getElementById("diceSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuSure = b.dataset.s === "1"; segUpdate(); } });
 document.getElementById("diffSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuDiff = +b.dataset.d; segUpdate(); } });
 document.getElementById("modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuMode = b.dataset.m; segUpdate(); } });
@@ -2998,7 +3010,7 @@ document.getElementById("menuBtn").onclick = openMenu;
 document.getElementById("closeMenu").onclick = () => menu.close();
 document.getElementById("startBtn").onclick = () => {
   newGame(menuMode === "link" ? "online" : menuMode, {pools: false, garrison: false, 
-    gatherHalf: true, goldHalf: true, vilHalf: false, vilAtk1: true, woundMark: true, prices2: true, milFlex: false, pawnOne: true, noHandicap: false, ecoTiers: false, bothLines: true, goldBack: true, chk: true, bTrain: false, tcDef1: true, needB: true, campTwo: false, quadrant: true, noCastle: true, noTech: true, freeVill: false, crown: true, tcEarly: true, cavWalk: true, noBeside: true, piles: false, towerFeudal: true, darkCamps: true, towerOnOne: true, rookW: 3, queenW: 4, needC: true, start2: true, darkWar: true, oneEach: true, tcSafeDark: false, tcNear: true, away3: false, crewInQuad: true, camp3: false, homeGather: true, trebCastle: true, tcMill: false, raidGold: false, trade: true, goldSupply: true, trebDiag: true, home4: true, rocks: menuMap !== "open", rockMap: menuMap === "open" ? null : menuMap, rockShape: menuMap === "plus" ? "plus" : "2x2", goldRes: true, gold2: true, needCamp: true, flex2: true, ageOne: true,
+    gatherHalf: true, goldHalf: true, vilHalf: false, vilAtk1: true, woundMark: true, prices2: true, milFlex: false, pawnOne: true, noHandicap: false, ecoTiers: false, bothLines: true, goldBack: true, chk: true, bTrain: false, tcDef1: true, needB: true, campTwo: false, quadrant: true, noCastle: true, noTech: true, freeVill: false, crown: true, tcEarly: true, cavWalk: true, noBeside: true, piles: false, towerFeudal: true, darkCamps: true, towerOnOne: true, rookW: 3, queenW: 4, needC: true, start2: true, darkWar: true, oneEach: true, tcSafeDark: false, tcNear: true, away3: false, crewInQuad: true, camp3: false, homeGather: !menuHome3, home3: !!menuHome3, trebCastle: true, tcMill: false, raidGold: false, trade: true, goldSupply: true, trebDiag: true, home4: true, rocks: menuMap !== "open", rockMap: menuMap === "open" ? null : menuMap, rockShape: menuMap === "plus" ? "plus" : "2x2", goldRes: true, gold2: true, needCamp: true, flex2: true, ageOne: true,
     split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}, sure: menuSure}, menuDiff);
   UI = {sel: null, mode: null, msg: "", busy: false};
   document.getElementById("over").classList.remove("show");
@@ -3019,7 +3031,7 @@ document.getElementById("payWood").onclick = () => payOwe(WOOD);
 document.getElementById("payDlg").addEventListener("cancel", e => e.preventDefault());
 /* ================= new-age tips ================= */
 const AGE_TIPS = {
-  1: ["<b>Barracks</b>: a villager builds one in your home quadrant, 2 wood. You need it for the Castle Age.",
+  1: ["<b>Barracks</b>: a villager builds one in your home (3×3), 2 wood. You need it for the Castle Age.",
       "<b>Units</b>: a villager next to the barracks becomes infantry (1 food), an archer (2 food) or cavalry (3 food).",
       "<b>Watch tower</b>: put a rook on a mill or lumber camp, 3 wood. It fires exactly 2 squares away.",
       "<b>Next</b>: Castle Age costs 5 wood and needs a standing barracks."],
@@ -3085,7 +3097,7 @@ function treeGroupsChk(s) {
       [it("tower", 1, "Watch tower", CR() ? "+1 checker (1 wood), then a rook (2 wood) · fires exactly 2, every direction" : "+1 checker · 1 wood · shoots", {st: tower ? "done" : "now"}), it("cgold", 3, "Gold layer", "1 gold · shoots 2", {st: gl ? "done" : "now"})],
       [it("gold", 2, "Mine gold", "5+ gives 1 · centre squares · hold 2 before Imperial", {st: "now"})]]},
     {name: "Barracks and castle", rows: [
-      [it("bar", 1, "Barracks", CR() ? "2 wood, built two checkers high · home quadrant" : "2 wood + 1 checker · trains units", {st: B ? "done" : "now"}),
+      [it("bar", 1, "Barracks", CR() ? "2 wood, built two checkers high · home 3×3" : "2 wood + 1 checker · trains units", {st: B ? "done" : "now"}),
        it("castle", 2, "Castle", CR() ? "built two high; the queen (4 wood) · fires 1–2, every direction" : "+1 checker · 1 wood · shoots", {st: B && B.st.length >= 2 ? "done" : "now"}),
        it("bgold", 3, "Gold layer", "1 gold · shoots 2", {st: B && hasGold(B) ? "done" : "now"})],
       [it("mil", 1, "Infantry", dc("I") + (G.rules.bTrain ? "" : " · a villager next to the barracks"), {st: "now"}), it("maa", 2, "Heavy infantry", "+1 checker · 1 food", {st: "now"}), it("champ", 3, "Elite infantry", "gold checker · +1 attack", {st: "now"})],
@@ -3254,7 +3266,7 @@ function renderIndex() {
       h += `<div class="ix-cell ix-row${cls}" style="--c:${AG[i]}">${c ? (cap ? `<span class="ix-capw">` : "") + stack(c[0], c[1]) + (cap ? `<span class="ix-cap">${cap}</span></span>` : "") + stat(c[2], c[3]) + (k >= 5 ? DEF : "") : ""}</div>`;
     });
   });
-  h += `</div></div><p class="ix-foot">Everything gathers on 4+: home gives food or wood, the fields food, the forest wood; from the Castle Age a villager on the four centre squares mines gold (4+), or a villager on a8 (food) or h1 (wood) buys it for 6 of that resource (any mix with both); hold 2. Food buys people and horses; wood buys buildings, ages and machines. Checker colour shows its price: <span class="ix-sw" style="background:${F}"></span> 1 food on a unit, <span class="ix-sw" style="background:${W}"></span> 1 wood on a building or machine, <span class="ix-sw" style="background:${Gd}"></span> 1 gold. A chess piece adds its own price; ages cost wood. The small shield is building defence: every building has 1.</p>`;
+  h += `</div></div><p class="ix-foot">Everything gathers on 4+: the fields give food, the forest wood, your 3×3 home nothing; from the Castle Age a villager on the four centre squares mines gold (4+), or a villager on a8 (food) or h1 (wood) buys it for 6 of that resource (any mix with both); hold 2. Food buys people and horses; wood buys buildings, ages and machines. Checker colour shows its price: <span class="ix-sw" style="background:${F}"></span> 1 food on a unit, <span class="ix-sw" style="background:${W}"></span> 1 wood on a building or machine, <span class="ix-sw" style="background:${Gd}"></span> 1 gold. A chess piece adds its own price; ages cost wood. The small shield is building defence: every building has 1.</p>`;
   document.getElementById("treeBody").innerHTML = h;
 }
 
@@ -3269,7 +3281,7 @@ function showBanner(title, sub) {
   b.classList.remove("show"); void b.offsetWidth; b.classList.add("show");
 }
 /* ================= start ================= */
-if (!load()) newGame("ai", {noTech: true, noCastle: true, pools: true, garrison: false, needB: true, campTwo: false, quadrant: true, gatherHalf: true, goldHalf: true, vilHalf: false, vilAtk1: true, woundMark: true, prices2: true, milFlex: false, pawnOne: true, noHandicap: false, ecoTiers: false, bothLines: true, goldBack: true, chk: true, bTrain: false, tcDef1: true, crown: true, tcEarly: true, cavWalk: true, noBeside: true, piles: false, towerFeudal: true, darkCamps: true, towerOnOne: true, rookW: 3, queenW: 4, needC: true, start2: true, darkWar: true, oneEach: true, tcSafeDark: false, tcNear: true, away3: false, crewInQuad: true, camp3: false, homeGather: true, trebCastle: true, tcMill: false, raidGold: false, trade: true, goldSupply: true, trebDiag: true, home4: true, rocks: false, goldRes: true, gold2: true, needCamp: true, flex2: true, ageOne: true,  split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}}, 10);
+if (!load()) newGame("ai", {noTech: true, noCastle: true, pools: true, garrison: false, needB: true, campTwo: false, quadrant: true, gatherHalf: true, goldHalf: true, vilHalf: false, vilAtk1: true, woundMark: true, prices2: true, milFlex: false, pawnOne: true, noHandicap: false, ecoTiers: false, bothLines: true, goldBack: true, chk: true, bTrain: false, tcDef1: true, crown: true, tcEarly: true, cavWalk: true, noBeside: true, piles: false, towerFeudal: true, darkCamps: true, towerOnOne: true, rookW: 3, queenW: 4, needC: true, start2: true, darkWar: true, oneEach: true, tcSafeDark: false, tcNear: true, away3: false, crewInQuad: true, camp3: false, homeGather: false, home3: true, trebCastle: true, tcMill: false, raidGold: false, trade: true, goldSupply: true, trebDiag: true, home4: true, rocks: false, goldRes: true, gold2: true, needCamp: true, flex2: true, ageOne: true,  split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}}, 10);
 setView(VIEW); render();
 if (G.winner !== null) finish();
 else if (isAI(G.turn)) runAI();
