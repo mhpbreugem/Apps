@@ -558,8 +558,8 @@ function newGame(mode, rules, diff) {
   if (rules.startWood) G.wood = [rules.startWood, rules.startWood];
   const sw = rules.swapCorners ? 1 : 0;   // test: White starts on h8, Black on a1
   add(sw, "K", 0, 0); add(1 - sw, "K", 7, 7);
-  (rules.start2 ? [[0, 2], [2, 0]] : [[1, 0], [0, 1], [1, 1]]).forEach(([f, r]) => add(sw, "V", f, r));
-  (rules.start2 ? [[7, 5], [5, 7]] : [[6, 7], [7, 6], [6, 6]]).forEach(([f, r]) => add(1 - sw, "V", f, r));
+  (rules.start2 ? (rules.home3 ? [[0, 1], [1, 0]] : [[0, 2], [2, 0]]) : [[1, 0], [0, 1], [1, 1]]).forEach(([f, r]) => add(sw, "V", f, r));   // home3: next to the Town Center
+  (rules.start2 ? (rules.home3 ? [[7, 6], [6, 7]] : [[7, 5], [5, 7]]) : [[6, 7], [7, 6], [6, 6]]).forEach(([f, r]) => add(1 - sw, "V", f, r));
   if (rules.blackFirst) G.turn = 1;   // test: Black moves first
   startTurn();
   log(null, G.rules.noHandicap ? "New game. White moves first." : "New game. White moves first, with one action.");
@@ -1931,7 +1931,7 @@ function netApply(m) {
     G = JSON.parse(m.state); G.mode = "online"; G.net = Object.assign(net, {v: m.v, met: true}); NET.v = m.v;
     UI.sel = null; UI.mode = null; UI.busy = false;
     const e = G.log[G.log.length - 1]; if (e && e.s !== null && e.s !== NET.side) UI.msg = `${SIDE[e.s]} ${e.t}.`;
-    try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); } catch (x) {} libSave();
+    try { localStorage.setItem("eightranks-fan-v123", JSON.stringify(G)); } catch (x) {} libSave();
     document.getElementById("over").classList.remove("show");
     render(); if (G.winner !== null) finish();
     if (was !== null && G.turn === NET.side && was !== G.turn && navigator.vibrate) try { navigator.vibrate(120); } catch (x) {}
@@ -1948,7 +1948,7 @@ function netAttach(c) {
       const first = !G.net.guest; G.net.guest = m.token;
       NET.linked = true; NET.black = true; G.net.met = true; NET.err = "";
       if (first) UI.msg = "Your opponent has joined. You move first.";
-      try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); } catch (x) {}
+      try { localStorage.setItem("eightranks-fan-v123", JSON.stringify(G)); } catch (x) {}
       netSend(); render(); return;
     }
     if (m.t === "full") { const c0 = NET.code; netLeave(); G.mode = "hot"; G.net = null; UI.msg = `Game ${c0} already has two players. Playing on this phone instead.`; render(); return; }
@@ -2083,7 +2083,7 @@ const cloudOn = () => byLink() && !!G.net.blob;
 const cloudKey = () => linkP(G) + "|" + G.winner;
 const shortCode = c => String(c || "").slice(-4).toUpperCase();
 function cloudBody() { const g = JSON.parse(JSON.stringify(G, (k, v) => k === "net" ? undefined : v)); g.log = g.log.slice(-60); return JSON.stringify({app: "coe", p: linkP(G), s: G.net.side, g}); }
-function cloudStore() { try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); } catch (e) {} libSave(); }
+function cloudStore() { try { localStorage.setItem("eightranks-fan-v123", JSON.stringify(G)); } catch (e) {} libSave(); }
 let cloudBusy = false;
 async function cloudPush() {
   if (!cloudOn() || SIM || cloudBusy) return;
@@ -2172,7 +2172,7 @@ document.getElementById("joinCode").addEventListener("keydown", e => { if (e.key
 document.addEventListener("visibilitychange", () => { if (!document.hidden && G && G.mode === "online" && NET.side === 1 && !NET.linked) netConnect(); });
 
 /* ================= persistence ================= */
-function save() { if (SIM) return; if (G && G.mode === "online") netPush(); try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); } catch (e) {} libSave(); if (cloudOn()) setTimeout(cloudPush, 0); }
+function save() { if (SIM) return; if (G && G.mode === "online") netPush(); try { localStorage.setItem("eightranks-fan-v123", JSON.stringify(G)); } catch (e) {} libSave(); if (cloudOn()) setTimeout(cloudPush, 0); }
 /* ================= saved games: one browser, several games ================= */
 const LIB = "coe-games", LIBMAX = 12;
 function libGet() { try { const o = JSON.parse(localStorage.getItem(LIB) || "{}"); return o && typeof o === "object" ? o : {}; } catch (e) { return {}; } }
@@ -2213,7 +2213,7 @@ function libOpen(id) {
   if (G && gameId() !== id) save();
   netLeave(); clearTimeout(autoT);
   G = g; UI = {sel: null, mode: null, msg: "", busy: false};
-  try { localStorage.setItem("eightranks-fan-v122", JSON.stringify(G)); localStorage.setItem("coe-current", id); } catch (e) {}
+  try { localStorage.setItem("eightranks-fan-v123", JSON.stringify(G)); localStorage.setItem("coe-current", id); } catch (e) {}
   document.getElementById("over").classList.remove("show");
   if (menu.open) menu.close();
   render(); if (G.winner !== null) finish();
@@ -2226,7 +2226,7 @@ document.getElementById("libList").addEventListener("click", e => {
   if (b.dataset.del) { const lib = libGet(); delete lib[b.dataset.del]; libPut(lib); libList(); }
 });
 function load() {
-  try { const t = localStorage.getItem("eightranks-fan-v122"); if (!t) return false; const g = JSON.parse(t); if (!g || !g.pcs) return false; G = g; return true; }
+  try { const t = localStorage.getItem("eightranks-fan-v123"); if (!t) return false; const g = JSON.parse(t); if (!g || !g.pcs) return false; G = g; return true; }
   catch (e) { return false; }
 }
 
