@@ -28,6 +28,8 @@ const IC={
  skip:'<path d="M5 5l9 7-9 7zM17 5v14"/>',
  cloud:'<path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.6 4.2 4.2 0 0 0 7 18z"/>',
  download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',upload:'<path d="M12 16V5M7 10l5-5 5 5M5 20h14"/>',
+ mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
+ ear:'<path d="M7 9a5 5 0 0 1 10 0c0 3-3 4-3 7a3 3 0 0 1-5.5 1.7"/><path d="M10 9.5a2 2 0 0 1 4 0c0 1.2-1 1.7-1.5 2.3"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>'};
 const ic=(n,c="")=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 // ---------- languages ----------
@@ -222,7 +224,7 @@ let view="sprint";
 NAV.addEventListener("click",e=>{const b=e.target.closest("button");if(b)go(b.dataset.v);});
 document.getElementById("langbtn").onclick=()=>go("langs");
 function go(v){
-  if(view==="sprint"&&v!=="sprint")stopSprint();
+  if(view==="sprint"&&v!=="sprint"){stopSprint();stopVoice();}
   if(phase==="shown"&&cur)next(true);
   cur=null;curQ=null;phase="ask";pending=null;view=v;
   NAV.querySelectorAll("button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
@@ -259,7 +261,7 @@ function rLangs(){
     if(ok&&L){const pk=PACKS[c];if(!pk._cards)pk._cards=parseCards(pk);const obj=pk._cards.filter(x=>/^[ABC][12]$/.test(x.deck)).length;const k=Object.keys(L.p).length;pct=`${Math.round(100*k/obj)}%`;}
     return`<button class="lt" data-c="${c}" ${ok?"":"disabled"} ${PK&&PK.code===c?'aria-current="true"':""} aria-label="${LANGS.find(x=>x[0]===c)[3]}">
       ${ok?"":`<span class="soon">${ic("hour","s")}</span>`}<span class="flag">${f}</span><span class="tg">${n}</span><span class="pct">${pct}</span></button>`;}).join("")}</div>`;
-  V.querySelectorAll(".lt").forEach(b=>b.onclick=()=>{if(b.disabled)return;stopSprint();activate(b.dataset.c);SP=null;go("sprint");});}
+  V.querySelectorAll(".lt").forEach(b=>b.onclick=()=>{if(b.disabled)return;stopSprint();stopVoice();activate(b.dataset.c);SP=null;go("sprint");});}
 // ---------- study: every word asked through a sentence ----------
 let curQ=null,pending=null;
 function introHTML(c){return`<div class="intro">${ic("spark","s")}<span>${esc(enOf(c))}</span>${T(c.fa[0])}${c.tr?`<span class="muted">${esc(c.tr.split(" / ")[0])}</span>`:""}</div>`;}
@@ -360,6 +362,8 @@ function skillRow(k,extra){const s=gs(k),a=sAcc(k),rust=skRank(k,true)>skRank(k)
   return`<div class="row skrow"><div><div>${esc(SKILLS[k][1])}</div><div class="s">${extra||""}${SKILLS[k][0]} · ${s.n}${rust?" · needs practice":""}</div></div>
    <div class="skbar">${pips(k)}<span class="num">${a==null?"–":Math.round(a*100)+"%"}</span></div></div>`;}
 function rSprint(){
+  if(vLoadSub)return vLoadSub();
+  if(VS)return VS.state==="done"?vSummary():undefined;
   if(SP&&SP.state!=="done")return;
   if(SP&&SP.state==="done")return drawSummary();
   rollDay();
@@ -370,11 +374,13 @@ function rSprint(){
       <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${P.sp.streak||0}</b>${tx("Day streak")}</div>
       <div class="kpi" style="--c:var(--ink)">${ic("cap")}<b>${LEVELS[lv]}</b>${tx("Grammar level")}</div>
       <div class="kpi" style="--c:var(--ok)">${ic("trophy")}<b>${recOf()}</b>${tx("Record")}</div></div>
-    <button class="btn primary" id="spgo" aria-label="Start">${ic(doneToday?"repeat":"play")}</button>
+    <div class="spgo2"><button class="btn primary" id="spgo" aria-label="Start">${ic(doneToday?"repeat":"play")}</button>${PK.speech?`<button class="btn vgo" id="vsgo" aria-label="Speech sprint">${ic("mic")}</button>`:""}</div>
+    ${PK.speech?`<div class="vnote">${ic("mic","s")}${tx(`Speech sprint · record: ${vRecOf()}`)}</div>`:""}
     <div class="eyebrow">${ic("calendar","s")}Challenges per week</div>${calHTML(10)}
     <div class="eyebrow">${ic("cap","s")}Grammar skills (dots = mastery)</div>
     <div class="group">${ks.map(k=>skillRow(k)).join("")}</div>`;
-  document.getElementById("spgo").onclick=startSprint;}
+  document.getElementById("spgo").onclick=startSprint;
+  const vb=document.getElementById("vsgo");if(vb)vb.onclick=startVoice;}
 function startSprint(){
   SP={state:"ask",left:SPRINT_SEC()*1000,t0:performance.now(),paused:false,seen:new Set(),lastK:[],newIds:[],boosted:new Set(),tw:new Set(),
       queue:[],n:0,ok:0,combo:0,best:0,skillRes:{},cur:null};
@@ -574,6 +580,7 @@ function rSettings(){
     <div class="row"><span class="lab">${ic("spark")}${tx("AI answer check (Anthropic key)")}</span>
       <div class="ghbox">${AI.key?`<span class="muted" style="font-size:12px">Haiku</span><button class="ibtn sm" id="aioff" aria-label="Remove key">${ic("x","s")}</button>`
         :`<input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Anthropic API key">`}</div></div>
+    ${speechRowHTML()}
     <div class="row"><span class="lab">${ic("download")}${tx("Backup: export / import")}</span><div class="chips">
       <button id="exp" aria-label="Export">${ic("download","s")}</button><button id="imp" aria-label="Import">${ic("upload","s")}</button><input type="file" id="impf" accept=".json,application/json" hidden></div></div>
   </div>
@@ -598,6 +605,7 @@ function rSettings(){
   const ao=document.getElementById("aioff");if(ao)ao.onclick=()=>{AI.key=null;try{localStorage.removeItem("kashi-ai");}catch(e){}rSettings();};
   const gs_=document.getElementById("ghsync");if(gs_)gs_.onclick=()=>ghSync();
   const go_=document.getElementById("ghoff");if(go_)go_.onclick=()=>{GH.tok=null;GH.id=null;GH.state="off";try{localStorage.removeItem("kashi-gh");localStorage.removeItem("kashi-gist");}catch(e){}rSettings();};
+  speechRowBind();
   document.getElementById("exp").onclick=exportProgress;
   const f=document.getElementById("impf");document.getElementById("imp").onclick=()=>f.click();
   f.onchange=()=>{if(!f.files[0])return;importProgress(f.files[0],ok=>{const b=document.getElementById("imp");if(b)b.innerHTML=ok?ic("check","s"):ic("x","s");topline();if(ok)ghSchedule();});};
@@ -621,6 +629,7 @@ function mergeStates(a,b){
     const sp=L.sp,so=y.sp||{};sp.best=Math.max(sp.best||0,so.best||0);
     if((so.last||0)>(sp.last||0)){sp.last=so.last;sp.streak=so.streak;}
     sp.recs=sp.recs||{};for(const m in so.recs||{})sp.recs[m]=Math.max(sp.recs[m]||0,so.recs[m]);
+    sp.vrecs=sp.vrecs||{};for(const m in so.vrecs||{})sp.vrecs[m]=Math.max(sp.vrecs[m]||0,so.vrecs[m]);
     sp.hist=sp.hist||{};for(const d in so.hist||{}){const h=sp.hist[d],g=so.hist[d];
       sp.hist[d]=!h?g:{n:Math.max(h.n||0,g.n||0),ok:Math.max(h.ok||0,g.ok||0),c:Math.max(h.c||0,g.c||0)};}
     if(y.d&&L.d&&y.d.day===L.d.day){L.d.newDone=Math.max(L.d.newDone,y.d.newDone);L.d.reviewed=Math.max(L.d.reviewed,y.d.reviewed);}
@@ -665,7 +674,7 @@ function boot(){
   if(S.s.lang&&PACKS[S.s.lang]){activate(S.s.lang,true);buildQueue();}
   else view="langs";
   NAV.querySelectorAll("button").forEach(x=>{if(x.dataset.v===view)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
-  render();if(GH.tok)ghSync();}
+  render();if(GH.tok)ghSync();registerSW();if(PK&&PK.speech)asrPrefetch();}
 // ---------- shared core lexicon (English semantics; packs map keys to their own cards) ----------
 const CORE_N=[["house; home","house","houses","place thing",1,"home"],["book","book","books","text thing",1],["car","car","cars","thing wash",1],["door","door","doors","open thing",0],["window","window","windows","open thing",0],["bread","bread","bread","food",0],["water","water","water","drink",0],["tea","tea","tea","drink",0],["milk","milk","milk","drink",0],["apple","apple","apples","food",0],["rice","rice","rice","food",0],["meat","meat","meat","food",0],["cheese","cheese","cheese","food",0],["fish","fish","fish","food animal",0],["coffee","coffee","coffee","drink",0],["food","food","food","food",1],["pen","pen","pens","thing",1],["bag","bag","bags","thing open",1],["phone","phone","phones","thing",1],["key","key","keys","thing",1],["clothes","clothes","clothes","thing wash",1],["letter","letter","letters","text thing",1],["newspaper","newspaper","newspapers","text thing",0],["city","city","cities","place",1,"to the city"],["school","school","schools","place",1,"to school"],["shop","shop","shops","place",1,"to the shop"],["park","park","parks","place",0,"to the park"],["university","university","universities","place",1,"to university"],["room","room","rooms","place",1,"to the room"],["restaurant","restaurant","restaurants","place",0,"to the restaurant"],["hospital","hospital","hospitals","place",0,"to the hospital"],["garden","garden","gardens","place",1,"to the garden"],["friend","friend","friends","person",1],["teacher","teacher","teachers","person",1],["child","child","children","person",1],["doctor","doctor","doctors","person",1],["mother","mother","mothers","person",1],["father","father","fathers","person",1],["brother","brother","brothers","person",1],["sister","sister","sisters","person",1],["cat","cat","cats","animal",1],["dog","dog","dogs","animal",1],["table","table","tables","thing",1],["chair","chair","chairs","thing",0],["plate","plate","plates","thing wash",0],["glass (for drinking)","glass","glasses","thing wash",0],["shoe","shoe","shoes","thing",1],["fruit","fruit","fruits","food",0],["gift","gift","gifts","thing",1],["song","song","songs","media",0],["film","film","films","media",0],["word","word","words","word",0],["question","question","questions","word",0]];
 const CORE_A=[["big","big","bigger","thing place animal"],["small","small","smaller","thing place animal"],["new","new","newer","thing text place"],["old (thing)","old","older","thing text place"],["beautiful","beautiful","more beautiful","thing place animal text"],["good","good","better","thing text place food drink person animal"],["bad","bad","worse","thing text place food drink"],["clean","clean","cleaner","thing place"],["dirty","dirty","dirtier","thing place"],["cheap","cheap","cheaper","thing food text"],["expensive","expensive","more expensive","thing food place"],["warm","warm","warmer","food drink place"],["cold","cold","colder","food drink place"],["delicious","delicious","more delicious","food drink"],["sweet","sweet","sweeter","food drink"],["tired","tired","more tired","person animal pp"],["happy","happy","happier","person pp"],["kind","kind","kinder","person animal pp"],["young","young","younger","person pp"],["old (person)","old","older","person animal pp"],["long; tall","tall","taller","person pp"],["interesting","interesting","more interesting","text place"],["fresh","fresh","fresher","food drink"],["hungry","hungry","hungrier","pp animal"],["thirsty","thirsty","thirstier","pp"],["sick","sick","sicker","pp animal"],["ready","ready","readier","pp food"],["sad","sad","sadder","pp person"]];

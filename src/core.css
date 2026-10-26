@@ -299,3 +299,26 @@ body.kb .actrow [aria-label]::after,body.kb #sacts [aria-label]::after,body.kb #
 .gt.y svg{color:var(--ok)}.gt.n svg{color:var(--muted)}
 .note{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted);margin:10px 4px 0;line-height:1.4}
 .note svg{flex:none;margin-top:1px}
+/* ---------- speech sprint ---------- */
+.spgo2{display:flex;gap:10px;align-items:center}
+.spgo2 .btn.primary{flex:1;width:auto}
+.btn.vgo{width:58px;height:52px;padding:0;flex:none}
+.vnote{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--muted)}
+.voice .vs-en{font-size:17px;font-weight:500;color:var(--muted);margin:0}
+.vs-target{font:700 38px/1.35 var(--tf);direction:var(--tdir);text-align:start;margin-top:6px}
+.btn.vmic{gap:10px}
+.btn.vmic.on{background:var(--bad);color:#fff;animation:pulse 1.2s ease-in-out infinite}
+.vlen{font-variant-numeric:tabular-nums;font-size:14px}
+.vpct{font:700 30px/1.2 var(--sans);text-align:center;margin-top:4px;font-variant-numeric:tabular-nums}
+.fb.ok .vpct{color:var(--ok)}.fb.near .vpct{color:var(--mid)}.fb.bad .vpct{color:var(--bad)}
+.phs{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:12px}
+.ph{display:inline-flex;flex-direction:column;align-items:center;min-width:26px;padding:4px 6px;border-radius:8px;font-weight:600;font-size:16px;line-height:1.2;background:var(--surface)}
+.ph i{font-style:normal;font-size:11px;font-weight:500;color:var(--bad)}
+.ph.ok{color:var(--ok)}
+.ph.sub,.ph.del{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.ph.del{text-decoration:line-through}
+.ph.ins{color:var(--muted);font-size:12px;font-weight:500;background:none}
+.ipa{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:10px;font-size:13px;color:var(--muted);word-break:break-word}
+.vtip{text-align:start;justify-content:flex-start}
+.vload{margin:6px 0 18px;text-align:center;color:var(--muted);font-size:14px}
+.vload .bar{margin:0 auto 12px;max-width:320px}
