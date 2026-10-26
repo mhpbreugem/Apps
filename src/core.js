@@ -102,6 +102,7 @@ function gradeSet(acc,input){
   if(x.length>=5){for(const a of acc){if(Math.abs(a.length-x.length)<=1&&lev(a,x)<=1)return"near";}}
   return"bad";}
 const gradeSent=(it,input)=>gradeSet(it.acc,input);
+const tx=t=>`<small class="cp">${t}</small>`;
 const grade=(card,input)=>gradeSet(new Set(card.fa.map(f=>norm(f))),input);
 // ---------- optional AI grader (Claude Haiku, key kept only in this browser) ----------
 const AI={key:null,model:"claude-haiku-5-5",fails:0};
@@ -231,7 +232,7 @@ function topline(){
   lb.innerHTML=`<span class="flag">${PK.flag}</span>${T(PK.native)}`;
   rollDay();
   const c=counts(),newLeft=Math.min(c.n,Math.max(0,P.npd-P.d.newDone)),done=P.d.reviewed+P.d.newDone,left=c.due+newLeft;
-  document.getElementById("topline").innerHTML=left?`${ic("stack","s")}${left}`:`${ic("check","s")}${done}`;
+  document.getElementById("topline").innerHTML=left?`${ic("stack","s")}${left} left`:`${ic("check","s")}${done} done`;
   NAV.querySelector('[data-v="sprint"]').classList.toggle("todo",P.sp.last!==today());
   document.getElementById("prog").style.width=(done+left?100*done/(done+left):0)+"%";}
 // ---------- language picker ----------
@@ -259,7 +260,7 @@ function rStudy(){
     <input class="answer" id="ans" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="${PK.code}" placeholder="${PK.flag} …" aria-label="Answer">
     <div class="hint" id="hint"></div>
     <div class="fb" id="fb" aria-live="polite"></div>
-    <div class="actrow" id="acts"><button class="ibtn" id="skip" aria-label="Pass">${ic("skip")}</button><button class="btn primary" id="go" aria-label="Check">${ic("check")}</button><button class="ibtn" id="hintb" aria-label="Hint">${ic("bulb")}</button></div>
+    <div class="actrow" id="acts"><button class="ibtn" id="skip" aria-label="Don't know">${ic("skip")}</button><button class="btn primary" id="go" aria-label="Check">${ic("check")}</button><button class="ibtn" id="hintb" aria-label="Hint">${ic("bulb")}</button></div>
   </section>`;
   const ans=document.getElementById("ans");ans.focus({preventScroll:true});
   ans.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();act();}});
@@ -348,12 +349,12 @@ function rSprint(){
   const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv).sort((a,b)=>(sAcc(a)??-1)-(sAcc(b)??-1));
   V.innerHTML=`<div class="hero"><div class="clock">${ic(doneToday?"check":"timer")}</div><div class="min">${S.s.sprintMin||2}:00</div></div>
     <div class="kpis">
-      <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${P.sp.streak||0}</b></div>
-      <div class="kpi" style="--c:var(--ink)">${ic("cap")}<b>${LEVELS[lv]}</b></div>
-      <div class="kpi" style="--c:var(--ok)">${ic("trophy")}<b>${recOf()}</b></div></div>
+      <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${P.sp.streak||0}</b>${tx("Day streak")}</div>
+      <div class="kpi" style="--c:var(--ink)">${ic("cap")}<b>${LEVELS[lv]}</b>${tx("Grammar level")}</div>
+      <div class="kpi" style="--c:var(--ok)">${ic("trophy")}<b>${recOf()}</b>${tx("Record")}</div></div>
     <button class="btn primary" id="spgo" aria-label="Start">${ic(doneToday?"repeat":"play")}</button>
-    <div class="eyebrow">${ic("calendar","s")}</div>${calHTML(10)}
-    <div class="eyebrow">${ic("cap","s")}</div>
+    <div class="eyebrow">${ic("calendar","s")}Challenges per week</div>${calHTML(10)}
+    <div class="eyebrow">${ic("cap","s")}Grammar skills (last 30 sentences)</div>
     <div class="group">${ks.map(k=>skillRow(k)).join("")}</div>`;
   document.getElementById("spgo").onclick=startSprint;}
 function startSprint(){
@@ -390,7 +391,7 @@ function nextItem(){
   document.getElementById("sprompt").textContent=it.en;
   const a=document.getElementById("sans");a.value="";a.readOnly=false;a.className="answer";a.focus({preventScroll:true});
   const fb=document.getElementById("sfb");fb.className="fb";fb.innerHTML="";
-  document.getElementById("sacts").innerHTML=`<button class="ibtn" id="sskip" aria-label="Pass">${ic("skip")}</button><button class="btn primary" id="scheck" aria-label="Check">${ic("check")}</button><button class="ibtn" id="sstop" aria-label="End">${ic("stop")}</button>`;
+  document.getElementById("sacts").innerHTML=`<button class="ibtn" id="sskip" aria-label="Don't know">${ic("skip")}</button><button class="btn primary" id="scheck" aria-label="Check">${ic("check")}</button><button class="ibtn" id="sstop" aria-label="End round">${ic("stop")}</button>`;
   document.getElementById("scheck").onclick=spAct;
   document.getElementById("sskip").onclick=()=>spCheck(true);
   document.getElementById("sstop").onclick=()=>{SP.last=true;finishSprint();};
@@ -449,12 +450,12 @@ function drawSummary(){
   V.innerHTML=`<div class="hero"><div class="clock" style="color:${rec?"var(--mid)":"var(--ok)"}">${ic(rec?"trophy":"check")}</div><div class="min">${SP.ok}</div>
       <div class="muted" style="display:flex;justify-content:center;gap:6px;align-items:center">${ic("trophy","s")}${Math.max(SP.prevRec,recOf())}${rec?` <span class="badge new">${ic("spark","s")}</span>`:""}</div></div>
     <div class="kpis">
-      <div class="kpi" style="--c:var(--ok)">${ic("check")}<b>${pct}%</b></div>
-      <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${SP.best}</b></div>
-      <div class="kpi" style="--c:var(--ink)">${ic("calendar")}<b>${P.sp.streak||0}</b></div></div>
-    ${SP.newIds.length?`<div class="eyebrow">${ic("spark","s")}</div><div class="group">${SP.newIds.map(id=>{const c=BYID[id];return`<div class="row"><span>${esc(enOf(c))}</span><span class="tg" style="font-size:19px">${esc(c.fa[0])}</span></div>`;}).join("")}</div>`:""}
-    <div class="eyebrow">${ic("calendar","s")}</div>${calHTML(4)}
-    <div class="eyebrow">${ic("cap","s")}</div>
+      <div class="kpi" style="--c:var(--ok)">${ic("check")}<b>${pct}%</b>${tx("Accuracy")}</div>
+      <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${SP.best}</b>${tx("Best combo")}</div>
+      <div class="kpi" style="--c:var(--ink)">${ic("calendar")}<b>${P.sp.streak||0}</b>${tx("Day streak")}</div></div>
+    ${SP.newIds.length?`<div class="eyebrow">${ic("spark","s")}New words this round</div><div class="group">${SP.newIds.map(id=>{const c=BYID[id];return`<div class="row"><span>${esc(enOf(c))}</span><span class="tg" style="font-size:19px">${esc(c.fa[0])}</span></div>`;}).join("")}</div>`:""}
+    <div class="eyebrow">${ic("calendar","s")}Challenges per week</div>${calHTML(4)}
+    <div class="eyebrow">${ic("cap","s")}Grammar skills (last 30 sentences)</div>
     <div class="group">${ks.map(k=>{const r=SP.skillRes[k];return skillRow(k,`${r.ok}/${r.n} · `);}).join("")}</div>
     <div class="acts"><button class="btn primary" id="spagain" aria-label="Again">${ic("repeat")}</button><div class="icons"><button class="ibtn" id="spclose" aria-label="Close">${ic("close")}</button></div></div>`;
   document.getElementById("spagain").onclick=startSprint;
@@ -471,9 +472,9 @@ function rMap(){
   const tot=[0,0,0,0];MC.forEach(c=>tot[band(c)]++);
   let tabs="";for(let i=0;i<pages;i++){const a=i*PER+1,b=Math.min(MC.length,(i+1)*PER);tabs+=`<button role="tab" aria-selected="${i===mapPage}" data-p="${i}">${a}–${b}</button>`;}
   V.innerHTML=`<div class="kpis">
-    <div class="kpi"><span class="sq" style="--c:var(--ok)"></span><b>${tot[3]}</b></div>
-    <div class="kpi"><span class="sq" style="--c:var(--mid)"></span><b>${tot[2]}</b></div>
-    <div class="kpi"><span class="sq" style="--c:var(--bad)"></span><b>${tot[1]+tot[0]}</b></div></div>
+    <div class="kpi"><span class="sq" style="--c:var(--ok)"></span><b>${tot[3]}</b>${tx("Learned")}</div>
+    <div class="kpi"><span class="sq" style="--c:var(--mid)"></span><b>${tot[2]}</b>${tx("Basic")}</div>
+    <div class="kpi"><span class="sq" style="--c:var(--bad)"></span><b>${tot[1]+tot[0]}</b>${tx("Missed / new")}</div></div>
     <div class="pages" role="tablist" id="pages">${tabs}</div>
     <div class="maphead"><div class="pinfo" id="pinfo"></div>
       <div class="zoom"><button id="zo" aria-label="Zoom out">${ic("minus","s")}</button><input type="range" id="zr" min="0" max="${ZOOMS.length-1}" step="1" aria-label="Zoom"><button id="zi" aria-label="Zoom in">${ic("plus","s")}</button></div></div>
@@ -511,10 +512,10 @@ function openSheet(c){
 function closeSheet(){SHEET.hidden=true;SHEET.innerHTML="";}
 // ---------- words ----------
 function rDeck(){
-  let h=`<div class="eyebrow">${ic("stack","s")}</div><div class="group">`;
+  let h=`<div class="eyebrow">${ic("stack","s")}Progress per level</div><div class="group">`;
   LEVELS.forEach(d=>{const c=counts(d);if(!c.total)return;const w=x=>(100*x/c.total).toFixed(1)+"%";
     h+=`<div class="row deckrow"><b>${d}</b><div class="bar"><i style="width:${w(c.mast)};background:var(--ok)"></i><i style="width:${w(c.learn)};background:var(--mid)"></i></div><span class="num">${c.mast+c.learn}/${c.total}</span></div>`;});
-  h+=`</div><div class="eyebrow">${ic("list","s")}</div><label class="search">${ic("search","s")}<input id="q" placeholder="…" aria-label="Search"></label><div class="group wl" id="list" style="margin-top:10px"></div>`;
+  h+=`</div><div class="eyebrow">${ic("list","s")}All words</div><label class="search">${ic("search","s")}<input id="q" placeholder="…" aria-label="Search"></label><div class="group wl" id="list" style="margin-top:10px"></div>`;
   V.innerHTML=h;
   const q=document.getElementById("q"),L=document.getElementById("list");
   const draw=()=>{const s=q.value.trim().toLowerCase(),sn=q.value.trim()?norm(q.value):"";
@@ -535,23 +536,23 @@ function rSettings(){
   const gChips=[["auto",ic("spark","s")]].concat(LEVELS.map(l=>[l,l])).map(([v,t])=>`<button data-g="${v}" aria-pressed="${P.gmax===v}" aria-label="${v}">${t}</button>`).join("");
   const th=[["auto","auto"],["light","sun"],["dark","moon"]].map(([v,i])=>`<button data-t="${v}" aria-pressed="${S.s.theme===v}" aria-label="${v}">${ic(i,"s")}</button>`).join("");
   V.innerHTML=`<div class="group" style="margin-top:12px">
-    <div class="row"><span class="lab">${ic("stack")}</span><div class="chips" id="lvc">${lvChips}</div></div>
-    <div class="row"><span class="lab">${ic("spark")}${ic("calendar","s")}</span><div class="stepper"><button id="n-" aria-label="Fewer">${ic("minus","s")}</button><b id="npd">${P.npd}</b><button id="n+" aria-label="More">${ic("plus","s")}</button></div></div>
-    <div class="row"><span class="lab">${ic("timer")}</span><div class="stepper"><button id="m-" aria-label="Shorter">${ic("minus","s")}</button><b id="spm">${S.s.sprintMin}′</b><button id="m+" aria-label="Longer">${ic("plus","s")}</button></div></div>
-    <div class="row"><span class="lab">${ic("cap")}</span><div class="chips" id="gc">${gChips}</div></div>
-    <div class="row"><span class="lab">${ic("sun")}</span><div class="chips" id="thc">${th}</div></div>
+    <div class="row"><span class="lab">${ic("stack")}${tx("Levels to study")}</span><div class="chips" id="lvc">${lvChips}</div></div>
+    <div class="row"><span class="lab">${ic("spark")}${tx("New words per day")}</span><div class="stepper"><button id="n-" aria-label="Fewer">${ic("minus","s")}</button><b id="npd">${P.npd}</b><button id="n+" aria-label="More">${ic("plus","s")}</button></div></div>
+    <div class="row"><span class="lab">${ic("timer")}${tx("Challenge length")}</span><div class="stepper"><button id="m-" aria-label="Shorter">${ic("minus","s")}</button><b id="spm">${S.s.sprintMin}′</b><button id="m+" aria-label="Longer">${ic("plus","s")}</button></div></div>
+    <div class="row"><span class="lab">${ic("cap")}${tx("Grammar level (✦ = auto)")}</span><div class="chips" id="gc">${gChips}</div></div>
+    <div class="row"><span class="lab">${ic("sun")}${tx("Theme")}</span><div class="chips" id="thc">${th}</div></div>
   </div>
   <div class="group" style="margin-top:12px">
-    <div class="row"><span class="lab">${ic("cloud")}<span id="ghs">${GH.tok?ghIcon():""}</span></span>
+    <div class="row"><span class="lab">${ic("cloud")}${tx("Save progress online (GitHub token)")}<span id="ghs">${GH.tok?ghIcon():""}</span></span>
       <div class="ghbox">${GH.tok?`<button class="ibtn sm" id="ghsync" aria-label="Sync now">${ic("repeat","s")}</button><button class="ibtn sm" id="ghoff" aria-label="Disconnect">${ic("x","s")}</button>`
         :`<input id="ght" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub token">`}</div></div>
-    <div class="row"><span class="lab">${ic("spark")}<span id="ais"></span></span>
+    <div class="row"><span class="lab">${ic("spark")}${tx("AI answer check (Anthropic key)")}</span>
       <div class="ghbox">${AI.key?`<span class="muted" style="font-size:12px">Haiku</span><button class="ibtn sm" id="aioff" aria-label="Remove key">${ic("x","s")}</button>`
         :`<input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Anthropic API key">`}</div></div>
-    <div class="row"><span class="lab">${ic("download")}${ic("upload","s")}</span><div class="chips">
+    <div class="row"><span class="lab">${ic("download")}${tx("Backup: export / import")}</span><div class="chips">
       <button id="exp" aria-label="Export">${ic("download","s")}</button><button id="imp" aria-label="Import">${ic("upload","s")}</button><input type="file" id="impf" accept=".json,application/json" hidden></div></div>
   </div>
-  <div class="group" style="margin-top:12px"><button class="danger" id="reset" aria-label="Erase progress">${ic("trash")}<span id="rst"></span></button></div>`;
+  <div class="group" style="margin-top:12px"><button class="danger" id="reset" aria-label="Erase progress">${ic("trash")}${tx("Erase progress for this language")}<span id="rst"></span></button></div>`;
   const set=()=>{save();topline();};
   document.getElementById("lvc").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset.d;
     P.decks=P.decks.includes(d)?P.decks.filter(x=>x!==d):[...P.decks,d];if(!P.decks.length)P.decks=[d];set();rSettings();};
@@ -644,3 +645,5 @@ function boot(){
 const CORE_N=[["house; home","house","houses","place thing",1,"home"],["book","book","books","text thing",1],["car","car","cars","thing wash",1],["door","door","doors","open thing",0],["window","window","windows","open thing",0],["bread","bread","bread","food",0],["water","water","water","drink",0],["tea","tea","tea","drink",0],["milk","milk","milk","drink",0],["apple","apple","apples","food",0],["rice","rice","rice","food",0],["meat","meat","meat","food",0],["cheese","cheese","cheese","food",0],["fish","fish","fish","food animal",0],["coffee","coffee","coffee","drink",0],["food","food","food","food",1],["pen","pen","pens","thing",1],["bag","bag","bags","thing open",1],["phone","phone","phones","thing",1],["key","key","keys","thing",1],["clothes","clothes","clothes","thing wash",1],["letter","letter","letters","text thing",1],["newspaper","newspaper","newspapers","text thing",0],["city","city","cities","place",1,"to the city"],["school","school","schools","place",1,"to school"],["shop","shop","shops","place",1,"to the shop"],["park","park","parks","place",0,"to the park"],["university","university","universities","place",1,"to university"],["room","room","rooms","place",1,"to the room"],["restaurant","restaurant","restaurants","place",0,"to the restaurant"],["hospital","hospital","hospitals","place",0,"to the hospital"],["garden","garden","gardens","place",1,"to the garden"],["friend","friend","friends","person",1],["teacher","teacher","teachers","person",1],["child","child","children","person",1],["doctor","doctor","doctors","person",1],["mother","mother","mothers","person",1],["father","father","fathers","person",1],["brother","brother","brothers","person",1],["sister","sister","sisters","person",1],["cat","cat","cats","animal",1],["dog","dog","dogs","animal",1],["table","table","tables","thing",1],["chair","chair","chairs","thing",0],["plate","plate","plates","thing wash",0],["glass (for drinking)","glass","glasses","thing wash",0],["shoe","shoe","shoes","thing",1],["fruit","fruit","fruits","food",0],["gift","gift","gifts","thing",1],["song","song","songs","media",0],["film","film","films","media",0],["word","word","words","word",0],["question","question","questions","word",0]];
 const CORE_A=[["big","big","bigger","thing place animal"],["small","small","smaller","thing place animal"],["new","new","newer","thing text place"],["old (thing)","old","older","thing text place"],["beautiful","beautiful","more beautiful","thing place animal text"],["good","good","better","thing text place food drink person animal"],["bad","bad","worse","thing text place food drink"],["clean","clean","cleaner","thing place"],["dirty","dirty","dirtier","thing place"],["cheap","cheap","cheaper","thing food text"],["expensive","expensive","more expensive","thing food place"],["warm","warm","warmer","food drink place"],["cold","cold","colder","food drink place"],["delicious","delicious","more delicious","food drink"],["sweet","sweet","sweeter","food drink"],["tired","tired","more tired","person animal pp"],["happy","happy","happier","person pp"],["kind","kind","kinder","person animal pp"],["young","young","younger","person pp"],["old (person)","old","older","person animal pp"],["long; tall","tall","taller","person pp"],["interesting","interesting","more interesting","text place"],["fresh","fresh","fresher","food drink"],["hungry","hungry","hungrier","pp animal"],["thirsty","thirsty","thirstier","pp"],["sick","sick","sicker","pp animal"],["ready","ready","readier","pp food"],["sad","sad","sadder","pp person"]];
 const CORE_V=[{"k":"to go","en":["go","goes","went","gone","going"],"intr":1,"place":1},{"k":"to come","en":["come","comes","came","come","coming"],"intr":1,"place":1},{"k":"to eat","en":["eat","eats","ate","eaten","eating"],"intr":1,"obj":"food","pass":1},{"k":"to drink","en":["drink","drinks","drank","drunk","drinking"],"intr":1,"obj":"drink","pass":1},{"k":"to see","en":["see","sees","saw","seen","seeing"],"obj":"thing person animal place media","noProg":1,"pass":1},{"k":"to read","en":["read","reads","read","read","reading"],"intr":1,"obj":"text word","pass":1},{"k":"to write","en":["write","writes","wrote","written","writing"],"intr":1,"obj":"text word","pass":1},{"k":"to buy","en":["buy","buys","bought","bought","buying"],"obj":"food drink text thing","pass":1},{"k":"to sleep","en":["sleep","sleeps","slept","slept","sleeping"],"intr":1},{"k":"to sit","en":["sit","sits","sat","sat","sitting"],"intr":1},{"k":"to bring","en":["bring","brings","brought","brought","bringing"],"obj":"food drink text thing","pass":1},{"k":"to wash","en":["wash","washes","washed","washed","washing"],"obj":"wash","pass":1},{"k":"to cook","en":["cook","cooks","cooked","cooked","cooking"],"obj":"food","pass":1},{"k":"to close","en":["close","closes","closed","closed","closing"],"obj":"open","pass":1},{"k":"to understand","en":["understand","understands","understood","understood","understanding"],"intr":1,"noProg":1},{"k":"to know (a fact)","en":["know","knows","knew","known","knowing"],"intr":1,"noProg":1,"noModal":1},{"k":"to work","en":["work","works","worked","worked","working"],"intr":1},{"k":"to speak","en":["speak","speaks","spoke","spoken","speaking"],"intr":1},{"k":"to play","en":["play","plays","played","played","playing"],"intr":1},{"k":"to learn","en":["learn","learns","learned","learned","learning"],"intr":1},{"k":"to open","en":["open","opens","opened","opened","opening"],"obj":"open","pass":1},{"k":"to find","en":["find","finds","found","found","finding"],"obj":"thing text","noProg":1,"pass":1},{"k":"to like; to love","en":["like","likes","liked","liked","liking"],"obj":"food drink text thing person animal place media","noProg":1,"stative":1},{"k":"to help","en":["help","helps","helped","helped","helping"],"intr":1}];
+
+document.addEventListener("pointerover",e=>{const b=e.target.closest&&e.target.closest("[aria-label]:not([title])");if(b)b.title=b.getAttribute("aria-label");});
