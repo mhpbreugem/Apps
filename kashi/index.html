@@ -571,20 +571,20 @@ function gs(k){return P.g[k]||(P.g[k]={n:0,ok:0,r:[]});}
 // recency-weighted accuracy over the last 40 sentences (half-credit answers count 0.5)
 function sAcc(k){const r=gs(k).r;if(!r.length)return null;let n=0,d=0;for(let i=0;i<r.length;i++){const w=Math.pow(.96,r.length-1-i);n+=w*r[i];d+=w;}return n/d;}
 // mastery rank 0-5: needs enough sentences, high recent accuracy AND practice spread over several days
-const RANKS=[[8,.60,1],[20,.72,2],[35,.82,3],[60,.88,4],[100,.93,6]]; // [min sentences, min accuracy, min distinct days]
+const RANKS=[[15,.65,2,0],[40,.78,4,5],[80,.86,7,10],[150,.92,12,17],[300,.96,20,26]]; // [min sentences, min recent accuracy, min distinct days, min perfect (non-typo) answers among the last 40]
 function skRank(k,raw){const s=gs(k),a=sAcc(k);if(a==null)return 0;let r=0;
-  RANKS.forEach(([n,ac,d],i)=>{if(s.n>=n&&a>=ac&&(s.dc||1)>=d)r=i+1;});
+  RANKS.forEach(([n,ac,d,ru],i)=>{if(s.n>=n&&a>=ac&&(s.dc||1)>=d&&s.r.filter(x=>x>=1).length>=ru)r=i+1;});
   if(raw)return r;
-  const idle=s.ld?today()-s.ld:0,rust=Math.floor(Math.max(0,idle-10)/10); // -1 rank per 10 idle days after the first 10
+  const idle=s.ld?today()-s.ld:0,rust=Math.floor(Math.max(0,idle-7)/7); // -1 rank per 7 idle days after the first 7
   return Math.max(0,r-rust);}
 // what it takes to pass level L and unlock L+1
 function gate(L){
   const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)===L);if(!ks.length)return{ok:true,ks};
   const rk=ks.map(k=>skRank(k)),acs=ks.map(sAcc).filter(x=>x!=null);
-  const c2=rk.filter(x=>x>=2).length,c3=rk.filter(x=>x>=3).length,need3=Math.ceil(ks.length*.6);
+  const c2=rk.filter(x=>x>=3).length,c3=rk.filter(x=>x>=4).length,need3=Math.ceil(ks.length*.7);
   const acc=acs.length===ks.length?acs.reduce((a,b)=>a+b,0)/acs.length:0;
   const days=Math.min(...ks.map(k=>gs(k).dc||0));
-  const ok=c2===ks.length&&c3>=need3&&acc>=.8&&days>=3;
+  const ok=c2===ks.length&&c3>=need3&&acc>=.88&&days>=6;
   return{ok,ks,c2,c3,need3,acc,days,tot:ks.length};}
 function unlockedLv(){
   if(P.gmax!=="auto"){const i=LEVELS.indexOf(P.gmax);return i<0?LEVELS.length-1:i;}
@@ -593,7 +593,7 @@ function unlockedLv(){
   return lv;}
 let SCORE=1; // 1 = exact, .5 = typo / loose match (counts half toward grammar mastery)
 function recordSkills(skills,score){if(score===true)score=1;if(score===false||score==null)score=0;
-  skills.forEach(k=>{if(!SKILLS[k])return;const s=gs(k);s.n++;s.ok=(s.ok||0)+score;s.r.push(score);if(s.r.length>40)s.r.shift();
+  skills.forEach(k=>{if(!SKILLS[k])return;const s=gs(k);s.n++;s.ok=(s.ok||0)+score;s.r.push(score);if(s.r.length>40)s.r.shift();s.run=score>=1?(s.run||0)+1:0;
     const d=today();if(s.ld!==d){s.dc=(s.dc||0)+1;s.ld=d;}s.pk=Math.max(s.pk||0,skRank(k,true));});}
 function reinforce(words,except){words.forEach(id=>{if(id===except)return;const p=P.p[id];if(p&&p.due<=today()&&p.l>0){p.l=Math.min(MAXL,p.l+1);p.due=today()+INTERVALS[p.l];}});}
 // ---------- rendering ----------
@@ -631,7 +631,7 @@ function mastery(){
   let vn=0,vs=0,gn=0,gs_=0;LEVELS.forEach(l=>{const d=per[l];vn+=d.n;vs+=d.v;gn+=d.gn;gs_+=d.g;});
   const V=vn?vs/vn:0,G=gn?gs_/gn:0;
   // estimated CEFR level: every level up to it needs 70% of its words mastered and skills averaging 3 dots
-  let lvl=null;for(const l of LEVELS){const d=per[l];if(d.n&&d.v/d.n<.7)break;if(d.gn&&d.g/d.gn<.6)break;if(!d.n&&!d.gn)break;lvl=l;}
+  let lvl=null;for(const l of LEVELS){const d=per[l];if(d.n&&d.v/d.n<.7)break;if(d.gn&&d.g/d.gn<.72)break;if(!d.n&&!d.gn)break;lvl=l;}
   return{all:.6*V+.4*G,V,G,lvl,per};}
 function pct3(x){const v=x*100;return(v>=99.995?"100":v>=10?v.toFixed(1):v.toFixed(2))+"%";}
 function topline(){
@@ -752,8 +752,8 @@ function pips(k){const r=skRank(k),raw=skRank(k,true);return`<span class="pips" 
 function skillBody(k){const s=gs(k),r=skRank(k),a=sAcc(k),tp=(PK.skillTopic||{})[k],t=tp&&(PK.topics||[]).find(g=>g.t===tp);
   let h=`<p>${esc(SKILLS[k][2]||"")}</p>`;
   if(t)h+=`<p>${esc(t.n)}</p>`+t.d.map(([e,f])=>`<div class="ex"><span>${esc(e)}</span>${T(f.split("/")[0])}</div>`).join("");
-  if(r<5){const [n,ac,d]=RANKS[r];h+=`<div class="note nx">${ic("cap","s")}<span>Next dot: ${n} sentences (now ${s.n}) · ${Math.round(ac*100)}% recent accuracy (now ${a==null?"–":Math.round(a*100)+"%"}) · ${d} practice day${d>1?"s":""} (now ${s.dc||0})</span></div>`;}
-  else h+=`<div class="note nx">${ic("trophy","s")}<span>Fully mastered. Keep it fresh: unused skills lose a dot after 10 days.</span></div>`;
+  if(r<5){const [n,ac,d,ru]=RANKS[r];h+=`<div class="note nx">${ic("cap","s")}<span>Next dot: ${n} sentences (now ${s.n}) · ${Math.round(ac*100)}% recent accuracy (now ${a==null?"–":Math.round(a*100)+"%"}) · ${d} practice days (now ${s.dc||0})${ru?` · ${ru} perfect answers in the last 40 (now ${s.r.filter(x=>x>=1).length})`:""}</span></div>`;}
+  else h+=`<div class="note nx">${ic("trophy","s")}<span>Fully mastered. Keep it fresh: unused skills lose a dot after 7 days.</span></div>`;
   return h;}
 function skillRow(k,extra){const s=gs(k),a=sAcc(k),rust=skRank(k,true)>skRank(k);
   return`<details class="sk"><summary><div><div>${esc(SKILLS[k][1])}</div><div class="s">${extra||""}${SKILLS[k][0]} · ${s.n}${rust?" · needs practice":""}</div></div>
@@ -950,10 +950,10 @@ function rGrammar(){
   let h="";
   if(P.gmax==="auto"&&lv<LEVELS.length-1){const g=gate(lv),row=(ok,t,v)=>`<div class="row"><span class="gt ${ok?"y":"n"}">${ic(ok?"check":"x","s")}${t}</span><span class="num">${v}</span></div>`;
     h+=`<div class="eyebrow">${ic("cap","s")}To unlock ${LEVELS[lv+1]}</div><div class="group">`+
-      row(g.c2===g.tot,"Every "+LEVELS[lv]+" skill at ●●○○○ or better",g.c2+"/"+g.tot)+
-      row(g.c3>=g.need3,"60% of skills at ●●●○○ or better",g.c3+"/"+g.need3)+
-      row(g.acc>=.8,"Average recent accuracy 80%+",Math.round(g.acc*100)+"%")+
-      row(g.days>=3,"Every skill practised on 3+ days",Math.min(g.days,3)+"/3")+`</div><div class="note">${ic("timer","s")}Dots need more sentences, higher accuracy and more practice days. Typos count half. Skills unused for 10+ days lose a dot.</div>`;}
+      row(g.c2===g.tot,"Every "+LEVELS[lv]+" skill at ●●●○○ or better",g.c2+"/"+g.tot)+
+      row(g.c3>=g.need3,"70% of skills at ●●●●○ or better",g.c3+"/"+g.need3)+
+      row(g.acc>=.88,"Average recent accuracy 88%+",Math.round(g.acc*100)+"%")+
+      row(g.days>=6,"Every skill practised on 6+ days",Math.min(g.days,6)+"/6")+`</div><div class="note">${ic("timer","s")}Dots need more sentences, higher accuracy and more practice days. Typos count half and do not count as perfect. Skills unused for 7+ days lose a dot.</div>`;}
   h+=`<div class="eyebrow">${ic("cap","s")} ${LEVELS[lv]}</div><div class="group">${Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv).map(k=>skillRow(k)).join("")}</div>`;
   LEVELS.forEach(l=>{const ts=(PK.topics||[]).filter(g=>g.lvl===l);if(!ts.length)return;
     h+=`<div class="eyebrow">${l}</div>`;
