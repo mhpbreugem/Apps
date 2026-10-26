@@ -103,6 +103,32 @@ function gradeSet(acc,input){
   return"bad";}
 const gradeSent=(it,input)=>gradeSet(it.acc,input);
 const grade=(card,input)=>gradeSet(new Set(card.fa.map(f=>norm(f))),input);
+// ---------- optional AI grader (Claude Haiku, key kept only in this browser) ----------
+const AI={key:null,model:"claude-haiku-5-5",fails:0};
+try{AI.key=localStorage.getItem("kashi-ai");}catch(e){}
+const LNAME=()=>((LANGS.find(l=>l[0]===PK.code)||[])[3])||PK.code;
+async function aiJudge(en,canonTxt,accSet,typed){
+  if(!AI.key)return null;
+  const ex=[...(accSet||[])].slice(0,8).join(" | ");
+  const prompt=`You grade a ${LNAME()} translation exercise for an English speaker.
+English prompt: ${en}
+Reference answer: ${canonTxt}
+Other accepted forms: ${ex}
+Learner typed: ${typed}
+Decide if the learner's sentence is correct ${LNAME()} that fully conveys the English prompt (alternative valid wording, dropped pronouns, or alternative spellings are fine; wrong meaning, wrong word, or a grammar error is not). Reply with ONLY compact JSON: {"ok":true|false,"tip":"<max 14 words in English: the key reason or fix>"}`;
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),7000);
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:ctl.signal,
+      headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:AI.model,max_tokens:120,messages:[{role:"user",content:prompt}]})});
+    if(!r.ok){AI.fails++;return null;}
+    const j=await r.json(),t=(j.content&&j.content[0]&&j.content[0].text)||"";
+    const m=t.match(/\{[\s\S]*\}/);if(!m)return null;
+    const o=JSON.parse(m[0]);AI.fails=0;return{ok:!!o.ok,tip:String(o.tip||"").slice(0,140)};
+  }catch(e){AI.fails++;return null;}
+  finally{clearTimeout(to);}}
+const tipHTML=v=>v&&v.tip?`<div class="aitip">${ic("spark","s")}<span>${esc(v.tip)}</span></div>`:"";
+const aiWait=()=>`<div class="aitip wait">${ic("spark","s")}<i></i><i></i><i></i></div>`;
 // ---------- english helpers (shared by every pack) ----------
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
@@ -242,7 +268,7 @@ function rStudy(){
     const others=q?q.words.filter(x=>x!==cur.id&&BYID[x]).map(x=>T(BYID[x].fa[0])).join(" "):"";
     document.getElementById("hint").innerHTML=`${ic("key","s")}${cur.tr?`<i>${esc(cur.tr.split(" / ")[0])}</i>`:T(cur.fa[0].slice(0,2)+"…")}${others?` ${ic("plus","s")} ${others}`:""}`;ans.focus({preventScroll:true});};
   document.getElementById("skip").onclick=()=>{if(phase==="ask")check(true);};}
-function act(){if(phase==="ask")check(false);else next();}
+function act(){if(phase==="ask")check(false);else if(phase==="shown")next();}
 function fbHTML(r,canonTxt,typed,words,extra){
   const gl=words&&r==="bad"?words.map(id=>BYID[id]).filter(Boolean).map(c=>`<span class="gl">${T(c.fa[0])}${esc(enBase(c))}</span>`).join(""):"";
   return`<div class="verdict">${ic(r==="ok"?"check":r==="near"?"approx":"x")}</div>
@@ -253,11 +279,20 @@ function check(giveUp){
   const ans=document.getElementById("ans"),q=curQ;
   const r=giveUp?"bad":q?gradeSent(q,ans.value):grade(cur,ans.value);
   if(r==="empty"){ans.focus({preventScroll:true});return;}
+  if(r==="bad"&&!giveUp&&AI.key){
+    phase="ai";ans.readOnly=true;const fb=document.getElementById("fb");fb.className="fb show";fb.innerHTML=aiWait();
+    document.getElementById("acts").innerHTML=`<span class="ibtn ghost"></span><span class="btn primary dis">${ic("arrow")}</span><span class="ibtn ghost"></span>`;
+    const acc=q?q.acc:new Set(cur.fa.map(f=>norm(f)));
+    aiJudge(q?q.en:cur.en,q?q.canon:cur.fa[0],acc,ans.value).then(v=>{if(phase!=="ai")return;checkShow(v&&v.ok?"near":"bad",false,v);});
+    return;}
+  checkShow(r,giveUp,null);}
+function checkShow(r,giveUp,ai){
+  const ans=document.getElementById("ans"),q=curQ;
   phase="shown";ans.readOnly=true;ans.classList.add(r==="bad"?"bad":"ok");
   const fb=document.getElementById("fb");fb.className="fb show "+r;
   const tl=q?(q.tr||(PK.translit?PK.translit(q.canon):"")):cur.tr;
   fb.innerHTML=fbHTML(r,q?q.canon:cur.fa[0],ans.value,q?q.words:null,
-    (tl?`<div class="tr ph">${esc(tl)}</div>`:"")+
+    (tl?`<div class="tr ph">${esc(tl)}</div>`:"")+tipHTML(ai)+
     (!q&&cur.fa.length>1?`<div class="alt">${ic("plus","s")}${cur.fa.slice(1).map(T).join(" · ")}</div>`:""));
   pending=r==="near"?"ok":r;
   document.getElementById("acts").innerHTML=`<span class="ibtn ghost"></span><button class="btn primary" id="nx" aria-label="Next">${ic("arrow")}</button>${r==="bad"&&!giveUp?`<button class="ibtn" id="ovr" aria-label="I was right">${ic("thumb")}</button>`:`<span class="ibtn ghost"></span>`}`;
@@ -367,6 +402,16 @@ function spAct(){if(!SP)return;if(SP.state==="ask")spCheck(false);else if(SP.sta
 function spCheck(giveUp){
   const it=SP.cur,a=document.getElementById("sans");
   const r=giveUp?"bad":gradeSent(it,a.value);if(r==="empty"){a.focus({preventScroll:true});return;}
+  if(r==="bad"&&!giveUp&&AI.key){
+    SP.state="ai";SP.paused=true;a.readOnly=true;
+    const fb=document.getElementById("sfb");fb.className="fb show";fb.innerHTML=aiWait();
+    document.getElementById("sacts").innerHTML="";
+    const my=SP.cur;
+    aiJudge(it.en,it.canon,it.acc,a.value).then(v=>{if(!SP||SP.cur!==my||SP.state!=="ai")return;SP.paused=false;SP.t0=performance.now();spFinish(giveUp,v&&v.ok?"near":"bad",v);});
+    return;}
+  spFinish(giveUp,r,null);}
+function spFinish(giveUp,r,ai){
+  const it=SP.cur,a=document.getElementById("sans");
   const good=r!=="bad";SP.lastGood=good;
   const free=!good&&!!it.newId&&!P.p[it.newId]; // the one new word: no penalty
   if(!free){SP.n++;if(good){SP.ok++;SP.combo++;SP.best=Math.max(SP.best,SP.combo);}else SP.combo=0;
@@ -380,7 +425,7 @@ function spCheck(giveUp){
   if(!good)SP.queue.push({it:{...it,retry:true,newId:null},wait:3});
   save();
   a.readOnly=true;a.classList.add(good?"ok":"bad");
-  const fb=document.getElementById("sfb");fb.className="fb show "+r;const tl=it.tr||(PK.translit?PK.translit(it.canon):"");fb.innerHTML=fbHTML(r,it.canon,a.value,it.words,tl?`<div class="tr ph">${esc(tl)}</div>`:"");
+  const fb=document.getElementById("sfb");fb.className="fb show "+r;const tl=it.tr||(PK.translit?PK.translit(it.canon):"");fb.innerHTML=fbHTML(r,it.canon,a.value,it.words,(tl?`<div class="tr ph">${esc(tl)}</div>`:"")+tipHTML(ai));
   drawScore();
   if(r==="ok"){SP.state="auto";document.getElementById("sacts").innerHTML="";SP.autoT=setTimeout(advance,650);}
   else{SP.state="shown";SP.paused=r==="bad";
@@ -500,6 +545,9 @@ function rSettings(){
     <div class="row"><span class="lab">${ic("cloud")}<span id="ghs">${GH.tok?ghIcon():""}</span></span>
       <div class="ghbox">${GH.tok?`<button class="ibtn sm" id="ghsync" aria-label="Sync now">${ic("repeat","s")}</button><button class="ibtn sm" id="ghoff" aria-label="Disconnect">${ic("x","s")}</button>`
         :`<input id="ght" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="GitHub token">`}</div></div>
+    <div class="row"><span class="lab">${ic("spark")}<span id="ais"></span></span>
+      <div class="ghbox">${AI.key?`<span class="muted" style="font-size:12px">Haiku</span><button class="ibtn sm" id="aioff" aria-label="Remove key">${ic("x","s")}</button>`
+        :`<input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Anthropic API key">`}</div></div>
     <div class="row"><span class="lab">${ic("download")}${ic("upload","s")}</span><div class="chips">
       <button id="exp" aria-label="Export">${ic("download","s")}</button><button id="imp" aria-label="Import">${ic("upload","s")}</button><input type="file" id="impf" accept=".json,application/json" hidden></div></div>
   </div>
@@ -518,6 +566,10 @@ function rSettings(){
   const t=document.getElementById("ght");
   if(t){const go=()=>{const v=t.value.trim();if(v.length<20)return;GH.tok=v;GH.id=null;try{localStorage.setItem("kashi-gh",v);localStorage.removeItem("kashi-gist");}catch(e){}rSettings();ghSync();};
     t.addEventListener("change",go);t.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go();}});}
+  const ak=document.getElementById("aik");
+  if(ak){const go=()=>{const v=ak.value.trim();if(v.length<20)return;AI.key=v;try{localStorage.setItem("kashi-ai",v);}catch(e){}rSettings();};
+    ak.addEventListener("change",go);ak.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go();}});}
+  const ao=document.getElementById("aioff");if(ao)ao.onclick=()=>{AI.key=null;try{localStorage.removeItem("kashi-ai");}catch(e){}rSettings();};
   const gs_=document.getElementById("ghsync");if(gs_)gs_.onclick=()=>ghSync();
   const go_=document.getElementById("ghoff");if(go_)go_.onclick=()=>{GH.tok=null;GH.id=null;GH.state="off";try{localStorage.removeItem("kashi-gh");localStorage.removeItem("kashi-gist");}catch(e){}rSettings();};
   document.getElementById("exp").onclick=exportProgress;
