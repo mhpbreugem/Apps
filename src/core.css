@@ -332,3 +332,10 @@ body.kb .actrow [aria-label]::after,body.kb #sacts [aria-label]::after,body.kb #
 .sk summary .s{font-size:12px;margin-top:2px;color:var(--muted)}
 .sk[open] summary{padding-bottom:8px}
 .sk .gbody .nx{margin:8px 0 0}
+
+.topline{gap:10px}
+.mst{display:inline-flex;align-items:center;gap:6px}
+.mst b{color:var(--ink);font-size:15px;font-weight:700;letter-spacing:-.01em}
+.lvb{font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px;background:var(--ink);color:var(--bg)}
+.lvb.none{background:var(--surface2);color:var(--muted)}
+.tl2{display:inline-flex;align-items:center;gap:4px;font-size:13px}

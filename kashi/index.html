@@ -343,6 +343,13 @@ body.kb .actrow [aria-label]::after,body.kb #sacts [aria-label]::after,body.kb #
 .sk[open] summary{padding-bottom:8px}
 .sk .gbody .nx{margin:8px 0 0}
 
+.topline{gap:10px}
+.mst{display:inline-flex;align-items:center;gap:6px}
+.mst b{color:var(--ink);font-size:15px;font-weight:700;letter-spacing:-.01em}
+.lvb{font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px;background:var(--ink);color:var(--bg)}
+.lvb.none{background:var(--surface2);color:var(--muted)}
+.tl2{display:inline-flex;align-items:center;gap:4px;font-size:13px}
+
 </style>
 </head>
 <body>
@@ -616,13 +623,25 @@ window.addEventListener("resize",fitVV);document.addEventListener("focusin",()=>
 function render(){
   if(!PK||view==="langs"){rLangs();topline();return;}
   ({sprint:rSprint,study:rStudy,map:rMap,deck:rDeck,grammar:rGrammar,settings:rSettings})[view]();topline();lockState();fitVV();}
+// overall mastery of everything in the app: 60% vocabulary (every word at its top interval = 100%), 40% grammar skills (5 dots = 100%)
+function mastery(){
+  const per={};LEVELS.forEach(l=>per[l]={n:0,v:0,g:0,gn:0});
+  CARDS.forEach(c=>{const d=per[c.deck];if(!d)return;d.n++;const p=P.p[c.id];if(p)d.v+=Math.min(p.l,MASTER)/MASTER;});
+  Object.keys(SKILLS).forEach(k=>{const d=per[SKILLS[k][0]];if(d){d.gn++;d.g+=skRank(k)/5;}});
+  let vn=0,vs=0,gn=0,gs_=0;LEVELS.forEach(l=>{const d=per[l];vn+=d.n;vs+=d.v;gn+=d.gn;gs_+=d.g;});
+  const V=vn?vs/vn:0,G=gn?gs_/gn:0;
+  // estimated CEFR level: every level up to it needs 70% of its words mastered and skills averaging 3 dots
+  let lvl=null;for(const l of LEVELS){const d=per[l];if(d.n&&d.v/d.n<.7)break;if(d.gn&&d.g/d.gn<.6)break;if(!d.n&&!d.gn)break;lvl=l;}
+  return{all:.6*V+.4*G,V,G,lvl,per};}
+function pct3(x){const v=x*100;return(v>=99.995?"100":v>=10?v.toFixed(1):v.toFixed(2))+"%";}
 function topline(){
   const lb=document.getElementById("langbtn");
   if(!PK){lb.innerHTML=ic("globe");document.getElementById("topline").innerHTML="";return;}
   lb.innerHTML=`<span class="flag">${PK.flag}</span>${T(PK.native)}`;
   rollDay();
   const c=counts(),newLeft=Math.min(c.n,Math.max(0,P.npd-P.d.newDone)),done=P.d.reviewed+P.d.newDone,left=c.due+newLeft;
-  document.getElementById("topline").innerHTML=left?`${ic("stack","s")}${left} left`:`${ic("check","s")}${done} done`;
+  const m=mastery();
+  document.getElementById("topline").innerHTML=`<span class="mst" title="Overall mastery of all words and grammar: ${Math.round(m.V*1000)/10}% vocabulary, ${Math.round(m.G*1000)/10}% grammar"><b>${pct3(m.all)}</b><span class="lvb${m.lvl?"":" none"}" title="Estimated level">${m.lvl||"–"}</span></span><span class="tl2">`+(left?`${ic("stack","s")}${left} left`:`${ic("check","s")}${done} done`)+"</span>";
   NAV.querySelector('[data-v="sprint"]').classList.toggle("todo",P.sp.last!==today());
   document.getElementById("prog").style.width=(done+left?100*done/(done+left):0)+"%";}
 // ---------- language picker ----------
