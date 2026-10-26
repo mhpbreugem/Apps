@@ -289,3 +289,13 @@ body.kb .tr.ph{font-size:15px}
 .actrow [aria-label]::after,#sacts [aria-label]::after,#acts [aria-label]::after{content:attr(aria-label);position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);font-size:10px;font-weight:500;color:var(--muted);white-space:nowrap;pointer-events:none;font-style:normal}
 .btn.primary[aria-label]::after{color:var(--muted)}
 body.kb .actrow [aria-label]::after,body.kb #sacts [aria-label]::after,body.kb #acts [aria-label]::after{display:none}
+
+.pips{display:inline-flex;gap:3px}
+.pips i{width:7px;height:7px;border-radius:50%;background:var(--surface2)}
+.pips i.on{background:var(--ok)}
+.pips i.rust{background:transparent;box-shadow:inset 0 0 0 1.5px var(--mid)}
+.skbar .num{min-width:34px;text-align:right}
+.gt{display:flex;align-items:center;gap:8px;font-size:14px}
+.gt.y svg{color:var(--ok)}.gt.n svg{color:var(--muted)}
+.note{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted);margin:10px 4px 0;line-height:1.4}
+.note svg{flex:none;margin-top:1px}

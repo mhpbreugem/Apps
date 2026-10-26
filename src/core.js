@@ -188,16 +188,33 @@ function counts(deck){
 // ---------- grammar skills ----------
 const SK_LV=k=>SKILLS[k]?LEVELS.indexOf(SKILLS[k][0]):-1;
 function gs(k){return P.g[k]||(P.g[k]={n:0,ok:0,r:[]});}
-function sAcc(k){const r=gs(k).r;return r.length?r.reduce((a,b)=>a+b,0)/r.length:null;}
+// recency-weighted accuracy over the last 40 sentences (half-credit answers count 0.5)
+function sAcc(k){const r=gs(k).r;if(!r.length)return null;let n=0,d=0;for(let i=0;i<r.length;i++){const w=Math.pow(.96,r.length-1-i);n+=w*r[i];d+=w;}return n/d;}
+// mastery rank 0-5: needs enough sentences, high recent accuracy AND practice spread over several days
+const RANKS=[[8,.60,1],[20,.72,2],[35,.82,3],[60,.88,4],[100,.93,6]]; // [min sentences, min accuracy, min distinct days]
+function skRank(k,raw){const s=gs(k),a=sAcc(k);if(a==null)return 0;let r=0;
+  RANKS.forEach(([n,ac,d],i)=>{if(s.n>=n&&a>=ac&&(s.dc||1)>=d)r=i+1;});
+  if(raw)return r;
+  const idle=s.ld?today()-s.ld:0,rust=Math.floor(Math.max(0,idle-10)/10); // -1 rank per 10 idle days after the first 10
+  return Math.max(0,r-rust);}
+// what it takes to pass level L and unlock L+1
+function gate(L){
+  const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)===L);if(!ks.length)return{ok:true,ks};
+  const rk=ks.map(k=>skRank(k)),acs=ks.map(sAcc).filter(x=>x!=null);
+  const c2=rk.filter(x=>x>=2).length,c3=rk.filter(x=>x>=3).length,need3=Math.ceil(ks.length*.6);
+  const acc=acs.length===ks.length?acs.reduce((a,b)=>a+b,0)/acs.length:0;
+  const days=Math.min(...ks.map(k=>gs(k).dc||0));
+  const ok=c2===ks.length&&c3>=need3&&acc>=.8&&days>=3;
+  return{ok,ks,c2,c3,need3,acc,days,tot:ks.length};}
 function unlockedLv(){
   if(P.gmax!=="auto"){const i=LEVELS.indexOf(P.gmax);return i<0?LEVELS.length-1:i;}
   let lv=0;
-  for(let L=0;L<LEVELS.length-1;L++){
-    const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)===L);if(!ks.length){lv=L+1;continue;}
-    const n=ks.reduce((a,k)=>a+gs(k).n,0),r=ks.flatMap(k=>gs(k).r);const acc=r.length?r.reduce((a,b)=>a+b,0)/r.length:0;
-    if(n>=40&&acc>=.75)lv=L+1;else break;}
+  for(let L=0;L<LEVELS.length-1;L++){if(gate(L).ok)lv=L+1;else break;}
   return lv;}
-function recordSkills(skills,good){skills.forEach(k=>{if(!SKILLS[k])return;const s=gs(k);s.n++;if(good)s.ok++;s.r.push(good?1:0);if(s.r.length>30)s.r.shift();});}
+let SCORE=1; // 1 = exact, .5 = typo / loose match (counts half toward grammar mastery)
+function recordSkills(skills,score){if(score===true)score=1;if(score===false||score==null)score=0;
+  skills.forEach(k=>{if(!SKILLS[k])return;const s=gs(k);s.n++;s.ok=(s.ok||0)+score;s.r.push(score);if(s.r.length>40)s.r.shift();
+    const d=today();if(s.ld!==d){s.dc=(s.dc||0)+1;s.ld=d;}s.pk=Math.max(s.pk||0,skRank(k,true));});}
 function reinforce(words,except){words.forEach(id=>{if(id===except)return;const p=P.p[id];if(p&&p.due<=today()&&p.l>0){p.l=Math.min(MAXL,p.l+1);p.due=today()+INTERVALS[p.l];}});}
 // ---------- rendering ----------
 const V=document.getElementById("view"),NAV=document.getElementById("nav"),SHEET=document.getElementById("sheet");
@@ -289,7 +306,7 @@ function check(giveUp){
   checkShow(r,giveUp,null);}
 function checkShow(r,giveUp,ai){
   const ans=document.getElementById("ans"),q=curQ;
-  phase="shown";ans.readOnly=true;ans.classList.add(r==="bad"?"bad":"ok");
+  SCORE=(r==="near"&&!(ai&&ai.ok))?.5:1;phase="shown";ans.readOnly=true;ans.classList.add(r==="bad"?"bad":"ok");
   const fb=document.getElementById("fb");fb.className="fb show "+r;
   const tl=q?(q.tr||(PK.translit?PK.translit(q.canon):"")):cur.tr;
   fb.innerHTML=fbHTML(r,q?q.canon:cur.fa[0],ans.value,q?q.words:null,
@@ -301,7 +318,7 @@ function checkShow(r,giveUp,ai){
   const o=document.getElementById("ovr");if(o)o.onclick=()=>{pending="ok";next();};
   document.getElementById("nx").focus({preventScroll:true});}
 function next(silent){
-  if(curQ){recordSkills(curQ.skills,pending!=="bad");if(pending!=="bad")reinforce(curQ.words,cur.id);}
+  if(curQ){recordSkills(curQ.skills,pending!=="bad"?SCORE:0);if(pending!=="bad")reinforce(curQ.words,cur.id);}
   schedule(cur,pending);cur=null;curQ=null;phase="ask";pending=null;if(!silent)render();}
 document.addEventListener("keydown",e=>{if(view==="study"&&phase==="shown"&&e.key==="Enter"&&document.activeElement?.id!=="ans"&&document.activeElement?.id!=="nx"){e.preventDefault();next();}});
 // ---------- sprint ----------
@@ -321,7 +338,7 @@ function calHTML(weeks){
   return`<div class="cal"><div class="cw ch"><span class="cl"></span>${dn.map(x=>`<i>${x}</i>`).join("")}<b class="ct">${ic("bolt","s")}</b></div>${rows}</div>`;}
 function chooseSkill(lv,lastK){
   const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv&&!(lastK.length>=2&&lastK.slice(-2).every(x=>x===k)));
-  const w=ks.map(k=>{const s=gs(k),a=sAcc(k);let x=s.n<8?3:.6+2.5*(1-a);if(SK_LV(k)===lv&&lv>0)x*=1.5;return x;});
+  const w=ks.map(k=>{const s=gs(k),a=sAcc(k);let x=s.n<8?3:.6+2.5*(1-a);if(SK_LV(k)===lv&&lv>0)x*=1.5;const rk=skRank(k);x*=1+.6*(skRank(k,true)-rk);if(SK_LV(k)===lv&&rk<2)x*=1.4;if(rk>=4)x*=.6;return x;});
   let t=w.reduce((a,b)=>a+b,0)*Math.random();for(let i=0;i<ks.length;i++){t-=w[i];if(t<=0)return ks[i];}return ks[0];}
 function makeItem(){
   const lv=unlockedLv();
@@ -338,9 +355,10 @@ function makeItem(){
     SP.lastK.push(k);SP.seen.add(r.en);
     return{...r,target:k,acc:accepts(r.seqs),canon:canon(r.seqs),newId:ctx.nw,retry:false};}
   return null;}
-function skillRow(k,extra){const s=gs(k),a=sAcc(k);
-  return`<div class="row skrow"><div><div>${esc(SKILLS[k][1])}</div><div class="s">${extra||""}${SKILLS[k][0]} · ${s.n}</div></div>
-   <div class="skbar"><div class="bar"><i style="width:${a==null?0:a*100}%;background:${a==null?"var(--line)":a>=.8?"var(--ok)":a>=.55?"var(--mid)":"var(--bad)"}"></i></div><span class="num">${a==null?"–":Math.round(a*100)+"%"}</span></div></div>`;}
+function pips(k){const r=skRank(k),raw=skRank(k,true);return`<span class="pips" title="${r}/5">${[1,2,3,4,5].map(i=>`<i class="${i<=r?"on":i<=raw?"rust":""}"></i>`).join("")}</span>`;}
+function skillRow(k,extra){const s=gs(k),a=sAcc(k),rust=skRank(k,true)>skRank(k);
+  return`<div class="row skrow"><div><div>${esc(SKILLS[k][1])}</div><div class="s">${extra||""}${SKILLS[k][0]} · ${s.n}${rust?" · needs practice":""}</div></div>
+   <div class="skbar">${pips(k)}<span class="num">${a==null?"–":Math.round(a*100)+"%"}</span></div></div>`;}
 function rSprint(){
   if(SP&&SP.state!=="done")return;
   if(SP&&SP.state==="done")return drawSummary();
@@ -354,7 +372,7 @@ function rSprint(){
       <div class="kpi" style="--c:var(--ok)">${ic("trophy")}<b>${recOf()}</b>${tx("Record")}</div></div>
     <button class="btn primary" id="spgo" aria-label="Start">${ic(doneToday?"repeat":"play")}</button>
     <div class="eyebrow">${ic("calendar","s")}Challenges per week</div>${calHTML(10)}
-    <div class="eyebrow">${ic("cap","s")}Grammar skills (last 30 sentences)</div>
+    <div class="eyebrow">${ic("cap","s")}Grammar skills (dots = mastery)</div>
     <div class="group">${ks.map(k=>skillRow(k)).join("")}</div>`;
   document.getElementById("spgo").onclick=startSprint;}
 function startSprint(){
@@ -416,7 +434,7 @@ function spFinish(giveUp,r,ai){
   const good=r!=="bad";SP.lastGood=good;
   const free=!good&&!!it.newId&&!P.p[it.newId]; // the one new word: no penalty
   if(!free){SP.n++;if(good){SP.ok++;SP.combo++;SP.best=Math.max(SP.best,SP.combo);}else SP.combo=0;
-    recordSkills(it.skills,good);
+    recordSkills(it.skills,good?((r==="near"&&!(ai&&ai.ok))?.5:1):0);
     it.skills.forEach(k=>{if(!SKILLS[k])return;const sr=SP.skillRes[k]||(SP.skillRes[k]={n:0,ok:0});sr.n++;if(good)sr.ok++;});}
   if(!good&&!free&&BYID[it.target]&&P.p[it.target]&&!it.retry)miss(it.target);
   it.words.forEach(id=>{
@@ -455,7 +473,7 @@ function drawSummary(){
       <div class="kpi" style="--c:var(--ink)">${ic("calendar")}<b>${P.sp.streak||0}</b>${tx("Day streak")}</div></div>
     ${SP.newIds.length?`<div class="eyebrow">${ic("spark","s")}New words this round</div><div class="group">${SP.newIds.map(id=>{const c=BYID[id];return`<div class="row"><span>${esc(enOf(c))}</span><span class="tg" style="font-size:19px">${esc(c.fa[0])}</span></div>`;}).join("")}</div>`:""}
     <div class="eyebrow">${ic("calendar","s")}Challenges per week</div>${calHTML(4)}
-    <div class="eyebrow">${ic("cap","s")}Grammar skills (last 30 sentences)</div>
+    <div class="eyebrow">${ic("cap","s")}Grammar skills (dots = mastery)</div>
     <div class="group">${ks.map(k=>{const r=SP.skillRes[k];return skillRow(k,`${r.ok}/${r.n} · `);}).join("")}</div>
     <div class="acts"><button class="btn primary" id="spagain" aria-label="Again">${ic("repeat")}</button><div class="icons"><button class="ibtn" id="spclose" aria-label="Close">${ic("close")}</button></div></div>`;
   document.getElementById("spagain").onclick=startSprint;
@@ -525,7 +543,14 @@ function rDeck(){
 // ---------- grammar ----------
 function rGrammar(){
   const lv=unlockedLv();
-  let h=`<div class="eyebrow">${ic("cap","s")} ${LEVELS[lv]}</div><div class="group">${Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv).map(k=>skillRow(k)).join("")}</div>`;
+  let h="";
+  if(P.gmax==="auto"&&lv<LEVELS.length-1){const g=gate(lv),row=(ok,t,v)=>`<div class="row"><span class="gt ${ok?"y":"n"}">${ic(ok?"check":"x","s")}${t}</span><span class="num">${v}</span></div>`;
+    h+=`<div class="eyebrow">${ic("cap","s")}To unlock ${LEVELS[lv+1]}</div><div class="group">`+
+      row(g.c2===g.tot,"Every "+LEVELS[lv]+" skill at ●●○○○ or better",g.c2+"/"+g.tot)+
+      row(g.c3>=g.need3,"60% of skills at ●●●○○ or better",g.c3+"/"+g.need3)+
+      row(g.acc>=.8,"Average recent accuracy 80%+",Math.round(g.acc*100)+"%")+
+      row(g.days>=3,"Every skill practised on 3+ days",Math.min(g.days,3)+"/3")+`</div><div class="note">${ic("timer","s")}Dots need more sentences, higher accuracy and more practice days. Typos count half. Skills unused for 10+ days lose a dot.</div>`;}
+  h+=`<div class="eyebrow">${ic("cap","s")} ${LEVELS[lv]}</div><div class="group">${Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv).map(k=>skillRow(k)).join("")}</div>`;
   LEVELS.forEach(l=>{const ts=(PK.topics||[]).filter(g=>g.lvl===l);if(!ts.length)return;
     h+=`<div class="eyebrow">${l}</div>`;
     ts.forEach(g=>{h+=`<details><summary>${esc(g.t)}</summary><div class="gbody"><p>${esc(g.n)}</p>${g.d.map(([e,f])=>`<div class="ex"><span>${esc(e)}</span>${T(f.split("/")[0])}</div>`).join("")}</div></details>`;});});
