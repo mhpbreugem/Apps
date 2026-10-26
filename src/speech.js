@@ -4,14 +4,31 @@
 // Swap the model here; any wav2vec2 CTC phoneme model with a Transformers.js ONNX export works.
 const ASR={
   MODEL:"onnx-community/wav2vec2-lv-60-espeak-cv-ft-ONNX",
+  BASE:"facebook/wav2vec2-lv-60-espeak-cv-ft", // original repo, used for the phoneme list if the ONNX copy lacks it
+  HOST:"https://huggingface.co/",
   LIB:"https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1/dist/transformers.min.js",
-  DTYPES:["q8","int8","fp16","fp32"],
-  pipe:null,loading:null,state:"none",pct:0,err:"",subs:new Set()};
+  // model file -> Transformers.js dtype, in order of preference (smallest that works well first)
+  FILES:[["model_quantized.onnx","q8"],["model_int8.onnx","int8"],["model_uint8.onnx","uint8"],["model_fp16.onnx","fp16"],["model.onnx","fp32"],["model_q4.onnx","q4"]],
+  T:null,model:null,vocab:null,loading:null,state:"none",pct:0,err:"",subs:new Set()};
 const ASRK="kashi-asr";
-const asrCached=()=>{try{return localStorage.getItem(ASRK)===ASR.MODEL;}catch(e){return false;}};
+const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
+const asrCached=()=>lsGet(ASRK)===ASR.MODEL;
 function asrEmit(){ASR.subs.forEach(f=>{try{f();}catch(e){}});}
+// which model files exist (asks the Hugging Face API; null when offline)
+async function asrListOnnx(){
+  try{const r=await fetch(`${ASR.HOST}api/models/${ASR.MODEL}/tree/main/onnx`,{cache:"no-store"});if(!r.ok)return null;
+    const l=await r.json();return new Set(l.map(x=>String(x.path||"").split("/").pop()));}catch(e){return null;}}
+// phoneme list: id -> IPA symbol (tiny, kept in localStorage for offline use)
+async function asrVocab(){
+  const saved=lsGet(ASRK+"-vocab");if(saved){try{return JSON.parse(saved);}catch(e){}}
+  for(const repo of [ASR.MODEL,ASR.BASE]){
+    try{const r=await fetch(`${ASR.HOST}${repo}/resolve/main/vocab.json`);if(!r.ok)continue;
+      const v=await r.json(),map=v[Object.keys(v)[0]]&&typeof v[Object.keys(v)[0]]==="object"?v[Object.keys(v)[0]]:v; // some vocab files are nested by language
+      const ids=[];for(const k in map)ids[map[k]]=k;lsSet(ASRK+"-vocab",JSON.stringify(ids));return ids;}catch(e){}}
+  throw new Error("Could not load the phoneme list (vocab.json)");}
 function asrLoad(){
-  if(ASR.pipe)return Promise.resolve(ASR.pipe);
+  if(ASR.model)return Promise.resolve(ASR.model);
   if(ASR.loading)return ASR.loading;
   ASR.state="loading";ASR.pct=0;ASR.err="";asrEmit();
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
@@ -22,18 +39,33 @@ function asrLoad(){
     let a=0,b=0;for(const k in files){a+=files[k][0];b+=files[k][1];}
     const v=b?Math.min(99,Math.floor(100*a/b)):0;if(v!==ASR.pct){ASR.pct=v;asrEmit();}};
   ASR.loading=(async()=>{
-    const T=await import(ASR.LIB);
+    const T=ASR.T||(ASR.T=await import(ASR.LIB));
     T.env.allowLocalModels=false;T.env.useBrowserCache=true;
+    ASR.vocab=await asrVocab();
+    const have=await asrListOnnx(),prev=lsGet(ASRK+"-dtype");
+    let order=ASR.FILES.filter(([f])=>!have||have.has(f)).map(x=>x[1]);
+    if(have&&!order.length)throw new Error(`No ONNX model file found in ${ASR.MODEL}/onnx (found: ${[...have].join(", ")||"nothing"})`);
+    if(prev&&order.includes(prev))order=[prev,...order.filter(x=>x!==prev)];
     let last=null;
-    for(const dtype of ASR.DTYPES){
-      try{ASR.pipe=await T.pipeline("automatic-speech-recognition",ASR.MODEL,{dtype,device:"wasm",progress_callback:prog});break;}
+    for(const dtype of order){
+      try{ASR.model=await T.AutoModelForCTC.from_pretrained(ASR.MODEL,{dtype,device:"wasm",progress_callback:prog});lsSet(ASRK+"-dtype",dtype);break;}
       catch(e){last=e;if(!/40[34]|not found|Could not locate|Unsupported/i.test(String(e&&e.message||e)))break;}}
-    if(!ASR.pipe)throw last||new Error("model failed to load");
-    try{localStorage.setItem(ASRK,ASR.MODEL);}catch(e){}
-    ASR.state="ready";ASR.pct=100;asrEmit();return ASR.pipe;
-  })().catch(e=>{ASR.state="error";ASR.err=String(e&&e.message||e).slice(0,160);ASR.loading=null;asrEmit();throw e;});
+    if(!ASR.model)throw last||new Error("model failed to load");
+    lsSet(ASRK,ASR.MODEL);
+    ASR.state="ready";ASR.pct=100;asrEmit();return ASR.model;
+  })().catch(e=>{ASR.state="error";ASR.err=String(e&&e.message||e).slice(0,240);ASR.loading=null;asrEmit();throw e;});
   return ASR.loading;}
-async function asrRun(pcm){const p=await asrLoad();const r=await p(pcm);return(r&&r.text)||"";}
+// 16 kHz mono samples -> IPA string (greedy CTC decoding, done here so no tokenizer file is needed)
+async function asrRun(pcm){
+  const model=await asrLoad(),T=ASR.T,n=pcm.length;
+  let m=0;for(let i=0;i<n;i++)m+=pcm[i];m/=n;let v=0;for(let i=0;i<n;i++)v+=(pcm[i]-m)**2;const sd=Math.sqrt(v/n+1e-7);
+  const x=new Float32Array(n);for(let i=0;i<n;i++)x[i]=(pcm[i]-m)/sd;
+  const out=await model({input_values:new T.Tensor("float32",x,[1,n]),attention_mask:new T.Tensor("int64",new BigInt64Array(n).fill(1n),[1,n])});
+  const lg=out.logits,[,F,K]=lg.dims,d=lg.data,V=ASR.vocab,skip=new Set(["<pad>","<s>","</s>","<unk>","|"]);
+  const toks=[];let prev=-1;
+  for(let f=0;f<F;f++){let best=0,bv=-Infinity,o=f*K;for(let k=0;k<K;k++)if(d[o+k]>bv){bv=d[o+k];best=k;}
+    if(best!==prev){const t=V[best];if(t&&!skip.has(t))toks.push(t);}prev=best;}
+  return toks.join(" ");}
 // fetch the model quietly on the first visit over wifi, so it's ready when the speech sprint opens
 function asrPrefetch(){
   if(asrCached()||ASR.loading)return;
@@ -108,7 +140,7 @@ function vPool(){
   return out;}
 function startVoice(){
   if(!PK.speech||!navigator.mediaDevices||!window.MediaRecorder){vMsg(ic("x")+tx("This browser can't record audio here"));return;}
-  if(!ASR.pipe){vLoadScreen();return;}
+  if(!ASR.model){vLoadScreen();return;}
   VS={state:"idle",left:SPRINT_SEC()*1000,t0:performance.now(),pool:vPool(),i:-1,n:0,ok:0,sum:0,best:0,tips:{},cur:null,res:null,last:false};
   V.innerHTML=`<div class="sptop"><div class="race">
     <div class="clockring" id="cring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" class="rbg"/><circle cx="22" cy="22" r="19" class="rfg" id="rfg"/></svg><b id="tclock"></b></div>
