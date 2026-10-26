@@ -39,7 +39,7 @@ const LANGS=[["fa","🇮🇷","فارسی","Persian"],["fr","🇫🇷","Françai
 const PACKS={};
 // ---------- state ----------
 const today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5);
-const LDEF=()=>({p:{},g:{},sp:{streak:0,last:0,best:0,hist:{}},d:{day:0,newDone:0,reviewed:0},decks:["A1"],npd:10,gmax:"auto"});
+const LDEF=()=>({p:{},g:{},sp:{streak:0,last:0,best:0,hist:{}},d:{day:0,newDone:0,reviewed:0},decks:["A1"],npd:10,gmax:"auto",la:{}});
 let S={v:2,s:{theme:"auto",lang:null,zoom:1,sprintMin:2,m2:1},L:{},t:0};
 const LSK="kashi-v2";
 function mergeL(x){const d=LDEF();return Object.assign(d,x||{},{sp:Object.assign(d.sp,(x||{}).sp||{}),d:Object.assign(d.d,(x||{}).d||{})});}
@@ -103,9 +103,17 @@ function gradeSet(acc,input){
   for(const a of acc){if(loose(a)===lx)return"near";}
   if(x.length>=5){for(const a of acc){if(Math.abs(a.length-x.length)<=1&&lev(a,x)<=1)return"near";}}
   return"bad";}
-const gradeSent=(it,input)=>gradeSet(it.acc,input);
+// registry of answers the AI judge accepted (synced with the rest of the progress)
+const GQ={hit:false};
+function learned(key,input){const m=P.la&&P.la[key];return m?(m[norm(input)]||0):0;}
+function learn(key,input,score){const la=P.la||(P.la={});const m=la[key]||(la[key]={}),k=norm(input);if(!k)return;
+  m[k]=Math.max(m[k]||0,score);const ks=Object.keys(m);if(ks.length>8)delete m[ks[0]];
+  const all=Object.keys(la);if(all.length>4000)delete la[all[0]];save();}
+function gradeQ(key,acc,input){GQ.hit=false;const r=gradeSet(acc,input);if(r==="empty"||r==="ok")return r;
+  const l=learned(key,input);if(l>=1){GQ.hit=true;return"ok";}if(l>0){GQ.hit=true;return"near";}return r;}
+const gradeSent=(it,input)=>gradeQ("s:"+it.en,it.acc,input);
 const tx=t=>`<small class="cp">${t}</small>`;
-const grade=(card,input)=>gradeSet(new Set(card.fa.map(f=>norm(f))),input);
+const grade=(card,input)=>gradeQ("c:"+card.id,new Set(card.fa.map(f=>norm(f))),input);
 // ---------- optional AI grader (Claude Haiku, key kept only in this browser) ----------
 const AI={key:null,model:"claude-haiku-5-5",fails:0};
 try{AI.key=localStorage.getItem("kashi-ai");}catch(e){}
@@ -118,7 +126,7 @@ English prompt: ${en}
 Reference answer: ${canonTxt}
 Other accepted forms: ${ex}
 Learner typed: ${typed}
-Decide if the learner's sentence is correct ${LNAME()} that fully conveys the English prompt (alternative valid wording, dropped pronouns, or alternative spellings are fine; wrong meaning, wrong word, or a grammar error is not). Reply with ONLY compact JSON: {"ok":true|false,"tip":"<max 14 words in English: the key reason or fix>"}`;
+Judge the learner's ${LNAME()} sentence against the English prompt. "right" = correct, natural ${LNAME()} that fully conveys the prompt (alternative valid wording, dropped pronouns or alternative spellings are fine). "partial" = meaning is conveyed but there is a small error (spelling, agreement, ending, article, word order). "wrong" = wrong meaning, wrong or missing word, or a real grammar error. Reply with ONLY compact JSON: {"v":"right"|"partial"|"wrong","tip":"<max 14 words in English: the key reason or fix>"}`;
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),7000);
   try{
     const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:ctl.signal,
@@ -127,10 +135,13 @@ Decide if the learner's sentence is correct ${LNAME()} that fully conveys the En
     if(!r.ok){AI.fails++;return null;}
     const j=await r.json(),t=(j.content&&j.content[0]&&j.content[0].text)||"";
     const m=t.match(/\{[\s\S]*\}/);if(!m)return null;
-    const o=JSON.parse(m[0]);AI.fails=0;return{ok:!!o.ok,tip:String(o.tip||"").slice(0,140)};
+    const o=JSON.parse(m[0]);AI.fails=0;let v=["right","partial","wrong"].includes(o.v)?o.v:(o.ok?"right":"wrong");return{v,ok:v==="right",tip:String(o.tip||"").slice(0,140)};
   }catch(e){AI.fails++;return null;}
   finally{clearTimeout(to);}}
-const tipHTML=v=>v&&v.tip?`<div class="aitip">${ic("spark","s")}<span>${esc(v.tip)}</span></div>`:"";
+const tipHTML=v=>v&&(v.tip||v.saved)?`<div class="aitip">${ic("spark","s")}<span>${esc(v.tip||"")}${v.saved?` <b class="svd">${ic("plus","s")}saved</b>`:""}</span></div>`:"";
+// turn a Haiku verdict into a result, register accepted answers
+function aiResult(r,v,key,typed){if(!v)return r;let out=v.v==="right"?"ok":v.v==="partial"?"near":(r==="near"?"near":"bad");
+  if(v.v!=="wrong"){learn(key,typed,v.v==="right"?1:.5);v.saved=true;}return out;}
 const aiWait=()=>`<div class="aitip wait">${ic("spark","s")}<i></i><i></i><i></i></div>`;
 // ---------- english helpers (shared by every pack) ----------
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
@@ -299,11 +310,12 @@ function check(giveUp){
   const ans=document.getElementById("ans"),q=curQ;
   const r=giveUp?"bad":q?gradeSent(q,ans.value):grade(cur,ans.value);
   if(r==="empty"){ans.focus({preventScroll:true});return;}
-  if(r==="bad"&&!giveUp&&AI.key){
+  const hit=GQ.hit,key=q?"s:"+q.en:"c:"+(cur&&cur.id);
+  if(r!=="ok"&&!hit&&!giveUp&&AI.key){
     phase="ai";ans.readOnly=true;const fb=document.getElementById("fb");fb.className="fb show";fb.innerHTML=aiWait();
     document.getElementById("acts").innerHTML=`<span class="ibtn ghost"></span><span class="btn primary dis">${ic("arrow")}</span><span class="ibtn ghost"></span>`;
     const acc=q?q.acc:new Set(cur.fa.map(f=>norm(f)));
-    aiJudge(q?q.en:cur.en,q?q.canon:cur.fa[0],acc,ans.value).then(v=>{if(phase!=="ai")return;checkShow(v&&v.ok?"near":"bad",false,v);});
+    aiJudge(q?q.en:cur.en,q?q.canon:cur.fa[0],acc,ans.value).then(v=>{if(phase!=="ai")return;checkShow(aiResult(r,v,key,ans.value),false,v);});
     return;}
   checkShow(r,giveUp,null);}
 function checkShow(r,giveUp,ai){
@@ -427,12 +439,13 @@ function spAct(){if(!SP)return;if(SP.state==="ask")spCheck(false);else if(SP.sta
 function spCheck(giveUp){
   const it=SP.cur,a=document.getElementById("sans");
   const r=giveUp?"bad":gradeSent(it,a.value);if(r==="empty"){a.focus({preventScroll:true});return;}
-  if(r==="bad"&&!giveUp&&AI.key){
+  const hit=GQ.hit;
+  if(r!=="ok"&&!hit&&!giveUp&&AI.key){
     SP.state="ai";SP.paused=true;a.readOnly=true;
     const fb=document.getElementById("sfb");fb.className="fb show";fb.innerHTML=aiWait();
     document.getElementById("sacts").innerHTML="";
     const my=SP.cur;
-    aiJudge(it.en,it.canon,it.acc,a.value).then(v=>{if(!SP||SP.cur!==my||SP.state!=="ai")return;SP.paused=false;SP.t0=performance.now();spFinish(giveUp,v&&v.ok?"near":"bad",v);});
+    aiJudge(it.en,it.canon,it.acc,a.value).then(v=>{if(!SP||SP.cur!==my||SP.state!=="ai")return;SP.paused=false;SP.t0=performance.now();spFinish(giveUp,aiResult(r,v,"s:"+it.en,a.value),v);});
     return;}
   spFinish(giveUp,r,null);}
 function spFinish(giveUp,r,ai){
@@ -625,6 +638,7 @@ function mergeStates(a,b){
     const x=n.L&&n.L[k],y=o.L&&o.L[k];if(!x||!y){out.L[k]=mergeL(cl(x||y));continue;}
     const L=mergeL(cl(x));
     for(const id in y.p||{}){const p=y.p[id],q=L.p[id];if(!q||(p.n||0)>(q.n||0))L.p[id]=p;}
+    L.la=L.la||{};for(const k in y.la||{}){const m=L.la[k]=L.la[k]||{};for(const a in y.la[k])m[a]=Math.max(m[a]||0,y.la[k][a]);}
     for(const s in y.g||{}){const p=y.g[s],q=L.g[s];if(!q||(p.n||0)>(q.n||0))L.g[s]=p;}
     const sp=L.sp,so=y.sp||{};sp.best=Math.max(sp.best||0,so.best||0);
     if((so.last||0)>(sp.last||0)){sp.last=so.last;sp.streak=so.streak;}

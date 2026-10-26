@@ -322,3 +322,5 @@ body.kb .actrow [aria-label]::after,body.kb #sacts [aria-label]::after,body.kb #
 .vtip{text-align:start;justify-content:flex-start}
 .vload{margin:6px 0 18px;text-align:center;color:var(--muted);font-size:14px}
 .vload .bar{margin:0 auto 12px;max-width:320px}
+
+.svd{display:inline-flex;align-items:center;gap:2px;color:var(--ok);font-weight:600;font-size:11px;margin-left:4px}
