@@ -1,6 +1,7 @@
 // ===================== Persian pack =====================
 PACKS.fa={code:"fa",flag:"🇮🇷",native:"فارسی",name:"Persian",dir:"rtl",font:'"Vazirmatn",Tahoma,"Noto Naskh Arabic",sans-serif',
 levels:["A1","A2","B1","B2","C1"],raw:__VOCAB__,
+skillTopic:{be:"Pronouns and “to be”",plural:"Plurals",ezafe:"Ezafe",poss:"Possessive endings",pres:"Present tense",neg:"Negation",ra:"Object marker rā",past:"Simple past",prog:"Present progressive",fut:"Future",imp:"Imperative",comp:"Comparative and superlative",pastprog:"Past progressive",perf:"Present perfect",pluperf:"Past perfect",subj:"Subjunctive",pastsubj:"Past subjunctive",passive:"Passive"},
 topics:[
 {lvl:"A1",t:"Pronouns and “to be”",n:"Persian drops the subject pronoun freely. “To be” is either the full verb هستم، هستی، است، هستیم، هستید، هستند or a short ending: ‑am, ‑i, ‑ast (spoken ‑e), ‑im, ‑id, ‑and. Negative: نیستم، نیستی، نیست…",d:[["I am a student","من دانشجو هستم/دانشجو هستم/دانشجوام/من دانشجوام"],["you are tired","تو خسته ای/خسته ای/تو خسته هستی"],["they are not here","آنها اینجا نیستند/اونا اینجا نیستن/اینجا نیستند"]]},
 {lvl:"A1",t:"Plurals",n:"‑hā works for almost everything and is standard in speech. ‑ān is more formal and used mainly for people and some animate nouns.",d:[["the books","کتاب ها"],["the children","بچه ها"],["women (formal)","زنان"]]},

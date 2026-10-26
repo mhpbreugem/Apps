@@ -324,3 +324,11 @@ body.kb .actrow [aria-label]::after,body.kb #sacts [aria-label]::after,body.kb #
 .vload .bar{margin:0 auto 12px;max-width:320px}
 
 .svd{display:inline-flex;align-items:center;gap:2px;color:var(--ok);font-weight:600;font-size:11px;margin-left:4px}
+
+.group details.sk{background:none;margin:0;border-radius:0;border-top:1px solid var(--line)}
+.group details.sk:first-child{border-top:0}
+.sk summary{padding:13px 16px;font-weight:400}
+.sk summary::after{display:none}
+.sk summary .s{font-size:12px;margin-top:2px;color:var(--muted)}
+.sk[open] summary{padding-bottom:8px}
+.sk .gbody .nx{margin:8px 0 0}

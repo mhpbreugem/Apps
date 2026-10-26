@@ -370,9 +370,15 @@ function makeItem(){
     return{...r,target:k,acc:accepts(r.seqs),canon:canon(r.seqs),newId:ctx.nw,retry:false};}
   return null;}
 function pips(k){const r=skRank(k),raw=skRank(k,true);return`<span class="pips" title="${r}/5">${[1,2,3,4,5].map(i=>`<i class="${i<=r?"on":i<=raw?"rust":""}"></i>`).join("")}</span>`;}
+function skillBody(k){const s=gs(k),r=skRank(k),a=sAcc(k),tp=(PK.skillTopic||{})[k],t=tp&&(PK.topics||[]).find(g=>g.t===tp);
+  let h=`<p>${esc(SKILLS[k][2]||"")}</p>`;
+  if(t)h+=`<p>${esc(t.n)}</p>`+t.d.map(([e,f])=>`<div class="ex"><span>${esc(e)}</span>${T(f.split("/")[0])}</div>`).join("");
+  if(r<5){const [n,ac,d]=RANKS[r];h+=`<div class="note nx">${ic("cap","s")}<span>Next dot: ${n} sentences (now ${s.n}) · ${Math.round(ac*100)}% recent accuracy (now ${a==null?"–":Math.round(a*100)+"%"}) · ${d} practice day${d>1?"s":""} (now ${s.dc||0})</span></div>`;}
+  else h+=`<div class="note nx">${ic("trophy","s")}<span>Fully mastered. Keep it fresh: unused skills lose a dot after 10 days.</span></div>`;
+  return h;}
 function skillRow(k,extra){const s=gs(k),a=sAcc(k),rust=skRank(k,true)>skRank(k);
-  return`<div class="row skrow"><div><div>${esc(SKILLS[k][1])}</div><div class="s">${extra||""}${SKILLS[k][0]} · ${s.n}${rust?" · needs practice":""}</div></div>
-   <div class="skbar">${pips(k)}<span class="num">${a==null?"–":Math.round(a*100)+"%"}</span></div></div>`;}
+  return`<details class="sk"><summary><div><div>${esc(SKILLS[k][1])}</div><div class="s">${extra||""}${SKILLS[k][0]} · ${s.n}${rust?" · needs practice":""}</div></div>
+   <div class="skbar">${pips(k)}<span class="num">${a==null?"–":Math.round(a*100)+"%"}</span></div></summary><div class="gbody">${skillBody(k)}</div></details>`;}
 function rSprint(){
   if(vLoadSub)return vLoadSub();
   if(VS)return VS.state==="done"?vSummary():undefined;
