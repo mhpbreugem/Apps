@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Assemble the single-file app: src/ -> kashi/index.html"""
-import json,os,shutil
+import json,os,shutil,hashlib
 R=os.path.dirname(os.path.abspath(__file__))
 rd=lambda p:open(os.path.join(R,p),encoding='utf-8').read()
-js=[rd('src/core.js')]
+js=[rd('src/core.js'),rd('src/speech.js')]
 for code in sorted(os.listdir(os.path.join(R,'src/lang'))):
     d=f'src/lang/{code}'
     if not os.path.exists(os.path.join(R,d,'pack.js')):continue
@@ -21,10 +21,13 @@ for code in sorted(os.listdir(os.path.join(R,'src/lang'))):
     if '__MORPH__' in pk:pk=pk.replace('__MORPH__',rd(f'{d}/morph.js'))
     if '__TOPICS__' in pk:pk=pk.replace('__TOPICS__',rd(f'{d}/topics.js').strip() if os.path.exists(os.path.join(R,d,'topics.js')) else '[]')
     js.append(pk)
+    if os.path.exists(os.path.join(R,d,'speech.js')):js.append(rd(f'{d}/speech.js'))
 js.append('boot();')
 html=rd('src/shell.html').replace('__CSS__',rd('src/core.css')).replace('__JS__','\n'.join(js))
 os.makedirs(os.path.join(R,'kashi'),exist_ok=True)
 open(os.path.join(R,'kashi/index.html'),'w',encoding='utf-8').write(html)
+ver=hashlib.sha1(html.encode('utf-8')).hexdigest()[:10]
+open(os.path.join(R,'kashi/sw.js'),'w',encoding='utf-8').write(rd('src/sw.js').replace('__VER__',ver))
 out='/mnt/user-data/outputs/kashi.html'
 if os.path.isdir(os.path.dirname(out)):shutil.copy(os.path.join(R,'kashi/index.html'),out)
 print('built',len(html)//1024,'KB')

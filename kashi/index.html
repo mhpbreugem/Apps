@@ -299,6 +299,29 @@ body.kb .tr.ph{font-size:15px}
 .actrow [aria-label]::after,#sacts [aria-label]::after,#acts [aria-label]::after{content:attr(aria-label);position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);font-size:10px;font-weight:500;color:var(--muted);white-space:nowrap;pointer-events:none;font-style:normal}
 .btn.primary[aria-label]::after{color:var(--muted)}
 body.kb .actrow [aria-label]::after,body.kb #sacts [aria-label]::after,body.kb #acts [aria-label]::after{display:none}
+/* ---------- speech sprint ---------- */
+.spgo2{display:flex;gap:10px;align-items:center}
+.spgo2 .btn.primary{flex:1;width:auto}
+.btn.vgo{width:58px;height:52px;padding:0;flex:none}
+.vnote{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--muted)}
+.voice .vs-en{font-size:17px;font-weight:500;color:var(--muted);margin:0}
+.vs-target{font:700 38px/1.35 var(--tf);direction:var(--tdir);text-align:start;margin-top:6px}
+.btn.vmic{gap:10px}
+.btn.vmic.on{background:var(--bad);color:#fff;animation:pulse 1.2s ease-in-out infinite}
+.vlen{font-variant-numeric:tabular-nums;font-size:14px}
+.vpct{font:700 30px/1.2 var(--sans);text-align:center;margin-top:4px;font-variant-numeric:tabular-nums}
+.fb.ok .vpct{color:var(--ok)}.fb.near .vpct{color:var(--mid)}.fb.bad .vpct{color:var(--bad)}
+.phs{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:12px}
+.ph{display:inline-flex;flex-direction:column;align-items:center;min-width:26px;padding:4px 6px;border-radius:8px;font-weight:600;font-size:16px;line-height:1.2;background:var(--surface)}
+.ph i{font-style:normal;font-size:11px;font-weight:500;color:var(--bad)}
+.ph.ok{color:var(--ok)}
+.ph.sub,.ph.del{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.ph.del{text-decoration:line-through}
+.ph.ins{color:var(--muted);font-size:12px;font-weight:500;background:none}
+.ipa{display:flex;gap:6px;align-items:center;justify-content:center;margin-top:10px;font-size:13px;color:var(--muted);word-break:break-word}
+.vtip{text-align:start;justify-content:flex-start}
+.vload{margin:6px 0 18px;text-align:center;color:var(--muted);font-size:14px}
+.vload .bar{margin:0 auto 12px;max-width:320px}
 
 </style>
 </head>
@@ -345,6 +368,8 @@ const IC={
  skip:'<path d="M5 5l9 7-9 7zM17 5v14"/>',
  cloud:'<path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.6 4.2 4.2 0 0 0 7 18z"/>',
  download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',upload:'<path d="M12 16V5M7 10l5-5 5 5M5 20h14"/>',
+ mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
+ ear:'<path d="M7 9a5 5 0 0 1 10 0c0 3-3 4-3 7a3 3 0 0 1-5.5 1.7"/><path d="M10 9.5a2 2 0 0 1 4 0c0 1.2-1 1.7-1.5 2.3"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>'};
 const ic=(n,c="")=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 // ---------- languages ----------
@@ -522,7 +547,7 @@ let view="sprint";
 NAV.addEventListener("click",e=>{const b=e.target.closest("button");if(b)go(b.dataset.v);});
 document.getElementById("langbtn").onclick=()=>go("langs");
 function go(v){
-  if(view==="sprint"&&v!=="sprint")stopSprint();
+  if(view==="sprint"&&v!=="sprint"){stopSprint();stopVoice();}
   if(phase==="shown"&&cur)next(true);
   cur=null;curQ=null;phase="ask";pending=null;view=v;
   NAV.querySelectorAll("button").forEach(x=>{if(x.dataset.v===v)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
@@ -559,7 +584,7 @@ function rLangs(){
     if(ok&&L){const pk=PACKS[c];if(!pk._cards)pk._cards=parseCards(pk);const obj=pk._cards.filter(x=>/^[ABC][12]$/.test(x.deck)).length;const k=Object.keys(L.p).length;pct=`${Math.round(100*k/obj)}%`;}
     return`<button class="lt" data-c="${c}" ${ok?"":"disabled"} ${PK&&PK.code===c?'aria-current="true"':""} aria-label="${LANGS.find(x=>x[0]===c)[3]}">
       ${ok?"":`<span class="soon">${ic("hour","s")}</span>`}<span class="flag">${f}</span><span class="tg">${n}</span><span class="pct">${pct}</span></button>`;}).join("")}</div>`;
-  V.querySelectorAll(".lt").forEach(b=>b.onclick=()=>{if(b.disabled)return;stopSprint();activate(b.dataset.c);SP=null;go("sprint");});}
+  V.querySelectorAll(".lt").forEach(b=>b.onclick=()=>{if(b.disabled)return;stopSprint();stopVoice();activate(b.dataset.c);SP=null;go("sprint");});}
 // ---------- study: every word asked through a sentence ----------
 let curQ=null,pending=null;
 function introHTML(c){return`<div class="intro">${ic("spark","s")}<span>${esc(enOf(c))}</span>${T(c.fa[0])}${c.tr?`<span class="muted">${esc(c.tr.split(" / ")[0])}</span>`:""}</div>`;}
@@ -659,6 +684,8 @@ function skillRow(k,extra){const s=gs(k),a=sAcc(k);
   return`<div class="row skrow"><div><div>${esc(SKILLS[k][1])}</div><div class="s">${extra||""}${SKILLS[k][0]} · ${s.n}</div></div>
    <div class="skbar"><div class="bar"><i style="width:${a==null?0:a*100}%;background:${a==null?"var(--line)":a>=.8?"var(--ok)":a>=.55?"var(--mid)":"var(--bad)"}"></i></div><span class="num">${a==null?"–":Math.round(a*100)+"%"}</span></div></div>`;}
 function rSprint(){
+  if(vLoadSub)return vLoadSub();
+  if(VS)return VS.state==="done"?vSummary():undefined;
   if(SP&&SP.state!=="done")return;
   if(SP&&SP.state==="done")return drawSummary();
   rollDay();
@@ -669,11 +696,13 @@ function rSprint(){
       <div class="kpi" style="--c:var(--mid)">${ic("flame")}<b>${P.sp.streak||0}</b>${tx("Day streak")}</div>
       <div class="kpi" style="--c:var(--ink)">${ic("cap")}<b>${LEVELS[lv]}</b>${tx("Grammar level")}</div>
       <div class="kpi" style="--c:var(--ok)">${ic("trophy")}<b>${recOf()}</b>${tx("Record")}</div></div>
-    <button class="btn primary" id="spgo" aria-label="Start">${ic(doneToday?"repeat":"play")}</button>
+    <div class="spgo2"><button class="btn primary" id="spgo" aria-label="Start">${ic(doneToday?"repeat":"play")}</button>${PK.speech?`<button class="btn vgo" id="vsgo" aria-label="Speech sprint">${ic("mic")}</button>`:""}</div>
+    ${PK.speech?`<div class="vnote">${ic("mic","s")}${tx(`Speech sprint · record: ${vRecOf()}`)}</div>`:""}
     <div class="eyebrow">${ic("calendar","s")}Challenges per week</div>${calHTML(10)}
     <div class="eyebrow">${ic("cap","s")}Grammar skills (last 30 sentences)</div>
     <div class="group">${ks.map(k=>skillRow(k)).join("")}</div>`;
-  document.getElementById("spgo").onclick=startSprint;}
+  document.getElementById("spgo").onclick=startSprint;
+  const vb=document.getElementById("vsgo");if(vb)vb.onclick=startVoice;}
 function startSprint(){
   SP={state:"ask",left:SPRINT_SEC()*1000,t0:performance.now(),paused:false,seen:new Set(),lastK:[],newIds:[],boosted:new Set(),tw:new Set(),
       queue:[],n:0,ok:0,combo:0,best:0,skillRes:{},cur:null};
@@ -866,6 +895,7 @@ function rSettings(){
     <div class="row"><span class="lab">${ic("spark")}${tx("AI answer check (Anthropic key)")}</span>
       <div class="ghbox">${AI.key?`<span class="muted" style="font-size:12px">Haiku</span><button class="ibtn sm" id="aioff" aria-label="Remove key">${ic("x","s")}</button>`
         :`<input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Anthropic API key">`}</div></div>
+    ${speechRowHTML()}
     <div class="row"><span class="lab">${ic("download")}${tx("Backup: export / import")}</span><div class="chips">
       <button id="exp" aria-label="Export">${ic("download","s")}</button><button id="imp" aria-label="Import">${ic("upload","s")}</button><input type="file" id="impf" accept=".json,application/json" hidden></div></div>
   </div>
@@ -890,6 +920,7 @@ function rSettings(){
   const ao=document.getElementById("aioff");if(ao)ao.onclick=()=>{AI.key=null;try{localStorage.removeItem("kashi-ai");}catch(e){}rSettings();};
   const gs_=document.getElementById("ghsync");if(gs_)gs_.onclick=()=>ghSync();
   const go_=document.getElementById("ghoff");if(go_)go_.onclick=()=>{GH.tok=null;GH.id=null;GH.state="off";try{localStorage.removeItem("kashi-gh");localStorage.removeItem("kashi-gist");}catch(e){}rSettings();};
+  speechRowBind();
   document.getElementById("exp").onclick=exportProgress;
   const f=document.getElementById("impf");document.getElementById("imp").onclick=()=>f.click();
   f.onchange=()=>{if(!f.files[0])return;importProgress(f.files[0],ok=>{const b=document.getElementById("imp");if(b)b.innerHTML=ok?ic("check","s"):ic("x","s");topline();if(ok)ghSchedule();});};
@@ -913,6 +944,7 @@ function mergeStates(a,b){
     const sp=L.sp,so=y.sp||{};sp.best=Math.max(sp.best||0,so.best||0);
     if((so.last||0)>(sp.last||0)){sp.last=so.last;sp.streak=so.streak;}
     sp.recs=sp.recs||{};for(const m in so.recs||{})sp.recs[m]=Math.max(sp.recs[m]||0,so.recs[m]);
+    sp.vrecs=sp.vrecs||{};for(const m in so.vrecs||{})sp.vrecs[m]=Math.max(sp.vrecs[m]||0,so.vrecs[m]);
     sp.hist=sp.hist||{};for(const d in so.hist||{}){const h=sp.hist[d],g=so.hist[d];
       sp.hist[d]=!h?g:{n:Math.max(h.n||0,g.n||0),ok:Math.max(h.ok||0,g.ok||0),c:Math.max(h.c||0,g.c||0)};}
     if(y.d&&L.d&&y.d.day===L.d.day){L.d.newDone=Math.max(L.d.newDone,y.d.newDone);L.d.reviewed=Math.max(L.d.reviewed,y.d.reviewed);}
@@ -957,13 +989,254 @@ function boot(){
   if(S.s.lang&&PACKS[S.s.lang]){activate(S.s.lang,true);buildQueue();}
   else view="langs";
   NAV.querySelectorAll("button").forEach(x=>{if(x.dataset.v===view)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current");});
-  render();if(GH.tok)ghSync();}
+  render();if(GH.tok)ghSync();registerSW();if(PK&&PK.speech)asrPrefetch();}
 // ---------- shared core lexicon (English semantics; packs map keys to their own cards) ----------
 const CORE_N=[["house; home","house","houses","place thing",1,"home"],["book","book","books","text thing",1],["car","car","cars","thing wash",1],["door","door","doors","open thing",0],["window","window","windows","open thing",0],["bread","bread","bread","food",0],["water","water","water","drink",0],["tea","tea","tea","drink",0],["milk","milk","milk","drink",0],["apple","apple","apples","food",0],["rice","rice","rice","food",0],["meat","meat","meat","food",0],["cheese","cheese","cheese","food",0],["fish","fish","fish","food animal",0],["coffee","coffee","coffee","drink",0],["food","food","food","food",1],["pen","pen","pens","thing",1],["bag","bag","bags","thing open",1],["phone","phone","phones","thing",1],["key","key","keys","thing",1],["clothes","clothes","clothes","thing wash",1],["letter","letter","letters","text thing",1],["newspaper","newspaper","newspapers","text thing",0],["city","city","cities","place",1,"to the city"],["school","school","schools","place",1,"to school"],["shop","shop","shops","place",1,"to the shop"],["park","park","parks","place",0,"to the park"],["university","university","universities","place",1,"to university"],["room","room","rooms","place",1,"to the room"],["restaurant","restaurant","restaurants","place",0,"to the restaurant"],["hospital","hospital","hospitals","place",0,"to the hospital"],["garden","garden","gardens","place",1,"to the garden"],["friend","friend","friends","person",1],["teacher","teacher","teachers","person",1],["child","child","children","person",1],["doctor","doctor","doctors","person",1],["mother","mother","mothers","person",1],["father","father","fathers","person",1],["brother","brother","brothers","person",1],["sister","sister","sisters","person",1],["cat","cat","cats","animal",1],["dog","dog","dogs","animal",1],["table","table","tables","thing",1],["chair","chair","chairs","thing",0],["plate","plate","plates","thing wash",0],["glass (for drinking)","glass","glasses","thing wash",0],["shoe","shoe","shoes","thing",1],["fruit","fruit","fruits","food",0],["gift","gift","gifts","thing",1],["song","song","songs","media",0],["film","film","films","media",0],["word","word","words","word",0],["question","question","questions","word",0]];
 const CORE_A=[["big","big","bigger","thing place animal"],["small","small","smaller","thing place animal"],["new","new","newer","thing text place"],["old (thing)","old","older","thing text place"],["beautiful","beautiful","more beautiful","thing place animal text"],["good","good","better","thing text place food drink person animal"],["bad","bad","worse","thing text place food drink"],["clean","clean","cleaner","thing place"],["dirty","dirty","dirtier","thing place"],["cheap","cheap","cheaper","thing food text"],["expensive","expensive","more expensive","thing food place"],["warm","warm","warmer","food drink place"],["cold","cold","colder","food drink place"],["delicious","delicious","more delicious","food drink"],["sweet","sweet","sweeter","food drink"],["tired","tired","more tired","person animal pp"],["happy","happy","happier","person pp"],["kind","kind","kinder","person animal pp"],["young","young","younger","person pp"],["old (person)","old","older","person animal pp"],["long; tall","tall","taller","person pp"],["interesting","interesting","more interesting","text place"],["fresh","fresh","fresher","food drink"],["hungry","hungry","hungrier","pp animal"],["thirsty","thirsty","thirstier","pp"],["sick","sick","sicker","pp animal"],["ready","ready","readier","pp food"],["sad","sad","sadder","pp person"]];
 const CORE_V=[{"k":"to go","en":["go","goes","went","gone","going"],"intr":1,"place":1},{"k":"to come","en":["come","comes","came","come","coming"],"intr":1,"place":1},{"k":"to eat","en":["eat","eats","ate","eaten","eating"],"intr":1,"obj":"food","pass":1},{"k":"to drink","en":["drink","drinks","drank","drunk","drinking"],"intr":1,"obj":"drink","pass":1},{"k":"to see","en":["see","sees","saw","seen","seeing"],"obj":"thing person animal place media","noProg":1,"pass":1},{"k":"to read","en":["read","reads","read","read","reading"],"intr":1,"obj":"text word","pass":1},{"k":"to write","en":["write","writes","wrote","written","writing"],"intr":1,"obj":"text word","pass":1},{"k":"to buy","en":["buy","buys","bought","bought","buying"],"obj":"food drink text thing","pass":1},{"k":"to sleep","en":["sleep","sleeps","slept","slept","sleeping"],"intr":1},{"k":"to sit","en":["sit","sits","sat","sat","sitting"],"intr":1},{"k":"to bring","en":["bring","brings","brought","brought","bringing"],"obj":"food drink text thing","pass":1},{"k":"to wash","en":["wash","washes","washed","washed","washing"],"obj":"wash","pass":1},{"k":"to cook","en":["cook","cooks","cooked","cooked","cooking"],"obj":"food","pass":1},{"k":"to close","en":["close","closes","closed","closed","closing"],"obj":"open","pass":1},{"k":"to understand","en":["understand","understands","understood","understood","understanding"],"intr":1,"noProg":1},{"k":"to know (a fact)","en":["know","knows","knew","known","knowing"],"intr":1,"noProg":1,"noModal":1},{"k":"to work","en":["work","works","worked","worked","working"],"intr":1},{"k":"to speak","en":["speak","speaks","spoke","spoken","speaking"],"intr":1},{"k":"to play","en":["play","plays","played","played","playing"],"intr":1},{"k":"to learn","en":["learn","learns","learned","learned","learning"],"intr":1},{"k":"to open","en":["open","opens","opened","opened","opening"],"obj":"open","pass":1},{"k":"to find","en":["find","finds","found","found","finding"],"obj":"thing text","noProg":1,"pass":1},{"k":"to like; to love","en":["like","likes","liked","liked","liking"],"obj":"food drink text thing person animal place media","noProg":1,"stative":1},{"k":"to help","en":["help","helps","helped","helped","helping"],"intr":1}];
 
 document.addEventListener("pointerover",e=>{const b=e.target.closest&&e.target.closest("[aria-label]:not([title])");if(b)b.title=b.getAttribute("aria-label");});
+
+// ===================== speech sprint (pronunciation, runs on the phone) =====================
+// Audio -> IPA with an open phoneme model (Transformers.js, downloaded once from Hugging Face
+// and cached by the browser), compared with the expected sounds from the language pack.
+// Swap the model here; any wav2vec2 CTC phoneme model with a Transformers.js ONNX export works.
+const ASR={
+  MODEL:"onnx-community/wav2vec2-lv-60-espeak-cv-ft-ONNX",
+  LIB:"https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1/dist/transformers.min.js",
+  DTYPES:["q8","int8","fp16","fp32"],
+  pipe:null,loading:null,state:"none",pct:0,err:"",subs:new Set()};
+const ASRK="kashi-asr";
+const asrCached=()=>{try{return localStorage.getItem(ASRK)===ASR.MODEL;}catch(e){return false;}};
+function asrEmit(){ASR.subs.forEach(f=>{try{f();}catch(e){}});}
+function asrLoad(){
+  if(ASR.pipe)return Promise.resolve(ASR.pipe);
+  if(ASR.loading)return ASR.loading;
+  ASR.state="loading";ASR.pct=0;ASR.err="";asrEmit();
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+  const files={};
+  const prog=p=>{if(!p||!p.file)return;
+    if(p.status==="progress"&&p.total){files[p.file]=[p.loaded,p.total];}
+    else if(p.status==="done"&&files[p.file]){files[p.file][0]=files[p.file][1];}
+    let a=0,b=0;for(const k in files){a+=files[k][0];b+=files[k][1];}
+    const v=b?Math.min(99,Math.floor(100*a/b)):0;if(v!==ASR.pct){ASR.pct=v;asrEmit();}};
+  ASR.loading=(async()=>{
+    const T=await import(ASR.LIB);
+    T.env.allowLocalModels=false;T.env.useBrowserCache=true;
+    let last=null;
+    for(const dtype of ASR.DTYPES){
+      try{ASR.pipe=await T.pipeline("automatic-speech-recognition",ASR.MODEL,{dtype,device:"wasm",progress_callback:prog});break;}
+      catch(e){last=e;if(!/40[34]|not found|Could not locate|Unsupported/i.test(String(e&&e.message||e)))break;}}
+    if(!ASR.pipe)throw last||new Error("model failed to load");
+    try{localStorage.setItem(ASRK,ASR.MODEL);}catch(e){}
+    ASR.state="ready";ASR.pct=100;asrEmit();return ASR.pipe;
+  })().catch(e=>{ASR.state="error";ASR.err=String(e&&e.message||e).slice(0,160);ASR.loading=null;asrEmit();throw e;});
+  return ASR.loading;}
+async function asrRun(pcm){const p=await asrLoad();const r=await p(pcm);return(r&&r.text)||"";}
+// fetch the model quietly on the first visit over wifi, so it's ready when the speech sprint opens
+function asrPrefetch(){
+  if(asrCached()||ASR.loading)return;
+  const c=navigator.connection;if(!c||c.saveData||!/wifi|ethernet/.test(c.type||""))return;
+  setTimeout(()=>{if(!ASR.loading&&!(SP&&SP.state!=="done"))asrLoad().catch(()=>{});},4000);}
+// ---------- recording ----------
+const MIC={stream:null,rec:null,chunks:[],t0:0,cap:null};
+async function micOpen(){if(MIC.stream&&MIC.stream.active)return MIC.stream;
+  MIC.stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true}});return MIC.stream;}
+function micClose(){try{if(MIC.rec&&MIC.rec.state!=="inactive")MIC.rec.stop();}catch(e){}
+  if(MIC.stream)MIC.stream.getTracks().forEach(t=>t.stop());MIC.stream=null;MIC.rec=null;clearTimeout(MIC.cap);}
+function micStart(maxMs,onAuto){
+  MIC.chunks=[];const r=new MediaRecorder(MIC.stream);MIC.rec=r;
+  r.ondataavailable=e=>{if(e.data&&e.data.size)MIC.chunks.push(e.data);};
+  r.start();MIC.t0=performance.now();clearTimeout(MIC.cap);MIC.cap=setTimeout(onAuto,maxMs);}
+function micStop(){return new Promise(res=>{const r=MIC.rec;clearTimeout(MIC.cap);
+  if(!r||r.state==="inactive")return res(null);
+  r.onstop=()=>res(new Blob(MIC.chunks,{type:r.mimeType||"audio/webm"}));r.stop();});}
+// any recorded blob -> mono Float32Array at 16 kHz
+async function to16k(blob){
+  const buf=await blob.arrayBuffer(),AC=window.AudioContext||window.webkitAudioContext,ac=new AC();
+  let au;try{au=await ac.decodeAudioData(buf);}finally{try{ac.close();}catch(e){}}
+  const len=Math.max(1,Math.ceil(au.duration*16000)),off=new OfflineAudioContext(1,len,16000);
+  const src=off.createBufferSource();src.buffer=au;src.connect(off.destination);src.start();
+  const out=await off.startRendering();return out.getChannelData(0);}
+// ---------- comparing sounds ----------
+function alignPh(e,h){
+  const m=e.length,n=h.length,D=[];
+  for(let i=0;i<=m;i++){D[i]=[i];for(let j=1;j<=n;j++)D[i][j]=i?0:j;}
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+1,D[i-1][j-1]+(e[i-1]===h[j-1]?0:1));
+  const ops=[];let i=m,j=n;
+  while(i||j){
+    if(i&&j&&D[i][j]===D[i-1][j-1]+(e[i-1]===h[j-1]?0:1)){ops.push({op:e[i-1]===h[j-1]?"ok":"sub",e:e[i-1],h:h[j-1]});i--;j--;}
+    else if(i&&D[i][j]===D[i-1][j]+1){ops.push({op:"del",e:e[i-1]});i--;}
+    else{ops.push({op:"ins",h:h[j-1]});j--;}}
+  ops.reverse();
+  return{ops,dist:D[m][n],score:m?Math.max(0,1-D[m][n]/m):0};}
+function speechTips(ops,max){const SPc=PK.speech,seen=new Set(),out=[];
+  for(const o of ops){if(o.op==="ok")continue;const t=SPc.tipFor(o);if(!t||seen.has(t[0]))continue;seen.add(t[0]);out.push(t);if(out.length>=(max||3))break;}
+  return out;}
+const vGrade=s=>s>=.8?"ok":s>=.55?"near":"bad";
+// ---------- online feedback (only the sound comparison is sent, never audio) ----------
+async function aiSpeech(it,res){
+  if(!AI.key||!navigator.onLine)return null;
+  const SPc=PK.speech,sh=a=>a.map(SPc.show).join(" ");
+  const miss=res.ops.filter(o=>o.op!=="ok").map(o=>o.op==="sub"?`said ${SPc.show(o.h)} instead of ${SPc.show(o.e)}`:o.op==="del"?`dropped ${SPc.show(o.e)}`:`added ${SPc.show(o.h)}`).join("; ");
+  const prompt=`You coach ${LNAME()} pronunciation for an English/Dutch speaker. A phoneme recognizer compared their speech with the target.
+Target: ${it.fa} (${it.tr})
+Expected sounds: ${sh(res.exp)}
+Recognized sounds: ${sh(res.got)}
+Differences: ${miss||"none"}
+The recognizer is imperfect, so focus on the clearest problem. Reply with ONLY compact JSON: {"tip":"<max 22 words in English: what to fix and how to place the mouth>"}`;
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),8000);
+  try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:ctl.signal,
+      headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:AI.model,max_tokens:120,messages:[{role:"user",content:prompt}]})});
+    if(!r.ok)return null;const j=await r.json(),t=(j.content&&j.content[0]&&j.content[0].text)||"";
+    const m=t.match(/\{[\s\S]*\}/);if(!m)return null;const o=JSON.parse(m[0]);return o.tip?{tip:String(o.tip).slice(0,180)}:null;}
+  catch(e){return null;}finally{clearTimeout(to);}}
+// ---------- the round ----------
+let VS=null;
+const VREC_MS=12000;
+const vRecOf=()=>((P.sp.vrecs||(P.sp.vrecs={}))[S.s.sprintMin||2])||0;
+function vPool(){
+  const SPc=PK.speech;if(!SPc)return[];
+  const ok=c=>c.tr&&SPc.phones(c.tr).length>=3;
+  const phr=CARDS.filter(c=>c.deck==="Phrases"&&ok(c));
+  const known=CARDS.filter(c=>c.deck!=="Phrases"&&c.deck!=="Grammar"&&ok(c)&&(P.p[c.id]||P.decks.includes(c.deck)));
+  known.sort((a,b)=>((P.p[b.id]||{}).l||0)-((P.p[a.id]||{}).l||0));
+  const k=shuffle(known.slice(0,400)).slice(0,60),p=shuffle(phr.slice()).slice(0,60),out=[];
+  while(k.length||p.length){if(p.length)out.push(p.shift());if(k.length)out.push(k.shift());}
+  return out;}
+function startVoice(){
+  if(!PK.speech||!navigator.mediaDevices||!window.MediaRecorder){vMsg(ic("x")+tx("This browser can't record audio here"));return;}
+  if(!ASR.pipe){vLoadScreen();return;}
+  VS={state:"idle",left:SPRINT_SEC()*1000,t0:performance.now(),pool:vPool(),i:-1,n:0,ok:0,sum:0,best:0,tips:{},cur:null,res:null,last:false};
+  V.innerHTML=`<div class="sptop"><div class="race">
+    <div class="clockring" id="cring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" class="rbg"/><circle cx="22" cy="22" r="19" class="rfg" id="rfg"/></svg><b id="tclock"></b></div>
+    <div class="combo" id="tcombo"></div>
+    <div class="score"><b id="tscore">0</b><span>${ic("trophy","s")}<i>${vRecOf()}</i></span></div></div>
+    <div class="tbar"><i id="tbar"></i></div></div>
+  <section class="study sprint voice">
+    <div class="prompt vs-en" id="ven"></div>
+    <div class="vs-target" id="vfa"></div>
+    <div class="tr ph" id="vtr"></div>
+    <div class="fb" id="vfb" aria-live="polite"></div>
+    <div class="actrow" id="vacts"></div>
+  </section>`;
+  VS.timer=setInterval(vTick,200);vNext();}
+function vTick(){
+  if(!VS||VS.state==="done")return;const now=performance.now();
+  if(VS.state!=="proc"&&!document.hidden)VS.left-=now-VS.t0;VS.t0=now;
+  if(VS.left<=0){VS.left=0;VS.last=true;}
+  const t=Math.ceil(VS.left/1000),el=document.getElementById("tclock");if(el)el.textContent=VS.last?"0:00":`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
+  const f=VS.left/(SPRINT_SEC()*1000),b=document.getElementById("tbar");if(b)b.style.width=(100*f)+"%";
+  const r=document.getElementById("rfg");if(r)r.style.strokeDashoffset=String(119.4*(1-f));
+  const cr=document.getElementById("cring");if(cr)cr.classList.toggle("hurry",VS.left<=10000);
+  if(VS.state==="rec"){const e=document.getElementById("vlen");if(e)e.textContent=((performance.now()-MIC.t0)/1000).toFixed(1)+"s";}
+  if(VS.last&&VS.state==="idle")vFinish();}
+function vTally(){if(!VS||!VS.res)return;const s=VS.res.score;VS.n++;VS.sum+=s;if(vGrade(s)!=="bad")VS.ok++;
+  for(const[k,t]of VS.res.tips){const x=VS.tips[k]||(VS.tips[k]={n:0,t});x.n++;}VS.res=null;}
+function vNext(){
+  vTally();if(VS.last)return vFinish();
+  VS.i++;if(VS.i>=VS.pool.length){VS.pool=VS.pool.concat(vPool());}
+  const c=VS.pool[VS.i];if(!c)return vFinish();
+  VS.cur={id:c.id,en:enOf(c),fa:c.fa[0],tr:c.tr.split(" / ")[0]};VS.state="idle";
+  document.getElementById("ven").textContent=VS.cur.en;
+  document.getElementById("vfa").textContent=VS.cur.fa;
+  document.getElementById("vtr").textContent=VS.cur.tr;
+  const fb=document.getElementById("vfb");fb.className="fb";fb.innerHTML="";
+  vActs("idle");document.getElementById("tscore").textContent=VS.ok;}
+function vActs(st){const a=document.getElementById("vacts");if(!a)return;
+  if(st==="idle")a.innerHTML=`<button class="ibtn" id="vskip" aria-label="Skip">${ic("skip")}</button><button class="btn primary vmic" id="vrec" aria-label="Speak">${ic("mic")}</button><button class="ibtn" id="vstop" aria-label="End round">${ic("stop")}</button>`;
+  else if(st==="rec")a.innerHTML=`<span class="ibtn ghost"></span><button class="btn primary vmic on" id="vrec" aria-label="Done">${ic("stop")}<span class="vlen" id="vlen">0.0s</span></button><span class="ibtn ghost"></span>`;
+  else if(st==="proc")a.innerHTML=`<span class="ibtn ghost"></span><span class="btn primary dis">${ic("hour")}</span><span class="ibtn ghost"></span>`;
+  else a.innerHTML=`<button class="ibtn" id="vagain" aria-label="Try again">${ic("repeat")}</button><button class="btn primary" id="vnext" aria-label="Next">${ic("arrow")}</button><button class="ibtn" id="vstop" aria-label="End round">${ic("stop")}</button>`;
+  const on=(id,f)=>{const b=document.getElementById(id);if(b)b.onclick=f;};
+  on("vrec",()=>VS.state==="rec"?vStopRec():vStartRec());
+  on("vskip",()=>{VS.res=null;vNext();});
+  on("vstop",()=>{VS.last=true;vTally();vFinish();});
+  on("vnext",vNext);
+  on("vagain",()=>{VS.res=null;VS.state="idle";const fb=document.getElementById("vfb");fb.className="fb";fb.innerHTML="";vActs("idle");vStartRec();});}
+async function vStartRec(){
+  try{await micOpen();}catch(e){vErr(tx("Microphone blocked. Allow it in the browser's site settings."));return;}
+  if(!VS||VS.state!=="idle")return;
+  VS.state="rec";micStart(VREC_MS,()=>{if(VS&&VS.state==="rec")vStopRec();});vActs("rec");}
+async function vStopRec(){
+  if(!VS||VS.state!=="rec")return;VS.state="proc";vActs("proc");
+  const fb=document.getElementById("vfb");fb.className="fb show";fb.innerHTML=aiWait();
+  const my=VS.cur;
+  try{
+    const blob=await micStop();if(!blob||blob.size<200)throw new Error("empty");
+    const pcm=await to16k(blob);if(pcm.length<16000*0.3)throw new Error("short");
+    const ipa=await asrRun(pcm);
+    if(!VS||VS.cur!==my)return;
+    const SPc=PK.speech,exp=SPc.phones(my.tr),got=SPc.heard(ipa),al=alignPh(exp,got);
+    VS.res={...al,exp,got,ipa,tips:speechTips(al.ops,3)};VS.state="shown";vShow();}
+  catch(e){if(!VS||VS.cur!==my)return;VS.state="idle";vErr(tx(/short|empty/.test(String(e&&e.message))?"Too short. Hold the button, speak, then tap again.":"Couldn't analyse that. Try again."));vActs("idle");}}
+function vErr(h){const fb=document.getElementById("vfb");if(fb){fb.className="fb show bad";fb.innerHTML=`<div class="aitip">${ic("x","s")}<span>${h}</span></div>`;}}
+function phChips(ops){const SPc=PK.speech;
+  return`<div class="phs" dir="ltr">${ops.map(o=>o.op==="ok"?`<span class="ph ok">${esc(SPc.show(o.e))}</span>`
+    :o.op==="sub"?`<span class="ph sub">${esc(SPc.show(o.e))}<i>${esc(SPc.show(o.h))}</i></span>`
+    :o.op==="del"?`<span class="ph del">${esc(SPc.show(o.e))}<i>–</i></span>`
+    :`<span class="ph ins">+${esc(SPc.show(o.h))}</span>`).join("")}</div>`;}
+function vShow(){
+  const r=VS.res,g=vGrade(r.score),pct=Math.round(100*r.score);
+  const fb=document.getElementById("vfb");fb.className="fb show "+g;
+  fb.innerHTML=`<div class="verdict">${ic(g==="ok"?"check":g==="near"?"approx":"x")}</div>
+    <div class="vpct">${pct}%</div>${phChips(r.ops)}
+    <div class="ipa" dir="ltr">${ic("ear","s")}<span>${esc(r.ipa||"–")}</span></div>
+    ${r.tips.map(([,t])=>`<div class="aitip vtip">${ic("bulb","s")}<span>${esc(t)}</span></div>`).join("")}
+    <div id="vai"></div>`;
+  vActs("shown");
+  document.getElementById("tscore").textContent=VS.ok+(g!=="bad"?1:0);
+  if(r.dist&&AI.key&&navigator.onLine){const my=VS.cur,box=document.getElementById("vai");box.innerHTML=aiWait();
+    aiSpeech(my,r).then(v=>{const b=document.getElementById("vai");if(!b||!VS||VS.cur!==my)return;b.innerHTML=tipHTML(v);});}}
+function vFinish(){
+  if(!VS||VS.state==="done")return;
+  clearInterval(VS.timer);micClose();
+  const full=VS.left<=0;VS.state="done";VS.prevRec=vRecOf();
+  if(full&&VS.ok>VS.prevRec)P.sp.vrecs[S.s.sprintMin||2]=VS.ok;save();
+  if(view==="sprint")vSummary();}
+function vSummary(){
+  const avg=VS.n?Math.round(100*VS.sum/VS.n):0,rec=VS.ok>VS.prevRec&&VS.left<=0;
+  const top=Object.values(VS.tips).sort((a,b)=>b.n-a.n).slice(0,3);
+  V.innerHTML=`<div class="hero"><div class="clock" style="color:${rec?"var(--mid)":"var(--ok)"}">${ic(rec?"trophy":"mic")}</div><div class="min">${VS.ok}</div>
+      <div class="muted" style="display:flex;justify-content:center;gap:6px;align-items:center">${ic("trophy","s")}${Math.max(VS.prevRec,vRecOf())}${rec?` <span class="badge new">${ic("spark","s")}</span>`:""}</div></div>
+    <div class="kpis">
+      <div class="kpi" style="--c:var(--ok)">${ic("ear")}<b>${avg}%</b>${tx("Sound match")}</div>
+      <div class="kpi" style="--c:var(--mid)">${ic("mic")}<b>${VS.n}</b>${tx("Phrases spoken")}</div>
+      <div class="kpi" style="--c:var(--ink)">${ic("check")}<b>${VS.ok}</b>${tx("Good (80%+)")}</div></div>
+    ${top.length?`<div class="eyebrow">${ic("bulb","s")}Sounds to practise</div><div class="group">${top.map(x=>`<div class="row"><span>${esc(x.t)}</span><span class="num">${x.n}×</span></div>`).join("")}</div>`:""}
+    <div class="acts"><button class="btn primary" id="vagain2" aria-label="Again">${ic("repeat")}</button><div class="icons"><button class="ibtn" id="vclose" aria-label="Close">${ic("close")}</button></div></div>`;
+  document.getElementById("vagain2").onclick=startVoice;
+  document.getElementById("vclose").onclick=()=>{VS=null;render();};lockState();}
+function stopVoice(){if(VS&&VS.state!=="done"){clearInterval(VS.timer);micClose();}VS=null;if(vLoadSub){ASR.subs.delete(vLoadSub);vLoadSub=null;}}
+// ---------- first download ----------
+function vMsg(h){V.innerHTML=`<div class="hero"><div class="clock">${ic("mic")}</div></div><div class="aitip">${h}</div>
+  <div class="acts"><button class="btn" id="vback" aria-label="Back">${ic("close")}</button></div>`;document.getElementById("vback").onclick=()=>{VS=null;render();};}
+let vLoadSub=null;
+function vLoadScreen(){
+  const draw=()=>{if(view!=="sprint"||VS)return;
+    if(ASR.state==="ready"){stopVoice();startVoice();return;}
+    V.innerHTML=`<div class="hero"><div class="clock">${ic(ASR.state==="error"?"x":"download")}</div><div class="min">${ASR.state==="error"?"–":ASR.pct+"%"}</div></div>
+      <div class="vload"><div class="bar"><i style="width:${ASR.pct}%;background:var(--ok)"></i></div>
+      ${tx(ASR.state==="error"?"Download failed. Check the connection and try again.":asrCached()?"Loading the speech model from this phone…":"Downloading the speech model once (about 350 MB). Wifi recommended. Everything else in the app keeps working.")}
+      ${ASR.state==="error"?`<div class="muted" style="font-size:12px;margin-top:6px">${esc(ASR.err)}</div>`:""}</div>
+      <div class="acts">${ASR.state==="error"?`<button class="btn primary" id="vretry" aria-label="Retry">${ic("repeat")}</button>`:""}<div class="icons"><button class="ibtn" id="vback" aria-label="Back">${ic("close")}</button></div></div>`;
+    const b=document.getElementById("vback");if(b)b.onclick=()=>{stopVoice();render();};
+    const rt=document.getElementById("vretry");if(rt)rt.onclick=()=>{asrLoad().catch(()=>{});draw();};};
+  if(vLoadSub)ASR.subs.delete(vLoadSub);vLoadSub=draw;ASR.subs.add(draw);
+  asrLoad().catch(()=>{});draw();}
+// ---------- settings row ----------
+function speechRowHTML(){if(!PK||!PK.speech)return"";
+  return`<div class="row"><span class="lab">${ic("mic")}${tx("Speech model (offline pronunciation check)")}</span><div class="ghbox" id="asrbox">${asrBoxHTML()}</div></div>`;}
+function asrBoxHTML(){
+  if(ASR.state==="ready"||(asrCached()&&ASR.state==="none"))return`<span style="color:var(--ok)">${ic("check","s")}</span>`;
+  if(ASR.state==="loading")return`<span class="muted num">${ASR.pct}%</span>`;
+  return`${ASR.state==="error"?`<span style="color:var(--bad)">${ic("x","s")}</span>`:""}<button class="ibtn sm" id="asrdl" aria-label="Download speech model">${ic("download","s")}</button>`;}
+function speechRowBind(){
+  const upd=()=>{const b=document.getElementById("asrbox");if(!b){ASR.subs.delete(upd);return;}b.innerHTML=asrBoxHTML();const d=document.getElementById("asrdl");if(d)d.onclick=()=>asrLoad().catch(()=>{});};
+  ASR.subs.add(upd);upd();}
+// ---------- offline shell ----------
+function registerSW(){try{if("serviceWorker"in navigator&&location.protocol==="https:"&&!window.claude)navigator.serviceWorker.register("sw.js").catch(()=>{});}catch(e){}}
 
 // ===================== Persian pack =====================
 PACKS.fa={code:"fa",flag:"🇮🇷",native:"فارسی",name:"Persian",dir:"rtl",font:'"Vazirmatn",Tahoma,"Noto Naskh Arabic",sans-serif',
@@ -1509,6 +1782,95 @@ function askFor(id,lv){
 
 return{skills:SKILLS,genFor,askFor,sentRank,translit};
 }};
+
+// ===================== Persian pronunciation (speech sprint) =====================
+// Expected sounds come from the romanization in vocab.txt; the phoneme model's IPA
+// output is folded into the same small alphabet so the two can be compared.
+// Alphabet: A=ā a e i o u | x=kh S=sh C=ch Z=zh J=j q=gh/q '=glottal | other consonants as written
+PACKS.fa.speech=(()=>{
+  const VOW=new Set(["A","a","e","i","o","u"]);
+  // romanization -> phone list
+  function phones(tr){
+    let s=String(tr||"").split(" / ")[0].toLowerCase().normalize("NFC")
+      .replace(/[’`ʼ]/g,"'").replace(/[?!.,;:()"«»…]/g," ").replace(/-/g,"");
+    const out=[];
+    for(let i=0;i<s.length;i++){
+      const c=s[i],d=s.slice(i,i+2);
+      if(c===" "){continue;}
+      if(d==="kh"){out.push("x");i++;continue;}
+      if(d==="sh"){out.push("S");i++;continue;}
+      if(d==="ch"){out.push("C");i++;continue;}
+      if(d==="zh"){out.push("Z");i++;continue;}
+      if(d==="gh"){out.push("q");i++;continue;}
+      if(c==="ā"||c==="â")out.push("A");
+      else if(c==="'")out.push("'");
+      else if(c==="j")out.push("J");
+      else if(c==="w")out.push("v");
+      else if(c==="c")out.push("k");
+      else if(/[a-z]/.test(c))out.push(c);
+    }
+    return collapse(out);}
+  // merge doubled consonants (the model rarely hears gemination)
+  function collapse(a){return a.filter((x,i)=>!(i&&x===a[i-1]&&!VOW.has(x)));}
+  // one IPA token from the model -> 0..2 phones in our alphabet
+  const MULTI=[["tʃ","C"],["ʧ","C"],["dʒ","J"],["ʤ","J"],["eɪ","e y"],["ej","e y"],["aɪ","a y"],["ɔɪ","o y"],["oʊ","o"],["əʊ","o"],["aʊ","a v"]];
+  const ONE={"ɒ":"A","ɑ":"A","ɔ":"A","a":"a","æ":"a","ɐ":"a","ʌ":"a","e":"e","ɛ":"e","ə":"e","ɜ":"e","i":"i","ɪ":"i","ɨ":"i","u":"u","ʊ":"u","ɯ":"u","y":"u","ʉ":"u","o":"o","ɵ":"o","ø":"o",
+    "q":"q","ɢ":"q","ɣ":"q","ʁ":"q","x":"x","χ":"x","h":"h","ɦ":"h","ħ":"h","ʔ":"'","ʕ":"'","ʃ":"S","ʒ":"Z","ɾ":"r","r":"r","ɹ":"r","ɻ":"r","ʀ":"r","w":"v","v":"v","ʋ":"v","β":"v",
+    "j":"y","ɡ":"g","g":"g","ɟ":"g","k":"k","c":"k","t":"t","d":"d","s":"s","z":"z","f":"f","p":"p","b":"b","m":"m","n":"n","ŋ":"n","ɲ":"n","l":"l","ɫ":"l","ʎ":"l","θ":"s","ð":"z"};
+  function fold(tok){
+    let t=String(tok).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[ˈˌ.ˑ‿ʰʲʷ̃]/g,"").replace(/ː/g,"");
+    if(!t)return[];
+    for(const[k,v]of MULTI)if(t===k)return v.split(" ");
+    if(ONE[t])return[ONE[t]];
+    // affricate written without tie, or vowel+length leftovers: fold char by char
+    const r=[];for(const ch of t){if(ONE[ch])r.push(ONE[ch]);}
+    return r.length?r:[t];}
+  // IPA string from the model -> phone list
+  function heard(ipa){return collapse(String(ipa||"").trim().split(/\s+/).filter(x=>x&&x!=="|").flatMap(fold));}
+  // what to print for a phone
+  const SHOW={A:"ā",S:"sh",C:"ch",Z:"zh",J:"j",x:"kh",q:"gh","'":"ʼ"};
+  const show=p=>SHOW[p]||p;
+  const IPA={A:"ɒː",a:"æ",e:"e",i:"iː",o:"o",u:"uː",S:"ʃ",C:"tʃ",Z:"ʒ",J:"dʒ",x:"x",q:"ɢ","'":"ʔ",y:"j",r:"ɾ"};
+  const ipa=p=>IPA[p]||p;
+  // offline tips: "expected>heard" first, then "expected", "-x" = dropped, "+vowel" = extra vowel
+  const TIPS={
+    "A>a":"ā is a long, rounded “aw” as in British “law”, not the short a of “cat”.",
+    "a>A":"Short a is open and front, like “cat”. Don't round your lips as for ā.",
+    "A":"ā: open the jaw, round the lips slightly and hold it longer than the other vowels.",
+    "a":"Short a sits at the front of the mouth, like the a in “cat”, and stays short.",
+    "e":"Short e as in “bed”. Keep it short and don't glide into “ay”.",
+    "i":"i is a clean, long “ee” as in “see”, with no glide at the end.",
+    "u":"u is a long “oo” as in “food”, lips well rounded.",
+    "o":"o is a pure, short “o” as in Dutch “bot”. Don't slide into “ow”.",
+    "q":"gh/q is made far back in the throat, at the uvula. Start from a k and move it further back; a French r is close.",
+    "q>g":"You made a g. Move the closure further back, to the uvula, for gh/q.",
+    "q>k":"You made a k. Pull it further back to the uvula and add voice for gh/q.",
+    "x":"kh is a rough, scraping sound at the back of the mouth, like Dutch g or German “ach”.",
+    "x>h":"That came out as a soft h. kh needs friction: scrape the back of the tongue against the soft palate.",
+    "x>k":"That came out as a k. Don't close completely; keep the air flowing with friction for kh.",
+    "'":"The ʼ is a glottal stop: a tiny catch in the throat, as in “uh-oh”. Don't skip it.",
+    "-'":"You skipped the glottal stop. Make a short catch in the throat at the ʼ.",
+    "r":"Persian r is a quick tap of the tongue tip, like Spanish “pero”, not an English r.",
+    "h":"h is pronounced everywhere, also at the end of a syllable. Breathe it out audibly.",
+    "-h":"You dropped the h. In Persian it stays audible, even after a vowel.",
+    "S":"sh as in “shoe”.",
+    "C":"ch as in “church”.",
+    "J":"j as in “jam”.",
+    "Z":"zh is the sound in “measure”.",
+    "v":"v is a real v, teeth on the lower lip, not an English w.",
+    "v>u":"That came out as a w or oo. Touch your upper teeth to your lower lip for v.",
+    "y":"y as in “yes”.",
+    "+vowel":"You added a vowel between consonants. Persian allows clusters like “st” and “sht”; keep them tight.",
+    "-vowel":"A vowel went missing. Give every vowel its full value, especially at the end of a word.",
+    "-cons":"A consonant went missing. Pronounce every consonant, including the last one in the word."};
+  function tipFor(op){
+    const e=op.e,h=op.h;
+    if(op.op==="sub")return TIPS[`${e}>${h}`]?[`${e}>${h}`,TIPS[`${e}>${h}`]]:TIPS[e]?[e,TIPS[e]]:null;
+    if(op.op==="del"){const k="-"+e;if(TIPS[k])return[k,TIPS[k]];return VOW.has(e)?["-vowel",TIPS["-vowel"]]:["-cons",TIPS["-cons"]];}
+    if(op.op==="ins"&&VOW.has(h))return["+vowel",TIPS["+vowel"]];
+    return null;}
+  return{phones,heard,show,ipa,tipFor,vowels:VOW,lang:"fa"};
+})();
 
 boot();
 </script>
