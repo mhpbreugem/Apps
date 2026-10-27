@@ -366,3 +366,16 @@ body.kb .tq{display:none}
 .composer .btn.sendb{width:48px;min-width:48px;flex:0 0 48px;height:48px;padding:0}
 .composer textarea{min-width:0;width:auto}
 .tq{flex-wrap:nowrap}
+
+.tbtns{display:inline-flex;gap:6px;align-items:center}
+.ibtn.sm{width:36px;height:36px}
+.tg1[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.micb{width:48px;height:48px;flex:none}
+.micb.rec{background:var(--bad);color:#fff;animation:rec 1.2s infinite}
+@keyframes rec{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--bad) 22%,transparent)}}
+.pill{width:auto;min-width:36px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:700;flex:none}
+.tstat{min-height:0;font-size:12px;color:var(--muted);text-align:center;display:flex;gap:6px;justify-content:center;align-items:center;padding:0 4px}
+.tstat:not(:empty){min-height:20px;margin-bottom:6px}
+.tstat.bad{color:var(--bad)}
+.composer{align-items:center}
+.composer textarea{padding:13px 15px}

@@ -1,8 +1,8 @@
-// Kāshi offline shell. Built by build.py (version 6e3522a35f).
+// Kāshi offline shell. Built by build.py (version a23e3ae7c3).
 // - the app page: network first, cached copy when offline
 // - fonts and the speech runtime from CDNs: cache first
 // - the speech model itself is cached by Transformers.js in its own cache ("transformers-cache")
-const VER="kashi-6e3522a35f",SHELL="kashi-shell",LIBS="kashi-libs";
+const VER="kashi-a23e3ae7c3",SHELL="kashi-shell",LIBS="kashi-libs";
 const LIB_HOSTS=["cdn.jsdelivr.net","fonts.googleapis.com","fonts.gstatic.com"];
 self.addEventListener("install",e=>{
   e.waitUntil(caches.open(SHELL).then(c=>c.addAll(["./"])).catch(()=>{}).then(()=>self.skipWaiting()));});

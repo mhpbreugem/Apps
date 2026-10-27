@@ -1,5 +1,5 @@
 // ===================== Persian pack =====================
-PACKS.fa={code:"fa",flag:"🇮🇷",native:"فارسی",name:"Persian",dir:"rtl",font:'"Vazirmatn",Tahoma,"Noto Naskh Arabic",sans-serif',
+PACKS.fa={code:"fa",speechLang:"fa-IR",flag:"🇮🇷",native:"فارسی",name:"Persian",dir:"rtl",font:'"Vazirmatn",Tahoma,"Noto Naskh Arabic",sans-serif',
 levels:["A1","A2","B1","B2","C1"],raw:__VOCAB__,
 skillTopic:{be:"Pronouns and “to be”",plural:"Plurals",ezafe:"Ezafe",poss:"Possessive endings",pres:"Present tense",neg:"Negation",ra:"Object marker rā",past:"Simple past",prog:"Present progressive",fut:"Future",imp:"Imperative",comp:"Comparative and superlative",pastprog:"Past progressive",perf:"Present perfect",pluperf:"Past perfect",subj:"Subjunctive",pastsubj:"Past subjunctive",passive:"Passive"},
 topics:[
