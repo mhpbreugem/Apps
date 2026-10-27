@@ -10,7 +10,7 @@ const IC={
  book:'<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
  sliders:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',approx:'<path d="M5 10c2-2 4-2 7 0s5 2 7 0M5 15c2-2 4-2 7 0s5 2 7 0"/>',
- arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
+ arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',chat:'<path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15h-.5A2.5 2.5 0 0 1 5 12.5z"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
  eye:'<path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/>',
  thumb:'<path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.6 10H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/>',
  play:'<path d="M7 4.5v15l12-7.5z"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',
@@ -118,6 +118,11 @@ const grade=(card,input)=>gradeQ("c:"+card.id,new Set(card.fa.map(f=>norm(f))),i
 const AI={key:null,model:"claude-haiku-5-5",fails:0};
 try{AI.key=localStorage.getItem("kashi-ai");}catch(e){}
 const LNAME=()=>((LANGS.find(l=>l[0]===PK.code)||[])[3])||PK.code;
+// rough spend tracker (Haiku 5.5: $0.10 / $0.50 per million tokens), per calendar month, kept only in this browser
+function aiUse(u){if(!u)return;try{const m=new Date().toISOString().slice(0,7);let x=JSON.parse(localStorage.getItem("kashi-aiuse")||"null");if(!x||x.m!==m)x={m,i:0,o:0,n:0};
+  x.i+=u.input_tokens||0;x.o+=u.output_tokens||0;x.n++;localStorage.setItem("kashi-aiuse",JSON.stringify(x));}catch(e){}}
+function aiSpend(){try{const x=JSON.parse(localStorage.getItem("kashi-aiuse")||"null");if(!x||x.m!==new Date().toISOString().slice(0,7))return{usd:0,n:0};return{usd:x.i*.1e-6+x.o*.5e-6,n:x.n};}catch(e){return{usd:0,n:0};}}
+const usd=x=>"$"+(x<.01?x.toFixed(4):x.toFixed(3));
 async function aiJudge(en,canonTxt,accSet,typed){
   if(!AI.key)return null;
   const ex=[...(accSet||[])].slice(0,8).join(" | ");
@@ -133,7 +138,7 @@ Judge the learner's ${LNAME()} sentence against the English prompt. "right" = co
       headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
       body:JSON.stringify({model:AI.model,max_tokens:120,messages:[{role:"user",content:prompt}]})});
     if(!r.ok){AI.fails++;return null;}
-    const j=await r.json(),t=(j.content&&j.content[0]&&j.content[0].text)||"";
+    const j=await r.json(),t=(j.content&&j.content[0]&&j.content[0].text)||"";aiUse(j.usage);
     const m=t.match(/\{[\s\S]*\}/);if(!m)return null;
     const o=JSON.parse(m[0]);AI.fails=0;let v=["right","partial","wrong"].includes(o.v)?o.v:(o.ok?"right":"wrong");return{v,ok:v==="right",tip:String(o.tip||"").slice(0,140)};
   }catch(e){AI.fails++;return null;}
@@ -245,7 +250,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const T=s=>`<span class="tg">${esc(s)}</span>`;
 function meter(l){let h="";for(let i=1;i<=MAXL;i++)h+=`<i class="${i<=l?"on":""}"></i>`;return`<span class="dots" aria-label="Level ${l} of ${MAXL}">${h}</span>`;}
 // keep the answer screen pinned above the on-screen keyboard (no page scroll)
-function lockState(){const on=(view==="study"&&!!cur)||(view==="sprint"&&!!SP&&SP.state!=="done");
+function lockState(){const on=view==="tutor"||(view==="study"&&!!cur)||(view==="sprint"&&!!SP&&SP.state!=="done");
   document.body.classList.toggle("lock",on);document.documentElement.classList.toggle("lock",on);if(on)window.scrollTo(0,0);}
 function fitVV(){const vv=window.visualViewport,h=vv?vv.height:window.innerHeight;
   document.documentElement.style.setProperty("--vvh",h+"px");
@@ -255,7 +260,7 @@ if(window.visualViewport){visualViewport.addEventListener("resize",fitVV);visual
 window.addEventListener("resize",fitVV);document.addEventListener("focusin",()=>setTimeout(fitVV,60));document.addEventListener("focusout",()=>setTimeout(fitVV,60));
 function render(){
   if(!PK||view==="langs"){rLangs();topline();return;}
-  ({sprint:rSprint,study:rStudy,map:rMap,deck:rDeck,grammar:rGrammar,settings:rSettings})[view]();topline();lockState();fitVV();}
+  ({sprint:rSprint,study:rStudy,tutor:rTutor,map:rMap,deck:rDeck,grammar:rGrammar,settings:rSettings})[view]();topline();lockState();fitVV();}
 // overall mastery of everything in the app: 60% vocabulary (every word at its top interval = 100%), 40% grammar skills (5 dots = 100%)
 function mastery(){
   const per={};LEVELS.forEach(l=>per[l]={n:0,v:0,g:0,gn:0});
@@ -592,6 +597,67 @@ function rGrammar(){
     h+=`<div class="eyebrow">${l}</div>`;
     ts.forEach(g=>{h+=`<details><summary>${esc(g.t)}</summary><div class="gbody"><p>${esc(g.n)}</p>${g.d.map(([e,f])=>`<div class="ex"><span>${esc(e)}</span>${T(f.split("/")[0])}</div>`).join("")}</div></details>`;});});
   V.innerHTML=h;}
+// ---------- tutor: chat with a Haiku teacher, with a phonetic layer on every target-language phrase ----------
+const TUT={msgs:[],busy:false,code:null};
+function tutLoad(){if(TUT.code===PK.code)return;TUT.code=PK.code;try{TUT.msgs=JSON.parse(localStorage.getItem("kashi-tutor-"+PK.code)||"[]");}catch(e){TUT.msgs=[];}}
+function tutSave(){try{localStorage.setItem("kashi-tutor-"+PK.code,JSON.stringify(TUT.msgs.slice(-40)));}catch(e){}}
+// «target-language text» -> script + phonetics (the phonetics come from the app's own transliterator, free and consistent)
+function chatHTML(t,user){
+  if(user&&PK.dir==="rtl")t=t.replace(/[؀-ۿ‌]+(?:[ ‌][؀-ۿ‌]+)*/g,m=>"«"+m+"»");
+  let h=esc(t);
+  h=h.replace(/«([^»]+)»/g,(m,x)=>{const ph=PK.translit?PK.translit(x.replace(/&amp;/g,"&")):"";return`<span class="seg"><span class="sf tg">${x}</span>${ph?`<span class="sp">${esc(ph)}</span>`:""}</span>`;});
+  h=h.replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>").replace(/^[-•] (.*)$/gm,"<span class=\"li\">• $1</span>").replace(/\n/g,"<br>");
+  return h;}
+function tutSystem(){
+  const m=mastery(),lv=m.lvl||"A1",nx=LEVELS[Math.min(LEVELS.length-1,LEVELS.indexOf(lv)+(m.lvl?1:0))];
+  const ul=unlockedLv();
+  const weak=Object.keys(SKILLS).filter(k=>SK_LV(k)<=ul).sort((a,b)=>skRank(a)-skRank(b)||(sAcc(a)??0)-(sAcc(b)??0)).slice(0,3).map(k=>SKILLS[k][1]);
+  const miss=Object.keys(P.p).map(id=>BYID[id]).filter(c=>c&&LEVELS.includes(c.deck)&&P.p[c.id].w>0).sort((a,b)=>P.p[b.id].w-P.p[a.id].w).slice(0,8).map(c=>enOf(c)+" = "+c.fa[0]);
+  return`You are a warm, expert ${LNAME()} teacher chatting with an English-speaking learner who is roughly ${lv} (aiming for ${nx}). They are using a typing-flashcard app.
+Rules:
+- Write in English, except ${LNAME()} words and sentences, which you write in ${PK.dir==="rtl"?"native script":"the native writing system"} wrapped in «guillemets», e.g. «سلام». One phrase per pair of «», no punctuation inside. Never write ${LNAME()} outside «». Do NOT add transliteration or pronunciation: the app adds a phonetic line under every «» phrase itself.
+- Keep replies short (under 110 words) unless asked for more. Be concrete, friendly, never lecture.
+- When asked for an exercise (quiz, translation, fill-the-gap, role-play, dialogue, sentence building, listening-style drills, anything), create it right away, ask ONE question at a time, wait for the learner's answer, then correct briefly (what was right, the fix, one tip) and move on.
+- The learner may answer in ${LNAME()} script, in Latin phonetics, or in English; accept all and gently model the correct form.
+- Use vocabulary and grammar at their level; at most one new word per exercise item, and say what it means.
+- Weak grammar right now: ${weak.join("; ")||"none yet"}.
+- Words they often miss: ${miss.join("; ")||"none yet"}.`;}
+async function tutAsk(){
+  const msgs=TUT.msgs.slice(-14).map(m=>({role:m.r,content:m.t}));
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),25000);
+  try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:ctl.signal,
+    headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:AI.model,max_tokens:600,system:tutSystem(),messages:msgs})});
+    if(!r.ok)return{err:r.status===401?"Key rejected. Check it in Settings.":r.status===429?"Rate or spend limit reached.":"Error "+r.status};
+    const j=await r.json();aiUse(j.usage);return{t:(j.content&&j.content[0]&&j.content[0].text)||"…"};}
+  catch(e){return{err:e.name==="AbortError"?"Timed out. Try again.":"Network error."};}
+  finally{clearTimeout(to);}}
+function tutScroll(){const m=document.getElementById("msgs");if(m)m.scrollTop=m.scrollHeight;}
+function tutDraw(){const m=document.getElementById("msgs");if(!m)return;
+  m.innerHTML=TUT.msgs.map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=TUT.msgs.length>3?"none":"";tutScroll();}
+async function tutSend(text){
+  text=(text||"").trim();if(!text||TUT.busy||!AI.key)return;
+  TUT.msgs.push({r:"user",t:text});TUT.busy=true;tutDraw();tutSave();
+  const r=await tutAsk();TUT.busy=false;
+  if(r.err)TUT.msgs.push({r:"assistant",t:"⚠ "+r.err,e:1});else TUT.msgs.push({r:"assistant",t:r.t});
+  tutSave();if(view==="tutor"){tutDraw();const sp=document.getElementById("tspend");if(sp)sp.textContent=usd(aiSpend().usd);}}
+const TUT_QUICK=[["bolt","Quiz me","Quiz me with 5 short questions, one at a time, focusing on my weak spots."],["cap","Explain","Explain my weakest grammar point simply, with 3 examples, then test me on it."],["chat","Role-play","Let's role-play a short everyday dialogue (ordering in a café). You start, keep each line short."],["pencil","Translate","Give me English sentences of 2-3 words to translate, one at a time."]];
+function rTutor(){
+  tutLoad();
+  if(!AI.key){V.innerHTML=`<div class="hero" style="margin-top:40px"><div class="clock">${ic("chat")}</div></div><div class="note" style="justify-content:center;text-align:center;margin:18px 8px">${ic("spark","s")}<span>The tutor needs your Anthropic API key. Add it in Settings. It costs a few cents a month.</span></div><div class="acts"><button class="btn primary" id="tkey" aria-label="Open settings">${ic("arrow")}</button></div>`;
+    document.getElementById("tkey").onclick=()=>go("settings");return;}
+  V.innerHTML=`<div class="chat"><div class="chathead"><span>${ic("chat","s")}${LNAME()} tutor</span><span class="muted" style="font-size:12px"><span id="tspend">${usd(aiSpend().usd)}</span> this month</span><button class="ibtn sm" id="tclr" aria-label="New chat">${ic("trash","s")}</button></div>
+    <div class="msgs" id="msgs"></div>
+    <div class="tq" id="tq">${TUT_QUICK.map((q,i)=>`<button data-i="${i}">${ic(q[0],"s")}${q[1]}</button>`).join("")}</div>
+    <div class="composer"><textarea id="tin" rows="1" placeholder="Ask for an exercise, or answer…" aria-label="Message" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><button class="btn primary sendb" id="tsend" aria-label="Send">${ic("arrow")}</button></div></div>`;
+  if(!TUT.msgs.length)TUT.msgs.push({r:"assistant",t:`Hi! I'm your ${LNAME()} tutor. Ask me for any exercise, a grammar explanation, a role-play, or just chat. Try saying hello.`,hello:1});
+  tutDraw();
+  const t=document.getElementById("tin"),send=()=>{const v=t.value;t.value="";t.style.height="";tutSend(v);};
+  document.getElementById("tsend").onclick=send;
+  t.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+  t.addEventListener("input",()=>{t.style.height="auto";t.style.height=Math.min(120,t.scrollHeight)+"px";});
+  document.getElementById("tq").onclick=e=>{const b=e.target.closest("button");if(b)tutSend(TUT_QUICK[+b.dataset.i][2]);};
+  document.getElementById("tclr").onclick=()=>{TUT.msgs=[];tutSave();rTutor();};}
 // ---------- settings: pictograms only ----------
 function rSettings(){
   const lvChips=LEVELS.map(l=>`<button data-d="${l}" aria-pressed="${P.decks.includes(l)}">${l}</button>`).join("");
@@ -612,6 +678,7 @@ function rSettings(){
       <div class="ghbox">${AI.key?`<span class="muted" style="font-size:12px">Haiku</span><button class="ibtn sm" id="aioff" aria-label="Remove key">${ic("x","s")}</button>`
         :`<input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Anthropic API key">`}</div></div>
     ${speechRowHTML()}
+    ${AI.key?`<div class="row"><span class="lab">${ic("timer")}${tx("AI spend this month (estimate)")}</span><span class="num">${usd(aiSpend().usd)} · ${aiSpend().n}×</span></div>`:""}
     <div class="row"><span class="lab">${ic("download")}${tx("Backup: export / import")}</span><div class="chips">
       <button id="exp" aria-label="Export">${ic("download","s")}</button><button id="imp" aria-label="Import">${ic("upload","s")}</button><input type="file" id="impf" accept=".json,application/json" hidden></div></div>
   </div>
