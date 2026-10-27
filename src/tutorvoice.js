@@ -18,21 +18,30 @@ function tvVoice(lang){if(!tvTTS())return null;const vs=speechSynthesis.getVoice
 if(tvTTS())try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{};}catch(e){}
 // iOS only lets speech start from a tap: prime it on the tap that sends or records
 function tvUnlock(){if(!tvTTS())return;try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);}catch(e){}}
-function tvSpeak(text,done){
-  if(!tvTTS()){done&&done();return;}
-  try{speechSynthesis.cancel();}catch(e){}
+// speech is queued sentence by sentence while the reply is still streaming in
+TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;
+function tvStreamStart(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;}
+function tvCheck(){if(TV.fin&&TV.pend<=0){TV.fin=false;if(TV.state==="speak")TV.state="idle";const d=TV.done;TV.done=null;if(!TV.err&&!TV.noVoiceShown)tvStat("");d&&d();}}
+function tvEnqueue(text){
+  if(!tvTTS())return;
   const parts=[];String(text).replace(/\*\*/g,"").split(/(«[^»]+»)/).forEach(p=>{if(!p.trim())return;
     if(p[0]==="«")parts.push({t:p.slice(1,-1),f:true});else{const q=p.replace(/^[-•] /gm,"").replace(/[«»]/g,"").replace(/⚠/g,"").trim();if(q)parts.push({t:q,f:false});}});
   const tl=PK.speechLang||PK.code,fv=tvVoice(tl),ev=tvVoice("en-GB")||tvVoice("en-US")||tvVoice("en");
-  const hasF=parts.some(p=>p.f),q=parts.filter(p=>!p.f||fv);
-  if(hasF&&!fv)tvStat(`${ic("x","s")}No ${esc(LNAME())} voice on this device: English only`,true);
-  if(!q.length){done&&done();return;}
-  TV.state="speak";if(!(hasF&&!fv))tvStat(`${ic("speaker","s")}Speaking…`);
-  q.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p.t),v=p.f?fv:ev;
-    if(v){u.voice=v;u.lang=v.lang;}else u.lang=p.f?tl:"en-US";u.rate=p.f?.85:1;
-    if(i===q.length-1){let fin=false;const end=()=>{if(fin)return;fin=true;if(TV.state==="speak")TV.state="idle";if(!TV.err&&!(hasF&&!fv))tvStat("");done&&done();};u.onend=end;u.onerror=end;}
-    try{speechSynthesis.speak(u);}catch(e){}});}
-function tvStopSpeak(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}if(TV.state==="speak")TV.state="idle";}
+  if(parts.some(p=>p.f)&&!fv){TV.noVoiceShown=true;tvStat(`${ic("x","s")}No ${esc(LNAME())} voice on this device: English only`,true);}
+  parts.filter(p=>!p.f||fv).forEach(p=>{const u=new SpeechSynthesisUtterance(p.t),v=p.f?fv:ev;
+    if(v){u.voice=v;u.lang=v.lang;}else u.lang=p.f?tl:"en-US";u.rate=p.f?.85:1.05;
+    TV.pend++;TV.state="speak";if(!TV.noVoiceShown)tvStat(`${ic("speaker","s")}Speaking…`);
+    let d=false;const end=()=>{if(d)return;d=true;TV.pend--;tvCheck();};u.onend=end;u.onerror=end;
+    try{speechSynthesis.speak(u);}catch(e){end();}});}
+// feed the reply as it grows: speak each finished sentence at once (not inside «»)
+function tvStreamFeed(full,final,done){
+  for(;;){let end=-1,depth=0;
+    for(let i=TV.off;i<full.length;i++){const c=full[i];if(c==="«")depth++;else if(c==="»")depth=Math.max(0,depth-1);
+      else if(!depth&&(c==="\n"||(/[.!?؟]/.test(c)&&(i+1>=full.length?final:/\s/.test(full[i+1]))))){end=i+1;break;}}
+    if(end<0)break;const chunk=full.slice(TV.off,end);TV.off=end;if(chunk.trim())tvEnqueue(chunk);}
+  if(final){const rest=full.slice(TV.off);TV.off=full.length;if(rest.trim())tvEnqueue(rest);TV.fin=true;TV.done=done||null;tvCheck();}}
+function tvSpeak(text,done){tvStreamStart();tvStreamFeed(text,true,done);}
+function tvStopSpeak(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.pend=0;TV.fin=false;TV.done=null;TV.noVoiceShown=false;if(TV.state==="speak")TV.state="idle";}
 function tvListen(){
   if(TV.state==="listen"){tvStopListen();return;}
   if(TV.state==="proc"||TUT.busy||!AI.key)return;
@@ -76,10 +85,6 @@ async function phStop(){
     tutSend("🎤 (phonetic transcript, may contain errors) "+txt);}
   catch(e){micClose();tvSet("idle","");tvStat(esc(/short|empty/.test(String(e&&e.message))?"Too short. Tap, speak, tap again.":"Couldn't analyse that."),true);}}
 function tvStop(){TV.hands=false;tvStopSpeak();try{if(TV.rec)TV.rec.stop();}catch(e){}TV.rec=null;if(typeof micClose==="function")try{micClose();}catch(e){}TV.state="idle";}
-// called after every teacher reply
-function tvAfterReply(text){
-  if(!TV.speak||view!=="tutor")return;
-  tvSpeak(text,()=>{if(TV.hands&&view==="tutor"&&!TV.err&&TV.state==="idle")setTimeout(()=>{if(TV.hands&&view==="tutor"&&TV.state==="idle")tvListen();},250);});}
 function tvBind(){
   tvBtns();
   const g=id=>document.getElementById(id);

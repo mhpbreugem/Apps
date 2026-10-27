@@ -599,7 +599,7 @@ function rGrammar(){
     ts.forEach(g=>{h+=`<details><summary>${esc(g.t)}</summary><div class="gbody"><p>${esc(g.n)}</p>${g.d.map(([e,f])=>`<div class="ex"><span>${esc(e)}</span>${T(f.split("/")[0])}</div>`).join("")}</div></details>`;});});
   V.innerHTML=h;}
 // ---------- tutor: chat with a Haiku teacher, with a phonetic layer on every target-language phrase ----------
-const TUT={msgs:[],busy:false,code:null};
+const TUT={msgs:[],busy:false,code:null,stream:""};
 function tutLoad(){if(TUT.code===PK.code)return;TUT.code=PK.code;try{TUT.msgs=JSON.parse(localStorage.getItem("kashi-tutor-"+PK.code)||"[]");}catch(e){TUT.msgs=[];}}
 function tutSave(){try{localStorage.setItem("kashi-tutor-"+PK.code,JSON.stringify(TUT.msgs.slice(-40)));}catch(e){}}
 // «target-language text» -> script + phonetics (the phonetics come from the app's own transliterator, free and consistent)
@@ -624,25 +624,37 @@ Rules:
 - Weak grammar right now: ${weak.join("; ")||"none yet"}.
 - Messages starting with 🎤 were spoken by the learner and transcribed automatically, so they may contain recognition errors or (when marked phonetic) be a romanised phone sequence without word breaks; interpret generously, and if it is unclear ask them to repeat instead of correcting spelling.${TV.speak?"\n- Your reply will be read aloud. Keep it under 45 words, one short question at a time, no lists, no markdown, no emoji.":""}
 - Words they often miss: ${miss.join("; ")||"none yet"}.`;}
-async function tutAsk(){
-  const msgs=TUT.msgs.slice(-14).map(m=>({role:m.r,content:m.t}));
-  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),25000);
+async function tutAsk(onDelta){
+  const msgs=TUT.msgs.slice(-(TV.speak?10:14)).map(m=>({role:m.r,content:m.t}));
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),30000);
   try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:ctl.signal,
     headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:AI.model,max_tokens:600,system:tutSystem(),messages:msgs})});
+    body:JSON.stringify({model:AI.model,max_tokens:TV.speak?300:600,stream:true,system:tutSystem(),messages:msgs})});
     if(!r.ok)return{err:r.status===401?"Key rejected. Check it in Settings.":r.status===429?"Rate or spend limit reached.":"Error "+r.status};
-    const j=await r.json();aiUse(j.usage);return{t:(j.content&&j.content[0]&&j.content[0].text)||"…"};}
+    const rd=r.body.getReader(),dec=new TextDecoder(),use={input_tokens:0,output_tokens:0};let buf="",full="";
+    for(;;){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+      let i;while((i=buf.indexOf("\n\n"))>=0){const ev=buf.slice(0,i);buf=buf.slice(i+2);const m=ev.match(/^data: (.*)$/m);if(!m)continue;let o;try{o=JSON.parse(m[1]);}catch(e){continue;}
+        if(o.type==="content_block_delta"&&o.delta&&o.delta.type==="text_delta"){full+=o.delta.text;onDelta&&onDelta(full);}
+        else if(o.type==="message_start"&&o.message&&o.message.usage)use.input_tokens=o.message.usage.input_tokens||0;
+        else if(o.type==="message_delta"&&o.usage&&o.usage.output_tokens)use.output_tokens=o.usage.output_tokens;
+        else if(o.type==="error")return{err:(o.error&&o.error.message)||"Error"};}}
+    aiUse(use);return{t:full.trim()||"…"};}
   catch(e){return{err:e.name==="AbortError"?"Timed out. Try again.":"Network error."};}
   finally{clearTimeout(to);}}
 function tutScroll(){const m=document.getElementById("msgs");if(m)m.scrollTop=m.scrollHeight;}
 function tutDraw(){const m=document.getElementById("msgs");if(!m)return;
-  m.innerHTML=TUT.msgs.map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=TUT.msgs.length>3?"none":"";tutScroll();}
+  m.innerHTML=TUT.msgs.map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${TUT.stream?chatHTML(TUT.stream.lastIndexOf("«")>TUT.stream.lastIndexOf("»")?TUT.stream.slice(0,TUT.stream.lastIndexOf("«")):TUT.stream,false):aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=TUT.msgs.length>3?"none":"";tutScroll();}
 async function tutSend(text){
   text=(text||"").trim();if(!text||TUT.busy||!AI.key)return;
-  TUT.msgs.push({r:"user",t:text});TUT.busy=true;tutDraw();tutSave();
-  const r=await tutAsk();TUT.busy=false;
+  TUT.msgs.push({r:"user",t:text});TUT.busy=true;TUT.stream="";tutDraw();tutSave();
+  if(TV.speak)tvStreamStart();
+  let last=0;
+  const r=await tutAsk(full=>{TUT.stream=full;const n=performance.now();if(view==="tutor"&&n-last>60){last=n;tutDraw();}if(TV.speak)tvStreamFeed(full,false);});
+  TUT.busy=false;TUT.stream="";
   if(r.err)TUT.msgs.push({r:"assistant",t:"⚠ "+r.err,e:1});else TUT.msgs.push({r:"assistant",t:r.t});
-  tutSave();if(!r.err)tvAfterReply(r.t);if(view==="tutor"){tutDraw();const sp=document.getElementById("tspend");if(sp)sp.textContent=usd(aiSpend().usd);}}
+  tutSave();
+  if(!r.err&&TV.speak&&view==="tutor")tvStreamFeed(r.t,true,()=>{if(TV.hands&&view==="tutor"&&!TV.err&&TV.state==="idle")setTimeout(()=>{if(TV.hands&&view==="tutor"&&TV.state==="idle")tvListen();},200);});
+  if(view==="tutor"){tutDraw();const sp=document.getElementById("tspend");if(sp)sp.textContent=usd(aiSpend().usd);}}
 const TUT_QUICK=[["bolt","Quiz me","Quiz me with 5 short questions, one at a time, focusing on my weak spots."],["cap","Explain","Explain my weakest grammar point simply, with 3 examples, then test me on it."],["chat","Role-play","Let's role-play a short everyday dialogue (ordering in a café). You start, keep each line short."],["pencil","Translate","Give me English sentences of 2-3 words to translate, one at a time."]];
 function rTutor(){
   tutLoad();

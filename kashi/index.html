@@ -1007,7 +1007,7 @@ function rGrammar(){
     ts.forEach(g=>{h+=`<details><summary>${esc(g.t)}</summary><div class="gbody"><p>${esc(g.n)}</p>${g.d.map(([e,f])=>`<div class="ex"><span>${esc(e)}</span>${T(f.split("/")[0])}</div>`).join("")}</div></details>`;});});
   V.innerHTML=h;}
 // ---------- tutor: chat with a Haiku teacher, with a phonetic layer on every target-language phrase ----------
-const TUT={msgs:[],busy:false,code:null};
+const TUT={msgs:[],busy:false,code:null,stream:""};
 function tutLoad(){if(TUT.code===PK.code)return;TUT.code=PK.code;try{TUT.msgs=JSON.parse(localStorage.getItem("kashi-tutor-"+PK.code)||"[]");}catch(e){TUT.msgs=[];}}
 function tutSave(){try{localStorage.setItem("kashi-tutor-"+PK.code,JSON.stringify(TUT.msgs.slice(-40)));}catch(e){}}
 // «target-language text» -> script + phonetics (the phonetics come from the app's own transliterator, free and consistent)
@@ -1032,25 +1032,37 @@ Rules:
 - Weak grammar right now: ${weak.join("; ")||"none yet"}.
 - Messages starting with 🎤 were spoken by the learner and transcribed automatically, so they may contain recognition errors or (when marked phonetic) be a romanised phone sequence without word breaks; interpret generously, and if it is unclear ask them to repeat instead of correcting spelling.${TV.speak?"\n- Your reply will be read aloud. Keep it under 45 words, one short question at a time, no lists, no markdown, no emoji.":""}
 - Words they often miss: ${miss.join("; ")||"none yet"}.`;}
-async function tutAsk(){
-  const msgs=TUT.msgs.slice(-14).map(m=>({role:m.r,content:m.t}));
-  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),25000);
+async function tutAsk(onDelta){
+  const msgs=TUT.msgs.slice(-(TV.speak?10:14)).map(m=>({role:m.r,content:m.t}));
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),30000);
   try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:ctl.signal,
     headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:AI.model,max_tokens:600,system:tutSystem(),messages:msgs})});
+    body:JSON.stringify({model:AI.model,max_tokens:TV.speak?300:600,stream:true,system:tutSystem(),messages:msgs})});
     if(!r.ok)return{err:r.status===401?"Key rejected. Check it in Settings.":r.status===429?"Rate or spend limit reached.":"Error "+r.status};
-    const j=await r.json();aiUse(j.usage);return{t:(j.content&&j.content[0]&&j.content[0].text)||"…"};}
+    const rd=r.body.getReader(),dec=new TextDecoder(),use={input_tokens:0,output_tokens:0};let buf="",full="";
+    for(;;){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+      let i;while((i=buf.indexOf("\n\n"))>=0){const ev=buf.slice(0,i);buf=buf.slice(i+2);const m=ev.match(/^data: (.*)$/m);if(!m)continue;let o;try{o=JSON.parse(m[1]);}catch(e){continue;}
+        if(o.type==="content_block_delta"&&o.delta&&o.delta.type==="text_delta"){full+=o.delta.text;onDelta&&onDelta(full);}
+        else if(o.type==="message_start"&&o.message&&o.message.usage)use.input_tokens=o.message.usage.input_tokens||0;
+        else if(o.type==="message_delta"&&o.usage&&o.usage.output_tokens)use.output_tokens=o.usage.output_tokens;
+        else if(o.type==="error")return{err:(o.error&&o.error.message)||"Error"};}}
+    aiUse(use);return{t:full.trim()||"…"};}
   catch(e){return{err:e.name==="AbortError"?"Timed out. Try again.":"Network error."};}
   finally{clearTimeout(to);}}
 function tutScroll(){const m=document.getElementById("msgs");if(m)m.scrollTop=m.scrollHeight;}
 function tutDraw(){const m=document.getElementById("msgs");if(!m)return;
-  m.innerHTML=TUT.msgs.map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=TUT.msgs.length>3?"none":"";tutScroll();}
+  m.innerHTML=TUT.msgs.map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${TUT.stream?chatHTML(TUT.stream.lastIndexOf("«")>TUT.stream.lastIndexOf("»")?TUT.stream.slice(0,TUT.stream.lastIndexOf("«")):TUT.stream,false):aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=TUT.msgs.length>3?"none":"";tutScroll();}
 async function tutSend(text){
   text=(text||"").trim();if(!text||TUT.busy||!AI.key)return;
-  TUT.msgs.push({r:"user",t:text});TUT.busy=true;tutDraw();tutSave();
-  const r=await tutAsk();TUT.busy=false;
+  TUT.msgs.push({r:"user",t:text});TUT.busy=true;TUT.stream="";tutDraw();tutSave();
+  if(TV.speak)tvStreamStart();
+  let last=0;
+  const r=await tutAsk(full=>{TUT.stream=full;const n=performance.now();if(view==="tutor"&&n-last>60){last=n;tutDraw();}if(TV.speak)tvStreamFeed(full,false);});
+  TUT.busy=false;TUT.stream="";
   if(r.err)TUT.msgs.push({r:"assistant",t:"⚠ "+r.err,e:1});else TUT.msgs.push({r:"assistant",t:r.t});
-  tutSave();if(!r.err)tvAfterReply(r.t);if(view==="tutor"){tutDraw();const sp=document.getElementById("tspend");if(sp)sp.textContent=usd(aiSpend().usd);}}
+  tutSave();
+  if(!r.err&&TV.speak&&view==="tutor")tvStreamFeed(r.t,true,()=>{if(TV.hands&&view==="tutor"&&!TV.err&&TV.state==="idle")setTimeout(()=>{if(TV.hands&&view==="tutor"&&TV.state==="idle")tvListen();},200);});
+  if(view==="tutor"){tutDraw();const sp=document.getElementById("tspend");if(sp)sp.textContent=usd(aiSpend().usd);}}
 const TUT_QUICK=[["bolt","Quiz me","Quiz me with 5 short questions, one at a time, focusing on my weak spots."],["cap","Explain","Explain my weakest grammar point simply, with 3 examples, then test me on it."],["chat","Role-play","Let's role-play a short everyday dialogue (ordering in a café). You start, keep each line short."],["pencil","Translate","Give me English sentences of 2-3 words to translate, one at a time."]];
 function rTutor(){
   tutLoad();
@@ -1485,21 +1497,30 @@ function tvVoice(lang){if(!tvTTS())return null;const vs=speechSynthesis.getVoice
 if(tvTTS())try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{};}catch(e){}
 // iOS only lets speech start from a tap: prime it on the tap that sends or records
 function tvUnlock(){if(!tvTTS())return;try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);}catch(e){}}
-function tvSpeak(text,done){
-  if(!tvTTS()){done&&done();return;}
-  try{speechSynthesis.cancel();}catch(e){}
+// speech is queued sentence by sentence while the reply is still streaming in
+TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;
+function tvStreamStart(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;}
+function tvCheck(){if(TV.fin&&TV.pend<=0){TV.fin=false;if(TV.state==="speak")TV.state="idle";const d=TV.done;TV.done=null;if(!TV.err&&!TV.noVoiceShown)tvStat("");d&&d();}}
+function tvEnqueue(text){
+  if(!tvTTS())return;
   const parts=[];String(text).replace(/\*\*/g,"").split(/(«[^»]+»)/).forEach(p=>{if(!p.trim())return;
     if(p[0]==="«")parts.push({t:p.slice(1,-1),f:true});else{const q=p.replace(/^[-•] /gm,"").replace(/[«»]/g,"").replace(/⚠/g,"").trim();if(q)parts.push({t:q,f:false});}});
   const tl=PK.speechLang||PK.code,fv=tvVoice(tl),ev=tvVoice("en-GB")||tvVoice("en-US")||tvVoice("en");
-  const hasF=parts.some(p=>p.f),q=parts.filter(p=>!p.f||fv);
-  if(hasF&&!fv)tvStat(`${ic("x","s")}No ${esc(LNAME())} voice on this device: English only`,true);
-  if(!q.length){done&&done();return;}
-  TV.state="speak";if(!(hasF&&!fv))tvStat(`${ic("speaker","s")}Speaking…`);
-  q.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p.t),v=p.f?fv:ev;
-    if(v){u.voice=v;u.lang=v.lang;}else u.lang=p.f?tl:"en-US";u.rate=p.f?.85:1;
-    if(i===q.length-1){let fin=false;const end=()=>{if(fin)return;fin=true;if(TV.state==="speak")TV.state="idle";if(!TV.err&&!(hasF&&!fv))tvStat("");done&&done();};u.onend=end;u.onerror=end;}
-    try{speechSynthesis.speak(u);}catch(e){}});}
-function tvStopSpeak(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}if(TV.state==="speak")TV.state="idle";}
+  if(parts.some(p=>p.f)&&!fv){TV.noVoiceShown=true;tvStat(`${ic("x","s")}No ${esc(LNAME())} voice on this device: English only`,true);}
+  parts.filter(p=>!p.f||fv).forEach(p=>{const u=new SpeechSynthesisUtterance(p.t),v=p.f?fv:ev;
+    if(v){u.voice=v;u.lang=v.lang;}else u.lang=p.f?tl:"en-US";u.rate=p.f?.85:1.05;
+    TV.pend++;TV.state="speak";if(!TV.noVoiceShown)tvStat(`${ic("speaker","s")}Speaking…`);
+    let d=false;const end=()=>{if(d)return;d=true;TV.pend--;tvCheck();};u.onend=end;u.onerror=end;
+    try{speechSynthesis.speak(u);}catch(e){end();}});}
+// feed the reply as it grows: speak each finished sentence at once (not inside «»)
+function tvStreamFeed(full,final,done){
+  for(;;){let end=-1,depth=0;
+    for(let i=TV.off;i<full.length;i++){const c=full[i];if(c==="«")depth++;else if(c==="»")depth=Math.max(0,depth-1);
+      else if(!depth&&(c==="\n"||(/[.!?؟]/.test(c)&&(i+1>=full.length?final:/\s/.test(full[i+1]))))){end=i+1;break;}}
+    if(end<0)break;const chunk=full.slice(TV.off,end);TV.off=end;if(chunk.trim())tvEnqueue(chunk);}
+  if(final){const rest=full.slice(TV.off);TV.off=full.length;if(rest.trim())tvEnqueue(rest);TV.fin=true;TV.done=done||null;tvCheck();}}
+function tvSpeak(text,done){tvStreamStart();tvStreamFeed(text,true,done);}
+function tvStopSpeak(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.pend=0;TV.fin=false;TV.done=null;TV.noVoiceShown=false;if(TV.state==="speak")TV.state="idle";}
 function tvListen(){
   if(TV.state==="listen"){tvStopListen();return;}
   if(TV.state==="proc"||TUT.busy||!AI.key)return;
@@ -1543,10 +1564,6 @@ async function phStop(){
     tutSend("🎤 (phonetic transcript, may contain errors) "+txt);}
   catch(e){micClose();tvSet("idle","");tvStat(esc(/short|empty/.test(String(e&&e.message))?"Too short. Tap, speak, tap again.":"Couldn't analyse that."),true);}}
 function tvStop(){TV.hands=false;tvStopSpeak();try{if(TV.rec)TV.rec.stop();}catch(e){}TV.rec=null;if(typeof micClose==="function")try{micClose();}catch(e){}TV.state="idle";}
-// called after every teacher reply
-function tvAfterReply(text){
-  if(!TV.speak||view!=="tutor")return;
-  tvSpeak(text,()=>{if(TV.hands&&view==="tutor"&&!TV.err&&TV.state==="idle")setTimeout(()=>{if(TV.hands&&view==="tutor"&&TV.state==="idle")tvListen();},250);});}
 function tvBind(){
   tvBtns();
   const g=id=>document.getElementById(id);
