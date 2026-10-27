@@ -10,7 +10,7 @@ const IC={
  book:'<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
  sliders:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',approx:'<path d="M5 10c2-2 4-2 7 0s5 2 7 0M5 15c2-2 4-2 7 0s5 2 7 0"/>',
- arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',speaker:'<path d="M5 9.5h3l4-3.5v12l-4-3.5H5z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',chat:'<path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15h-.5A2.5 2.5 0 0 1 5 12.5z"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
+ arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',phone:'<path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 5.7 5.7L16 13l4 1.5v3A2 2 0 0 1 18 19.5 14 14 0 0 1 4.5 6 2 2 0 0 1 6.5 4z"/>',speaker:'<path d="M5 9.5h3l4-3.5v12l-4-3.5H5z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',chat:'<path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15h-.5A2.5 2.5 0 0 1 5 12.5z"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
  eye:'<path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/>',
  thumb:'<path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.6 10H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/>',
  play:'<path d="M7 4.5v15l12-7.5z"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',
@@ -621,11 +621,12 @@ Rules:
 - When asked for an exercise (quiz, translation, fill-the-gap, role-play, dialogue, sentence building, listening-style drills, anything), create it right away, ask ONE question at a time, wait for the learner's answer, then correct briefly (what was right, the fix, one tip) and move on.
 - The learner may answer in ${LNAME()} script, in Latin phonetics, or in English; accept all and gently model the correct form.
 - Use vocabulary and grammar at their level; at most one new word per exercise item, and say what it means.
-- Weak grammar right now: ${weak.join("; ")||"none yet"}.
+${TV.call?`- CONVERSATION MODE (${TUT.scene||"free chat"}): this is a real spoken conversation, you are the partner, not a lecturer. Speak mostly ${LNAME()}: 1-2 very short sentences (max 25 words) at ${lv} level, each wrapped in «», then a tiny English gloss in parentheses only for a new word. Ask exactly one follow-up question each turn. If the learner makes a mistake, naturally repeat the corrected form inside your reply (a recast) and carry on; only stop to explain if they ask. If they speak English, answer with simple ${LNAME()} plus a hint. No lists, markdown or emoji.\n`:""}- Weak grammar right now: ${weak.join("; ")||"none yet"}.
 - Messages starting with 🎤 were spoken by the learner and transcribed automatically, so they may contain recognition errors or (when marked phonetic) be a romanised phone sequence without word breaks; interpret generously, and if it is unclear ask them to repeat instead of correcting spelling.${TV.speak?"\n- Your reply will be read aloud. Keep it under 45 words, one short question at a time, no lists, no markdown, no emoji.":""}
 - Words they often miss: ${miss.join("; ")||"none yet"}.`;}
 async function tutAsk(onDelta){
-  const msgs=TUT.msgs.slice(-(TV.speak?10:14)).map(m=>({role:m.r,content:m.t}));
+  const msgs=[];TUT.msgs.filter(m=>!m.e).slice(-(TV.speak?10:14)).forEach(m=>{const l=msgs[msgs.length-1];if(l&&l.role===m.r)l.content+="\n"+m.t;else msgs.push({role:m.r,content:m.t});});
+  while(msgs.length&&msgs[0].role!=="user")msgs.shift(); // the API wants the first message from the user
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),30000);
   try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:ctl.signal,
     headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
@@ -642,11 +643,11 @@ async function tutAsk(onDelta){
   catch(e){return{err:e.name==="AbortError"?"Timed out. Try again.":"Network error."};}
   finally{clearTimeout(to);}}
 function tutScroll(){const m=document.getElementById("msgs");if(m)m.scrollTop=m.scrollHeight;}
-function tutDraw(){const m=document.getElementById("msgs");if(!m)return;
-  m.innerHTML=TUT.msgs.map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${TUT.stream?chatHTML(TUT.stream.lastIndexOf("«")>TUT.stream.lastIndexOf("»")?TUT.stream.slice(0,TUT.stream.lastIndexOf("«")):TUT.stream,false):aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=TUT.msgs.length>3?"none":"";tutScroll();}
-async function tutSend(text){
+function tutDraw(){const m=document.getElementById("msgs");if(!m)return;const ch=document.querySelector(".chat");if(ch)ch.classList.toggle("call",!!TV.call);if(typeof tvOrb==="function")tvOrb();
+  m.innerHTML=TUT.msgs.filter(x=>!x.hid).map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${TUT.stream?chatHTML(TUT.stream.lastIndexOf("«")>TUT.stream.lastIndexOf("»")?TUT.stream.slice(0,TUT.stream.lastIndexOf("«")):TUT.stream,false):aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=(TUT.msgs.length>3&&!TUT.menu)||TV.call?"none":"";tutScroll();}
+async function tutSend(text,hid){
   text=(text||"").trim();if(!text||TUT.busy||!AI.key)return;
-  TUT.msgs.push({r:"user",t:text});TUT.busy=true;TUT.stream="";tutDraw();tutSave();
+  TUT.msgs.push(hid?{r:"user",t:text,hid:1}:{r:"user",t:text});TUT.busy=true;TUT.stream="";tutDraw();tutSave();
   if(TV.speak)tvStreamStart();
   let last=0;
   const r=await tutAsk(full=>{TUT.stream=full;const n=performance.now();if(view==="tutor"&&n-last>60){last=n;tutDraw();}if(TV.speak)tvStreamFeed(full,false);});
@@ -656,14 +657,16 @@ async function tutSend(text){
   if(!r.err&&TV.speak&&view==="tutor")tvStreamFeed(r.t,true,()=>{if(TV.hands&&view==="tutor"&&!TV.err&&TV.state==="idle")setTimeout(()=>{if(TV.hands&&view==="tutor"&&TV.state==="idle")tvListen();},200);});
   if(view==="tutor"){tutDraw();const sp=document.getElementById("tspend");if(sp)sp.textContent=usd(aiSpend().usd);}}
 const TUT_QUICK=[["bolt","Quiz me","Quiz me with 5 short questions, one at a time, focusing on my weak spots."],["cap","Explain","Explain my weakest grammar point simply, with 3 examples, then test me on it."],["chat","Role-play","Let's role-play a short everyday dialogue (ordering in a café). You start, keep each line short."],["pencil","Translate","Give me English sentences of 2-3 words to translate, one at a time."]];
+function tqHTML(){return TUT_QUICK.map((q,i)=>`<button data-i="${i}">${ic(q[0],"s")}${q[1]}</button>`).join("");}
 function rTutor(){
   tutLoad();
   if(!AI.key){V.innerHTML=`<div class="hero" style="margin-top:40px"><div class="clock">${ic("chat")}</div></div><div class="note" style="justify-content:center;text-align:center;margin:18px 8px">${ic("spark","s")}<span>The tutor needs your Anthropic API key. Add it in Settings. It costs a few cents a month.</span></div><div class="acts"><button class="btn primary" id="tkey" aria-label="Open settings">${ic("arrow")}</button></div>`;
     document.getElementById("tkey").onclick=()=>go("settings");return;}
-  V.innerHTML=`<div class="chat"><div class="chathead"><span>${ic("chat","s")}Tutor</span><span class="muted" style="font-size:12px;margin-left:auto;white-space:nowrap" title="Estimated AI spend this month"><span id="tspend">${usd(aiSpend().usd)}</span></span><span class="tbtns"><button class="ibtn sm tg1" id="tspk" aria-label="Read replies aloud" aria-pressed="false">${ic("speaker","s")}</button><button class="ibtn sm tg1" id="thands" aria-label="Conversation mode (hands-free)" aria-pressed="false">${ic("mic","s")}</button><button class="ibtn sm" id="tclr" aria-label="New chat">${ic("trash","s")}</button></span></div>
+  V.innerHTML=`<div class="chat"><div class="chathead"><span>${ic("chat","s")}Tutor</span><span class="muted" style="font-size:12px;margin-left:auto;white-space:nowrap" title="Estimated AI spend this month"><span id="tspend">${usd(aiSpend().usd)}</span></span><span class="tbtns"><button class="ibtn sm tg1" id="tspk" aria-label="Read replies aloud" aria-pressed="false">${ic("speaker","s")}</button><button class="ibtn sm tg1" id="thands" aria-label="Voice conversation" aria-pressed="false">${ic("phone","s")}</button><button class="ibtn sm" id="tclr" aria-label="New chat">${ic("trash","s")}</button></span></div>
     <div class="msgs" id="msgs"></div>
     <div class="tstat" id="tstat"></div>
-    <div class="tq" id="tq">${TUT_QUICK.map((q,i)=>`<button data-i="${i}">${ic(q[0],"s")}${q[1]}</button>`).join("")}</div>
+    <div class="tq" id="tq">${tqHTML()}</div>
+    <div class="orbrow"><button class="orb" id="torb" aria-label="Talk">${ic("mic")}</button><button class="ibtn sm" id="tend" aria-label="End conversation">${ic("x","s")}</button></div>
     <div class="composer"><button class="ibtn sm pill" id="tlang" aria-label="Speaking language">FA</button><button class="ibtn micb" id="tmic" aria-label="Speak">${ic("mic")}</button><textarea id="tin" rows="1" placeholder="Message…" aria-label="Message" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><button class="btn primary sendb" id="tsend" aria-label="Send">${ic("arrow")}</button></div></div>`;
   if(!TUT.msgs.length)TUT.msgs.push({r:"assistant",t:`Hi! I'm your ${LNAME()} tutor. Ask me for any exercise, a grammar explanation, a role-play, or just chat. Try saying hello.`,hello:1});
   tutDraw();tvBind();
@@ -671,7 +674,7 @@ function rTutor(){
   document.getElementById("tsend").onclick=()=>{tvUnlock();send();};
   t.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
   t.addEventListener("input",()=>{t.style.height="auto";t.style.height=Math.min(120,t.scrollHeight)+"px";});
-  document.getElementById("tq").onclick=e=>{const b=e.target.closest("button");if(b)tutSend(TUT_QUICK[+b.dataset.i][2]);};
+  document.getElementById("tq").onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.sc!=null){tvCallStart(+b.dataset.sc);return;}if(b.dataset.cancel){tvCallMenu(false);return;}tutSend(TUT_QUICK[+b.dataset.i][2]);};
   document.getElementById("tclr").onclick=()=>{TUT.msgs=[];tutSave();rTutor();};}
 // ---------- settings: pictograms only ----------
 function rSettings(){

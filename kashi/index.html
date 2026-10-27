@@ -390,6 +390,21 @@ body.kb .tq{display:none}
 .composer{align-items:center}
 .composer textarea{padding:13px 15px}
 
+/* conversation (call) mode */
+.orbrow{display:none;align-items:center;justify-content:center;gap:18px;padding:8px 0 4px}
+.chat.call .orbrow{display:flex}
+.chat.call .composer,.chat.call .tq{display:none}
+.chat.call .msg:not(:nth-last-child(-n+2)){display:none}
+.chat.call .msgs{justify-content:flex-end}
+.orb{width:92px;height:92px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center;cursor:pointer;transition:transform .15s}
+.orb svg.i{width:34px;height:34px}
+.orb.listen{background:var(--bad);color:#fff;animation:rec 1.2s infinite}
+.orb.speak{background:var(--ok);color:#fff;animation:rec 1.6s infinite}
+.orb.think,.orb.proc{opacity:.55}
+.orb:active{transform:scale(.95)}
+.tqh{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);padding:0 4px}
+body.kb .chat.call .orb{width:64px;height:64px}
+
 </style>
 </head>
 <body>
@@ -418,7 +433,7 @@ const IC={
  book:'<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
  sliders:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',approx:'<path d="M5 10c2-2 4-2 7 0s5 2 7 0M5 15c2-2 4-2 7 0s5 2 7 0"/>',
- arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',speaker:'<path d="M5 9.5h3l4-3.5v12l-4-3.5H5z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',chat:'<path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15h-.5A2.5 2.5 0 0 1 5 12.5z"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
+ arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',phone:'<path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 5.7 5.7L16 13l4 1.5v3A2 2 0 0 1 18 19.5 14 14 0 0 1 4.5 6 2 2 0 0 1 6.5 4z"/>',speaker:'<path d="M5 9.5h3l4-3.5v12l-4-3.5H5z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',chat:'<path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15h-.5A2.5 2.5 0 0 1 5 12.5z"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
  eye:'<path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/>',
  thumb:'<path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.6 10H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/>',
  play:'<path d="M7 4.5v15l12-7.5z"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',
@@ -1029,11 +1044,12 @@ Rules:
 - When asked for an exercise (quiz, translation, fill-the-gap, role-play, dialogue, sentence building, listening-style drills, anything), create it right away, ask ONE question at a time, wait for the learner's answer, then correct briefly (what was right, the fix, one tip) and move on.
 - The learner may answer in ${LNAME()} script, in Latin phonetics, or in English; accept all and gently model the correct form.
 - Use vocabulary and grammar at their level; at most one new word per exercise item, and say what it means.
-- Weak grammar right now: ${weak.join("; ")||"none yet"}.
+${TV.call?`- CONVERSATION MODE (${TUT.scene||"free chat"}): this is a real spoken conversation, you are the partner, not a lecturer. Speak mostly ${LNAME()}: 1-2 very short sentences (max 25 words) at ${lv} level, each wrapped in «», then a tiny English gloss in parentheses only for a new word. Ask exactly one follow-up question each turn. If the learner makes a mistake, naturally repeat the corrected form inside your reply (a recast) and carry on; only stop to explain if they ask. If they speak English, answer with simple ${LNAME()} plus a hint. No lists, markdown or emoji.\n`:""}- Weak grammar right now: ${weak.join("; ")||"none yet"}.
 - Messages starting with 🎤 were spoken by the learner and transcribed automatically, so they may contain recognition errors or (when marked phonetic) be a romanised phone sequence without word breaks; interpret generously, and if it is unclear ask them to repeat instead of correcting spelling.${TV.speak?"\n- Your reply will be read aloud. Keep it under 45 words, one short question at a time, no lists, no markdown, no emoji.":""}
 - Words they often miss: ${miss.join("; ")||"none yet"}.`;}
 async function tutAsk(onDelta){
-  const msgs=TUT.msgs.slice(-(TV.speak?10:14)).map(m=>({role:m.r,content:m.t}));
+  const msgs=[];TUT.msgs.filter(m=>!m.e).slice(-(TV.speak?10:14)).forEach(m=>{const l=msgs[msgs.length-1];if(l&&l.role===m.r)l.content+="\n"+m.t;else msgs.push({role:m.r,content:m.t});});
+  while(msgs.length&&msgs[0].role!=="user")msgs.shift(); // the API wants the first message from the user
   const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),30000);
   try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:ctl.signal,
     headers:{"content-type":"application/json","x-api-key":AI.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
@@ -1050,11 +1066,11 @@ async function tutAsk(onDelta){
   catch(e){return{err:e.name==="AbortError"?"Timed out. Try again.":"Network error."};}
   finally{clearTimeout(to);}}
 function tutScroll(){const m=document.getElementById("msgs");if(m)m.scrollTop=m.scrollHeight;}
-function tutDraw(){const m=document.getElementById("msgs");if(!m)return;
-  m.innerHTML=TUT.msgs.map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${TUT.stream?chatHTML(TUT.stream.lastIndexOf("«")>TUT.stream.lastIndexOf("»")?TUT.stream.slice(0,TUT.stream.lastIndexOf("«")):TUT.stream,false):aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=TUT.msgs.length>3?"none":"";tutScroll();}
-async function tutSend(text){
+function tutDraw(){const m=document.getElementById("msgs");if(!m)return;const ch=document.querySelector(".chat");if(ch)ch.classList.toggle("call",!!TV.call);if(typeof tvOrb==="function")tvOrb();
+  m.innerHTML=TUT.msgs.filter(x=>!x.hid).map(x=>`<div class="msg ${x.r==="user"?"u":"a"}">${chatHTML(x.t,x.r==="user")}</div>`).join("")+(TUT.busy?`<div class="msg a">${TUT.stream?chatHTML(TUT.stream.lastIndexOf("«")>TUT.stream.lastIndexOf("»")?TUT.stream.slice(0,TUT.stream.lastIndexOf("«")):TUT.stream,false):aiWait()}</div>`:"");const q=document.getElementById("tq");if(q)q.style.display=(TUT.msgs.length>3&&!TUT.menu)||TV.call?"none":"";tutScroll();}
+async function tutSend(text,hid){
   text=(text||"").trim();if(!text||TUT.busy||!AI.key)return;
-  TUT.msgs.push({r:"user",t:text});TUT.busy=true;TUT.stream="";tutDraw();tutSave();
+  TUT.msgs.push(hid?{r:"user",t:text,hid:1}:{r:"user",t:text});TUT.busy=true;TUT.stream="";tutDraw();tutSave();
   if(TV.speak)tvStreamStart();
   let last=0;
   const r=await tutAsk(full=>{TUT.stream=full;const n=performance.now();if(view==="tutor"&&n-last>60){last=n;tutDraw();}if(TV.speak)tvStreamFeed(full,false);});
@@ -1064,14 +1080,16 @@ async function tutSend(text){
   if(!r.err&&TV.speak&&view==="tutor")tvStreamFeed(r.t,true,()=>{if(TV.hands&&view==="tutor"&&!TV.err&&TV.state==="idle")setTimeout(()=>{if(TV.hands&&view==="tutor"&&TV.state==="idle")tvListen();},200);});
   if(view==="tutor"){tutDraw();const sp=document.getElementById("tspend");if(sp)sp.textContent=usd(aiSpend().usd);}}
 const TUT_QUICK=[["bolt","Quiz me","Quiz me with 5 short questions, one at a time, focusing on my weak spots."],["cap","Explain","Explain my weakest grammar point simply, with 3 examples, then test me on it."],["chat","Role-play","Let's role-play a short everyday dialogue (ordering in a café). You start, keep each line short."],["pencil","Translate","Give me English sentences of 2-3 words to translate, one at a time."]];
+function tqHTML(){return TUT_QUICK.map((q,i)=>`<button data-i="${i}">${ic(q[0],"s")}${q[1]}</button>`).join("");}
 function rTutor(){
   tutLoad();
   if(!AI.key){V.innerHTML=`<div class="hero" style="margin-top:40px"><div class="clock">${ic("chat")}</div></div><div class="note" style="justify-content:center;text-align:center;margin:18px 8px">${ic("spark","s")}<span>The tutor needs your Anthropic API key. Add it in Settings. It costs a few cents a month.</span></div><div class="acts"><button class="btn primary" id="tkey" aria-label="Open settings">${ic("arrow")}</button></div>`;
     document.getElementById("tkey").onclick=()=>go("settings");return;}
-  V.innerHTML=`<div class="chat"><div class="chathead"><span>${ic("chat","s")}Tutor</span><span class="muted" style="font-size:12px;margin-left:auto;white-space:nowrap" title="Estimated AI spend this month"><span id="tspend">${usd(aiSpend().usd)}</span></span><span class="tbtns"><button class="ibtn sm tg1" id="tspk" aria-label="Read replies aloud" aria-pressed="false">${ic("speaker","s")}</button><button class="ibtn sm tg1" id="thands" aria-label="Conversation mode (hands-free)" aria-pressed="false">${ic("mic","s")}</button><button class="ibtn sm" id="tclr" aria-label="New chat">${ic("trash","s")}</button></span></div>
+  V.innerHTML=`<div class="chat"><div class="chathead"><span>${ic("chat","s")}Tutor</span><span class="muted" style="font-size:12px;margin-left:auto;white-space:nowrap" title="Estimated AI spend this month"><span id="tspend">${usd(aiSpend().usd)}</span></span><span class="tbtns"><button class="ibtn sm tg1" id="tspk" aria-label="Read replies aloud" aria-pressed="false">${ic("speaker","s")}</button><button class="ibtn sm tg1" id="thands" aria-label="Voice conversation" aria-pressed="false">${ic("phone","s")}</button><button class="ibtn sm" id="tclr" aria-label="New chat">${ic("trash","s")}</button></span></div>
     <div class="msgs" id="msgs"></div>
     <div class="tstat" id="tstat"></div>
-    <div class="tq" id="tq">${TUT_QUICK.map((q,i)=>`<button data-i="${i}">${ic(q[0],"s")}${q[1]}</button>`).join("")}</div>
+    <div class="tq" id="tq">${tqHTML()}</div>
+    <div class="orbrow"><button class="orb" id="torb" aria-label="Talk">${ic("mic")}</button><button class="ibtn sm" id="tend" aria-label="End conversation">${ic("x","s")}</button></div>
     <div class="composer"><button class="ibtn sm pill" id="tlang" aria-label="Speaking language">FA</button><button class="ibtn micb" id="tmic" aria-label="Speak">${ic("mic")}</button><textarea id="tin" rows="1" placeholder="Message…" aria-label="Message" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><button class="btn primary sendb" id="tsend" aria-label="Send">${ic("arrow")}</button></div></div>`;
   if(!TUT.msgs.length)TUT.msgs.push({r:"assistant",t:`Hi! I'm your ${LNAME()} tutor. Ask me for any exercise, a grammar explanation, a role-play, or just chat. Try saying hello.`,hello:1});
   tutDraw();tvBind();
@@ -1079,7 +1097,7 @@ function rTutor(){
   document.getElementById("tsend").onclick=()=>{tvUnlock();send();};
   t.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
   t.addEventListener("input",()=>{t.style.height="auto";t.style.height=Math.min(120,t.scrollHeight)+"px";});
-  document.getElementById("tq").onclick=e=>{const b=e.target.closest("button");if(b)tutSend(TUT_QUICK[+b.dataset.i][2]);};
+  document.getElementById("tq").onclick=e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.sc!=null){tvCallStart(+b.dataset.sc);return;}if(b.dataset.cancel){tvCallMenu(false);return;}tutSend(TUT_QUICK[+b.dataset.i][2]);};
   document.getElementById("tclr").onclick=()=>{TUT.msgs=[];tutSave();rTutor();};}
 // ---------- settings: pictograms only ----------
 function rSettings(){
@@ -1481,17 +1499,17 @@ function registerSW(){try{if("serviceWorker"in navigator&&location.protocol==="h
 // Input: the browser's speech recognition when it has the language (best transcript); otherwise the
 // on-device phoneme model from the speech sprint (the teacher then reads a phonetic transcript).
 // Output: the browser's text-to-speech. Both are free; only the chat messages use the API.
-const TV={speak:false,hands:false,lang:"t",rec:null,state:"idle",forcePh:false,mode:null,idle:0,err:false};
+const TV={call:false,speak:false,hands:false,lang:"t",rec:null,state:"idle",forcePh:false,mode:null,idle:0,err:false};
 try{const s=JSON.parse(localStorage.getItem("kashi-tv")||"{}");TV.speak=!!s.speak;TV.hands=!!s.hands;}catch(e){}
 const tvSaveS=()=>{try{localStorage.setItem("kashi-tv",JSON.stringify({speak:TV.speak,hands:TV.hands}));}catch(e){}};
 const tvSR=()=>window.SpeechRecognition||window.webkitSpeechRecognition;
 const tvTTS=()=>"speechSynthesis"in window&&typeof SpeechSynthesisUtterance!=="undefined";
 function tvStat(h,bad){const el=document.getElementById("tstat");if(el){el.innerHTML=h||"";el.classList.toggle("bad",!!bad);}}
-function tvSet(st,txt){TV.state=st;if(st!=="idle"||txt)TV.err=false;tvStat(txt?esc(txt):"");
+function tvSet(st,txt){TV.state=st;setTimeout(tvOrb,0);if(st!=="idle"||txt)TV.err=false;tvStat(txt?esc(txt):"");
   const m=document.getElementById("tmic");if(m){m.classList.toggle("rec",st==="listen");m.innerHTML=ic(st==="listen"?"stop":"mic");m.setAttribute("aria-label",st==="listen"?"Stop":"Speak");}}
 function tvErr(msg){TV.err=true;TV.hands=false;tvSaveS();tvBtns();TV.state="idle";tvStat(esc(msg),true);const m=document.getElementById("tmic");if(m){m.classList.remove("rec");m.innerHTML=ic("mic");}}
 function tvBtns(){const s=document.getElementById("tspk"),h=document.getElementById("thands"),l=document.getElementById("tlang");
-  if(s)s.setAttribute("aria-pressed",TV.speak);if(h)h.setAttribute("aria-pressed",TV.hands);if(l)l.textContent=TV.lang==="e"?"EN":PK.code.toUpperCase();}
+  if(s)s.setAttribute("aria-pressed",TV.speak);if(h)h.setAttribute("aria-pressed",!!TV.call);if(l)l.textContent=TV.lang==="e"?"EN":PK.code.toUpperCase();}
 function tvVoice(lang){if(!tvTTS())return null;const vs=speechSynthesis.getVoices(),L=lang.toLowerCase().replace("_","-"),p=L.slice(0,2);
   return vs.find(v=>v.lang.toLowerCase().replace("_","-")===L)||vs.find(v=>v.lang.toLowerCase().startsWith(p))||null;}
 if(tvTTS())try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{};}catch(e){}
@@ -1500,7 +1518,7 @@ function tvUnlock(){if(!tvTTS())return;try{const u=new SpeechSynthesisUtterance(
 // speech is queued sentence by sentence while the reply is still streaming in
 TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;
 function tvStreamStart(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;}
-function tvCheck(){if(TV.fin&&TV.pend<=0){TV.fin=false;if(TV.state==="speak")TV.state="idle";const d=TV.done;TV.done=null;if(!TV.err&&!TV.noVoiceShown)tvStat("");d&&d();}}
+function tvCheck(){if(TV.fin&&TV.pend<=0){TV.fin=false;if(TV.state==="speak")TV.state="idle";tvOrb();const d=TV.done;TV.done=null;if(!TV.err&&!TV.noVoiceShown)tvStat("");d&&d();}}
 function tvEnqueue(text){
   if(!tvTTS())return;
   const parts=[];String(text).replace(/\*\*/g,"").split(/(«[^»]+»)/).forEach(p=>{if(!p.trim())return;
@@ -1509,7 +1527,7 @@ function tvEnqueue(text){
   if(parts.some(p=>p.f)&&!fv){TV.noVoiceShown=true;tvStat(`${ic("x","s")}No ${esc(LNAME())} voice on this device: English only`,true);}
   parts.filter(p=>!p.f||fv).forEach(p=>{const u=new SpeechSynthesisUtterance(p.t),v=p.f?fv:ev;
     if(v){u.voice=v;u.lang=v.lang;}else u.lang=p.f?tl:"en-US";u.rate=p.f?.85:1.05;
-    TV.pend++;TV.state="speak";if(!TV.noVoiceShown)tvStat(`${ic("speaker","s")}Speaking…`);
+    TV.pend++;TV.state="speak";tvOrb();if(!TV.noVoiceShown)tvStat(`${ic("speaker","s")}Speaking…`);
     let d=false;const end=()=>{if(d)return;d=true;TV.pend--;tvCheck();};u.onend=end;u.onerror=end;
     try{speechSynthesis.speak(u);}catch(e){end();}});}
 // feed the reply as it grows: speak each finished sentence at once (not inside «»)
@@ -1563,14 +1581,32 @@ async function phStop(){
     if(!txt){tvStat("Nothing heard. Try again.",true);return;}
     tutSend("🎤 (phonetic transcript, may contain errors) "+txt);}
   catch(e){micClose();tvSet("idle","");tvStat(esc(/short|empty/.test(String(e&&e.message))?"Too short. Tap, speak, tap again.":"Couldn't analyse that."),true);}}
-function tvStop(){TV.hands=false;tvStopSpeak();try{if(TV.rec)TV.rec.stop();}catch(e){}TV.rec=null;if(typeof micClose==="function")try{micClose();}catch(e){}TV.state="idle";}
+function tvStop(){TV.hands=false;TV.call=false;tvStopSpeak();try{if(TV.rec)TV.rec.stop();}catch(e){}TV.rec=null;if(typeof micClose==="function")try{micClose();}catch(e){}TV.state="idle";}
+// ---- voice conversation ("call") mode ----
+const SCEN=[["Free chat","an open, friendly chat about my day and interests"],["Café","I order food and drinks in a café"],["Meet someone","We meet for the first time and introduce ourselves"],["Directions","I ask for and understand directions in a city"],["Shopping","I buy things at a shop or bazaar and bargain a bit"],["Hotel","I check in at a hotel and ask questions"]];
+function tvOrb(){const o=document.getElementById("torb");if(!o)return;
+  const st=TV.state==="listen"?"listen":TV.state==="proc"?"proc":(TUT.busy?"think":TV.state==="speak"?"speak":"idle");
+  o.className="orb "+st;o.innerHTML=ic(st==="listen"?"stop":st==="speak"?"speaker":"mic");
+  o.setAttribute("aria-label",({listen:"Stop listening",speak:"Interrupt and talk",think:"Thinking",proc:"Analysing",idle:"Talk"})[st]);}
+function tvCallMenu(on){TUT.menu=on;const q=document.getElementById("tq");if(!q)return;
+  q.innerHTML=on?`<span class="tqh">${ic("phone","s")}Conversation about…</span>`+SCEN.map((x,i)=>`<button data-sc="${i}">${x[0]}</button>`).join("")+`<button data-cancel="1" aria-label="Cancel">${ic("x","s")}</button>`:tqHTML();
+  q.style.display="";}
+function tvCallStart(i){
+  TUT.menu=false;TV.call=true;TV.speak=true;TV.hands=true;TV.idle=0;TV.err=false;TUT.scene=SCEN[i][0];tvSaveS();tvUnlock();
+  const q=document.getElementById("tq");if(q){q.innerHTML=tqHTML();}
+  tvBtns();tutDraw();
+  tutSend(`(Start our spoken conversation now. Scenario: ${SCEN[i][1]}. Greet me and ask the first question.)`,true);}
+function tvCallEnd(){TV.call=false;TV.hands=false;tvStop();tvSaveS();tvBtns();tvStat("");tutDraw();}
 function tvBind(){
   tvBtns();
   const g=id=>document.getElementById(id);
   g("tmic").onclick=tvListen;
   g("tspk").onclick=()=>{TV.speak=!TV.speak;if(!TV.speak){TV.hands=false;tvStopSpeak();tvStat("");}else tvUnlock();tvSaveS();tvBtns();};
-  g("thands").onclick=()=>{TV.hands=!TV.hands;if(TV.hands){TV.speak=true;TV.idle=0;tvUnlock();if(!tvSR()&&!PK.speech){TV.hands=false;tvErr(`Speech input isn't available for ${LNAME()} here.`);}else if(TV.state==="idle"&&!TUT.busy)tvListen();}else{tvStopSpeak();if(TV.state==="listen")tvStopListen();tvStat("");}tvSaveS();tvBtns();};
-  g("tlang").onclick=()=>{TV.lang=TV.lang==="e"?"t":"e";tvBtns();};}
+  g("thands").onclick=()=>{if(TV.call)tvCallEnd();else tvCallMenu(!TUT.menu);};
+  g("tend").onclick=tvCallEnd;
+  g("torb").onclick=()=>{tvUnlock();if(TV.state==="speak"){tvStopSpeak();tvListen();}else if(TV.state==="listen")tvStopListen();else if(TV.state==="idle"&&!TUT.busy)tvListen();};
+  g("tlang").onclick=()=>{TV.lang=TV.lang==="e"?"t":"e";tvBtns();};
+  tvOrb();}
 
 // ===================== Persian pack =====================
 PACKS.fa={code:"fa",speechLang:"fa-IR",flag:"🇮🇷",native:"فارسی",name:"Persian",dir:"rtl",font:'"Vazirmatn",Tahoma,"Noto Naskh Arabic",sans-serif',

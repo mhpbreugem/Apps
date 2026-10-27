@@ -2,17 +2,17 @@
 // Input: the browser's speech recognition when it has the language (best transcript); otherwise the
 // on-device phoneme model from the speech sprint (the teacher then reads a phonetic transcript).
 // Output: the browser's text-to-speech. Both are free; only the chat messages use the API.
-const TV={speak:false,hands:false,lang:"t",rec:null,state:"idle",forcePh:false,mode:null,idle:0,err:false};
+const TV={call:false,speak:false,hands:false,lang:"t",rec:null,state:"idle",forcePh:false,mode:null,idle:0,err:false};
 try{const s=JSON.parse(localStorage.getItem("kashi-tv")||"{}");TV.speak=!!s.speak;TV.hands=!!s.hands;}catch(e){}
 const tvSaveS=()=>{try{localStorage.setItem("kashi-tv",JSON.stringify({speak:TV.speak,hands:TV.hands}));}catch(e){}};
 const tvSR=()=>window.SpeechRecognition||window.webkitSpeechRecognition;
 const tvTTS=()=>"speechSynthesis"in window&&typeof SpeechSynthesisUtterance!=="undefined";
 function tvStat(h,bad){const el=document.getElementById("tstat");if(el){el.innerHTML=h||"";el.classList.toggle("bad",!!bad);}}
-function tvSet(st,txt){TV.state=st;if(st!=="idle"||txt)TV.err=false;tvStat(txt?esc(txt):"");
+function tvSet(st,txt){TV.state=st;setTimeout(tvOrb,0);if(st!=="idle"||txt)TV.err=false;tvStat(txt?esc(txt):"");
   const m=document.getElementById("tmic");if(m){m.classList.toggle("rec",st==="listen");m.innerHTML=ic(st==="listen"?"stop":"mic");m.setAttribute("aria-label",st==="listen"?"Stop":"Speak");}}
 function tvErr(msg){TV.err=true;TV.hands=false;tvSaveS();tvBtns();TV.state="idle";tvStat(esc(msg),true);const m=document.getElementById("tmic");if(m){m.classList.remove("rec");m.innerHTML=ic("mic");}}
 function tvBtns(){const s=document.getElementById("tspk"),h=document.getElementById("thands"),l=document.getElementById("tlang");
-  if(s)s.setAttribute("aria-pressed",TV.speak);if(h)h.setAttribute("aria-pressed",TV.hands);if(l)l.textContent=TV.lang==="e"?"EN":PK.code.toUpperCase();}
+  if(s)s.setAttribute("aria-pressed",TV.speak);if(h)h.setAttribute("aria-pressed",!!TV.call);if(l)l.textContent=TV.lang==="e"?"EN":PK.code.toUpperCase();}
 function tvVoice(lang){if(!tvTTS())return null;const vs=speechSynthesis.getVoices(),L=lang.toLowerCase().replace("_","-"),p=L.slice(0,2);
   return vs.find(v=>v.lang.toLowerCase().replace("_","-")===L)||vs.find(v=>v.lang.toLowerCase().startsWith(p))||null;}
 if(tvTTS())try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{};}catch(e){}
@@ -21,7 +21,7 @@ function tvUnlock(){if(!tvTTS())return;try{const u=new SpeechSynthesisUtterance(
 // speech is queued sentence by sentence while the reply is still streaming in
 TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;
 function tvStreamStart(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;}
-function tvCheck(){if(TV.fin&&TV.pend<=0){TV.fin=false;if(TV.state==="speak")TV.state="idle";const d=TV.done;TV.done=null;if(!TV.err&&!TV.noVoiceShown)tvStat("");d&&d();}}
+function tvCheck(){if(TV.fin&&TV.pend<=0){TV.fin=false;if(TV.state==="speak")TV.state="idle";tvOrb();const d=TV.done;TV.done=null;if(!TV.err&&!TV.noVoiceShown)tvStat("");d&&d();}}
 function tvEnqueue(text){
   if(!tvTTS())return;
   const parts=[];String(text).replace(/\*\*/g,"").split(/(«[^»]+»)/).forEach(p=>{if(!p.trim())return;
@@ -30,7 +30,7 @@ function tvEnqueue(text){
   if(parts.some(p=>p.f)&&!fv){TV.noVoiceShown=true;tvStat(`${ic("x","s")}No ${esc(LNAME())} voice on this device: English only`,true);}
   parts.filter(p=>!p.f||fv).forEach(p=>{const u=new SpeechSynthesisUtterance(p.t),v=p.f?fv:ev;
     if(v){u.voice=v;u.lang=v.lang;}else u.lang=p.f?tl:"en-US";u.rate=p.f?.85:1.05;
-    TV.pend++;TV.state="speak";if(!TV.noVoiceShown)tvStat(`${ic("speaker","s")}Speaking…`);
+    TV.pend++;TV.state="speak";tvOrb();if(!TV.noVoiceShown)tvStat(`${ic("speaker","s")}Speaking…`);
     let d=false;const end=()=>{if(d)return;d=true;TV.pend--;tvCheck();};u.onend=end;u.onerror=end;
     try{speechSynthesis.speak(u);}catch(e){end();}});}
 // feed the reply as it grows: speak each finished sentence at once (not inside «»)
@@ -84,11 +84,29 @@ async function phStop(){
     if(!txt){tvStat("Nothing heard. Try again.",true);return;}
     tutSend("🎤 (phonetic transcript, may contain errors) "+txt);}
   catch(e){micClose();tvSet("idle","");tvStat(esc(/short|empty/.test(String(e&&e.message))?"Too short. Tap, speak, tap again.":"Couldn't analyse that."),true);}}
-function tvStop(){TV.hands=false;tvStopSpeak();try{if(TV.rec)TV.rec.stop();}catch(e){}TV.rec=null;if(typeof micClose==="function")try{micClose();}catch(e){}TV.state="idle";}
+function tvStop(){TV.hands=false;TV.call=false;tvStopSpeak();try{if(TV.rec)TV.rec.stop();}catch(e){}TV.rec=null;if(typeof micClose==="function")try{micClose();}catch(e){}TV.state="idle";}
+// ---- voice conversation ("call") mode ----
+const SCEN=[["Free chat","an open, friendly chat about my day and interests"],["Café","I order food and drinks in a café"],["Meet someone","We meet for the first time and introduce ourselves"],["Directions","I ask for and understand directions in a city"],["Shopping","I buy things at a shop or bazaar and bargain a bit"],["Hotel","I check in at a hotel and ask questions"]];
+function tvOrb(){const o=document.getElementById("torb");if(!o)return;
+  const st=TV.state==="listen"?"listen":TV.state==="proc"?"proc":(TUT.busy?"think":TV.state==="speak"?"speak":"idle");
+  o.className="orb "+st;o.innerHTML=ic(st==="listen"?"stop":st==="speak"?"speaker":"mic");
+  o.setAttribute("aria-label",({listen:"Stop listening",speak:"Interrupt and talk",think:"Thinking",proc:"Analysing",idle:"Talk"})[st]);}
+function tvCallMenu(on){TUT.menu=on;const q=document.getElementById("tq");if(!q)return;
+  q.innerHTML=on?`<span class="tqh">${ic("phone","s")}Conversation about…</span>`+SCEN.map((x,i)=>`<button data-sc="${i}">${x[0]}</button>`).join("")+`<button data-cancel="1" aria-label="Cancel">${ic("x","s")}</button>`:tqHTML();
+  q.style.display="";}
+function tvCallStart(i){
+  TUT.menu=false;TV.call=true;TV.speak=true;TV.hands=true;TV.idle=0;TV.err=false;TUT.scene=SCEN[i][0];tvSaveS();tvUnlock();
+  const q=document.getElementById("tq");if(q){q.innerHTML=tqHTML();}
+  tvBtns();tutDraw();
+  tutSend(`(Start our spoken conversation now. Scenario: ${SCEN[i][1]}. Greet me and ask the first question.)`,true);}
+function tvCallEnd(){TV.call=false;TV.hands=false;tvStop();tvSaveS();tvBtns();tvStat("");tutDraw();}
 function tvBind(){
   tvBtns();
   const g=id=>document.getElementById(id);
   g("tmic").onclick=tvListen;
   g("tspk").onclick=()=>{TV.speak=!TV.speak;if(!TV.speak){TV.hands=false;tvStopSpeak();tvStat("");}else tvUnlock();tvSaveS();tvBtns();};
-  g("thands").onclick=()=>{TV.hands=!TV.hands;if(TV.hands){TV.speak=true;TV.idle=0;tvUnlock();if(!tvSR()&&!PK.speech){TV.hands=false;tvErr(`Speech input isn't available for ${LNAME()} here.`);}else if(TV.state==="idle"&&!TUT.busy)tvListen();}else{tvStopSpeak();if(TV.state==="listen")tvStopListen();tvStat("");}tvSaveS();tvBtns();};
-  g("tlang").onclick=()=>{TV.lang=TV.lang==="e"?"t":"e";tvBtns();};}
+  g("thands").onclick=()=>{if(TV.call)tvCallEnd();else tvCallMenu(!TUT.menu);};
+  g("tend").onclick=tvCallEnd;
+  g("torb").onclick=()=>{tvUnlock();if(TV.state==="speak"){tvStopSpeak();tvListen();}else if(TV.state==="listen")tvStopListen();else if(TV.state==="idle"&&!TUT.busy)tvListen();};
+  g("tlang").onclick=()=>{TV.lang=TV.lang==="e"?"t":"e";tvBtns();};
+  tvOrb();}
