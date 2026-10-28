@@ -411,6 +411,10 @@ body.kb .chat.call .orb{width:64px;height:64px}
 #toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,12px);max-width:86vw;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:13px;line-height:1.35;opacity:0;pointer-events:none;transition:.2s;z-index:30;text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 
+.azform{display:flex;flex-direction:column;gap:8px;padding:2px 16px 16px}
+.azform input{width:100%;box-sizing:border-box;border:0;outline:0;background:var(--surface2);color:var(--ink);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px}
+.azform .btn{width:100%}
+
 </style>
 </head>
 <body>
@@ -1126,8 +1130,8 @@ function rSettings(){
         :`<input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Anthropic API key">`}</div></div>
     ${speechRowHTML()}
     ${PK.speechLang&&AZV[PK.speechLang]?`<div class="row"><span class="lab">${ic("speaker")}${tx("Voice (Azure key + region)")}</span>
-      <div class="ghbox">${AZ.key?`<span class="muted" style="font-size:12px">${esc(AZ.region)}</span><button class="ibtn sm" id="azt" aria-label="Test voice">${ic("play","s")}</button><button class="ibtn sm" id="azoff" aria-label="Remove key">${ic("x","s")}</button>`
-        :`<input id="azr" value="${esc(AZ.region)}" spellcheck="false" aria-label="Azure region" style="width:92px"><input id="azk" type="password" autocomplete="off" spellcheck="false" placeholder="key" aria-label="Azure key"><button class="ibtn sm" id="azsave" aria-label="Save">${ic("check","s")}</button>`}</div></div>
+      ${AZ.key?`<div class="ghbox"><span class="muted" style="font-size:12px">${esc(AZ.region)}</span><button class="ibtn sm" id="azt" aria-label="Test voice">${ic("play","s")}</button><button class="ibtn sm" id="azoff" aria-label="Remove key">${ic("x","s")}</button></div>`:""}</div>
+    ${AZ.key?"":`<div class="azform"><input id="azr" value="${esc(AZ.region)}" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Azure region" placeholder="Region, e.g. westeurope"><input id="azk" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Azure key" placeholder="Paste the Azure key here"><button class="btn primary" id="azsave" aria-label="Save key">${ic("check")}</button></div>`}
     ${AZ.key?`<div class="row"><span class="lab">${ic("timer")}${tx("Voice characters this month / cap")}</span><div class="stepper"><button id="azc-" aria-label="Lower cap">${ic("minus","s")}</button><b id="azn" style="font-size:13px">${Math.round(azUsed()/1000)}k/${Math.round(AZ.cap/1000)}k</b><button id="azc+" aria-label="Raise cap">${ic("plus","s")}</button></div></div>`:""}`:""}
     ${AI.key?`<div class="row"><span class="lab">${ic("timer")}${tx("AI spend this month (estimate)")}</span><span class="num">${usd(aiSpend().usd)} · ${aiSpend().n}×</span></div>`:""}
     <div class="row"><span class="lab">${ic("download")}${tx("Backup: export / import")}</span><div class="chips">
@@ -1153,7 +1157,9 @@ function rSettings(){
     ak.addEventListener("change",go);ak.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go();}});}
   const ao=document.getElementById("aioff");if(ao)ao.onclick=()=>{AI.key=null;try{localStorage.removeItem("kashi-ai");}catch(e){}rSettings();};
   const azs=document.getElementById("azsave");
-  if(azs)azs.onclick=()=>{const k=document.getElementById("azk").value.trim(),r=document.getElementById("azr").value.trim().toLowerCase();if(k.length<20||!r)return;AZ.key=k;AZ.region=r;try{localStorage.setItem("kashi-az",k);localStorage.setItem("kashi-azr",r);}catch(e){}rSettings();};
+  const azSave=()=>{const k=document.getElementById("azk").value.trim(),r=document.getElementById("azr").value.trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+    if(!r){toast("Enter the region, for example westeurope.");return;}if(k.length<16){toast("That key looks too short. Paste the whole key.");return;}AZ.key=k;AZ.region=r;try{localStorage.setItem("kashi-az",k);localStorage.setItem("kashi-azr",r);}catch(e){}rSettings();};
+  if(azs){azs.onclick=azSave;const kk=document.getElementById("azk");kk.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();azSave();}});}
   const azo=document.getElementById("azoff");if(azo)azo.onclick=()=>{AZ.key=null;try{localStorage.removeItem("kashi-az");}catch(e){}rSettings();};
   const azt=document.getElementById("azt");if(azt)azt.onclick=async()=>{azt.innerHTML=ic("repeat","s");const r=await azAudio("سلام");azt.innerHTML=ic(r.err?"x":"play","s");if(r.err)azFail(r);else azPlay("سلام");const n=document.getElementById("azn");if(n)n.textContent=Math.round(azUsed()/1000)+"k/"+Math.round(AZ.cap/1000)+"k";};
   const CAPS=[50000,100000,250000,400000,500000,1000000];
