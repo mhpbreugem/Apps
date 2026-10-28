@@ -18,21 +18,26 @@ function tvVoice(lang){if(!tvTTS())return null;const vs=speechSynthesis.getVoice
 if(tvTTS())try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{};}catch(e){}
 // iOS only lets speech start from a tap: prime it on the tap that sends or records
 function tvUnlock(){if(!tvTTS())return;try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);}catch(e){}}
-// speech is queued sentence by sentence while the reply is still streaming in
-TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;
-function tvStreamStart(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.pend=0;TV.off=0;TV.fin=false;TV.done=null;}
-function tvCheck(){if(TV.fin&&TV.pend<=0){TV.fin=false;if(TV.state==="speak")TV.state="idle";tvOrb();const d=TV.done;TV.done=null;if(!TV.err&&!TV.noVoiceShown)tvStat("");d&&d();}}
+// speech is queued sentence by sentence while the reply is still streaming in.
+// English parts use the device voice; target-language parts use the Azure voice when a key is set, else the device voice.
+TV.q=[];TV.playing=false;TV.off=0;TV.fin=false;TV.done=null;
+function tvStreamStart(){tvStopSpeak();TV.off=0;TV.fin=false;TV.done=null;TV.noVoiceShown=false;}
+function tvCheck(){if(TV.fin&&!TV.q.length&&!TV.playing){TV.fin=false;if(TV.state==="speak")TV.state="idle";tvOrb();const d=TV.done;TV.done=null;if(!TV.err&&!TV.noVoiceShown)tvStat("");d&&d();}}
+function tvPump(){
+  if(TV.playing)return;const it=TV.q.shift();if(!it){tvCheck();return;}
+  TV.playing=true;TV.state="speak";tvOrb();if(!TV.noVoiceShown)tvStat(`${ic("speaker","s")}Speaking…`);
+  let d=false;const next=()=>{if(d)return;d=true;TV.playing=false;tvPump();};
+  if(it.az){azPlay(it.t).then(next,next);return;}
+  try{const u=new SpeechSynthesisUtterance(it.t);if(it.v){u.voice=it.v;u.lang=it.v.lang;}else u.lang=it.l;u.rate=it.f?.85:1.05;u.onend=next;u.onerror=next;speechSynthesis.speak(u);}catch(e){next();}}
 function tvEnqueue(text){
-  if(!tvTTS())return;
   const parts=[];String(text).replace(/\*\*/g,"").split(/(«[^»]+»)/).forEach(p=>{if(!p.trim())return;
     if(p[0]==="«")parts.push({t:p.slice(1,-1),f:true});else{const q=p.replace(/^[-•] /gm,"").replace(/[«»]/g,"").replace(/⚠/g,"").trim();if(q)parts.push({t:q,f:false});}});
-  const tl=PK.speechLang||PK.code,fv=tvVoice(tl),ev=tvVoice("en-GB")||tvVoice("en-US")||tvVoice("en");
-  if(parts.some(p=>p.f)&&!fv){TV.noVoiceShown=true;tvStat(`${ic("x","s")}No ${esc(LNAME())} voice on this device: English only`,true);}
-  parts.filter(p=>!p.f||fv).forEach(p=>{const u=new SpeechSynthesisUtterance(p.t),v=p.f?fv:ev;
-    if(v){u.voice=v;u.lang=v.lang;}else u.lang=p.f?tl:"en-US";u.rate=p.f?.85:1.05;
-    TV.pend++;TV.state="speak";tvOrb();if(!TV.noVoiceShown)tvStat(`${ic("speaker","s")}Speaking…`);
-    let d=false;const end=()=>{if(d)return;d=true;TV.pend--;tvCheck();};u.onend=end;u.onerror=end;
-    try{speechSynthesis.speak(u);}catch(e){end();}});}
+  const tl=PK.speechLang||PK.code,fv=tvTTS()?tvVoice(tl):null,ev=tvTTS()?(tvVoice("en-GB")||tvVoice("en-US")||tvVoice("en")):null,az=azOn();
+  if(parts.some(p=>p.f)&&!fv&&!az){TV.noVoiceShown=true;tvStat(`${ic("x","s")}No ${esc(LNAME())} voice. Add an Azure key in Settings.`,true);}
+  parts.forEach(p=>{
+    if(p.f){if(az){azAudio(p.t);TV.q.push({az:1,t:p.t});}else if(fv)TV.q.push({t:p.t,f:1,v:fv,l:tl});}
+    else if(tvTTS())TV.q.push({t:p.t,v:ev,l:"en-US"});});
+  tvPump();}
 // feed the reply as it grows: speak each finished sentence at once (not inside «»)
 function tvStreamFeed(full,final,done){
   for(;;){let end=-1,depth=0;
@@ -41,7 +46,7 @@ function tvStreamFeed(full,final,done){
     if(end<0)break;const chunk=full.slice(TV.off,end);TV.off=end;if(chunk.trim())tvEnqueue(chunk);}
   if(final){const rest=full.slice(TV.off);TV.off=full.length;if(rest.trim())tvEnqueue(rest);TV.fin=true;TV.done=done||null;tvCheck();}}
 function tvSpeak(text,done){tvStreamStart();tvStreamFeed(text,true,done);}
-function tvStopSpeak(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.pend=0;TV.fin=false;TV.done=null;TV.noVoiceShown=false;if(TV.state==="speak")TV.state="idle";}
+function tvStopSpeak(){try{if(tvTTS())speechSynthesis.cancel();}catch(e){}TV.q=[];TV.playing=false;if(typeof azStop==="function")azStop();TV.fin=false;TV.done=null;TV.noVoiceShown=false;if(TV.state==="speak")TV.state="idle";}
 function tvListen(){
   if(TV.state==="listen"){tvStopListen();return;}
   if(TV.state==="proc"||TUT.busy||!AI.key)return;

@@ -3,7 +3,7 @@
 import json,os,shutil,hashlib
 R=os.path.dirname(os.path.abspath(__file__))
 rd=lambda p:open(os.path.join(R,p),encoding='utf-8').read()
-js=[rd('src/core.js'),rd('src/speech.js'),rd('src/tutorvoice.js')]
+js=[rd('src/core.js'),rd('src/speech.js'),rd('src/tutorvoice.js'),rd('src/azuretts.js')]
 for code in sorted(os.listdir(os.path.join(R,'src/lang'))):
     d=f'src/lang/{code}'
     if not os.path.exists(os.path.join(R,d,'pack.js')):continue

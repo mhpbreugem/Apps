@@ -321,7 +321,7 @@ function act(){if(phase==="ask")check(false);else if(phase==="shown")next();}
 function fbHTML(r,canonTxt,typed,words,extra){
   const gl=words&&r==="bad"?words.map(id=>BYID[id]).filter(Boolean).map(c=>`<span class="gl">${T(c.fa[0])}${esc(enBase(c))}</span>`).join(""):"";
   return`<div class="verdict">${ic(r==="ok"?"check":r==="near"?"approx":"x")}</div>
-    <div class="big">${esc(canonTxt)}</div>${extra||""}
+    <div class="big">${esc(canonTxt)}</div>${PK.speechLang?`<button class="ibtn sm lsn" data-say="${esc(canonTxt)}" aria-label="Listen">${ic("speaker","s")}</button>`:""}${extra||""}
     ${r!=="ok"&&typed.trim()?`<div class="yours">${ic("pencil","s")}${T(typed)}</div>`:""}
     ${gl?`<div class="gls">${gl}</div>`:""}`;}
 function check(giveUp){
@@ -567,7 +567,7 @@ function drawGrid(){
 function openSheet(c){
   const p=st(c.id),b=band(c),col=["var(--muted)","var(--bad)","var(--mid)","var(--ok)"][b];
   SHEET.innerHTML=`<div class="sheet-in"><div class="sheet-top"><div class="en">${esc(c.en)}</div><button class="x" id="sx" aria-label="Close">${ic("close","s")}</button></div>
-    <div class="fa1">${esc(c.fa[0])}</div>
+    <div class="fa1" data-say="${esc(c.fa[0])}">${esc(c.fa[0])}${PK.speechLang?ic("speaker","s"):""}</div>
     <div class="meta"><span class="sq" style="--c:${col}"></span>${p?meter(p.l):ic("spark","s")}${c.tr?`<span>${esc(c.tr)}</span>`:""}<span class="badge">${c.deck}</span>${p&&p.n?`<span>${ic("check","s")} ${p.n-p.w}/${p.n}</span>`:""}</div></div>`;
   SHEET.hidden=false;document.getElementById("sx").onclick=closeSheet;}
 function closeSheet(){SHEET.hidden=true;SHEET.innerHTML="";}
@@ -581,7 +581,7 @@ function rDeck(){
   const q=document.getElementById("q"),L=document.getElementById("list");
   const draw=()=>{const s=q.value.trim().toLowerCase(),sn=q.value.trim()?norm(q.value):"";
     const rows=MCARDS().filter(c=>!s||c.en.toLowerCase().includes(s)||(sn&&c.fa.some(f=>norm(f).includes(sn)))).slice(0,120);
-    L.innerHTML=rows.map(c=>{const p=st(c.id);return`<div class="row"><div><div class="e">${esc(c.en)}</div><div class="s"><span class="badge">${c.deck}</span>${p?meter(p.l):ic("spark","s")}</div></div><span class="f">${esc(c.fa[0])}</span></div>`;}).join("")||`<div class="row muted">–</div>`;};
+    L.innerHTML=rows.map(c=>{const p=st(c.id);return`<div class="row"><div><div class="e">${esc(c.en)}</div><div class="s"><span class="badge">${c.deck}</span>${p?meter(p.l):ic("spark","s")}</div></div><span class="f" data-say="${esc(c.fa[0])}">${esc(c.fa[0])}</span></div>`;}).join("")||`<div class="row muted">–</div>`;};
   q.oninput=draw;draw();}
 // ---------- grammar ----------
 function rGrammar(){
@@ -606,7 +606,7 @@ function tutSave(){try{localStorage.setItem("kashi-tutor-"+PK.code,JSON.stringif
 function chatHTML(t,user){
   if(user&&PK.dir==="rtl")t=t.replace(/[؀-ۿ‌]+(?:[ ‌][؀-ۿ‌]+)*/g,m=>"«"+m+"»");
   let h=esc(t);
-  h=h.replace(/«([^»]+)»/g,(m,x)=>{const ph=PK.translit?PK.translit(x.replace(/&amp;/g,"&")):"";return`<span class="seg"><span class="sf tg">${x}</span>${ph?`<span class="sp">${esc(ph)}</span>`:""}</span>`;});
+  h=h.replace(/«([^»]+)»/g,(m,x)=>{const ph=PK.translit?PK.translit(x.replace(/&amp;/g,"&")):"";return`<span class="seg" data-say="${x.replace(/"/g,"&quot;")}"><span class="sf tg">${x}</span>${ph?`<span class="sp">${esc(ph)}</span>`:""}</span>`;});
   h=h.replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>").replace(/^[-•] (.*)$/gm,"<span class=\"li\">• $1</span>").replace(/\n/g,"<br>");
   return h;}
 function tutSystem(){
@@ -696,6 +696,10 @@ function rSettings(){
       <div class="ghbox">${AI.key?`<span class="muted" style="font-size:12px">Haiku</span><button class="ibtn sm" id="aioff" aria-label="Remove key">${ic("x","s")}</button>`
         :`<input id="aik" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Anthropic API key">`}</div></div>
     ${speechRowHTML()}
+    ${PK.speechLang&&AZV[PK.speechLang]?`<div class="row"><span class="lab">${ic("speaker")}${tx("Voice (Azure key + region)")}</span>
+      <div class="ghbox">${AZ.key?`<span class="muted" style="font-size:12px">${esc(AZ.region)}</span><button class="ibtn sm" id="azt" aria-label="Test voice">${ic("play","s")}</button><button class="ibtn sm" id="azoff" aria-label="Remove key">${ic("x","s")}</button>`
+        :`<input id="azr" value="${esc(AZ.region)}" spellcheck="false" aria-label="Azure region" style="width:92px"><input id="azk" type="password" autocomplete="off" spellcheck="false" placeholder="key" aria-label="Azure key"><button class="ibtn sm" id="azsave" aria-label="Save">${ic("check","s")}</button>`}</div></div>
+    ${AZ.key?`<div class="row"><span class="lab">${ic("timer")}${tx("Voice characters this month / cap")}</span><div class="stepper"><button id="azc-" aria-label="Lower cap">${ic("minus","s")}</button><b id="azn" style="font-size:13px">${Math.round(azUsed()/1000)}k/${Math.round(AZ.cap/1000)}k</b><button id="azc+" aria-label="Raise cap">${ic("plus","s")}</button></div></div>`:""}`:""}
     ${AI.key?`<div class="row"><span class="lab">${ic("timer")}${tx("AI spend this month (estimate)")}</span><span class="num">${usd(aiSpend().usd)} · ${aiSpend().n}×</span></div>`:""}
     <div class="row"><span class="lab">${ic("download")}${tx("Backup: export / import")}</span><div class="chips">
       <button id="exp" aria-label="Export">${ic("download","s")}</button><button id="imp" aria-label="Import">${ic("upload","s")}</button><input type="file" id="impf" accept=".json,application/json" hidden></div></div>
@@ -719,6 +723,13 @@ function rSettings(){
   if(ak){const go=()=>{const v=ak.value.trim();if(v.length<20)return;AI.key=v;try{localStorage.setItem("kashi-ai",v);}catch(e){}rSettings();};
     ak.addEventListener("change",go);ak.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();go();}});}
   const ao=document.getElementById("aioff");if(ao)ao.onclick=()=>{AI.key=null;try{localStorage.removeItem("kashi-ai");}catch(e){}rSettings();};
+  const azs=document.getElementById("azsave");
+  if(azs)azs.onclick=()=>{const k=document.getElementById("azk").value.trim(),r=document.getElementById("azr").value.trim().toLowerCase();if(k.length<20||!r)return;AZ.key=k;AZ.region=r;try{localStorage.setItem("kashi-az",k);localStorage.setItem("kashi-azr",r);}catch(e){}rSettings();};
+  const azo=document.getElementById("azoff");if(azo)azo.onclick=()=>{AZ.key=null;try{localStorage.removeItem("kashi-az");}catch(e){}rSettings();};
+  const azt=document.getElementById("azt");if(azt)azt.onclick=async()=>{azt.innerHTML=ic("repeat","s");const r=await azAudio("سلام");azt.innerHTML=ic(r.err?"x":"play","s");if(r.err)azFail(r);else azPlay("سلام");const n=document.getElementById("azn");if(n)n.textContent=Math.round(azUsed()/1000)+"k/"+Math.round(AZ.cap/1000)+"k";};
+  const CAPS=[50000,100000,250000,400000,500000,1000000];
+  const azc=d=>()=>{const i=CAPS.indexOf(AZ.cap);AZ.cap=CAPS[Math.max(0,Math.min(CAPS.length-1,(i<0?3:i)+d))];try{localStorage.setItem("kashi-azcap",AZ.cap);}catch(e){}rSettings();};
+  const c1=document.getElementById("azc-"),c2=document.getElementById("azc+");if(c1)c1.onclick=azc(-1);if(c2)c2.onclick=azc(1);
   const gs_=document.getElementById("ghsync");if(gs_)gs_.onclick=()=>ghSync();
   const go_=document.getElementById("ghoff");if(go_)go_.onclick=()=>{GH.tok=null;GH.id=null;GH.state="off";try{localStorage.removeItem("kashi-gh");localStorage.removeItem("kashi-gist");}catch(e){}rSettings();};
   speechRowBind();
