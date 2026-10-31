@@ -367,22 +367,19 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .agetips li{margin:5px 0}
 .agetips li.next{list-style:none;margin-left:-18px;margin-top:9px;padding-top:7px;border-top:1px solid rgba(120,80,30,.3);color:#6e5434;font-size:13.5px}
 
-/* action cards (earth palette) */
-.acts .grp{display:flex;gap:4px;margin-bottom:2px;align-items:stretch}
-.acts .glab{flex:0 0 12px;writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font:800 8.5px/1 system-ui,sans-serif;letter-spacing:.14em;color:var(--gc,#86683f);border-left:2px solid var(--gc,#86683f)}
-.acts .grp.g-train{--gc:#8f4a3b}.acts .grp.g-build{--gc:#566067}
-.acts .tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
-.acts button.tile{--hc:#86683f;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;padding:0;min-height:0;overflow:hidden;text-align:center;border-radius:9px;background:#f8f0da;border:1px solid rgba(80,55,20,.35);color:#3a2a14;box-shadow:0 2px 0 rgba(60,40,10,.35)}
-.acts button.tile .aic{display:flex;align-items:center;justify-content:center;width:auto;height:18px;background:var(--hc);color:#fff;border-radius:0}
-.acts button.tile .aic svg{width:15px;height:15px}
-.acts button.tile .tl{font-size:10px;font-weight:700;line-height:1.05;padding:2px 1px 0;color:#3a2a14}
-.acts button.tile .tc{font-size:8px;font-weight:500;line-height:1.05;color:#3a2a14;opacity:.6;padding-bottom:2px}
-.acts button.tile.train{--hc:#8f4a3b;background:#f8f0da;color:#3a2a14;border-color:rgba(80,55,20,.35)}
-.acts button.tile.train .tc{color:#3a2a14}
-.acts button.tile.bld{--hc:#566067}
-.acts button.tile.r-wood{--hc:#647a4a}.acts button.tile.r-food{--hc:#b09a52}.acts button.tile.r-gold{--hc:#b8923a}
+/* action tiles: quiet game-wood tiles, coloured bar per row */
+.acts .grp{display:flex;gap:4px;margin-bottom:3px;align-items:stretch}
+.acts .glab{flex:0 0 3px;width:3px;font-size:0;border-radius:2px;background:var(--gc,#86683f);border:0;writing-mode:horizontal-tb;transform:none}
+.acts .grp.g-build{--gc:#566067}.acts .grp.g-train{--gc:#8f4a3b}
+.acts .tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.acts button.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:2px 0 1px;min-height:0;text-align:center;border-radius:8px;background:linear-gradient(#6e4c28,#4a3018);border:1px solid #a98a4c;color:#efd9a0;box-shadow:0 2px 0 #2a190a}
+.acts button.tile .aic{display:flex;width:auto;height:auto;color:#f0d27a}
+.acts button.tile .aic svg{width:16px;height:16px}
+.acts button.tile .tl{font-size:9.5px;font-weight:700;line-height:1.05;padding:0 1px;color:#efd9a0}
+.acts button.tile .tc{font-size:8px;font-weight:500;line-height:1.05;color:#efd9a0;opacity:.65}
+.acts button.tile.train{background:linear-gradient(#6e4c28,#4a3018);color:#efd9a0;border-color:#a98a4c}.acts button.tile.train .tc{color:#efd9a0}
 .acts button.tile.off{opacity:.42;filter:grayscale(.6)}
-.acts button.tile:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(60,40,10,.35)}
+.acts button.tile:active{transform:translateY(1px);box-shadow:0 1px 0 #2a190a}
 </style>
 </head>
 <body>
@@ -3014,8 +3011,8 @@ function renderPanel() {
     };
     const doT = [], trainT = [], upT = [], buildT = [];
     list.forEach((a, i) => { if (a.kind === "hint") return; (BUILD_KINDS.includes(a.kind) ? buildT : a.kind === "upgrade" ? upT : TRAIN_KINDS.includes(a.kind) ? trainT : doT).push(tile(a, i)); });
-    const grp = (name, t, cls) => t.length ? `<div class="grp g-${cls}"><span class="glab">${name.toUpperCase()}</span><div class="tiles">${t.join("")}</div></div>` : "";
-    acts = grp("Do", doT, "do") + grp("Train", trainT, "train") + grp("Strengthen", upT, "train") + grp("Build", buildT, "build");
+    const grp = (name, t, cls) => t.length ? `<div class="grp g-${cls}"><span class="glab" title="${name}"></span><div class="tiles">${t.join("")}</div></div>` : "";
+    acts = grp("Do", doT, "do") + grp("Build", buildT, "build") + grp("Train", trainT, "train") + grp("Strengthen", upT, "train");
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
     if (hints.length) acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     UI.list = list;
