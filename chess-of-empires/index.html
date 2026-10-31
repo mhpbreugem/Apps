@@ -381,6 +381,16 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .acts.dense button.tile .aic svg{width:28px;height:15px}.acts.dense button.tile .tl{font-size:10px}.acts.dense .grp{margin-bottom:2px;gap:3px}.acts.dense .tiles{gap:3px}.acts.dense button.tile .tc{display:none}.acts.dense button.tile{padding:0}
 .acts button.tile.off{opacity:.42;filter:grayscale(.6)}
 .acts button.tile:active{transform:translateY(1px);box-shadow:0 1px 0 #2a190a}
+
+.acts .tiles.big{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.acts.big button.tile{padding:7px 0 5px}
+.acts.big button.tile .aic svg{width:34px;height:26px}
+.acts.big button.tile .tl{font-size:11px}
+.acts.big button.tile .tc{font-size:9px}
+.acts button.tile.cat{background:linear-gradient(#7d5a30,#573a1c);border-color:#d6b560}
+.acts button.tile.cat.sel{outline:3px solid #f2c431;outline-offset:1px}
+#subsheet{position:fixed;z-index:60;box-sizing:border-box;background:#f6ecd0;border:3px solid #6e4c28;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.55);padding:6px 8px 8px}
+#subsheet .stl{font:800 10px system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6e4c28;margin:0 0 4px 2px}
 </style>
 </head>
 <body>
@@ -2955,6 +2965,7 @@ function withSlots(p, list) {
 }
 function renderPanel() {
   const el = document.getElementById("panel");
+  const oldSheet = document.getElementById("subsheet"); if (oldSheet) oldSheet.remove();
   const msg = UI.msg ? `<div class="msg">${UI.msg}</div>` : "";
   if (G.winner !== null) { el.innerHTML = `<div class="ptitle">Game over</div>${msg}${byLink() && !cloudOn() ? `<div class="acts" style="margin:6px 0"><button id="sendTurnBtn" class="primary">Send the result</button></div>` : ""}`; return; }
   if (G.mode === "online" && !UI.sel && (remote(G.turn) || NET.err)) {
@@ -3031,7 +3042,7 @@ function renderPanel() {
   else if (sp.k === "I" || sp.k === "C" || (sp.k === "V" && vilFight(sp.o))) info.push(`attacking uses 1 step: walk up to ${speedOf(sp) - 1} first` + (sp.k === "V" && G.rules.vilAtk1 ? " · attack 1 · gathers" : sp.k === "V" && G.rules.vilHalf ? " · alone no damage, two together deal 1 · gathers" : "") + (sp.k === "I" && sp.w ? " · wounded: checker beside it" : ""));
   if (sp.k === "A") info.push("shoots from where it stands");
   const title = `${SIDE[sp.o]} ${name(sp)} on ${SQ([sp.f, sp.r])}`;
-  let acts = "", dense = "";
+  let acts = "", dense = "", sheet = "";
   if (mineP) {
     const list = withSlots(sp, pieceActions(sp));
     const BUILD_KINDS = ["camp", "barracks", "tower", "castle", "crown", "gild", "repair", "raise"], TRAIN_KINDS = ["recruit", "train", "upgrade"];
@@ -3046,11 +3057,33 @@ function renderPanel() {
     const grp = (name, t, cls) => t.length ? `<div class="grp g-${cls}"><span class="glab" title="${name}"></span><div class="tiles">${t.join("")}</div></div>` : "";
     acts = grp("Do", doT, "do") + grp("Gather", gatT, "gather") + grp("Build", buildT, "build") + grp("Train", trainT, "train") + grp("Strengthen", upT, "train");
     if ([doT, gatT, buildT, trainT, upT].reduce((n, t) => n + Math.ceil(t.length / 4), 0) > 3) dense = " dense";
+    if (UI.sheetFor !== sp.id) { UI.sheet = null; UI.sheetFor = sp.id; }
+    if (sp.k === "V") {
+      // first line: Move, Attack, Build, Train · second line: the gather actions · Build and Train open a menu over the board
+      const cnt = k => list.filter(a => a.ok && (k === "build" ? BUILD_KINDS.includes(a.kind) : a.kind === "recruit")).length;
+      const cat = (k, ico, lab, n) => `<button class="tile cat${UI.sheet === k ? " sel" : ""}" data-sheet="${k}"><span class="aic">${ico}</span><span class="tl">${lab}</span><span class="tc">${n ? n + " ready" : "&nbsp;"}</span></button>`;
+      acts = `<div class="tiles big">${doT.join("")}${cat("build", ICONS.building, "Build", cnt("build"))}${cat("train", ICONS.unit, "Train", cnt("train"))}</div><div class="tiles big" style="margin-top:5px">${gatT.join("")}</div>`;
+      dense = " big";
+      if (UI.sheet) sheet = `<div class="stl">${UI.sheet === "build" ? "Build" : "Train"}</div><div class="tiles big">${(UI.sheet === "build" ? buildT : trainT).join("")}</div>`;
+    } else if (isUnit(sp)) {
+      acts = `<div class="tiles big">${doT.join("")}${upT.join("")}</div>`; dense = " big";
+    }
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
     if (hints.length) acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     UI.list = list;
   }
   el.innerHTML = `<div class="ptitle">${title}</div><div class="pmeta">${meta.join("")}</div><div class="acts${dense}">${acts}</div>${msg}`;
+  if (sheet) {
+    const sh = document.createElement("div"); sh.id = "subsheet"; sh.className = "acts big"; sh.innerHTML = sheet;
+    const pr = el.getBoundingClientRect();
+    sh.style.cssText = `left:${pr.left}px;width:${pr.width}px;bottom:${window.innerHeight - pr.top + 6}px`;
+    sh.addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.tip !== undefined) { UI.msg = b.dataset.tip; return render(); }
+      if (b.dataset.act !== undefined) { UI.sheet = null; return chooseAction(+b.dataset.act); }
+    });
+    document.body.appendChild(sh);
+  }
 }
 function renderLog() {
   const L = G.log.slice(-4).reverse();
@@ -3127,6 +3160,7 @@ function afterAct(p) {
   }
 }
 function chooseAction(i) {
+  UI.sheet = null;
   const a = UI.list[i]; if (!a || !a.ok) return;
   const p = a.p;
   switch (a.kind) {
@@ -3152,6 +3186,7 @@ document.getElementById("panel").addEventListener("click", e => {
   if (b.id === "shareBtn") return netShare();
   if (b.id === "sendTurnBtn") return linkSend();
   if (b.id === "inviteBtn") return cloudInvite();
+  if (b.dataset.sheet) { UI.sheet = UI.sheet === b.dataset.sheet ? null : b.dataset.sheet; UI.msg = ""; return render(); }
   if (b.dataset.group) { UI.sub = {id: UI.sel, g: b.dataset.group}; UI.msg = ""; return render(); }
   if (b.dataset.back !== undefined) { UI.sub = null; return render(); }
   if (b.dataset.tip !== undefined) { UI.msg = b.dataset.tip; return render(); }
