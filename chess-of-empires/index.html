@@ -62,6 +62,14 @@ svg.board{display:block;width:100%;height:auto;touch-action:manipulation;user-se
 .acts .aic svg{width:22px;height:22px}
 .acts .atx{min-width:0;display:block}
 .acts .alb{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+.acts .tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:66px;padding:6px 3px;text-align:center}
+.acts .tile .aic{width:auto;height:auto;color:inherit}
+.acts .tile .tl{display:block;max-width:100%;white-space:normal;font-size:12px;font-weight:700;line-height:1.15;max-height:2.3em;overflow:hidden}
+.acts .tile.off{opacity:.45;filter:grayscale(.5)}
+.acts .subhead{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:var(--brass);margin-top:2px}
+.acts .subhead .tile{width:84px;min-height:48px;flex-direction:row;gap:6px}
+.acts .tile.back{border-style:dashed}
 .acts button:disabled{opacity:.42;cursor:default}
 .acts button.primary,.bar button.primary,dialog button.primary{background:var(--brass);border-color:var(--brass);color:#fff}
 .acts button.warn{border-color:var(--danger);color:var(--danger)}
@@ -2963,8 +2971,33 @@ function renderPanel() {
   let acts = "";
   if (mineP) {
     const list = pieceActions(sp);
-    acts = list.map((a, i) => a.kind === "hint" ? "" :
-      `<button data-act="${i}" ${a.ok ? "" : "disabled"} title="${a.ok ? "" : sureHint(a.why)}"><span class="aic">${actIcon(a)}</span><span class="atx"><span class="alb">${a.label}</span><small>${sureHint(a.ok ? (a.note || "") : a.why)}</small></span></button>`).join("");
+    const GROUPS = {build: {name: "Build", kinds: ["camp", "barracks", "tower", "castle", "crown"], icon: ICONS.building},
+      train: {name: "Train", kinds: ["recruit", "train"], icon: ICONS.unit}, research: {name: "Research", kinds: ["research"], icon: ICONS.research}};
+    const groupOf = k => Object.keys(GROUPS).find(g => GROUPS[g].kinds.includes(k));
+    const tile = (a, i, label, extra) => {
+      const off = !a.ok, tip = off ? (a.why || "not now") : (a.note || "");
+      return `<button class="tile${off ? " off" : ""}${extra || ""}" ${off ? `data-tip="${tip.replace(/"/g, "&quot;")}"` : `data-act="${i}"`} aria-label="${label}"><span class="aic">${a.kind ? actIcon(a) : ""}</span><span class="tl">${label}</span></button>`;
+    };
+    const subG = UI.sub && UI.sub.id === sp.id ? UI.sub.g : null;
+    let html = "";
+    if (subG) {
+      const G1 = GROUPS[subG], items = list.map((a, i) => [a, i]).filter(([a]) => G1.kinds.includes(a.kind));
+      html = `<div class="subhead"><button class="tile back" data-back="1" aria-label="Back"><span class="aic">${ICONS.star}</span><span class="tl">Back</span></button><b>${G1.name}</b></div>` +
+        items.map(([a, i]) => tile(a, i, a.label)).join("");
+    } else {
+      const groupsSeen = {};
+      list.forEach((a, i) => {
+        if (a.kind === "hint") return;
+        const g = groupOf(a.kind);
+        if (g) { groupsSeen[g] = groupsSeen[g] || {n: 0, ok: 0}; groupsSeen[g].n++; if (a.ok) groupsSeen[g].ok++; return; }
+        html += tile(a, i, a.label);
+      });
+      for (const g of Object.keys(groupsSeen)) {
+        const c = groupsSeen[g], G1 = GROUPS[g], off = c.ok === 0;
+        html += `<button class="tile${off ? " off" : ""}" ${off ? `data-tip="nothing in ${G1.name.toLowerCase()} is possible now"` : `data-group="${g}"`} aria-label="${G1.name}"><span class="aic">${G1.icon}</span><span class="tl">${G1.name} ›</span></button>`;
+      }
+    }
+    acts = html;
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
     if (hints.length) acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     UI.list = list;
@@ -3071,6 +3104,9 @@ document.getElementById("panel").addEventListener("click", e => {
   if (b.id === "shareBtn") return netShare();
   if (b.id === "sendTurnBtn") return linkSend();
   if (b.id === "inviteBtn") return cloudInvite();
+  if (b.dataset.group) { UI.sub = {id: UI.sel, g: b.dataset.group}; UI.msg = ""; return render(); }
+  if (b.dataset.back !== undefined) { UI.sub = null; return render(); }
+  if (b.dataset.tip !== undefined) { UI.msg = b.dataset.tip; return render(); }
   if (b.dataset.act !== undefined) return chooseAction(+b.dataset.act);
   if (b.dataset.partner !== undefined) {
     const m = UI.mode, id = +b.dataset.partner;
