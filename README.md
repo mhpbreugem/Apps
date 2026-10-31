@@ -3,6 +3,7 @@
 Personal web apps, served with GitHub Pages.
 
 - [Kāshi](kashi/) — Persian typing trainer
+- [MDR](mdr/) — flashcards on the EU Medical Device Regulation (EU) 2017/745, chapters and annexes switchable, optional answer check by Claude Haiku. Built from `mdr/src/` with `python3 mdr/build.py` (cards in `mdr/src/cards/*.txt`, one `question|answer|reference` per line)
 - [Chess of Empires](chess-of-empires/) — chess game, moved from mhpbreugem.github.io
 - [Literature tree](literature/) — map of the REE literature (copied automatically from the private research repo; no ratings, ideas or to-do list)
 

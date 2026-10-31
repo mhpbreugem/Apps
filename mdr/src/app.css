@@ -1,0 +1,49 @@
+/* ===== MDR additions on top of the Kāshi styles ===== */
+.mdr{justify-content:flex-start;padding-top:18px;min-height:auto}
+.mdr .chiprow{margin-bottom:16px}
+.mdr .prompt{font-size:clamp(21px,5.4vw,27px);letter-spacing:-.02em;line-height:1.28;margin-bottom:16px}
+.ta{width:100%;display:block;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:400 16px/1.5 var(--sans);padding:12px 14px;resize:none;min-height:96px;outline:none;transition:border-color .2s}
+.ta:focus{border-color:var(--ink)}
+.ta::placeholder{color:var(--muted);opacity:.7}
+.ta.ok{border-color:var(--ok)}.ta.bad{border-color:var(--bad)}
+.ta[readonly]{color:var(--muted)}
+.hint span b{color:var(--ink)}
+.vrow{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
+.aitip.left{justify-content:flex-start;text-align:left;font-size:14px;color:var(--ink);background:color-mix(in srgb,var(--mid) 12%,var(--surface));border-radius:12px;padding:10px 12px}
+.aitip.err{background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.aitip.err svg{color:var(--bad)}
+.ansfull{margin-top:12px;background:var(--surface);border-radius:14px;padding:14px 16px;font-size:15.5px;line-height:1.55;box-shadow:inset 3px 0 0 var(--ink)}
+.fb.ok .ansfull{box-shadow:inset 3px 0 0 var(--ok)}.fb.near .ansfull{box-shadow:inset 3px 0 0 var(--mid)}.fb.bad .ansfull{box-shadow:inset 3px 0 0 var(--bad)}
+.ref{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);font-weight:600;margin:8px 4px 0}
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:22px}
+.grades button{border:0;border-radius:16px;padding:12px 6px 10px;background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
+.grades button svg.i{width:24px;height:24px;stroke-width:2.2}
+.grades .g-bad svg{color:var(--bad)}.grades .g-near svg{color:var(--mid)}.grades .g-ok svg{color:var(--ok)}
+.grades button.sug{color:var(--ink);box-shadow:0 0 0 2px var(--c)}
+.g-bad{--c:var(--bad)}.g-near{--c:var(--mid)}.g-ok{--c:var(--ok)}
+.grades button:hover{color:var(--ink)}
+.kbd{font-size:12px;text-align:center;margin-top:12px}
+@media (pointer:coarse){.kbd{display:none}}
+.btn.dis{opacity:.4;pointer-events:none}
+.done p{max-width:34ch;margin:0 auto 18px}
+/* chapters */
+.ehead{justify-content:flex-start}
+.ehead .chips{margin-left:auto}
+.chips.sm button{min-width:0;padding:5px 10px;font-size:12px;text-transform:none;letter-spacing:0}
+.chrow{cursor:pointer;align-items:center;gap:14px}
+.chrow.off .cht{opacity:.45}
+.cht{flex:1;min-width:0}
+.cht .t1{font-weight:500;line-height:1.3}
+.cht .s{font-size:12px;color:var(--muted);margin:2px 0 7px}
+.cht .s b{color:var(--ink);font-weight:600}
+.sw{width:42px;height:26px;border-radius:13px;background:var(--surface2);position:relative;flex:none;border:0;cursor:pointer;transition:background .2s;padding:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw[aria-pressed="true"]{background:var(--ok)}
+.sw[aria-pressed="true"]::after{transform:translateX(16px)}
+/* cards list */
+.chips.fl{justify-content:flex-start;margin-top:10px}
+.chips.fl button{font-weight:600}
+.crow{width:100%;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit}
+.crow:hover{background:color-mix(in srgb,var(--ink) 3%,transparent)}
+.wl .s{flex-wrap:wrap}
+.sheet .sa{font-size:15px;line-height:1.55;margin-top:10px;max-height:46vh;overflow:auto}
