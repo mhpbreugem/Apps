@@ -2614,7 +2614,7 @@ function renderStatus() {
   if (G.mode === "online") who = !NET.black ? "Waiting" : s === NET.side ? "Your turn" : "Opponent" + (NET.linked || byLink() ? "" : " (offline)");
   const pools = G.rules.pools
     ? `<span>Eco ${pipStr(G.acts.eco, 2)}</span><span>Mil ${pipStr(G.acts.mil, 2)}</span>`
-    : `<span>Actions ${pipStr(G.acts.any, G.rules.flex2 && G.rules.castle3 && age(s) >= 2 ? 3 : 2)}</span>` + (G.rules.chk && G.acts.camp !== undefined && camps(G.turn).length ? `<span>Camps ${pipStr(G.acts.camp, camps(G.turn).length)}</span>` : "");
+    : `<span>Actions ${pipStr(G.acts.any, G.rules.flex2 ? (G.round === 1 && s === 0 && !G.rules.noHandicap ? 1 : (G.rules.acts || 3)) : 2)}</span>` + (G.rules.chk && G.acts.camp !== undefined && camps(G.turn).length ? `<span>Camps ${pipStr(G.acts.camp, camps(G.turn).length)}</span>` : "");
   document.getElementById("status").innerHTML =
     `<span class="dot" style="background:${s ? "var(--ebony)" : "var(--ivory)"}"></span><b>${who}</b><span>r${G.round} · ${AGES[A]} Age</span><span class="pips">${pools}</span>`;
 }
