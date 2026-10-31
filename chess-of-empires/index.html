@@ -382,7 +382,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .acts button.tile.off{opacity:.42;filter:grayscale(.6)}
 .acts button.tile:active{transform:translateY(1px);box-shadow:0 1px 0 #2a190a}
 
-.acts .tiles.big{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.acts .tiles.big{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.acts .tiles.big.five{grid-template-columns:repeat(5,minmax(0,1fr))}
 .acts.big button.tile{padding:7px 0 5px}
 .acts.big button.tile .aic svg{width:34px;height:26px}
 .acts.big button.tile .tl{font-size:11px}
@@ -894,6 +894,10 @@ function tileLabel(l) {
   if (/^Gather /.test(l)) return l.slice(7).charAt(0).toUpperCase() + l.slice(8);
   if (/^Mine gold/i.test(l)) return "Mine";
   if (/^Buy gold/i.test(l)) return "Trade";
+  if (/^Raise the/i.test(l)) return "Add checker";
+  if (/^Gold layer on/i.test(l)) return "Gild";
+  if (/watch tower/i.test(l) && !/^Build|^Train/.test(l)) return "Tower";
+  if (/^Repair the/i.test(l)) return "Repair";
   if (/^Castle \/ tower/i.test(l)) return "Castle / tower";   // short tile names: "Put the queen on: castle" -> "Castle"
   if (l.includes(": ")) { const t = l.split(": ").pop(); return t.charAt(0).toUpperCase() + t.slice(1); }
   return l.replace("Gold layer on the ", "Gold on ").replace("Research ", "").replace("Upgrade to ", "");
@@ -2933,6 +2937,25 @@ function renderPlayers() {
   }
   document.getElementById("players").innerHTML = h + rows;
 }
+// villager menu: line 1 = Move/Attack · Resources · Build · Train, line 2 = the options of the chosen one
+function vilCats(p, raw) {
+  const s = p.o, ph = (kind, label, why, extra) => Object.assign({kind, label, note: "", ok: false, why, p}, extra || {});
+  const pick = (f, d) => { const m = raw.filter(f); return [m.find(a => a.ok) || m[0] || d]; };   // one button per slot: the usable one first
+  const isG = (a, r) => a.kind === "gather" && a.res === r;
+  const isCastle = a => (a.kind === "crown" || a.kind === "castle") && /castle|queen/i.test(a.label);
+  const isTower = a => (a.kind === "crown" || a.kind === "tower") && /tower|rook/i.test(a.label);
+  const act = [...pick(a => a.kind === "move", ph("move", "Move", "blocked")), ...pick(a => a.kind === "attack", ph("attack", "Attack", vilFight(s) ? "nothing in reach" : "villagers do not fight"))];
+  const res = [...pick(a => isG(a, WOOD), ph("gather", "Gather wood", "stand in the forest", {res: WOOD})), ...pick(a => isG(a, FOOD), ph("gather", "Gather food", "stand in the farmland", {res: FOOD})),
+    ...pick(a => isG(a, "gold"), ph("gather", "Mine gold", "stand on the gold in the middle", {res: "gold"})), ...pick(a => a.kind === "trade", ph("trade", "Buy gold", "stand on a trade post in the corner"))];
+  const nearCamp = G.pcs.some(q => q.o === s && q.k === "camp" && nextTo(p, q));
+  const build = [
+    ...(barracks(s) ? pick(isCastle, ph("castle", "Castle", "stand next to your barracks")) : pick(a => a.kind === "barracks", ph("barracks", "Build barracks", "not here"))),
+    ...(nearCamp ? pick(isTower, ph("tower", "Tower", "stand next to your mill or lumber camp")) : pick(a => a.kind === "camp", ph("camp", "Build mill / lumber camp", "not here"))),
+    ...pick(a => a.kind === "repair", ph("repair", "Repair", "stand next to a damaged building")),
+    ...(raw.some(a => a.kind === "raise" && a.ok) || !raw.some(a => a.kind === "gild" && a.ok) ? pick(a => a.kind === "raise", ph("raise", "Add checker", "stand next to your mill, lumber camp or barracks")) : pick(a => a.kind === "gild", null))];
+  const train = ["I", "A", "C", "S"].flatMap(k => pick(a => a.kind === "recruit" && a.k === k, ph("recruit", "Train " + LVL[k][0], "stand next to your barracks", {k})));
+  return {act, res, build, train, hints: raw.filter(a => a.kind === "hint")};
+}
 // the panel always shows the full set of actions for a piece; the ones that cannot be used now are greyed out
 function withSlots(p, list) {
   const ph = (kind, label, why, extra) => Object.assign({kind, label, note: "", ok: false, why, p}, extra || {});
@@ -3057,33 +3080,24 @@ function renderPanel() {
     const grp = (name, t, cls) => t.length ? `<div class="grp g-${cls}"><span class="glab" title="${name}"></span><div class="tiles">${t.join("")}</div></div>` : "";
     acts = grp("Do", doT, "do") + grp("Gather", gatT, "gather") + grp("Build", buildT, "build") + grp("Train", trainT, "train") + grp("Strengthen", upT, "train");
     if ([doT, gatT, buildT, trainT, upT].reduce((n, t) => n + Math.ceil(t.length / 4), 0) > 3) dense = " dense";
-    if (UI.sheetFor !== sp.id) { UI.sheet = null; UI.sheetFor = sp.id; }
+    if (UI.catFor !== sp.id) { UI.cat = "act"; UI.catFor = sp.id; }
     if (sp.k === "V") {
-      // first line: Move, Attack, Build, Train · second line: the gather actions · Build and Train open a menu over the board
-      const cnt = k => list.filter(a => a.ok && (k === "build" ? BUILD_KINDS.includes(a.kind) : a.kind === "recruit")).length;
-      const cat = (k, ico, lab, n) => `<button class="tile cat${UI.sheet === k ? " sel" : ""}" data-sheet="${k}"><span class="aic">${ico}</span><span class="tl">${lab}</span><span class="tc">${n ? n + " ready" : "&nbsp;"}</span></button>`;
-      acts = `<div class="tiles big">${doT.join("")}${cat("build", ICONS.building, "Build", cnt("build"))}${cat("train", ICONS.unit, "Train", cnt("train"))}</div><div class="tiles big" style="margin-top:5px">${gatT.join("")}</div>`;
+      const C = vilCats(sp, pieceActions(sp)), all = [...C.act, ...C.res, ...C.build, ...C.train, ...C.hints];
+      UI.list = all;
+      const cnt = k => C[k].filter(a => a.ok).length;
+      const cat = (k, ico, lab) => `<button class="tile cat${UI.cat === k ? " sel" : ""}" data-cat="${k}"><span class="aic">${ico}</span><span class="tl">${lab}</span><span class="tc">${cnt(k) ? cnt(k) + " ready" : "&nbsp;"}</span></button>`;
+      const cur = C[UI.cat] || C.act;
+      acts = `<div class="tiles big">${cat("act", ICONS.move, "Move / attack")}${cat("res", ICONS.food, "Resources")}${cat("build", ICONS.building, "Build")}${cat("train", ICONS.unit, "Train")}</div>` +
+        `<div class="tiles big sub${cur.length > 4 ? " five" : ""}" style="margin-top:5px">${cur.map(a => tile(a, all.indexOf(a))).join("")}</div>`;
       dense = " big";
-      if (UI.sheet) sheet = `<div class="stl">${UI.sheet === "build" ? "Build" : "Train"}</div><div class="tiles big">${(UI.sheet === "build" ? buildT : trainT).join("")}</div>`;
     } else if (isUnit(sp)) {
       acts = `<div class="tiles big">${doT.join("")}${upT.join("")}</div>`; dense = " big";
     }
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
-    if (hints.length) acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
-    UI.list = list;
+    if (hints.length && sp.k !== "V") acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
+    if (sp.k !== "V") UI.list = list;
   }
   el.innerHTML = `<div class="ptitle">${title}</div><div class="pmeta">${meta.join("")}</div><div class="acts${dense}">${acts}</div>${msg}`;
-  if (sheet) {
-    const sh = document.createElement("div"); sh.id = "subsheet"; sh.className = "acts big"; sh.innerHTML = sheet;
-    const pr = el.getBoundingClientRect();
-    sh.style.cssText = `left:${pr.left}px;width:${pr.width}px;bottom:${window.innerHeight - pr.top + 6}px`;
-    sh.addEventListener("click", e => {
-      const b = e.target.closest("button"); if (!b) return;
-      if (b.dataset.tip !== undefined) { UI.msg = b.dataset.tip; return render(); }
-      if (b.dataset.act !== undefined) { UI.sheet = null; return chooseAction(+b.dataset.act); }
-    });
-    document.body.appendChild(sh);
-  }
 }
 function renderLog() {
   const L = G.log.slice(-4).reverse();
@@ -3160,7 +3174,6 @@ function afterAct(p) {
   }
 }
 function chooseAction(i) {
-  UI.sheet = null;
   const a = UI.list[i]; if (!a || !a.ok) return;
   const p = a.p;
   switch (a.kind) {
@@ -3186,7 +3199,7 @@ document.getElementById("panel").addEventListener("click", e => {
   if (b.id === "shareBtn") return netShare();
   if (b.id === "sendTurnBtn") return linkSend();
   if (b.id === "inviteBtn") return cloudInvite();
-  if (b.dataset.sheet) { UI.sheet = UI.sheet === b.dataset.sheet ? null : b.dataset.sheet; UI.msg = ""; return render(); }
+  if (b.dataset.cat) { UI.cat = b.dataset.cat; UI.msg = ""; return render(); }
   if (b.dataset.group) { UI.sub = {id: UI.sel, g: b.dataset.group}; UI.msg = ""; return render(); }
   if (b.dataset.back !== undefined) { UI.sub = null; return render(); }
   if (b.dataset.tip !== undefined) { UI.msg = b.dataset.tip; return render(); }
