@@ -371,13 +371,14 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .acts .grp{display:flex;gap:4px;margin-bottom:2px;align-items:stretch}
 .acts .glab{flex:0 0 3px;width:3px;font-size:0;border-radius:2px;background:var(--gc,#86683f);border:0;writing-mode:horizontal-tb;transform:none}
 .acts .grp.g-build{--gc:#566067}.acts .grp.g-train{--gc:#8f4a3b}
-.acts .tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.acts .tiles{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
 .acts button.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:1px 0 1px;min-height:0;text-align:center;border-radius:8px;background:linear-gradient(#6e4c28,#4a3018);border:1px solid #a98a4c;color:#efd9a0;box-shadow:0 2px 0 #2a190a}
 .acts button.tile .aic{display:flex;width:auto;height:auto;color:#f0d27a}
-.acts button.tile .aic{width:100%;justify-content:center}.acts button.tile .aic svg{width:26px;height:20px;stroke-width:1.6;preserveAspectRatio:none}
+.acts button.tile .aic{width:100%;justify-content:center}.acts button.tile .aic svg{width:32px;height:19px;stroke-width:1.6;preserveAspectRatio:none}
 .acts button.tile .tl{font-size:9.5px;font-weight:700;line-height:1.05;padding:0 1px;color:#efd9a0}
 .acts button.tile .tc{font-size:8px;font-weight:500;line-height:1.05;color:#efd9a0;opacity:.65}
 .acts button.tile.train{background:linear-gradient(#6e4c28,#4a3018);color:#efd9a0;border-color:#a98a4c}.acts button.tile.train .tc{color:#efd9a0}
+.acts.dense button.tile .aic svg{width:22px;height:13px}.acts.dense button.tile .tc{display:none}.acts.dense button.tile{padding:0}
 .acts button.tile.off{opacity:.42;filter:grayscale(.6)}
 .acts button.tile:active{transform:translateY(1px);box-shadow:0 1px 0 #2a190a}
 </style>
@@ -2920,6 +2921,35 @@ function renderPlayers() {
   }
   document.getElementById("players").innerHTML = h + rows;
 }
+// the panel always shows the full set of actions for a piece; the ones that cannot be used now are greyed out
+function withSlots(p, list) {
+  const ph = (kind, label, why, extra) => Object.assign({kind, label, note: "", ok: false, why, p}, extra || {});
+  const slots = [];
+  const S = (m, d) => slots.push({m, d});
+  const isG = (a, r) => a.kind === "gather" && a.res === r;
+  if (p.k === "V") {
+    S(a => a.kind === "move", ph("move", "Move", "blocked"));
+    S(a => isG(a, WOOD), ph("gather", "Gather wood", "stand in the forest", {res: WOOD}));
+    S(a => isG(a, FOOD), ph("gather", "Gather food", "stand in the farmland", {res: FOOD}));
+    S(a => isG(a, "gold") || a.kind === "trade", ph("gather", "Mine gold", "stand on the gold in the middle", {res: "gold"}));
+    S(a => a.kind === "attack", ph("attack", "Attack", "nothing in reach"));
+    S(a => a.kind === "camp", ph("camp", "Build mill / lumber camp", "not here"));
+    S(a => a.kind === "barracks", ph("barracks", "Build barracks", "not here"));
+    S(a => a.kind === "repair" || a.kind === "raise", ph("repair", "Repair", "stand next to your damaged building"));
+    S(a => a.kind === "crown" || a.kind === "castle", ph("crown", "Crown", "stand next to a finished building"));
+    S(a => a.kind === "gild", ph("gild", "Gild", "stand next to a building (Imperial Age)"));
+    for (const k of ["I", "A", "C", "S"]) S(a => a.kind === "recruit" && a.k === k, ph("recruit", "Train " + LVL[k][0], "stand next to your barracks", {k}));
+  } else if (isUnit(p)) {
+    S(a => a.kind === "move", ph("move", "Move", "blocked"));
+    S(a => a.kind === "attack", ph("attack", "Attack", "nothing in reach"));
+    S(a => a.kind === "upgrade", ph("upgrade", "Add checker", "stand next to your barracks"));
+    S(a => a.kind === "swap", ph("swap", "Swap in gold", "stand next to your barracks (Imperial Age)"));
+  } else return list;
+  const used = new Set(), out = [];
+  for (const sl of slots) { const m = list.filter(a => !used.has(a) && sl.m(a)); if (m.length) m.forEach(a => { used.add(a); out.push(a); }); else out.push(sl.d); }
+  list.forEach(a => { if (!used.has(a)) out.push(a); });
+  return out;
+}
 function renderPanel() {
   const el = document.getElementById("panel");
   const msg = UI.msg ? `<div class="msg">${UI.msg}</div>` : "";
@@ -2999,10 +3029,10 @@ function renderPanel() {
   if (sp.k === "A") info.push("shoots from where it stands");
   if (info.length) meta.push(`<span class="info">${info.join(" · ")}</span>`);
   const title = `${SIDE[sp.o]} ${name(sp)} on ${SQ([sp.f, sp.r])}`;
-  let acts = "";
+  let acts = "", dense = "";
   if (mineP) {
-    const list = pieceActions(sp);
-    const BUILD_KINDS = ["camp", "barracks", "tower", "castle", "crown", "gild"], TRAIN_KINDS = ["recruit", "train", "upgrade"];
+    const list = withSlots(sp, pieceActions(sp));
+    const BUILD_KINDS = ["camp", "barracks", "tower", "castle", "crown", "gild", "repair", "raise"], TRAIN_KINDS = ["recruit", "train", "upgrade"];
     const tile = (a, i) => {
       const off = !a.ok, note = sureHint(off ? (a.why || "not now") : (a.note || "")), cost = off ? "" : (a.note || "").split(" · ")[0];
       const tl0 = tileLabel(a.label), rc = BUILD_KINDS.includes(a.kind) || TRAIN_KINDS.includes(a.kind) ? "" : /^(Wood|Lumber)/i.test(tl0) ? " r-wood" : /^(Food|Farm|Berr)/i.test(tl0) ? " r-food" : /^(Gold|Mine)/i.test(tl0) ? " r-gold" : "";
@@ -3010,14 +3040,15 @@ function renderPanel() {
         `<span class="aic">${actIcon(a)}</span><span class="tl">${tileLabel(a.label)}</span><span class="tc">${cost ? sureHint(cost) : "&nbsp;"}</span></button>`;
     };
     const doT = [], trainT = [], upT = [], buildT = [];
-    list.forEach((a, i) => { if (a.kind === "hint") return; (BUILD_KINDS.includes(a.kind) ? buildT : a.kind === "upgrade" ? upT : TRAIN_KINDS.includes(a.kind) ? trainT : doT).push(tile(a, i)); });
+    list.forEach((a, i) => { if (a.kind === "hint") return; (BUILD_KINDS.includes(a.kind) ? buildT : (a.kind === "upgrade" || a.kind === "swap") ? upT : TRAIN_KINDS.includes(a.kind) ? trainT : doT).push(tile(a, i)); });
     const grp = (name, t, cls) => t.length ? `<div class="grp g-${cls}"><span class="glab" title="${name}"></span><div class="tiles">${t.join("")}</div></div>` : "";
     acts = grp("Do", doT, "do") + grp("Build", buildT, "build") + grp("Train", trainT, "train") + grp("Strengthen", upT, "train");
+    if ([doT, buildT, trainT, upT].reduce((n, t) => n + Math.ceil(t.length / 5), 0) > 3) dense = " dense";
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
     if (hints.length) acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     UI.list = list;
   }
-  el.innerHTML = `<div class="ptitle">${title}</div><div class="pmeta">${meta.join("")}</div><div class="acts">${acts}</div>${msg}`;
+  el.innerHTML = `<div class="ptitle">${title}</div><div class="pmeta">${meta.join("")}</div><div class="acts${dense}">${acts}</div>${msg}`;
 }
 function renderLog() {
   const L = G.log.slice(-4).reverse();
