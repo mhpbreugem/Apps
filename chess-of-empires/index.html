@@ -62,18 +62,21 @@ svg.board{display:block;width:100%;height:auto;touch-action:manipulation;user-se
 .acts .aic svg{width:22px;height:22px}
 .acts .atx{min-width:0;display:block}
 .acts .alb{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
-.acts{display:grid;grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:7px;overflow:visible}
-.acts>div{grid-column:1/-1}
-.acts .tile{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:8px 4px 7px;min-height:78px;text-align:center;border-radius:13px;
-  background:linear-gradient(180deg,#704b27 0%,#4f3217 70%,#432a12 100%);border:1px solid #b8903f;color:#f8ead0;
-  box-shadow:inset 0 1px 0 rgba(255,232,170,.28),0 2px 0 #2a190a,0 3px 6px rgba(0,0,0,.18);transition:transform .08s ease}
+.acts{display:block}
+.acts .grp{display:flex;gap:4px;margin-bottom:3px;align-items:stretch}
+.acts .glab{flex:0 0 14px;writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font:800 9.5px/1 system-ui,sans-serif;color:#8a6414;letter-spacing:.16em;text-transform:uppercase;border-left:2px solid #c9a76a}
+.acts .tiles{flex:1;min-width:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.acts .tile{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:39px;padding:2px 1px;text-align:center;border-radius:9px;
+  background:linear-gradient(180deg,#704b27 0%,#4f3217 70%,#432a12 100%);border:1px solid #b8903f;color:#f6d985;
+  box-shadow:inset 0 1px 0 rgba(255,232,170,.28),0 2px 0 #2a190a;transition:transform .08s ease}
 .acts .tile:active{transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,232,170,.2),0 1px 0 #2a190a}
-.acts .tile .aic{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#f6d985;
-  background:radial-gradient(circle at 35% 30%,rgba(255,236,170,.28),rgba(255,236,170,.06));border:1px solid rgba(231,189,82,.65)}
-.acts .tile .aic svg{width:19px;height:19px}
-.acts .tile .tl{display:block;max-width:100%;font-size:11.5px;font-weight:700;line-height:1.12;white-space:normal;word-break:break-word;max-height:2.3em;overflow:hidden}
-.acts .tile .tc{display:block;max-width:100%;font-size:9.5px;font-weight:500;color:#e7cf8f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.acts .tile.off{opacity:.42;filter:grayscale(.6)}
+.acts .tile.train{background:linear-gradient(180deg,#c0392b 0%,#962a1e 65%,#7a1a12 100%);color:#fff;border-color:#e7bd52}
+.acts .tile .aic{width:auto;height:auto;display:flex;color:inherit}
+.acts .tile .aic svg{width:17px;height:17px}
+.acts .tile .tl{display:block;max-width:100%;font-size:9.5px;font-weight:700;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acts .tile .tc{display:block;max-width:100%;font-size:8.5px;font-weight:500;color:#e7cf8f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acts .tile.train .tc{color:#ffd9d4}
+.acts .tile.off{opacity:.4;filter:grayscale(.7)}
 .acts button:disabled{opacity:.42;cursor:default}
 .acts button.primary,.bar button.primary,dialog button.primary{background:var(--brass);border-color:var(--brass);color:#fff}
 .acts button.warn{border-color:var(--danger);color:var(--danger)}
@@ -363,6 +366,23 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .agetips{margin:4px 0 6px;padding-left:18px;font-size:14.5px;line-height:1.35}
 .agetips li{margin:5px 0}
 .agetips li.next{list-style:none;margin-left:-18px;margin-top:9px;padding-top:7px;border-top:1px solid rgba(120,80,30,.3);color:#6e5434;font-size:13.5px}
+
+/* action cards (earth palette) */
+.acts .grp{display:flex;gap:4px;margin-bottom:2px;align-items:stretch}
+.acts .glab{flex:0 0 12px;writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font:800 8.5px/1 system-ui,sans-serif;letter-spacing:.14em;color:var(--gc,#86683f);border-left:2px solid var(--gc,#86683f)}
+.acts .grp.g-train{--gc:#8f4a3b}.acts .grp.g-build{--gc:#566067}
+.acts .tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+.acts button.tile{--hc:#86683f;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;padding:0;min-height:0;overflow:hidden;text-align:center;border-radius:9px;background:#f8f0da;border:1px solid rgba(80,55,20,.35);color:#3a2a14;box-shadow:0 2px 0 rgba(60,40,10,.35)}
+.acts button.tile .aic{display:flex;align-items:center;justify-content:center;width:auto;height:18px;background:var(--hc);color:#fff;border-radius:0}
+.acts button.tile .aic svg{width:15px;height:15px}
+.acts button.tile .tl{font-size:10px;font-weight:700;line-height:1.05;padding:2px 1px 0;color:#3a2a14}
+.acts button.tile .tc{font-size:8px;font-weight:500;line-height:1.05;color:#3a2a14;opacity:.6;padding-bottom:2px}
+.acts button.tile.train{--hc:#8f4a3b;background:#f8f0da;color:#3a2a14;border-color:rgba(80,55,20,.35)}
+.acts button.tile.train .tc{color:#3a2a14}
+.acts button.tile.bld{--hc:#566067}
+.acts button.tile.r-wood{--hc:#647a4a}.acts button.tile.r-food{--hc:#b09a52}.acts button.tile.r-gold{--hc:#b8923a}
+.acts button.tile.off{opacity:.42;filter:grayscale(.6)}
+.acts button.tile:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(60,40,10,.35)}
 </style>
 </head>
 <body>
@@ -443,7 +463,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     <button data-v="3d">3D</button>
   </div>
   <div class="seg" id="texSeg">
-    <button data-t="on">Fields and forest</button>
+    <button data-t="on">Grassland, fields, forest</button>
     <button data-t="off">Plain squares</button>
   </div>
   </section>
@@ -859,7 +879,12 @@ const ICONS = {
   demolish: ICO_SVG('<path d="M4 20l9-9M12 6l6-2 2 2-2 6"/><path d="M4 20h4"/>'),
   star: ICO_SVG('<path d="M12 4l2.5 5 5.5.8-4 3.9 1 5.5L12 16.5 7 19.2l1-5.5-4-3.9 5.5-.8z"/>')
 };
-function tileLabel(l) {   // short tile names: "Put the queen on: castle" -> "Castle"
+function tileLabel(l) {
+  if (/^Train /.test(l)) return l.slice(6).charAt(0).toUpperCase() + l.slice(7);
+  if (/^Build mill/i.test(l)) return "Mill / camp";
+  if (/^Build /.test(l)) return l.slice(6).charAt(0).toUpperCase() + l.slice(7);
+  if (/^Gather /.test(l)) return l.slice(7).charAt(0).toUpperCase() + l.slice(8);
+  if (/^Mine gold/i.test(l)) return "Mine";   // short tile names: "Put the queen on: castle" -> "Castle"
   if (l.includes(": ")) { const t = l.split(": ").pop(); return t.charAt(0).toUpperCase() + t.slice(1); }
   return l.replace("Gold layer on the ", "Gold on ").replace("Research ", "").replace("Upgrade to ", "");
 }
@@ -2408,7 +2433,8 @@ function renderBoard() {
   const H = hlSets(), g = [];
   for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) {
     const [x, y] = pos(f, r), key = f + "," + r, gold = isGold(f, r);
-    let fill = gold ? "url(#goldG)" : ((f + r) % 2 === 0 ? "var(--dk)" : "var(--lt)");
+    const farmSq = G.rules.quadrant && TEX && !gold && inQuad(f, r, FOOD), woodSq = G.rules.quadrant && TEX && !gold && inQuad(f, r, WOOD), dk = (f + r) % 2 === 0;
+    let fill = gold ? "url(#goldG)" : farmSq ? (dk ? "#d9b84e" : "#e6c862") : woodSq ? (dk ? "#285c24" : "#2f6b2a") : TEX ? (dk ? "#7fa34c" : "#8fb35a") : (dk ? "var(--dk)" : "var(--lt)");
     g.push(`<polygon data-f="${f}" data-r="${r}" points="${diamond(x, y)}" fill="${fill}" stroke="${gold ? "var(--goldline)" : "var(--sqline)"}" stroke-width="0.5"/>`);
     g.push(`<polygon points="${diamond(x, y)}" fill="url(#sqSheen)" pointer-events="none"/>`);
     if (isRock(f, r)) { g.push(`<polygon points="${diamond(x, y)}" fill="url(#rockGround)" pointer-events="none"/><polygon points="${diamond(x, y)}" fill="url(#gravel)" pointer-events="none"/>`); continue; }
@@ -2461,7 +2487,7 @@ function renderBoard() {
   // pieces, back to front
   const ps = G.pcs.slice().sort((a, b) => pos(a.f, a.r)[1] - pos(b.f, b.r)[1]);
   for (const p of ps) g.push(pieceSVG(p));
-  document.getElementById("board").innerHTML = "<defs><linearGradient id='sqSheen' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff' stop-opacity='0.16'/><stop offset='0.5' stop-color='#fff' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='0.12'/></linearGradient><radialGradient id='tokW' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#fffdf6'/><stop offset='0.6' stop-color='#efe5cf'/><stop offset='1' stop-color='#cdbf9f'/></radialGradient><radialGradient id='tokB' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#5a524b'/><stop offset='0.55' stop-color='#2a2521'/><stop offset='1' stop-color='#0f0d0b'/></radialGradient><filter id='psh' x='-30%' y='-30%' width='160%' height='170%'><feDropShadow dx='0' dy='1.6' stdDeviation='1.3' flood-color='#1b120a' flood-opacity='0.42'/></filter><pattern id='farm' width='9' height='9' patternUnits='userSpaceOnUse'><rect width='9' height='9' fill='#e6c75e' fill-opacity='0.26'/><path d='M0 3.2H9M0 7.4H9' stroke='#8a6a14' stroke-opacity='0.34' stroke-width='1'/><path d='M2.2 1.6V3.2M1.6 1.1L2.2 1.6L2.8 1.1M6.6 5.6V7.2M6 5.1L6.6 5.6L7.2 5.1' stroke='#6e8f1e' stroke-opacity='0.7' stroke-width='0.7' fill='none'/><circle cx='4.4' cy='1.2' r='0.5' fill='#b8952c' fill-opacity='0.6'/><circle cx='0.8' cy='5.6' r='0.5' fill='#b8952c' fill-opacity='0.6'/></pattern><radialGradient id='rockGround' cx='50%' cy='45%' r='75%'><stop offset='0' stop-color='#a2998a'/><stop offset='1' stop-color='#7d7466'/></radialGradient><linearGradient id='boulderA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#d3cbbd'/><stop offset='0.55' stop-color='#a29a8d'/><stop offset='1' stop-color='#6e665b'/></linearGradient><linearGradient id='boulderB' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#cdc2ae'/><stop offset='0.55' stop-color='#9b8f7b'/><stop offset='1' stop-color='#685d4e'/></linearGradient><pattern id='gravel' width='9' height='8' patternUnits='userSpaceOnUse'><circle cx='2' cy='2' r='0.8' fill='#5f584f' fill-opacity='0.35'/><circle cx='6.5' cy='5.5' r='0.6' fill='#5f584f' fill-opacity='0.3'/><circle cx='4.5' cy='7' r='0.5' fill='#efe8da' fill-opacity='0.35'/></pattern><radialGradient id='goldG' cx='50%' cy='50%' r='70%'><stop offset='0' stop-color='#fbe38a'/><stop offset='0.6' stop-color='#eac25a'/><stop offset='1' stop-color='#d4a03c'/></radialGradient><pattern id='forest' width='12' height='12' patternUnits='userSpaceOnUse'><rect width='12' height='12' fill='#24561f' fill-opacity='0.2'/><path d='M3 0.4L5.9 5.6H0.1Z' fill='#163f19' fill-opacity='0.55'/><rect x='2.5' y='5.6' width='1' height='1.6' fill='#4a2c10' fill-opacity='0.6'/><path d='M9 6.4L11.9 11.6H6.1Z' fill='#163f19' fill-opacity='0.55'/><rect x='8.5' y='11.6' width='1' height='0.6' fill='#4a2c10' fill-opacity='0.6'/></pattern></defs>" + g.join("");
+  document.getElementById("board").innerHTML = "<defs><linearGradient id='sqSheen' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff' stop-opacity='0.16'/><stop offset='0.5' stop-color='#fff' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='0.12'/></linearGradient><radialGradient id='tokW' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#fffdf6'/><stop offset='0.6' stop-color='#efe5cf'/><stop offset='1' stop-color='#cdbf9f'/></radialGradient><radialGradient id='tokB' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#5a524b'/><stop offset='0.55' stop-color='#2a2521'/><stop offset='1' stop-color='#0f0d0b'/></radialGradient><filter id='psh' x='-30%' y='-30%' width='160%' height='170%'><feDropShadow dx='0' dy='1.6' stdDeviation='1.3' flood-color='#1b120a' flood-opacity='0.42'/></filter><pattern id='farm' width='14' height='14' patternUnits='userSpaceOnUse'><path d='M3.5 13V5M3.5 5L1.9 3.2M3.5 5L5.1 3.2M3.5 8.4L1.9 6.6M3.5 8.4L5.1 6.6' stroke='#8f6f14' stroke-width='0.9' fill='none' stroke-linecap='round'/><path d='M10.5 13V6M10.5 6L8.9 4.2M10.5 6L12.1 4.2M10.5 9.4L8.9 7.6M10.5 9.4L12.1 7.6' stroke='#8f6f14' stroke-width='0.9' fill='none' stroke-linecap='round'/></pattern><radialGradient id='rockGround' cx='50%' cy='45%' r='75%'><stop offset='0' stop-color='#a2998a'/><stop offset='1' stop-color='#7d7466'/></radialGradient><linearGradient id='boulderA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#d3cbbd'/><stop offset='0.55' stop-color='#a29a8d'/><stop offset='1' stop-color='#6e665b'/></linearGradient><linearGradient id='boulderB' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#cdc2ae'/><stop offset='0.55' stop-color='#9b8f7b'/><stop offset='1' stop-color='#685d4e'/></linearGradient><pattern id='gravel' width='9' height='8' patternUnits='userSpaceOnUse'><circle cx='2' cy='2' r='0.8' fill='#5f584f' fill-opacity='0.35'/><circle cx='6.5' cy='5.5' r='0.6' fill='#5f584f' fill-opacity='0.3'/><circle cx='4.5' cy='7' r='0.5' fill='#efe8da' fill-opacity='0.35'/></pattern><radialGradient id='goldG' cx='50%' cy='50%' r='70%'><stop offset='0' stop-color='#fbe38a'/><stop offset='0.6' stop-color='#eac25a'/><stop offset='1' stop-color='#d4a03c'/></radialGradient><pattern id='forest' width='15' height='16' patternUnits='userSpaceOnUse'><path d='M7.5 1.2l5 8h-10z' fill='#143a16'/><path d='M7.5 5l5.5 8.5H2z' fill='#1b4a1c'/><rect x='6.9' y='13.4' width='1.3' height='2' fill='#5a3a1c'/></pattern></defs>" + g.join("");
 }
 function rockSmall(f, r) {   // a few stones on a single rock square
   const [x, y] = pos(f, r), sq = VIEW === "square", u = sq ? SQS / 2 : HX * 0.95, k = sq ? 1 : HY / HX;
@@ -2979,12 +3005,17 @@ function renderPanel() {
   let acts = "";
   if (mineP) {
     const list = pieceActions(sp);
+    const BUILD_KINDS = ["camp", "barracks", "tower", "castle", "crown", "gild"], TRAIN_KINDS = ["recruit", "train", "upgrade"];
     const tile = (a, i) => {
       const off = !a.ok, note = sureHint(off ? (a.why || "not now") : (a.note || "")), cost = off ? "" : (a.note || "").split(" · ")[0];
-      return `<button class="tile${off ? " off" : ""}" ${off ? `data-tip="${note.replace(/"/g, "&quot;")}"` : `data-act="${i}"`} title="${(a.label + (note ? " — " + note : "")).replace(/"/g, "&quot;")}">` +
-        `<span class="aic">${actIcon(a)}</span><span class="tl">${tileLabel(a.label)}</span>${cost ? `<span class="tc">${sureHint(cost)}</span>` : ""}</button>`;
+      const tl0 = tileLabel(a.label), rc = BUILD_KINDS.includes(a.kind) || TRAIN_KINDS.includes(a.kind) ? "" : /^(Wood|Lumber)/i.test(tl0) ? " r-wood" : /^(Food|Farm|Berr)/i.test(tl0) ? " r-food" : /^(Gold|Mine)/i.test(tl0) ? " r-gold" : "";
+      return `<button class="tile${off ? " off" : ""}${TRAIN_KINDS.includes(a.kind) ? " train" : ""}${BUILD_KINDS.includes(a.kind) ? " bld" : ""}${rc}" ${off ? `data-tip="${note.replace(/"/g, "&quot;")}"` : `data-act="${i}"`} title="${(a.label + (note ? " — " + note : "")).replace(/"/g, "&quot;")}">` +
+        `<span class="aic">${actIcon(a)}</span><span class="tl">${tileLabel(a.label)}</span><span class="tc">${cost ? sureHint(cost) : "&nbsp;"}</span></button>`;
     };
-    acts = list.map((a, i) => a.kind === "hint" ? "" : tile(a, i)).join("");
+    const doT = [], trainT = [], upT = [], buildT = [];
+    list.forEach((a, i) => { if (a.kind === "hint") return; (BUILD_KINDS.includes(a.kind) ? buildT : a.kind === "upgrade" ? upT : TRAIN_KINDS.includes(a.kind) ? trainT : doT).push(tile(a, i)); });
+    const grp = (name, t, cls) => t.length ? `<div class="grp g-${cls}"><span class="glab">${name.toUpperCase()}</span><div class="tiles">${t.join("")}</div></div>` : "";
+    acts = grp("Do", doT, "do") + grp("Train", trainT, "train") + grp("Strengthen", upT, "train") + grp("Build", buildT, "build");
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
     if (hints.length) acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     UI.list = list;
