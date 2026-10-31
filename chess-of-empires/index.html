@@ -905,7 +905,7 @@ function tileLabel(l) {
 function actIcon(a) {
   const k = a.kind;
   if (k === "gather" || k === "campgather" || k === "tcgather") return ICONS[a.res === "gold" ? "gold" : a.res === FOOD ? "food" : "wood"];
-  if (k === "move") return ICONS.move;
+  if (k === "move" || k === "moveattack") return ICONS.move;
   if (k === "attack") return ICONS.attack;
   if (k === "campshoot") return ICONS.bow;
   if (k === "recruit" || k === "train") return ICONS.unit;
@@ -2435,7 +2435,7 @@ function hlSets() {
   const m = UI.mode; const sp = UI.sel && G.pcs.find(p => p.id === UI.sel);
   if (sp) H.sel.add(k(sp.f, sp.r));
   if (m) {
-    if (m.type === "move") m.squares.forEach(([f, r]) => H.move.add(k(f, r)));
+    if (m.type === "move") { m.squares.forEach(([f, r]) => H.move.add(k(f, r))); (m.targets || []).forEach(t => H.atk.add(k(t.f, t.r))); }
     if (m.type === "place") m.squares.forEach(([f, r]) => H.build.add(k(f, r)));
     if (m.type === "target" || m.type === "shoot") m.targets.forEach(t => H.atk.add(k(t.f, t.r)));
     if (m.type === "pos") { m.positions.forEach(([f, r]) => H.move.add(k(f, r))); H.atk.add(k(m.target.f, m.target.r)); }
@@ -2937,6 +2937,11 @@ function renderPlayers() {
   }
   document.getElementById("players").innerHTML = h + rows;
 }
+function moveAttack(p, list) {
+  const mv = list.find(a => a.kind === "move"), at = list.find(a => a.kind === "attack");
+  const ok = !!((mv && mv.ok) || (at && at.ok));
+  return {kind: "moveattack", cls: (mv || at || {}).cls, label: "Move / attack", note: "", ok, why: ok ? "" : (mv && mv.why) || "blocked", p, targets: at && at.ok ? at.targets || [] : []};
+}
 // villager menu: line 1 = Move/Attack · Resources · Build · Train, line 2 = the options of the chosen one
 function vilCats(p, raw) {
   const s = p.o, ph = (kind, label, why, extra) => Object.assign({kind, label, note: "", ok: false, why, p}, extra || {});
@@ -2944,7 +2949,7 @@ function vilCats(p, raw) {
   const isG = (a, r) => a.kind === "gather" && a.res === r;
   const isCastle = a => (a.kind === "crown" || a.kind === "castle") && /castle|queen/i.test(a.label);
   const isTower = a => (a.kind === "crown" || a.kind === "tower") && /tower|rook/i.test(a.label);
-  const act = [...pick(a => a.kind === "move", ph("move", "Move", "blocked")), ...pick(a => a.kind === "attack", ph("attack", "Attack", vilFight(s) ? "nothing in reach" : "villagers do not fight"))];
+  const act = [moveAttack(p, raw)];
   const res = [...pick(a => isG(a, WOOD), ph("gather", "Gather wood", "stand in the forest", {res: WOOD})), ...pick(a => isG(a, FOOD), ph("gather", "Gather food", "stand in the farmland", {res: FOOD})),
     ...pick(a => isG(a, "gold"), ph("gather", "Mine gold", "stand on the gold in the middle", {res: "gold"})), ...pick(a => a.kind === "trade", ph("trade", "Buy gold", "stand on a trade post in the corner"))];
   const nearCamp = G.pcs.some(q => q.o === s && q.k === "camp" && nextTo(p, q));
@@ -3008,7 +3013,7 @@ function renderPanel() {
   const m = UI.mode, sp = UI.sel && G.pcs.find(p => p.id === UI.sel);
   if (m) {
     let t = "", btns = `<button id="cancelMode">Cancel</button>`;
-    if (m.type === "move") t = "Tap a highlighted square to move there.";
+    if (m.type === "move") t = m.targets && m.targets.length ? "Tap a green square to move there, or a red piece to attack it." : "Tap a highlighted square to move there.";
     if (m.type === "place") t = m.what === "train" ? "Tap a square next to the Town Center for the new villager." : `Tap a highlighted square for the ${m.what}.`;
     if (m.type === "target") t = "Tap a target marked in red.";
     if (m.type === "shoot") t = "Tap a target marked in red (exactly 2 squares away).";
@@ -3080,22 +3085,24 @@ function renderPanel() {
     const grp = (name, t, cls) => t.length ? `<div class="grp g-${cls}"><span class="glab" title="${name}"></span><div class="tiles">${t.join("")}</div></div>` : "";
     acts = grp("Do", doT, "do") + grp("Gather", gatT, "gather") + grp("Build", buildT, "build") + grp("Train", trainT, "train") + grp("Strengthen", upT, "train");
     if ([doT, gatT, buildT, trainT, upT].reduce((n, t) => n + Math.ceil(t.length / 4), 0) > 3) dense = " dense";
-    if (UI.catFor !== sp.id) { UI.cat = "act"; UI.catFor = sp.id; }
+    if (UI.catFor !== sp.id) { UI.cat = null; UI.catFor = sp.id; }
     if (sp.k === "V") {
       const C = vilCats(sp, pieceActions(sp)), all = [...C.act, ...C.res, ...C.build, ...C.train, ...C.hints];
       UI.list = all;
       const cnt = k => C[k].filter(a => a.ok).length;
       const cat = (k, ico, lab) => `<button class="tile cat${UI.cat === k ? " sel" : ""}" data-cat="${k}"><span class="aic">${ico}</span><span class="tl">${lab}</span><span class="tc">${cnt(k) ? cnt(k) + " ready" : "&nbsp;"}</span></button>`;
-      const cur = C[UI.cat] || C.act;
-      acts = `<div class="tiles big">${cat("act", ICONS.move, "Move / attack")}${cat("res", ICONS.food, "Resources")}${cat("build", ICONS.building, "Build")}${cat("train", ICONS.unit, "Train")}</div>` +
-        `<div class="tiles big sub${cur.length > 4 ? " five" : ""}" style="margin-top:5px">${cur.map(a => tile(a, all.indexOf(a))).join("")}</div>`;
+      const cur = C[UI.cat];
+      acts = `<div class="tiles big">${tile(C.act[0], 0)}${cat("res", ICONS.food, "Resources")}${cat("build", ICONS.building, "Build")}${cat("train", ICONS.unit, "Train")}</div>` +
+        (cur ? `<div class="tiles big sub${cur.length > 4 ? " five" : ""}" style="margin-top:5px">${cur.map(a => tile(a, all.indexOf(a))).join("")}</div>` : `<div style="margin-top:8px;font-size:13px;color:var(--dim)">Move / attack: tap a green square to move, a red piece to attack.</div>`);
       dense = " big";
     } else if (isUnit(sp)) {
-      acts = `<div class="tiles big">${doT.join("")}${upT.join("")}</div>`; dense = " big";
+      const ma = moveAttack(sp, list), rest = list.filter(x => x.kind !== "move" && x.kind !== "attack" && x.kind !== "hint"), ul = [ma, ...rest, ...list.filter(x => x.kind === "hint")];
+      UI.list = ul;
+      acts = `<div class="tiles big">${ul.filter(x => x.kind !== "hint").map(x => tile(x, ul.indexOf(x))).join("")}</div>`; dense = " big";
     }
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
     if (hints.length && sp.k !== "V") acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
-    if (sp.k !== "V") UI.list = list;
+    if (sp.k !== "V" && !isUnit(sp)) UI.list = list;
   }
   el.innerHTML = `<div class="ptitle">${title}</div><div class="pmeta">${meta.join("")}</div><div class="acts${dense}">${acts}</div>${msg}`;
 }
@@ -3141,7 +3148,7 @@ function clickSquare(f, r) {
     if (m.type === "move" && m.squares.some(([a, b]) => key(a, b))) { UI.msg = ""; exec({kind: "move", cls: clsOf("move", m.p), p: m.p, to: [f, r]}); return afterAct(m.p); }
     if (m.type === "place" && m.squares.some(([a, b]) => key(a, b))) { UI.msg = ""; exec(Object.assign({}, m.act, {to: [f, r]})); return afterAct(m.act.p); }
     if (m.type === "shoot" && p && m.targets.includes(p)) { UI.msg = ""; exec({kind: m.kind || "campshoot", cls: clsOf(m.kind || "campshoot", m.p), p: m.p, target: p}); return afterAct(m.p); }
-    if (m.type === "target" && p && m.targets.includes(p)) {
+    if ((m.type === "target" || (m.type === "move" && m.targets)) && p && m.targets.includes(p)) {
       if (reaches(m.p, m.p.f, m.p.r, p)) UI.mode = {type: "partner", p: m.p, target: p, from: [m.p.f, m.p.r], partners: partnersFor(m.p, p)};
       else { const positions = attackFrom(m.p).slice(1).filter(([a, b]) => reaches(m.p, a, b, p)); UI.mode = {type: "pos", p: m.p, target: p, positions}; }
       return render();
@@ -3178,6 +3185,7 @@ function chooseAction(i) {
   const p = a.p;
   switch (a.kind) {
     case "move": UI.mode = {type: "move", p, squares: moves(p)}; break;
+    case "moveattack": UI.mode = {type: "move", p, squares: moves(p), targets: a.targets}; break;
     case "attack": UI.mode = {type: "target", p, targets: a.targets}; break;
     case "camp": UI.mode = {type: "place", what: "camp", squares: a.squares, act: {kind: "camp", cls: a.cls, p}}; break;
     case "barracks": UI.mode = {type: "place", what: "barracks", squares: a.squares, act: {kind: "barracks", cls: a.cls, p}}; break;
