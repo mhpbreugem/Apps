@@ -76,6 +76,11 @@ dialog h3{font-family:Alegreya,Georgia,serif;font-size:16px;margin:14px 0 4px}
 .opt input{margin-top:3px;width:18px;height:18px;accent-color:var(--brass);flex:none}
 .opt small{display:block;color:var(--dim);font-size:12.5px}
 .seg{display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;margin:6px 0 10px;border-bottom:1px solid #b8903f}
+.tabs button{flex:1;border:0;border-radius:10px 10px 0 0;background:transparent;padding:7px 4px;font-weight:600}
+.tabs button.on{background:rgba(184,144,63,.18);border-bottom:3px solid #b8903f;font-weight:800}
+.tabpane h3{margin:8px 0 2px}
+.aoebar{display:block;margin:2px 0 4px}
 .seg button{flex:1;text-align:center}
 .seg button.on{background:var(--brass);color:#fff;border-color:var(--brass)}
 .rules{font-size:14px}
@@ -358,6 +363,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     <button id="logBtn">Log</button>
     <button id="treeBtn">Tree</button>
     <button id="autoBtn" style="display:none">Auto off</button>
+    <button id="undoBtn" disabled>Undo</button>
     <button id="endBtn" class="primary">End turn</button>
   </div>
   <div class="log" id="log"></div>
@@ -366,6 +372,8 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 <dialog id="menu">
   <div id="libBox"><h2>Your games</h2><div id="libList" class="netlist"></div></div>
   <h2>New game</h2>
+  <nav class="tabs" id="menuTabs"><button data-tab="play" class="on">Play</button><button data-tab="board">Board</button><button data-tab="look">Look</button><button data-tab="map">Map</button></nav>
+  <section class="tabpane" data-pane="play">
   <div class="seg" id="modeSeg">
     <button data-m="ai">Against the computer</button>
     <button data-m="hot">Two players</button>
@@ -379,38 +387,52 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     <div class="netjoin"><input id="joinCode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="CODE" aria-label="Game code"><button id="joinBtn">Join as Black</button></div>
     <p id="netStatus" class="onote" style="min-height:1em"></p>
   </div>
+  <div id="aiBox">
+    <div class="seg" id="aiSeg">
+      <button data-a="built">Built-in computer</button>
+      <button data-a="close">Haiku on close calls</button>
+      <button data-a="full">Haiku plays every move</button>
+      <button data-a="off">No computer</button>
+    </div>
+    <div id="keyBox" style="display:none">
+      <p class="onote">Haiku uses your own API key. It is kept only in this browser: never in game links, saves or the cloud, so people you share a game with cannot use it.</p>
+      <div class="netjoin"><input id="apiKey" type="password" autocomplete="off" placeholder="API key" aria-label="API key" style="text-transform:none;letter-spacing:0"><button id="keySave">Save key</button></div>
+      <p id="keyStatus" class="onote"></p>
+    </div>
+  </div>
   <div class="seg" id="homeSeg">
     <button data-h="3">Home 3×3, no home gathering</button>
     <button data-h="4">Home 4×4, gathers at home</button>
-  </div>
-  <div class="seg" id="diceSeg">
-    <button data-s="0">Normal dice</button>
-    <button data-s="1">Always succeed (100%)</button>
   </div>
   <div class="seg" id="diffSeg">
     <button data-d="1">Easy computer</button>
     <button data-d="10">Hard computer</button>
   </div>
   <p style="font-size:13px;color:var(--dim);margin:2px 0 8px">Against the computer you play White and move first.</p>
-  <h3>Board</h3>
+  </section>
+  <section class="tabpane" data-pane="board">
   <div class="seg" id="viewSeg">
     <button data-v="square">Square, like a chess set</button>
     <button data-v="diamond">Diamond</button>
     <button data-v="3d">3D</button>
   </div>
-  <div class="seg" id="lookSeg">
-    <button data-l="chess">Chess pieces and checkers</button>
-    <button data-l="aoe">Age of Empires look</button>
-  </div>
-  <p style="font-size:12.5px;color:var(--dim);margin:-2px 0 8px">The Age of Empires look draws units and buildings as pictures with hit points as hearts, and words the hints that way. The 3D view keeps chess pieces.</p>
-  <div class="seg" id="ckSeg">
-    <button data-c="dots">Checkers as dots</button>
-    <button data-c="flag">Checkers on a flag</button>
-  </div>
   <div class="seg" id="texSeg">
     <button data-t="on">Fields and forest</button>
     <button data-t="off">Plain squares</button>
   </div>
+  </section>
+  <section class="tabpane" data-pane="look">
+  <div class="seg" id="lookSeg">
+    <button data-l="chess">Chess pieces and checkers</button>
+    <button data-l="aoe">Age of Empires look</button>
+  </div>
+  <p style="font-size:12.5px;color:var(--dim);margin:-2px 0 8px">The Age of Empires look draws units and buildings as pictures with hit points as a bar of segments, and words the hints that way. The 3D view keeps chess pieces.</p>
+  <div class="seg" id="ckSeg">
+    <button data-c="dots">Checkers as dots</button>
+    <button data-c="flag">Checkers on a flag</button>
+  </div>
+  </section>
+  <section class="tabpane" data-pane="map">
   <h3>Map</h3>
   <div class="seg" id="mapSeg" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px">
     <button data-map="open">Open</button>
@@ -428,6 +450,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     <button data-map="rim">Rocky rim</button>
   </div>
   <p style="font-size:13px;color:var(--dim);margin:4px 0 8px">Rock cannot be entered, stood on or built on. Every map is mirrored across the a8–h1 diagonal, so both sides have exactly the same paths.</p>
+  </section>
   <button class="primary full" id="startBtn">Start new game</button>
   <button class="full" id="closeMenu">Cancel</button>
 </dialog>
@@ -454,7 +477,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <li><b>Food buys people and horses:</b> every chess-piece unit and its checkers. <b>Wood buys the empire:</b> buildings, their checkers, the ages and machines (the trebuchet). Gold is the gold checker.</li>
       <li><b>Everything gathers on 4+.</b> Your home (3×3: White a1–c3, Black f6–h8) gives nothing. A villager in the food field (a5–d8, plus a4–c4 and e6–e8) gathers food; in the wood field (e1–h4, plus d1–d3 and f5–h5) wood. Food and wood hold 0–6 each.</li>
       <li>One mill and one lumber camp, in the fields and the forest only: for one action every villager next to it, standing in the same field or forest, rolls. The Town Center is not a mill.</li>
-      <li><b>Odds</b>: when a game is started with “Always succeed (100%)”, every die shows a 6, so gathering, mining and attacks by dice never fail.</li>
+      <li><b>No dice</b>: gathering and attacks always succeed. Nothing is rolled.</li>
       <li><b>Gold</b>: from the Castle Age a villager standing on one of the <b>four centre squares</b> (d4, e4, d5, e5) takes one of the opponent’s reserve checkers as gold on 4+. Or <b>trade</b>: with a villager on a8 (food post) or h1 (wood post), buy gold for one action: pay 6 of that resource, or 6 in any mix if you hold both posts (no dice) and take one of the opponent’s reserve checkers as gold. Anyone may stand on a corner. If their reserve is empty, the gold checker comes out of their food or wood instead, their choice. Hold at most 2 gold at any time; spend as much as you like. Spent gold goes back to its owner’s reserve.</li>
     </ul>
     <h3>Ages</h3>
@@ -475,7 +498,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <li><b>Barracks</b>: home only (White a1–c3, Black f6–h8), built two checkers high: 2 wood + 2 checkers. <b>Mill</b> and <b>lumber camp</b>: 1 wood + 1 checker, from the Dark Age; one of each at most.</li>
       <li>A <b>crown</b> is a chess piece set on a building. <b>Watch tower</b>: from the Feudal Age a rook on a mill or camp, 3 wood; shoots exactly 2, one action. It climbs like a unit: a second checker (1 wood) from the Castle Age, +1 hit point; a gold checker in the Imperial Age, +1 attack. <b>Castle</b>: from the Castle Age the queen on the barracks, 4 wood; shoots 1–2, one action.</li>
       <li>A crowned building shoots while the piece stands; hits take its checkers first. Shots deal 1, or 2 with gold. The Town Center shoots 1–2 away, like the castle, from the start, for one action.</li>
-      <li>The <b>trebuchet</b> is a coin, not a rook: its checkers are its hit points. Moves 1 in any direction, shoots exactly 3 away in every direction. It ignores building defence.</li>
+      <li>The <b>trebuchet</b> is a coin, not a rook: its checkers are its hit points. Moves 1 in any direction, shoots exactly 3 away, straight or diagonal only. It ignores building defence.</li>
     </ul>
     <h3>Combat</h3>
     <ul>
@@ -538,7 +561,7 @@ const isRock = (f, r) => { if (!(G && G.rules && G.rules.rocks)) return false;
   if (G.rules.rockShape === "plus") return f >= 2 && f <= 5 && r >= 2 && r <= 5 && !((f === 2 || f === 5) && (r === 2 || r === 5));
   return f >= 3 && f <= 4 && r >= 3 && r <= 4; };
 const isGold = (f, r) => !(G && G.rules && G.rules.raidGold) && f >= 3 && f <= 4 && r >= 3 && r <= 4;
-const roll = () => G && G.rules && G.rules.sure ? 6 : 1 + Math.floor(Math.random() * 6);   // sure: every die shows 6
+const roll = () => 6;   // no dice: every roll succeeds
 
 /* ================= state ================= */
 let G = null;
@@ -575,11 +598,12 @@ function checkCollapse() {
   if (G.winner === null && collapsed(G.turn)) { G.winner = 1 - G.turn; G.winCause = "collapse"; return true; }
   return false;
 }
+let UNDO = [];   // snapshots of the game earlier this turn, for Undo
 function startTurn() {
   const first = G.round === 1 && G.turn === 0 && !G.rules.noHandicap;
-  G.acts = G.rules.flex2 ? {any: first ? 1 : (G.rules.castle3 && age(G.turn) >= 2 ? 3 : 2)} : G.rules.pools ? {eco: first ? 1 : 2, mil: first ? 0 : 2} : {any: first ? 1 : 2};
+  G.acts = G.rules.flex2 ? {any: first ? 1 : 3} : G.rules.pools ? {eco: first ? 1 : 2, mil: first ? 0 : 2} : {any: first ? 1 : 2};
   if (G.rules.chk && !G.rules.pools && !G.rules.flex2) G.acts.camp = G.pcs.filter(p => p.o === G.turn && p.k === "camp").length;   // free: each mill / lumber camp gathers once
-  G.acted = []; G.campUsed = [];
+  G.acted = []; G.campUsed = []; UNDO = [];
 }
 function log(s, text) { G.log.push({s, r: G.round, t: text}); if (G.log.length > 400) G.log.shift(); }
 
@@ -671,7 +695,7 @@ function reaches(p, f, r, t) {
   if (atk(p, t) === 0) return false;
   const d = cd(f, r, t.f, t.r);
   if (p.k === "A") return d === 2;
-  if (p.k === "S") return d === 3;   // trebuchet: exactly 3 away, all round
+  if (p.k === "S") { const dx = Math.abs(t.f - f), dy = Math.abs(t.r - r); return d === 3 && (dx === 0 || dy === 0 || dx === dy); }   // trebuchet: exactly 3 away, straight or diagonal only
   return d === 1;
 }
 function moves(p) {
@@ -814,7 +838,7 @@ function pieceActions(p) {
     }
     if (G.rules.trade && isCorner(p.f, p.r)) {
       const st = tradeStock(p), lim = goldLimit(s) - G.gold[s], other = SQ([7 - p.f, 7 - p.r]), nm = RES[postRes(p)];
-      mk("trade", "Buy gold", st.q ? "6 food/wood in any mix (villagers on both posts) · 1 action · no dice" : `pay 6 ${nm} (a villager on ${other} too allows a mix) · 1 action · no dice`,
+      mk("trade", "Buy gold", st.q ? "6 food/wood in any mix (villagers on both posts) · 1 action · no roll" : `pay 6 ${nm} (a villager on ${other} too allows a mix) · 1 action · always works`,
          A >= 2 && st.n >= 6 && goldAvail(s) && lim > 0,
          A < 2 ? "trade opens in the Castle Age" : st.n < 6 ? (st.q ? "needs 6 food and wood together" : `needs 6 ${nm}`) : !goldAvail(s) ? "their reserve is empty" : "hold 2 gold at most", {partner: st.q});
     }
@@ -937,10 +961,11 @@ function pieceActions(p) {
        A >= 3 && afford(s, MH_COST[0], MH_COST[1], MH_COST[2]), A < 3 ? "needs the Imperial Age" : "needs 2 food + 1 gold");
     { const res0 = campRes(p)[0], key = G.rules.ecoTiers ? ECO_CHAIN(res0).find(k => !hasTech(s, k)) : (res0 === FOOD ? "hc" : "dba"), T = key && TECHS[key];
       if (T && techOn() && !(G.rules.noEcoTech) && !hasTech(s, key)) mk("research", `Research ${T.n}`,
-         `${costTxt(T.c)} · ${RES[res0]} ${key === "cr" || key === "tms" || !G.rules.ecoTiers ? "without dice" : "one pip easier"}`,
+         `${costTxt(T.c)} · ${RES[res0]} ${key === "cr" || key === "tms" || !G.rules.ecoTiers ? "always works" : "always works"}`,
          A >= T.a && afford(s, T.c[0], T.c[1], T.c[2]), A < T.a ? `needs the ${AGES[T.a]} Age` : `needs ${costTxt(T.c)}`, {tech: key}); }
     if (!G.rules.chk && p.st.length < 2) mk("tower", "Upgrade to watch tower", `${TOWER_WOOD} wood`, A >= TOWER_AGE() && G.wood[s] >= TOWER_WOOD && resOk(s), A < TOWER_AGE() ? (G.rules.towerFeudal ? "needs the Feudal Age" : "needs the Castle Age") : G.res[s] <= 0 ? "reserve empty" : `needs ${TOWER_WOOD} wood`);
   }
+  if ((p.k === "camp" || p.k === "B") && p.o === s) mk("demolish", "Demolish", "removes it, no refund", true, "");
   return out;
 }
 // archers shoot only from where they stand; other units may move first
@@ -1024,10 +1049,14 @@ function towerTargets(c) {
 }
 const CASTLE_GOLD = 2;
 const bMax = b => G.rules.chk ? hMax(b.o) : b.cs ? (hasTech(b.o, "hoard") ? 3 : 2) : 1;   // checkers a barracks / castle can hold (castle: gold + own)
+function partnerSpot(q, t, avoid) {   // where q can stand this turn to hit t (its own square first), or null
+  const ok = ([a, b]) => reaches(q, a, b, t) && (!avoid || a !== avoid[0] || b !== avoid[1]) && (a === q.f && b === q.r || free(a, b));
+  return attackFrom(q).find(ok) || null;
+}
 function partnersFor(p, t) {
   const cp = clsOf("attack", p);
   const room = q => { const cq = clsOf("attack", q); return (G.acts[cq] || 0) >= (cq === cp ? 2 : 1); };   // each piece pays from its own pool
-  return G.pcs.filter(q => q.o === p.o && q !== p && (isUnit(q) || (q.k === "V" && vilFight(q.o) && vilMayHit(q, t))) && !acted(q) && room(q) && reaches(q, q.f, q.r, t));
+  return G.pcs.filter(q => q.o === p.o && q !== p && (isUnit(q) || (q.k === "V" && vilFight(q.o) && vilMayHit(q, t))) && !acted(q) && room(q) && partnerSpot(q, t, p.k !== "A" ? [p.f, p.r] : null) !== null);
 }
 
 /* ================= effects ================= */
@@ -1071,6 +1100,7 @@ function damage(t, dmg, by) {
 }
 function exec(a) {
   const s = G.turn, p = a.p, A = age(s);
+  if (!SIM && G && (G.mode === "ai" || G.mode === "hot") && !isAI(G.turn)) { UNDO.push(JSON.stringify(G)); if (UNDO.length > 80) UNDO.shift(); }
   let text = "";
   G.last = [];
   if (a.cls && a.cls !== "free") spend(a.cls);
@@ -1079,13 +1109,13 @@ function exec(a) {
     case "gather": {
       const x = roll(); G.acted.push(p.id); G.last = [[p.f, p.r]];
       if (a.res === "gold") {
-        if (x >= (G.rules.goldHalf ? 4 : 5)) { const n = goldFrom(s); text = `mines gold: rolls ${x}, +${n} gold`; }
+        if (x >= (G.rules.goldHalf ? 4 : 5)) { const n = goldFrom(s); text = `mines gold: +${n} gold`; }
         else text = `mines gold: rolls ${x}, nothing`;
       } else {
         const d = gatherOpts(s, p.f, p.r).find(z => z[0] === a.res)[1];
         if (autoRes(s, a.res)) { const y = handYield(d); gain(s, a.res, y); text = `gathers ${RES[a.res]}: +${y} (${autoName(a.res)})`; UI.msg = text; break; }
         const dd = effD(s, a.res, d);
-        if (x > dd) { const y = handYield(d); gain(s, a.res, y); text = `gathers ${RES[a.res]}: rolls ${x}, +${y}`; }
+        if (x > dd) { const y = handYield(d); gain(s, a.res, y); text = `gathers ${RES[a.res]}: +${y}`; }
         else text = `gathers ${RES[a.res]}: rolls ${x}, needs ${dd + 1}`;
       }
       UI.msg = diceMsg([x], text); break;
@@ -1127,6 +1157,7 @@ function exec(a) {
     case "attack": {
       const t = a.target, from = a.from;
       if (from[0] !== p.f || from[1] !== p.r) { G.last.push([p.f, p.r]); p.f = from[0]; p.r = from[1]; }
+      if (a.partner) { const sp = partnerSpot(a.partner, t, from); if (sp && (sp[0] !== a.partner.f || sp[1] !== a.partner.r)) { G.last.push([a.partner.f, a.partner.r]); a.partner.f = sp[0]; a.partner.r = sp[1]; } }
       const coin = q => { if (q.k !== "V" || !G.rules.vilCoin) return atk(q, t); const x = roll(); coinTxt.push(`${x}${x >= 4 ? " hit" : " miss"}`); return x >= 4 ? 1 : 0; };
       const coinTxt = [];
       const tot = coin(p) + (a.partner ? coin(a.partner) : 0), d = Math.min(defVs(p, t), a.partner ? defVs(a.partner, t) : 9), dmg = Math.floor(tot - d);
@@ -1137,13 +1168,13 @@ function exec(a) {
       G.last.push([p.f, p.r], [t.f, t.r]); if (a.partner) G.last.push([a.partner.f, a.partner.r]);
       const who = name(p) + (a.partner ? " and " + name(a.partner) : "");
       const tn = name(t), res = damage(t, dmg, s);
-      text = `${who} attack${a.partner ? "" : "s"} the ${tn}${coinTxt.length ? " (rolls " + coinTxt.join(", ") + ")" : ""}: ${fmtA(tot)} − ${d} = ${Math.max(0, dmg)}; ${res}`;
+      text = `${who} attack${a.partner ? "" : "s"} the ${tn}: ${fmtA(tot)} − ${d} = ${Math.max(0, dmg)}; ${res}`;
       UI.msg = text; break;
     }
     case "tcgather": {
       const crew = tcCrew(p), res = a.res, dice = crew.map(() => roll()), y = dice.filter(x => x > 4).length;
       crew.forEach(q => G.acted.push(q.id)); G.acted.push(p.id); if (y) gain(s, res, y); G.last = [[p.f, p.r]];
-      text = `Town Center home crew rolls ${dice.join(", ")}: +${y} ${RES[res]}`; UI.msg = text; break;
+      text = `Town Center home crew: +${y} ${RES[res]}`; UI.msg = text; break;
     }
     case "campgather": {
       const crew = crewOf(p), [res, d] = campRes(p);
@@ -1157,7 +1188,7 @@ function exec(a) {
       const hits = dice.filter(x => x > campNeed(p)).length, y = hits * (G.rules.campTwo ? 2 : 1);
       crew.forEach(q => G.acted.push(q.id)); G.acted.push(p.id); if (y) gain(s, res, y);
       G.last = [[p.f, p.r]];
-      text = `${res === FOOD ? "mill" : "lumber camp"} rolls ${dice.join(", ")}: +${y} ${RES[res]}`;
+      text = `${res === FOOD ? "mill" : "lumber camp"}: +${y} ${RES[res]}`;
       UI.msg = diceMsg(dice, text); break;
     }
     case "research": {
@@ -1179,6 +1210,7 @@ function exec(a) {
       text = `buys gold at the trade posts: ${f} food + ${w} wood for ${n} gold`; break;
     }
     case "pack": p.up = !p.up; G.acted.push(p.id); G.last = [[p.f, p.r]]; text = p.up ? `the ${name(p)} unpacks` : `the ${name(p)} packs up`; break;
+    case "demolish": { G.last = [[p.f, p.r]]; text = `demolishes the ${name(p)} (no refund)`; removePiece(p); break; }
     case "campshoot": {
       if (p.k === "camp" && !G.rules.chk) G.pcs.filter(q => q.o === s && q.k === "V" && cd(q.f, q.r, p.f, p.r) === 1 && !acted(q)).forEach(q => G.acted.push(q.id));   // the crew mans the tower
       const t = a.target, pw = G.rules.chk ? (hasGold(p) ? 2 : 1) : A >= 3 && p.k !== "B" ? 2 : 1, d = defn(t), tn = name(t);
@@ -1196,7 +1228,7 @@ function sureWalk(root) {   // 100% odds: the tips and the tree say "always", no
   for (const n of ns) { const t = n.nodeValue.replace(/\b(food|wood) [2-6]\+/g, "$1 every time").replace(/\b[2-6]\+( \(50%\))? (gives|takes)/g, "always $2").replace(/\b[Ee]verything gathers on 4\+/g, "Everything gathers every time").replace(/\bon [2-6]\+/g, "every time").replace(/\(4\+\)/g, "(always)"); if (t !== n.nodeValue) n.nodeValue = t; }
 }
 function sureHint(t) { return G && G.rules && G.rules.sure ? String(t).replace(/\b[2-6]\+( \(50%\))?( each)? (gives|takes)/g, "always $3").replace(/villagers? rolls?/g, m => m.startsWith("villagers") ? "villagers work" : "villager works") : t; }
-function diceMsg(dice, text) { return dice.map(x => `<span class="roll">${x}</span>`).join("") + " " + text + "."; }
+function diceMsg(dice, text) { return text + "."; }
 
 function endTurn() {
   const s = G.turn;
@@ -1844,7 +1876,16 @@ async function runAI() {
   await sleep(450);
   let guard = 0;
   while (G.winner === null && actionsLeft() > 0 && guard++ < 8) {
-    if (!aiMove(1)) break;
+    let done = false;
+    if ((AIPICK === "full" || AIPICK === "close") && G.mode === "ai" && aiKey()) {
+      AINEW = G.aiOld ? !G.aiOld[1] : false;
+      const top = aiOptions(1).filter(x => x.sc > 0.5).sort((a, b) => b.sc - a.sc).slice(0, 5);
+      if (top.length > 1 && (AIPICK === "full" || top[0].sc - top[1].sc < 0.5)) {
+        const i = await haikuPick(top);
+        if (i >= 0) { exec(top[i].a); done = true; }
+      }
+    }
+    if (!done && !aiMove(1)) break;
     render(); await sleep(650);
   }
   if (G.winner === null) { endTurn(); }
@@ -1874,6 +1915,31 @@ window.__selfTest = function (n, rules, levels) {
   G = saveG; return res;
 };
 function aiStepBoth() { return aiMove(G.turn); }
+const AIKEY_STORE = "coe-apikey", AIPICK_STORE = "coe-aipick";
+let AIPICK = (() => { try { return localStorage.getItem(AIPICK_STORE) || "built"; } catch (e) { return "built"; } })();
+function setAIPick(v) { AIPICK = v; try { localStorage.setItem(AIPICK_STORE, v); } catch (e) {} }
+function aiKey() { try { return localStorage.getItem(AIKEY_STORE) || ""; } catch (e) { return ""; } }
+function setAiKey(k) { try { if (k) localStorage.setItem(AIKEY_STORE, k); else localStorage.removeItem(AIKEY_STORE); } catch (e) {} }
+const sqName = (f, r) => "abcdefgh"[f] + (r + 1);
+function describeOpt(a, i) {   // short text for Haiku: one line per legal option
+  let t = `${i}: ${a.kind}${a.p ? " " + (a.p.k || "") : ""}`;
+  if (a.from) t += ` from ${sqName(a.from[0], a.from[1])}`;
+  if (a.to) t += ` to ${sqName(a.to[0], a.to[1])}`;
+  if (a.target) t += ` attack ${a.target.k || ""} on ${sqName(a.target.f, a.target.r)}`;
+  return t;
+}
+async function haikuPick(cands) {   // returns the index Haiku chose, or -1 (caller then uses the built-in choice)
+  const key = aiKey(); if (!key || cands.length < 2) return -1;
+  const body = {model: "claude-haiku-5-5", max_tokens: 10, messages: [{role: "user", content: "You play the computer in a board game. Pick the single best option for it. Reply with the option number only.\n" + cands.map((c, i) => describeOpt(c.a, i)).join("\n")}]};
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {method: "POST", signal: ctl.signal,
+      headers: {"content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true"}, body: JSON.stringify(body)});
+    if (!res.ok) return -1;
+    const j = await res.json(), txt = (j.content && j.content[0] && j.content[0].text) || "", m = /\d+/.exec(txt), n = m ? +m[0] : -1;
+    return n >= 0 && n < cands.length ? n : -1;
+  } catch (e) { return -1; } finally { clearTimeout(timer); }
+}
 function endTurnBoth() { const m = G.mode; G.mode = "all"; endTurnAll(); G.mode = m; }
 function endTurnAll() {
   if (G.winner !== null) return;
@@ -2426,12 +2492,19 @@ function pieceAoE(p) {
   s += `<g transform="translate(${x} ${y - 1}) scale(0.78)">${aoeGlyph(aoeKind(p), ink, bg)}</g>`;
   if (p.k === "I" && p.st.length === 0 && G.rules.woundMark && p.w) s += `<circle cx="${x}" cy="${y - 1}" r="11.2" fill="none" stroke="#b3392b" stroke-width="1.2" stroke-dasharray="2 2"/>`;
   s += `</g>`;
-  const hs = aoeHearts(p), n = hs.length, hy = y + 12.5 * K + 1, step = 5.2 * Math.min(K, 1.15);
-  hs.forEach((kd, i) => { s += heartSVG(kd, x + (i - (n - 1) / 2) * step, hy, 0.62 * Math.min(K, 1.15) * 1.0, p.o); });
+  const hs = aoeHearts(p), n = hs.length, hy = y + 12.5 * K + 1;
+  s += aoeSegs(p, x, hy - 3, 27 * Math.min(K, 1.15), 5, 1.2);
+  s += `<text x="${x}" y="${hy + 9.5}" text-anchor="middle" font-size="6.8" font-weight="800" fill="#1d1a16" stroke="#fff6e0" stroke-width="1.8" paint-order="stroke">${Math.max(0, hp(p))}</text>`;
   return s + "</g>";
 }
 function aoeMini(p) { return `<svg class="aoemini" viewBox="-13 -14 26 28" width="26" height="28" aria-hidden="true"><circle cx="0" cy="0" r="12.5" fill="${p.o ? "#2c2824" : "#efe6d2"}" stroke="${p.o ? "#c23b2e" : "#2f6fd0"}" stroke-width="1.6"/><g transform="scale(0.8)">${aoeGlyph(aoeKind(p), p.o ? "#f4ecdc" : "#2a241d", p.o ? "#2c2824" : "#efe6d2")}</g></svg>`; }
-function aoeHeartRow(p) { return aoeHearts(p).map(k => `<svg viewBox="-5 -4 10 8" width="13" height="11" aria-hidden="true">${heartSVG(k, 0, 0, 1, p.o)}</svg>`).join(""); }
+function aoeSegs(p, cx, y, w, h, gap) {   // one segment per hit point: own (filled), gold, or lost (dashed)
+  const hs = aoeHearts(p), n = hs.length; if (!n) return "";
+  const seg = Math.max(1.2, (w - gap * (n - 1)) / n), own = p.o ? "#c23b2e" : "#2f6fd0";
+  return hs.map((kd, i) => { const x = cx - w / 2 + i * (seg + gap), fill = kd === "o" ? own : kd === "g" ? "#e0b44a" : "#fff";
+    return `<rect x="${x.toFixed(2)}" y="${y}" width="${seg.toFixed(2)}" height="${h}" rx="1" fill="${fill}" stroke="#1d1a16" stroke-width="0.6"${kd === "w" ? ' stroke-dasharray="1.4 1"' : ""}/>`; }).join("");
+}
+function aoeHeartRow(p) { return `<svg class="aoebar" viewBox="-56 0 112 11" width="112" height="11" aria-hidden="true">${aoeSegs(p, 0, 1, 108, 9, 2)}</svg>`; }
 const AOE_TEXT = [
   [/Put a rook on: watch tower/g, "Build a watch tower"], [/Put the queen on: castle/g, "Upgrade to castle"],
   [/[Pp]uts a rook on the ([a-z ]+): now a watch tower/g, "builds a watch tower on the $1"], [/puts the queen on the barracks: now a castle/g, "upgrades the barracks to a castle"],
@@ -2856,8 +2929,16 @@ function render() {
   renderStatus(); renderBoard(); if (VIEW === "3d") render3D(); renderStrips(); renderPlayers(); if (typeof autoLabel === "function") autoLabel(); renderPanel(); renderLog();
   const endB = document.getElementById("endBtn");
   endB.disabled = UI.busy || G.winner !== null || isAI(G.turn) || remote(G.turn);
+  const ub = document.getElementById("undoBtn");
+  ub.style.display = G.mode === "ai" || G.mode === "hot" ? "" : "none";
+  ub.disabled = !UNDO.length || UI.busy || G.winner !== null || isAI(G.turn);
   endB.textContent = G.mode === "online" ? (remote(G.turn) ? (NET.black ? "Opponent's turn" : "Waiting for a player") : "End turn") : G.mode === "watch" ? `Next turn: ${SIDE[G.turn]} ▶` : G.mode === "hot" ? `End ${SIDE[G.turn]}'s turn` : "End turn";
 }
+document.getElementById("undoBtn").onclick = () => {
+  if (!UNDO.length || UI.busy) return;
+  G = JSON.parse(UNDO.pop()); UI = {sel: null, mode: null, msg: "", busy: false};
+  save(); render();
+};
 function finish() {
   if (cloudOn()) setTimeout(cloudPush, 0);
   render();
@@ -2986,12 +3067,17 @@ function openMenu() {
   menuDiff = G && G.level ? G.level[1] : 10;
   menuSure = !!r.sure; menuHome3 = G ? !!r.home3 : true;
   menuCastle = G && G.rules.costs && G.rules.costs[2] ? G.rules.costs[2][0] + "," + G.rules.costs[2][1] : "4,2";
-  segUpdate(); libList(); menu.showModal();
+  showTab("play"); segUpdate(); libList(); menu.showModal();
+}
+let MENU_TAB = "play";
+function showTab(t) {
+  MENU_TAB = t;
+  document.querySelectorAll(".tabpane").forEach(p => { p.style.display = p.dataset.pane === t ? "" : "none"; });
+  document.querySelectorAll("#menuTabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
 }
 function segUpdate() {
   document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === menuMode));
   document.querySelectorAll("#homeSeg button").forEach(b => b.classList.toggle("on", (b.dataset.h === "3") === menuHome3));
-  document.querySelectorAll("#diceSeg button").forEach(b => b.classList.toggle("on", (b.dataset.s === "1") === menuSure));
   document.querySelectorAll("#diffSeg button").forEach(b => b.classList.toggle("on", +b.dataset.d === menuDiff));
   document.getElementById("diffSeg").style.display = menuMode === "ai" || menuMode === "watch" ? "flex" : "none";
   document.getElementById("onlineBox").style.display = menuMode === "online" ? "" : "none";
@@ -3002,14 +3088,21 @@ function segUpdate() {
   document.querySelectorAll("#lookSeg button").forEach(b => b.classList.toggle("on", b.dataset.l === LOOK));
   document.querySelectorAll("#ckSeg button").forEach(b => b.classList.toggle("on", b.dataset.c === CKV));
   document.querySelectorAll("#mapSeg button").forEach(b => b.classList.toggle("on", b.dataset.map === menuMap));
+  document.querySelectorAll("#aiSeg button").forEach(b => b.classList.toggle("on", b.dataset.a === "off" ? menuMode === "hot" : menuMode === "ai" && b.dataset.a === AIPICK));
+  document.getElementById("aiBox").style.display = menuMode === "ai" || menuMode === "hot" ? "" : "none";
+  document.getElementById("keyBox").style.display = menuMode === "ai" && AIPICK !== "built" ? "" : "none";
+  document.getElementById("keyStatus").textContent = aiKey() ? "A key is saved on this device." : "No key saved yet.";
+  document.querySelectorAll("#menuTabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === MENU_TAB));
 }
 document.getElementById("mapSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuMap = b.dataset.map; segUpdate(); } });
+document.getElementById("menuTabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) showTab(b.dataset.tab); });
+document.getElementById("aiSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; if (b.dataset.a === "off") menuMode = "hot"; else { menuMode = "ai"; setAIPick(b.dataset.a); } segUpdate(); });
+document.getElementById("keySave").onclick = () => { const v = document.getElementById("apiKey").value.trim(); if (v) { setAiKey(v); document.getElementById("apiKey").value = ""; } segUpdate(); };
 document.getElementById("ckSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { CKV = b.dataset.c; try { localStorage.setItem("eightranks-fan-ck", CKV); } catch (e2) {} segUpdate(); render(); } });
 document.getElementById("lookSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setLook(b.dataset.l); segUpdate(); render(); aoeWalk(document.body); if (!aoeOn()) location.reload(); } });
 document.getElementById("viewSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setView(b.dataset.v); segUpdate(); render(); } });
 
 document.getElementById("homeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuHome3 = b.dataset.h === "3"; segUpdate(); } });
-document.getElementById("diceSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuSure = b.dataset.s === "1"; segUpdate(); } });
 document.getElementById("diffSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuDiff = +b.dataset.d; segUpdate(); } });
 document.getElementById("modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuMode = b.dataset.m; segUpdate(); } });
 document.getElementById("menuBtn").onclick = openMenu;
@@ -3017,7 +3110,7 @@ document.getElementById("closeMenu").onclick = () => menu.close();
 document.getElementById("startBtn").onclick = () => {
   newGame(menuMode === "link" ? "online" : menuMode, {pools: false, garrison: false, 
     gatherHalf: true, goldHalf: true, vilHalf: false, vilAtk1: true, woundMark: true, prices2: true, milFlex: false, pawnOne: true, noHandicap: false, ecoTiers: false, bothLines: true, goldBack: true, chk: true, bTrain: false, tcDef1: true, needB: true, campTwo: false, quadrant: true, noCastle: true, noTech: true, freeVill: false, crown: true, tcEarly: true, cavWalk: true, noBeside: true, piles: false, towerFeudal: true, darkCamps: true, towerOnOne: true, rookW: 3, queenW: 4, needC: true, start2: true, darkWar: true, oneEach: true, tcSafeDark: false, tcNear: true, away3: false, crewInQuad: true, camp3: false, homeGather: !menuHome3, home3: !!menuHome3, trebCastle: true, tcMill: false, raidGold: false, trade: true, goldSupply: true, trebDiag: true, home4: true, rocks: menuMap !== "open", rockMap: menuMap === "open" ? null : menuMap, rockShape: menuMap === "plus" ? "plus" : "2x2", goldRes: true, gold2: true, needCamp: true, flex2: true, ageOne: true,
-    split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}, sure: menuSure}, menuDiff);
+    split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}, sure: true}, menuDiff);
   UI = {sel: null, mode: null, msg: "", busy: false};
   document.getElementById("over").classList.remove("show");
   if (menuMode === "link") cloudCreate(); else if (menuMode === "online") netCreate(); else netLeave();
