@@ -77,8 +77,11 @@ dialog h3{font-family:Alegreya,Georgia,serif;font-size:16px;margin:14px 0 4px}
 .opt small{display:block;color:var(--dim);font-size:12.5px}
 .seg{display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap}
 .tabs{display:flex;gap:4px;margin:6px 0 10px;border-bottom:1px solid #b8903f}
-.tabs button{flex:1;border:0;border-radius:10px 10px 0 0;background:transparent;padding:7px 4px;font-weight:600}
-.tabs button.on{background:rgba(184,144,63,.18);border-bottom:3px solid #b8903f;font-weight:800}
+.tabs button{flex:1;border:0;border-radius:10px 10px 0 0;background:transparent;padding:8px 4px;font-weight:700;font-size:16px;color:#2a1d0e}
+.tabs button.on{background:rgba(184,144,63,.28);border-bottom:3px solid #8a6414;font-weight:800;color:#120c04}
+#menu h2,#menu h3{color:#120c04}
+#menu p,#menu .onote{font-size:14.5px;line-height:1.45;color:#2a1d0e}
+#menu .seg button{font-size:16px;font-weight:700}
 .tabpane h3{margin:8px 0 2px}
 .aoebar{display:block;margin:2px 0 4px}
 .seg button{flex:1;text-align:center}
@@ -400,6 +403,12 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <p id="keyStatus" class="onote"></p>
     </div>
   </div>
+  <h3>Actions per turn</h3>
+  <div class="seg" id="actSeg">
+    <button data-n="1">1 action</button>
+    <button data-n="2">2 actions</button>
+    <button data-n="3">3 actions</button>
+  </div>
   <div class="seg" id="homeSeg">
     <button data-h="3">Home 3×3, no home gathering</button>
     <button data-h="4">Home 4×4, gathers at home</button>
@@ -601,7 +610,7 @@ function checkCollapse() {
 let UNDO = [];   // snapshots of the game earlier this turn, for Undo
 function startTurn() {
   const first = G.round === 1 && G.turn === 0 && !G.rules.noHandicap;
-  G.acts = G.rules.flex2 ? {any: first ? 1 : 3} : G.rules.pools ? {eco: first ? 1 : 2, mil: first ? 0 : 2} : {any: first ? 1 : 2};
+  G.acts = G.rules.flex2 ? {any: first ? 1 : (G.rules.acts || 3)} : G.rules.pools ? {eco: first ? 1 : 2, mil: first ? 0 : 2} : {any: first ? 1 : 2};
   if (G.rules.chk && !G.rules.pools && !G.rules.flex2) G.acts.camp = G.pcs.filter(p => p.o === G.turn && p.k === "camp").length;   // free: each mill / lumber camp gathers once
   G.acted = []; G.campUsed = []; UNDO = [];
 }
@@ -2341,7 +2350,7 @@ function renderBoard() {
   const H = hlSets(), g = [];
   for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) {
     const [x, y] = pos(f, r), key = f + "," + r, gold = isGold(f, r);
-    let fill = gold ? "var(--gold)" : ((f + r) % 2 === 0 ? "var(--dk)" : "var(--lt)");
+    let fill = gold ? "url(#goldG)" : ((f + r) % 2 === 0 ? "var(--dk)" : "var(--lt)");
     g.push(`<polygon data-f="${f}" data-r="${r}" points="${diamond(x, y)}" fill="${fill}" stroke="${gold ? "var(--goldline)" : "var(--sqline)"}" stroke-width="0.5"/>`);
     g.push(`<polygon points="${diamond(x, y)}" fill="url(#sqSheen)" pointer-events="none"/>`);
     if (isRock(f, r)) { g.push(`<polygon points="${diamond(x, y)}" fill="url(#rockGround)" pointer-events="none"/><polygon points="${diamond(x, y)}" fill="url(#gravel)" pointer-events="none"/>`); continue; }
@@ -2394,7 +2403,7 @@ function renderBoard() {
   // pieces, back to front
   const ps = G.pcs.slice().sort((a, b) => pos(a.f, a.r)[1] - pos(b.f, b.r)[1]);
   for (const p of ps) g.push(pieceSVG(p));
-  document.getElementById("board").innerHTML = "<defs><linearGradient id='sqSheen' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff' stop-opacity='0.16'/><stop offset='0.5' stop-color='#fff' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='0.12'/></linearGradient><radialGradient id='tokW' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#fffdf6'/><stop offset='0.6' stop-color='#efe5cf'/><stop offset='1' stop-color='#cdbf9f'/></radialGradient><radialGradient id='tokB' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#5a524b'/><stop offset='0.55' stop-color='#2a2521'/><stop offset='1' stop-color='#0f0d0b'/></radialGradient><filter id='psh' x='-30%' y='-30%' width='160%' height='170%'><feDropShadow dx='0' dy='1.6' stdDeviation='1.3' flood-color='#1b120a' flood-opacity='0.42'/></filter><pattern id='farm' width='7' height='7' patternUnits='userSpaceOnUse'><rect width='7' height='7' fill='#d9c35a' fill-opacity='0.12'/><path d='M0 5.2H7' stroke='#6f7f1e' stroke-opacity='0.24' stroke-width='1'/><path d='M1.5 5.2v-2.2M5 5.2v-2.2' stroke='#5d8a1c' stroke-opacity='0.3' stroke-width='0.8'/><circle cx='1.5' cy='2.8' r='0.6' fill='#b8952c' fill-opacity='0.45'/><circle cx='5' cy='2.8' r='0.6' fill='#b8952c' fill-opacity='0.45'/></pattern><radialGradient id='rockGround' cx='50%' cy='45%' r='75%'><stop offset='0' stop-color='#a2998a'/><stop offset='1' stop-color='#7d7466'/></radialGradient><linearGradient id='boulderA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#d3cbbd'/><stop offset='0.55' stop-color='#a29a8d'/><stop offset='1' stop-color='#6e665b'/></linearGradient><linearGradient id='boulderB' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#cdc2ae'/><stop offset='0.55' stop-color='#9b8f7b'/><stop offset='1' stop-color='#685d4e'/></linearGradient><pattern id='gravel' width='9' height='8' patternUnits='userSpaceOnUse'><circle cx='2' cy='2' r='0.8' fill='#5f584f' fill-opacity='0.35'/><circle cx='6.5' cy='5.5' r='0.6' fill='#5f584f' fill-opacity='0.3'/><circle cx='4.5' cy='7' r='0.5' fill='#efe8da' fill-opacity='0.35'/></pattern><pattern id='forest' width='13' height='12' patternUnits='userSpaceOnUse'><rect width='13' height='12' fill='#2f6b2a' fill-opacity='0.05'/><path d='M3.5 1.5L6.2 6.8H0.8Z' fill='#1f5a22' fill-opacity='0.24'/><rect x='3' y='6.6' width='1' height='1.6' fill='#4a2c10' fill-opacity='0.15'/><path d='M9.8 5.4L12.5 10.7H7.1Z' fill='#1f5a22' fill-opacity='0.24'/><rect x='9.3' y='10.5' width='1' height='1.5' fill='#4a2c10' fill-opacity='0.15'/></pattern></defs>" + g.join("");
+  document.getElementById("board").innerHTML = "<defs><linearGradient id='sqSheen' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff' stop-opacity='0.16'/><stop offset='0.5' stop-color='#fff' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='0.12'/></linearGradient><radialGradient id='tokW' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#fffdf6'/><stop offset='0.6' stop-color='#efe5cf'/><stop offset='1' stop-color='#cdbf9f'/></radialGradient><radialGradient id='tokB' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#5a524b'/><stop offset='0.55' stop-color='#2a2521'/><stop offset='1' stop-color='#0f0d0b'/></radialGradient><filter id='psh' x='-30%' y='-30%' width='160%' height='170%'><feDropShadow dx='0' dy='1.6' stdDeviation='1.3' flood-color='#1b120a' flood-opacity='0.42'/></filter><pattern id='farm' width='9' height='9' patternUnits='userSpaceOnUse'><rect width='9' height='9' fill='#e6c75e' fill-opacity='0.26'/><path d='M0 3.2H9M0 7.4H9' stroke='#8a6a14' stroke-opacity='0.34' stroke-width='1'/><path d='M2.2 1.6V3.2M1.6 1.1L2.2 1.6L2.8 1.1M6.6 5.6V7.2M6 5.1L6.6 5.6L7.2 5.1' stroke='#6e8f1e' stroke-opacity='0.7' stroke-width='0.7' fill='none'/><circle cx='4.4' cy='1.2' r='0.5' fill='#b8952c' fill-opacity='0.6'/><circle cx='0.8' cy='5.6' r='0.5' fill='#b8952c' fill-opacity='0.6'/></pattern><radialGradient id='rockGround' cx='50%' cy='45%' r='75%'><stop offset='0' stop-color='#a2998a'/><stop offset='1' stop-color='#7d7466'/></radialGradient><linearGradient id='boulderA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#d3cbbd'/><stop offset='0.55' stop-color='#a29a8d'/><stop offset='1' stop-color='#6e665b'/></linearGradient><linearGradient id='boulderB' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#cdc2ae'/><stop offset='0.55' stop-color='#9b8f7b'/><stop offset='1' stop-color='#685d4e'/></linearGradient><pattern id='gravel' width='9' height='8' patternUnits='userSpaceOnUse'><circle cx='2' cy='2' r='0.8' fill='#5f584f' fill-opacity='0.35'/><circle cx='6.5' cy='5.5' r='0.6' fill='#5f584f' fill-opacity='0.3'/><circle cx='4.5' cy='7' r='0.5' fill='#efe8da' fill-opacity='0.35'/></pattern><radialGradient id='goldG' cx='50%' cy='50%' r='70%'><stop offset='0' stop-color='#fbe38a'/><stop offset='0.6' stop-color='#eac25a'/><stop offset='1' stop-color='#d4a03c'/></radialGradient><pattern id='forest' width='12' height='12' patternUnits='userSpaceOnUse'><rect width='12' height='12' fill='#24561f' fill-opacity='0.2'/><path d='M3 0.4L5.9 5.6H0.1Z' fill='#163f19' fill-opacity='0.55'/><rect x='2.5' y='5.6' width='1' height='1.6' fill='#4a2c10' fill-opacity='0.6'/><path d='M9 6.4L11.9 11.6H6.1Z' fill='#163f19' fill-opacity='0.55'/><rect x='8.5' y='11.6' width='1' height='0.6' fill='#4a2c10' fill-opacity='0.6'/></pattern></defs>" + g.join("");
 }
 function rockSmall(f, r) {   // a few stones on a single rock square
   const [x, y] = pos(f, r), sq = VIEW === "square", u = sq ? SQS / 2 : HX * 0.95, k = sq ? 1 : HY / HX;
@@ -2405,12 +2414,12 @@ function rockSmall(f, r) {   // a few stones on a single rock square
   }
   return t + `</g>`;
 }
-function goldMine() {   // the gold mine: the four centre squares keep their board colours, in a rounded gold frame with a nugget (flat, walkable)
+function goldMine() {   // the gold mine: the four centre squares are gold, in a rounded gold frame with a nugget (flat, walkable)
   const c = [[3, 3], [4, 3], [3, 4], [4, 4]].map(([f, r]) => pos(f, r));
   const cx = c.reduce((a, p) => a + p[0], 0) / 4, cy = c.reduce((a, p) => a + p[1], 0) / 4;
   const sq = VIEW === "square", u = sq ? SQS / 2 : HX * 0.95, k = sq ? 1 : HY / HX;
   let t = `<g pointer-events="none">`;
-  for (const [f, r] of [[3, 3], [4, 3], [3, 4], [4, 4]]) { const [x, y] = pos(f, r); t += `<polygon points="${diamond(x, y)}" fill="${(f + r) % 2 === 0 ? "var(--dk)" : "var(--lt)"}"/>`; }
+  for (const [f, r] of [[3, 3], [4, 3], [3, 4], [4, 4]]) { const [x, y] = pos(f, r); t += `<polygon points="${diamond(x, y)}" fill="url(#goldG)" stroke="#8a6414" stroke-width=".6"/>`; }
   if (sq) t += `<rect x="${cx - u * 2 + 2}" y="${cy - u * 2 + 2}" width="${u * 4 - 4}" height="${u * 4 - 4}" rx="6" fill="none" stroke="#e2b73f" stroke-width="3" opacity=".85"/><rect x="${cx - u * 2 + 7}" y="${cy - u * 2 + 7}" width="${u * 4 - 14}" height="${u * 4 - 14}" rx="4" fill="#e7bd52" fill-opacity=".2"/>`;
   else { const d = u * 2.05; t += `<polygon points="${cx},${cy - d * k} ${cx + d},${cy} ${cx},${cy + d * k} ${cx - d},${cy}" fill="#e7bd52" fill-opacity=".2" stroke="#e2b73f" stroke-width="3" stroke-linejoin="round" opacity=".9"/>`; }
   const z = u * .18;
@@ -3059,13 +3068,13 @@ document.getElementById("endBtn").addEventListener("click", async () => {
   if (isAI(G.turn)) await runAI();
 });
 const menu = document.getElementById("menu"), rulesDlg = document.getElementById("rulesDlg"), logDlg = document.getElementById("logDlg");
-let menuHome3 = true, menuSure = false, menuMode = "ai", menuDiff = 10, menuCastle = "4,2", menuMap = "open";
+let menuActs = 3, menuHome3 = true, menuSure = false, menuMode = "ai", menuDiff = 10, menuCastle = "4,2", menuMap = "open";
 function openMenu() {
   menuMode = G ? (byLink() ? "link" : G.mode === "hot" || G.mode === "watch" || G.mode === "online" ? G.mode : "ai") : "ai";
   const r = G ? G.rules : {};
   menuMap = r.rocks ? (r.rockMap || (r.rockShape === "plus" ? "plus" : "r2")) : "open";
   menuDiff = G && G.level ? G.level[1] : 10;
-  menuSure = !!r.sure; menuHome3 = G ? !!r.home3 : true;
+  menuSure = !!r.sure; menuHome3 = G ? !!r.home3 : true; menuActs = G && r.acts ? r.acts : 3;
   menuCastle = G && G.rules.costs && G.rules.costs[2] ? G.rules.costs[2][0] + "," + G.rules.costs[2][1] : "4,2";
   showTab("play"); segUpdate(); libList(); menu.showModal();
 }
@@ -3088,6 +3097,7 @@ function segUpdate() {
   document.querySelectorAll("#lookSeg button").forEach(b => b.classList.toggle("on", b.dataset.l === LOOK));
   document.querySelectorAll("#ckSeg button").forEach(b => b.classList.toggle("on", b.dataset.c === CKV));
   document.querySelectorAll("#mapSeg button").forEach(b => b.classList.toggle("on", b.dataset.map === menuMap));
+  document.querySelectorAll("#actSeg button").forEach(b => b.classList.toggle("on", +b.dataset.n === menuActs));
   document.querySelectorAll("#aiSeg button").forEach(b => b.classList.toggle("on", b.dataset.a === "off" ? menuMode === "hot" : menuMode === "ai" && b.dataset.a === AIPICK));
   document.getElementById("aiBox").style.display = menuMode === "ai" || menuMode === "hot" ? "" : "none";
   document.getElementById("keyBox").style.display = menuMode === "ai" && AIPICK !== "built" ? "" : "none";
@@ -3102,6 +3112,7 @@ document.getElementById("ckSeg").addEventListener("click", e => { const b = e.ta
 document.getElementById("lookSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setLook(b.dataset.l); segUpdate(); render(); aoeWalk(document.body); if (!aoeOn()) location.reload(); } });
 document.getElementById("viewSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setView(b.dataset.v); segUpdate(); render(); } });
 
+document.getElementById("actSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuActs = +b.dataset.n; segUpdate(); } });
 document.getElementById("homeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuHome3 = b.dataset.h === "3"; segUpdate(); } });
 document.getElementById("diffSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuDiff = +b.dataset.d; segUpdate(); } });
 document.getElementById("modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuMode = b.dataset.m; segUpdate(); } });
@@ -3110,7 +3121,7 @@ document.getElementById("closeMenu").onclick = () => menu.close();
 document.getElementById("startBtn").onclick = () => {
   newGame(menuMode === "link" ? "online" : menuMode, {pools: false, garrison: false, 
     gatherHalf: true, goldHalf: true, vilHalf: false, vilAtk1: true, woundMark: true, prices2: true, milFlex: false, pawnOne: true, noHandicap: false, ecoTiers: false, bothLines: true, goldBack: true, chk: true, bTrain: false, tcDef1: true, needB: true, campTwo: false, quadrant: true, noCastle: true, noTech: true, freeVill: false, crown: true, tcEarly: true, cavWalk: true, noBeside: true, piles: false, towerFeudal: true, darkCamps: true, towerOnOne: true, rookW: 3, queenW: 4, needC: true, start2: true, darkWar: true, oneEach: true, tcSafeDark: false, tcNear: true, away3: false, crewInQuad: true, camp3: false, homeGather: !menuHome3, home3: !!menuHome3, trebCastle: true, tcMill: false, raidGold: false, trade: true, goldSupply: true, trebDiag: true, home4: true, rocks: menuMap !== "open", rockMap: menuMap === "open" ? null : menuMap, rockShape: menuMap === "plus" ? "plus" : "2x2", goldRes: true, gold2: true, needCamp: true, flex2: true, ageOne: true,
-    split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}, sure: true}, menuDiff);
+    split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}, sure: true, acts: menuActs}, menuDiff);
   UI = {sel: null, mode: null, msg: "", busy: false};
   document.getElementById("over").classList.remove("show");
   if (menuMode === "link") cloudCreate(); else if (menuMode === "online") netCreate(); else netLeave();
