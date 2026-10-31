@@ -57,6 +57,11 @@ svg.board{display:block;width:100%;height:auto;touch-action:manipulation;user-se
 .acts{display:flex;flex-wrap:wrap;gap:6px}
 .acts button,.bar button,dialog button{font:600 14px 'Alegreya Sans',system-ui,sans-serif;border:1px solid var(--line);background:var(--btn);color:var(--btnink);border-radius:10px;padding:8px 11px;cursor:pointer;min-height:40px;text-align:left;line-height:1.15}
 .acts button small{display:block;font-weight:400;color:var(--dim);font-size:12px}
+.acts button{display:flex;align-items:center;gap:8px}
+.acts .aic{flex:0 0 auto;display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;color:var(--brass)}
+.acts .aic svg{width:22px;height:22px}
+.acts .atx{min-width:0;display:block}
+.acts .alb{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
 .acts button:disabled{opacity:.42;cursor:default}
 .acts button.primary,.bar button.primary,dialog button.primary{background:var(--brass);border-color:var(--brass);color:#fff}
 .acts button.warn{border-color:var(--danger);color:var(--danger)}
@@ -822,6 +827,43 @@ function resOk(s) { return G.res[s] > 0 || (!!G.rules.piles && G.food[s] + G.woo
 
 /* ================= legal action lists ================= */
 // Each action: {kind, cls, label, note, ok, why, ...params}
+/* action icons: one small picture per kind of action, shown before the label */
+const ICO_SVG = (body) => `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+const ICONS = {
+  food: ICO_SVG('<path d="M12 21V9"/><path d="M12 13c-3 0-5-2-5-4.5 3 0 5 2 5 4.5zM12 11c3 0 5-2 5-4.5-3 0-5 2-5 4.5z"/><path d="M8 21h8"/>'),
+  wood: ICO_SVG('<path d="M14 4l6 6-3 1-5 5-2-2 5-5z"/><path d="M4 20l6-6"/>'),
+  gold: ICO_SVG('<circle cx="12" cy="12" r="8"/><path d="M9.5 10.5h5M10 13.5h4"/>'),
+  move: ICO_SVG('<path d="M4 12h14"/><path d="M13 6l6 6-6 6"/>'),
+  attack: ICO_SVG('<path d="M5 19L19 5M14 5h5v5"/><path d="M5 5l14 14M5 9l-2 2 4 4 2-2"/>'),
+  bow: ICO_SVG('<path d="M6 3c5 3 5 15 0 18"/><path d="M6 3v18M6 12h13"/><path d="M16 9l3 3-3 3"/>'),
+  unit: ICO_SVG('<path d="M7 11a5 5 0 0 1 10 0v2H7z"/><path d="M5 15h14"/><path d="M12 8v3"/>'),
+  camp: ICO_SVG('<path d="M3 20l9-14 9 14z"/><path d="M12 20v-5"/>'),
+  building: ICO_SVG('<path d="M4 20V10l8-5 8 5v10z"/><path d="M9 20v-6h6v6"/>'),
+  crown: ICO_SVG('<path d="M4 17l-1-9 5 4 4-6 4 6 5-4-1 9z"/><path d="M4 20h16"/>'),
+  age: ICO_SVG('<path d="M6 21V4"/><path d="M6 4h11l-3 4 3 4H6"/>'),
+  trade: ICO_SVG('<path d="M12 4v16M6 8h12"/><path d="M6 8l-3 6h6zM18 8l-3 6h6z"/>'),
+  research: ICO_SVG('<path d="M6 4h11v15H6z"/><path d="M9 8h5M9 11h5M9 14h3"/>'),
+  repair: ICO_SVG('<path d="M14.5 4.5a4 4 0 0 0-5 5L4 15l3 3 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5z"/>'),
+  demolish: ICO_SVG('<path d="M4 20l9-9M12 6l6-2 2 2-2 6"/><path d="M4 20h4"/>'),
+  star: ICO_SVG('<path d="M12 4l2.5 5 5.5.8-4 3.9 1 5.5L12 16.5 7 19.2l1-5.5-4-3.9 5.5-.8z"/>')
+};
+function actIcon(a) {
+  const k = a.kind;
+  if (k === "gather" || k === "campgather" || k === "tcgather") return ICONS[a.res === "gold" ? "gold" : a.res === FOOD ? "food" : "wood"];
+  if (k === "move") return ICONS.move;
+  if (k === "attack") return ICONS.attack;
+  if (k === "campshoot") return ICONS.bow;
+  if (k === "recruit" || k === "train") return ICONS.unit;
+  if (k === "camp") return ICONS.camp;
+  if (k === "barracks" || k === "tower") return ICONS.building;
+  if (k === "crown" || k === "castle") return ICONS.crown;
+  if (k === "age") return ICONS.age;
+  if (k === "trade") return ICONS.trade;
+  if (k === "research") return ICONS.research;
+  if (k === "repair" || k === "upgrade" || k === "fort" || k === "heal") return ICONS.repair;
+  if (k === "demolish") return ICONS.demolish;
+  return ICONS.star;
+}
 function pieceActions(p) {
   const s = p.o, A = age(s), out = [];
   const mk = (kind, label, note, ok, why, extra) => {
@@ -2922,7 +2964,7 @@ function renderPanel() {
   if (mineP) {
     const list = pieceActions(sp);
     acts = list.map((a, i) => a.kind === "hint" ? "" :
-      `<button data-act="${i}" ${a.ok ? "" : "disabled"}>${a.label}<small>${sureHint(a.ok ? (a.note || "") : a.why)}</small></button>`).join("");
+      `<button data-act="${i}" ${a.ok ? "" : "disabled"} title="${a.ok ? "" : sureHint(a.why)}"><span class="aic">${actIcon(a)}</span><span class="atx"><span class="alb">${a.label}</span><small>${sureHint(a.ok ? (a.note || "") : a.why)}</small></span></button>`).join("");
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
     if (hints.length) acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     UI.list = list;
