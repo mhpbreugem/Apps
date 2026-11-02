@@ -566,7 +566,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <li>The checkers give the level: one checker is the base unit; a second checker (Castle Age) makes it <b>heavy</b>, +1 hit point; a gold checker (Imperial Age) makes it <b>elite</b>, +1 attack, and your own checker goes back.</li>
       <li><b>One price per checker:</b> 1 food on a unit, 1 wood on a building or machine, 1 gold for a gold checker. <b>One price per piece:</b> pawn 1 food, bishop 1 food, knight 2 food, coin 3 wood, rook 3 wood, queen 4 wood. So an archer is bishop 1 food + checker 1 food; cavalry 3 food.</li>
       <li>At most two archers, two cavalry and one trebuchet.</li>
-      <li><b>Civilizations</b>: each player picks one in the New game menu. A civ swaps one unit for a special one at the same age and price, with the same attack and hit points. Franks have none. Teutons: teutonic knight. Huns: tarkan. Britons: longbowman.</li>
+      <li><b>Civilizations</b>: each player picks one in the New game menu. A civ swaps one unit for a special one at the same age and price, with the same attack and hit points. Franks have none. Teutons: teutonic knight. Huns: tarkan. Britons: longbowman (shoots 2 or 3 along a diagonal).</li>
     </ul>
     <h3>Buildings</h3>
     <ul>
@@ -611,7 +611,7 @@ const CIVS = {
   teutons: {n: "Teutons", k: "I", u: ["teutonic knight", "heavy teutonic knight", "elite teutonic knight"], d: "Teutonic knight (infantry): defence 1 against everything · moves 1."},
   huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], d: "Tarkan (cavalry): ignores building defence · walks up to 3, cannot jump."},
   franks: {n: "Franks", d: "Standard units."},
-  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], d: "Longbowman (archer): shoots 2 away, or 3 in a straight or diagonal line · moves 1."}};
+  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], d: "Longbowman (archer): shoots 2 or 3 away, only along a diagonal · moves 2."}};
 Object.keys(CIVS).forEach(k => { CIVS[k].id = k; });
 const civ = s => (typeof G !== "undefined" && G && G.civ && CIVS[G.civ[s]]) || CIVS.franks;
 const uid = p => { const c = p && p.o !== undefined && p.k ? civ(p.o) : null; return c && c.k === p.k ? c.id : ""; };
@@ -783,7 +783,7 @@ const defVs = (p, t) => (p && (p.k === "S" || uid(p) === "huns") && isBld(t) ? 0
 function reaches(p, f, r, t) {
   if (atk(p, t) === 0) return false;
   const d = cd(f, r, t.f, t.r), ux = uid(p), line = Math.abs(t.f - f) === 0 || Math.abs(t.r - r) === 0 || Math.abs(t.f - f) === Math.abs(t.r - r);
-  if (ux === "britons") return d === 2 || (d === 3 && line);
+  if (ux === "britons") return (d === 2 || d === 3) && Math.abs(t.f - f) === Math.abs(t.r - r);
   if (ux === "mayans") return d === 2 && line;
   if (ux === "turks") return d === 3 && !setupWait(p);
   if (ux === "mongols") return (d === 3 || d === 4) && (Math.abs(t.f - f) === 0 || Math.abs(t.r - r) === 0);
@@ -1096,7 +1096,7 @@ function pieceActions(p) {
 }
 // archers shoot only from where they stand; other units may move first
 // speed of a piece, and the squares it can reach in n steps (scout cavalry jumps)
-const speedOf = p => uid(p) === "saracens" ? 4 : uid(p) === "britons" || uid(p) === "teutons" ? 1 : uid(p) === "mayans" ? 3 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0;
+const speedOf = p => uid(p) === "saracens" ? 4 : uid(p) === "teutons" ? 1 : uid(p) === "mayans" ? 3 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0;
 function movesN(p, n) {
   if (n <= 0) return [];
   if (p.k === "C" && !G.rules.cavWalk && uid(p) !== "huns") {
