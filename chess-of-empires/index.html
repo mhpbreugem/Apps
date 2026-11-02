@@ -448,6 +448,12 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <p id="keyStatus" class="onote"></p>
     </div>
   </div>
+  <h3>Civilizations</h3>
+  <div id="civRow" style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0">
+    <label style="flex:1;min-width:130px;font-size:13px">White<br><select id="civ0" style="width:100%;font-size:15px;padding:6px"></select></label>
+    <label style="flex:1;min-width:130px;font-size:13px"><span id="civ1l">Black</span><br><select id="civ1" style="width:100%;font-size:15px;padding:6px"></select></label>
+  </div>
+  <p id="civNote" class="onote" style="margin:2px 0 8px"></p>
   <h3>Actions per turn</h3>
   <div class="seg" id="actSeg">
     <button data-n="1">1 action</button>
@@ -546,6 +552,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <li>The checkers give the level: one checker is the base unit; a second checker (Castle Age) makes it <b>heavy</b>, +1 hit point; a gold checker (Imperial Age) makes it <b>elite</b>, +1 attack, and your own checker goes back.</li>
       <li><b>One price per checker:</b> 1 food on a unit, 1 wood on a building or machine, 1 gold for a gold checker. <b>One price per piece:</b> pawn 1 food, bishop 1 food, knight 2 food, coin 3 wood, rook 3 wood, queen 4 wood. So an archer is bishop 1 food + checker 1 food; cavalry 3 food.</li>
       <li>At most two archers, two cavalry and one trebuchet.</li>
+      <li><b>Civilizations</b>: each player picks one in the New game menu. A civ swaps one unit for a special one at the same age and price, with the same attack and hit points. Teutons and Huns have none yet. Goths: huskarl. Britons: longbowman. Mayans: plumed archer. Saracens: camel rider. Turks: bombard cannon. Mongols: onager.</li>
     </ul>
     <h3>Buildings</h3>
     <ul>
@@ -586,6 +593,22 @@ const CORNERS = [[0, 7], [7, 0]];
 const AGECOST = {1: {f: 2, w: 1, g: 0}, 2: {f: 3, w: 1, g: 0}, 3: {f: 4, w: 0, g: 1}};
 const D8 = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], DIAG = D8.slice(4), ORTH = D8.slice(0, 4);
 const UNITS = ["I", "A", "C", "S"];
+const CIVS = {
+  teutons: {n: "Teutons", d: "Standard units."},
+  huns: {n: "Huns", d: "Standard units."},
+  goths: {n: "Goths", k: "I", u: ["huskarl", "heavy huskarl", "elite huskarl"], d: "Huskarl (infantry): defence 1 against archers and siege · cannot be healed."},
+  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], d: "Longbowman (archer): shoots 2 away, or 3 in a straight or diagonal line · moves 1."},
+  mayans: {n: "Mayans", k: "A", u: ["plumed archer", "heavy plumed archer", "elite plumed archer"], d: "Plumed archer (archer): moves 3 · shoots exactly 2 away, only in a straight or diagonal line."},
+  saracens: {n: "Saracens", k: "C", u: ["camel rider", "heavy camel rider", "elite camel rider"], d: "Camel rider (cavalry): jumps up to 4 · attacks only after moving 1 or less."},
+  turks: {n: "Turks", k: "S", u: ["bombard cannon", "bombard cannon", "elite bombard cannon"], d: "Bombard cannon (siege): shoots exactly 3 away in any direction · needs a turn to set up after moving."},
+  mongols: {n: "Mongols", k: "S", u: ["onager", "onager", "elite onager"], d: "Onager (siege): shoots 3 or 4 away in a straight line."}};
+Object.keys(CIVS).forEach(k => { CIVS[k].id = k; });
+const civ = s => (typeof G !== "undefined" && G && G.civ && CIVS[G.civ[s]]) || CIVS.teutons;
+const uid = p => { const c = p && p.o !== undefined && p.k ? civ(p.o) : null; return c && c.k === p.k ? c.id : ""; };
+const unitNames = (k, s) => { const c = civ(s); return c.k === k ? c.u : LVL[k]; };
+const tick = () => G.round * 2 + G.turn;
+const setupWait = p => uid(p) === "turks" && p.mt !== undefined && tick() - p.mt < 4;
+const uDef = (p, t) => uid(t) === "goths" && p && (p.k === "A" || p.k === "S") ? 1 : 0;
 const LVL = {I: ["infantry", "heavy infantry", "elite infantry"], A: ["archer", "heavy archer", "elite archer"],
   C: ["cavalry", "heavy cavalry", "elite cavalry"], S: ["trebuchet", "trebuchet", "elite trebuchet"]};
 const VAL = {K: 9, B: 4.5, S: 4, C: 3.3, A: 3.2, I: 2.6, camp: 3, V: 2};
@@ -673,6 +696,7 @@ const barracks = s => G.pcs.find(p => p.o === s && p.k === "B");
 const camps = s => G.pcs.filter(p => p.o === s && p.k === "camp");
 const count = (s, k) => G.pcs.filter(p => p.o === s && p.k === k).length;
 const pawns = s => G.pcs.filter(p => p.o === s && (p.k === "V" || p.k === "I")).length;
+const uniOf = p => { const c = p && p.o !== undefined ? civ(p.o) : null; return c && c.k && c.k === p.k ? c : null; };
 const hasGold = p => p.st.some(c => c !== p.o);
 const isUnit = p => UNITS.includes(p.k);
 const isBld = p => p.k === "K" || p.k === "B" || p.k === "camp";
@@ -721,6 +745,7 @@ function nearCorner(f, r) {
 }
 function campRes(c) { return nearCorner(c.f, c.r)[0]; }
 function name(p) {
+  if (isUnit(p) && uniOf(p)) { const u = uniOf(p).u; return u[hasGold(p) || +p.wg ? 2 : p.k === "S" ? 0 : Math.min(1, Math.max(0, p.st.length + (+p.w || 0) - 1))]; }
   if (CR() && p.k === "S") return hasGold(p) || +p.wg ? "elite trebuchet" : "trebuchet";
   if (CR() && p.k === "B") return p.cr ? "castle" : "barracks";
   if (CR() && p.k === "camp") return p.cr ? "watch tower" : campRes(p)[0] === FOOD ? "mill" : "lumber camp";
@@ -744,35 +769,19 @@ function defn(t) {
       G.pcs.some(q => q.o === t.o && q.k === "I" && q.st.length && cd(q.f, q.r, t.f, t.r) === 1)) d += 1;
   return d;
 }
-const defVs = (p, t) => p && p.k === "S" && isBld(t) ? 0 : defn(t);   // the trebuchet ignores building defence   // building defence counts for everyone, trebuchet included
+const defVs = (p, t) => (p && p.k === "S" && isBld(t) ? 0 : defn(t)) + uDef(p, t);   // the trebuchet ignores building defence   // building defence counts for everyone, trebuchet included
 function reaches(p, f, r, t) {
   if (atk(p, t) === 0) return false;
-  const d = cd(f, r, t.f, t.r);
+  const d = cd(f, r, t.f, t.r), ux = uid(p), line = Math.abs(t.f - f) === 0 || Math.abs(t.r - r) === 0 || Math.abs(t.f - f) === Math.abs(t.r - r);
+  if (ux === "britons") return d === 2 || (d === 3 && line);
+  if (ux === "mayans") return d === 2 && line;
+  if (ux === "turks") return d === 3 && !setupWait(p);
+  if (ux === "mongols") return (d === 3 || d === 4) && (Math.abs(t.f - f) === 0 || Math.abs(t.r - r) === 0);
   if (p.k === "A") return d === 2;
   if (p.k === "S") { const dx = Math.abs(t.f - f), dy = Math.abs(t.r - r); return d === 3 && (dx === 0 || dy === 0 || dx === dy); }   // trebuchet: exactly 3 away, straight or diagonal only
   return d === 1;
 }
-function moves(p) {
-  if (p.k === "C" && !G.rules.cavWalk) {
-    const out = [];
-    for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) if ((a || b) && free(p.f + a, p.r + b)) out.push([p.f + a, p.r + b]);
-    return out;
-  }
-  if (!(p.k === "V" || isUnit(p))) return [];
-  const dirs = p.k === "S" && !G.rules.trebDiag ? ORTH : D8;
-  const out = [], seen = new Set([p.f + "," + p.r]); let fr = [[p.f, p.r]];
-  const steps = p.k === "C" ? 3 : p.k === "S" && !G.rules.siege2 ? 1 : 2;   // trebuchets move 1, walking cavalry 3
-  for (let s = 0; s < steps; s++) {
-    const nx = [];
-    for (const [cf, cr] of fr) for (const [a, b] of dirs) {
-      const t = [cf + a, cr + b], k = t[0] + "," + t[1];
-      if (seen.has(k) || !free(t[0], t[1])) continue;
-      seen.add(k); out.push(t); nx.push(t);
-    }
-    fr = nx;
-  }
-  return out;
-}
+function moves(p) { return movesN(p, speedOf(p)); }
 const adjFree = p => D8.map(([a, b]) => [p.f + a, p.r + b]).filter(([f, r]) => free(f, r));
 const nextTo = (p, q) => q && cd(p.f, p.r, q.f, q.r) === 1;
 function crewLimit(s) { return G.rules.crewAll ? 8 : Math.min(age(s) + 1, 4); }
@@ -981,12 +990,12 @@ function pieceActions(p) {
       const r = resOk(s);
       if (G.rules.prices2 && !G.rules.milFlex) mk("recruit", "Train infantry", "1 food", A >= 1 && r && G.food[s] >= 1, A < 1 ? "needs the Feudal Age" : !r ? "reserve empty" : "needs 1 food", {k: "I"});
       else mk("recruit", "Train infantry", milPay(s) ? `1 ${milPay(s)}` : "1 food or 1 wood", A >= 1 && r && !!milPay(s), A < 1 ? "needs the Feudal Age" : !r ? "reserve empty" : "needs 1 food or 1 wood", {k: "I"});
-      const lineOk = k => G.rules.bothLines || A >= 2 || G.line[s] === null || G.line[s] === k;
-      mk("recruit", "Train archer", costStr(UCOST("A")), A >= 1 && lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A")[0], UCOST("A")[1]) && r,
+      const lineOk = k => true;
+      mk("recruit", "Train " + unitNames("A", s)[0], costStr(UCOST("A")), A >= 1 && lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A")[0], UCOST("A")[1]) && r,
          A < 1 ? "needs the Feudal Age" : !lineOk("A") ? "you chose cavalry for the Feudal Age" : count(s, "A") >= 2 ? "both bishops in use" : !r ? "reserve empty" : `needs ${costStr(UCOST("A"))}`, {k: "A"});
-      mk("recruit", "Train cavalry", costStr(UCOST("C")), A >= 1 && lineOk("C") && count(s, "C") < 2 && afford(s, UCOST("C")[0], UCOST("C")[1]) && r,
+      mk("recruit", "Train " + unitNames("C", s)[0], costStr(UCOST("C")), A >= 1 && lineOk("C") && count(s, "C") < 2 && afford(s, UCOST("C")[0], UCOST("C")[1]) && r,
          A < 1 ? "needs the Feudal Age" : !lineOk("C") ? "you chose archers for the Feudal Age" : count(s, "C") >= 2 ? "both knights in use" : !r ? "reserve empty" : `needs ${costStr(UCOST("C"))}`, {k: "C"});
-      mk("recruit", "Train trebuchet", costStr(UCOST("S")), A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S")[0], UCOST("S")[1]) && G.res[s] >= 2,
+      mk("recruit", "Train " + unitNames("S", s)[0], costStr(UCOST("S")), A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S")[0], UCOST("S")[1]) && G.res[s] >= 2,
          A < 2 ? "needs the Castle Age" : !trebOk(s) ? "needs a standing castle" : count(s, "S") >= TMAX() ? (TMAX() === 1 ? "one trebuchet at a time" : "at most 2 trebuchets") : !r ? "reserve empty" : "needs " + costStr(UCOST("S")), {k: "S"});
     } else if (!(G.rules.chk && G.rules.bTrain) && b && A >= 1) {
       out.push({kind: "hint", label: "Stand next to your barracks to train units"});
@@ -1004,14 +1013,15 @@ function pieceActions(p) {
   }
   if (isUnit(p)) {
     const mv = moves(p);
-    mk("move", "Move", p.k === "C" ? (G.rules.cavWalk ? "up to 3, no jumping" : "up to 3, jumps") : p.k === "A" ? "up to 2, any direction" : p.k === "S" ? (G.rules.trebDiag ? "1, any direction" : "1 straight") : "up to 2", mv.length > 0, "blocked");
+    mk("move", "Move", uniOf(p) ? `up to ${speedOf(p)}` + (p.k === "C" ? ", jumps" : "") : p.k === "C" ? (G.rules.cavWalk ? "up to 3, no jumping" : "up to 3, jumps") : p.k === "A" ? "up to 2, any direction" : p.k === "S" ? (G.rules.trebDiag ? "1, any direction" : "1 straight") : "up to 2", mv.length > 0, "blocked");
     const tg = attackTargets(p);
     mk("attack", "Attack", "pick a target", A >= 1 && tg.length > 0, "nothing in reach", {targets: tg});
     const b = barracks(s), near = b && nextTo(p, b), cap = A >= 2 ? 2 : 1;
     const own = p.st.filter(c => c === s).length;
     if (near) {
       const uc = UPCOST(p.k), uf = uc[0] > 0, uHave = uf ? G.food[s] : G.wood[s], uTxt = uf ? "1 food" : "1 wood";   // each line pays in its own resource
-      if (G.rules.chk && +p.wg) mk("upgrade", "Heal", "1 gold · the gold slides back under", G.gold[s] >= 1, "needs 1 gold");
+      if (uid(p) === "goths" && (+p.w || +p.wg)) mk("upgrade", "Heal", "", false, "huskarls cannot be healed");
+      else if (G.rules.chk && +p.wg) mk("upgrade", "Heal", "1 gold · the gold slides back under", G.gold[s] >= 1, "needs 1 gold");
       else mk("upgrade", (G.rules.chk ? +p.w : p.st.length < (hasGold(p) ? 2 : 1) || (hasGold(p) && p.st.length < 2)) ? "Heal" : "Add checker", uTxt,
          p.st.length < cap && uHave >= 1 && resOk(s), p.st.length >= cap ? (A < 2 ? "second checker needs the Castle Age" : "stack is full") : G.res[s] <= 0 ? "reserve empty" : "needs " + uTxt);
       if (A >= 3) mk("swap", "Swap in gold", "1 gold → +1 attack", !hasGold(p) && p.st.length >= 2 && G.gold[s] >= 1,
@@ -1038,7 +1048,7 @@ function pieceActions(p) {
   if (p.k === "B" && G.rules.chk && G.rules.bTrain) {
     const sq = adjFree(p), r = resOk(s);
     const tr = (k, ok, why) => { const c = DCOST(k);
-      mk("recruit", `Train ${LVL[k][0]}`, costStr(c), ok && r && sq.length > 0 && afford(s, c[0], c[1]),
+      mk("recruit", `Train ${unitNames(k, s)[0]}`, costStr(c), ok && r && sq.length > 0 && afford(s, c[0], c[1]),
          why || (sq.length === 0 ? "no free square next to it" : !r ? "reserve empty" : `needs ${costStr(c)}`), {k, squares: sq}); };
     tr("I", pawns(s) < 8, pawns(s) >= 8 ? "all 8 pawns in use" : null);
     tr("A", count(s, "A") < 2, count(s, "A") >= 2 ? "both bishops in use" : null);
@@ -1076,7 +1086,7 @@ function pieceActions(p) {
 }
 // archers shoot only from where they stand; other units may move first
 // speed of a piece, and the squares it can reach in n steps (scout cavalry jumps)
-const speedOf = p => p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0;
+const speedOf = p => uid(p) === "saracens" ? 4 : uid(p) === "britons" ? 1 : uid(p) === "mayans" ? 3 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0;
 function movesN(p, n) {
   if (n <= 0) return [];
   if (p.k === "C" && !G.rules.cavWalk) {
@@ -1097,7 +1107,7 @@ function movesN(p, n) {
   return out;
 }
 // the attack itself uses one step: speed 2 = walk 2, or walk 1 and attack. Archers always shoot from where they stand.
-const attackFrom = (u, mv) => u.k === "A" ? [[u.f, u.r]] : [[u.f, u.r]].concat(movesN(u, speedOf(u) - 1));
+const attackFrom = (u, mv) => u.k === "A" ? [[u.f, u.r]] : [[u.f, u.r]].concat(movesN(u, uid(u) === "saracens" ? 1 : speedOf(u) - 1));
 // villagers may only fight at home: within 3 of their Town Center or next to one of their own buildings (variant)
 function vilMayHit(v, t) {
   if (!G.rules.vilHome || (v.k !== "V" && !(G.rules.pawnOne && v.k === "I"))) return true;
@@ -1211,7 +1221,7 @@ function exec(a) {
   G.last = [];
   if (a.cls && a.cls !== "free") spend(a.cls);
   switch (a.kind) {
-    case "move": G.last = [[p.f, p.r], a.to]; text = `${name(p)} ${SQ([p.f, p.r])} → ${SQ(a.to)}`; p.f = a.to[0]; p.r = a.to[1]; G.acted.push(p.id); break;
+    case "move": if (uid(p) === "turks") p.mt = tick(); G.last = [[p.f, p.r], a.to]; text = `${name(p)} ${SQ([p.f, p.r])} → ${SQ(a.to)}`; p.f = a.to[0]; p.r = a.to[1]; G.acted.push(p.id); break;
     case "gather": {
       const x = roll(); G.acted.push(p.id); G.last = [[p.f, p.r]];
       if (a.res === "gold") {
@@ -1232,12 +1242,12 @@ function exec(a) {
       G.trained = G.trained || {}; G.trained[a.k] = (G.trained[a.k] || 0) + 1;
       if (G.rules.chk && G.rules.bTrain) {
         const c = DCOST(a.k); pay(s, c[0], c[1]); G.res[s]--; const u = add(s, a.k, a.to[0], a.to[1], [s]);
-        G.acted.push(p.id, u.id); G.last = [a.to]; text = `trains ${/^[aeiou]/.test(LVL[a.k][0]) ? "an" : "a"} ${LVL[a.k][0]} on ${SQ(a.to)}`; break;
+        G.acted.push(p.id, u.id); G.last = [a.to]; text = `trains ${/^[aeiou]/.test(unitNames(a.k, s)[0]) ? "an" : "a"} ${unitNames(a.k, s)[0]} on ${SQ(a.to)}`; break;
       }
       const c = a.k === "I" ? (G.rules.prices2 && !G.rules.milFlex ? [1, 0] : milPay(s) === "wood" ? [0, 1] : [1, 0]) : UCOST(a.k);
       pay(s, c[0], c[1]); if (CR() && a.k === "S") { G.res[s] -= 2; p.k = a.k; p.st = [s, s]; } else { G.res[s]--; p.k = a.k; p.st = [s]; } G.acted.push(p.id); G.last = [[p.f, p.r]];
       if (A === 1 && (a.k === "A" || a.k === "C") && G.line[s] === null) G.line[s] = a.k;
-      text = `trains ${/^[aeiou]/.test(LVL[a.k][0]) ? "an" : "a"} ${LVL[a.k][0]}`; break;
+      text = `trains ${/^[aeiou]/.test(unitNames(a.k, s)[0]) ? "an" : "a"} ${unitNames(a.k, s)[0]}`; break;
     }
     case "upgrade": if (+p.wg) { pay(s, 0, 0, 1); p.w--; p.wg--; p.st.unshift(1 - s); } else { pay(s, UPCOST(p.k)[0], UPCOST(p.k)[1]); if (p.w) p.w = (+p.w) - 1; else G.res[s]--; p.st.push(s); } G.acted.push(p.id); G.last = [[p.f, p.r]]; text = `strengthens the ${name(p)}`; break;
     case "swap": { G.gold[s]--; const i = p.st.lastIndexOf(s); p.st.splice(i, 1); G.res[s]++; p.st.unshift(1 - s); G.acted.push(p.id); G.last = [[p.f, p.r]]; text = `swaps in gold: ${name(p)}`; break; }
@@ -1451,7 +1461,7 @@ function aiOptions(s) {
     }
     // recruit
     if (!(G.rules.chk && G.rules.bTrain) && B && nextTo(v, B) && (vc > (FX.spend && G.food[s] >= 5 ? 2 : 3) || (threatHome && vc >= 1)) && resOk(s) && A >= 1) {
-      const lineOk = k => G.rules.bothLines || A >= 2 || G.line[s] === null || G.line[s] === k;
+      const lineOk = k => true;
       let base = 4.4 + (army < 1 + A ? 1 : 0) + (threatHome ? 1 : 0) - (army >= (aggrOn(s) ? 2 + AGG.cap + (2 + AGG.cap) * A : 2 + 2 * A) ? 3 : 0) + (FX.spend && G.food[s] >= 5 ? 1.8 : 0);
       const cand = [];
       if (A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S")[0], UCOST("S")[1])) cand.push(["S", count(s, "S") === 0 ? 1.8 : 0.3]);
@@ -1528,7 +1538,7 @@ function aiOptions(s) {
     if (acted(u)) continue;
     if (B && nextTo(u, B)) {
       const cap = A >= 2 ? 2 : 1;
-      if (+u.wg ? G.gold[s] >= 1 : u.st.length < cap && (UPCOST(u.k)[0] ? G.food[s] : G.wood[s]) >= 1 && resOk(s)) push(3.2, {kind: "upgrade", cls: cls("upgrade"), p: u});
+      if (!(uid(u) === "goths" && (+u.w || +u.wg)) && (+u.wg ? G.gold[s] >= 1 : u.st.length < cap && (UPCOST(u.k)[0] ? G.food[s] : G.wood[s]) >= 1 && resOk(s))) push(3.2, {kind: "upgrade", cls: cls("upgrade"), p: u});
       if (A >= 3 && !hasGold(u) && u.st.length >= 2 && G.gold[s] >= 1) push(4.4, {kind: "swap", cls: cls("swap"), p: u});
     }
   }
@@ -1743,7 +1753,7 @@ function aiAdjust(s, opts, push, cls) {
     if (best) push(3.8 + (vc <= 3 ? 1.5 : 0) + bv, {kind: "move", cls: cls("move", v), p: v, to: best});
   }
   // wounded units walk back to the barracks to heal
-  if (B) for (const u of my.filter(q => isUnit(q) && +q.w && !acted(q) && !nextTo(q, B))) {
+  if (B) for (const u of my.filter(q => isUnit(q) && uid(q) !== "goths" && +q.w && !acted(q) && !nextTo(q, B))) {
     const now = cd(u.f, u.r, B.f, B.r); let bm = null, bd = now;
     for (const t of moves(u)) { const d = cd(t[0], t[1], B.f, B.r) + (hit(t[0], t[1]) >= hp(u) ? 3 : 0); if (d < bd) { bd = d; bm = t; } }
     if (bm) push(2.2, {kind: "move", cls: cls("move", u), p: u, to: bm});
@@ -1825,7 +1835,7 @@ function threatLoss(s) {
   for (const x of G.pcs) {
     if (x.o !== s) continue;
     const hits = [];
-    for (const {u, pos} of reach) if (pos.some(([f, r]) => reaches(u, f, r, x))) hits.push(atk(u, x));
+    for (const {u, pos} of reach) if (pos.some(([f, r]) => reaches(u, f, r, x))) hits.push(atk(u, x) - uDef(u, x));
     if (!hits.length) continue;
     hits.sort((a, b) => b - a);
     const dmg = hits[0] + (hits[1] || 0) - defn(x);
@@ -2958,7 +2968,7 @@ function vilCats(p, raw) {
     ...(nearCamp ? pick(isTower, ph("tower", "Tower", "stand next to your mill or lumber camp")) : pick(a => a.kind === "camp", ph("camp", "Build mill / lumber camp", "not here"))),
     ...pick(a => a.kind === "repair", ph("repair", "Repair", "stand next to a damaged building")),
     ...(raw.some(a => a.kind === "raise" && a.ok) || !raw.some(a => a.kind === "gild" && a.ok) ? pick(a => a.kind === "raise", ph("raise", "Add checker", "stand next to your mill, lumber camp or barracks")) : pick(a => a.kind === "gild", null))];
-  const train = ["I", "A", "C", "S"].flatMap(k => pick(a => a.kind === "recruit" && a.k === k, ph("recruit", "Train " + LVL[k][0], "stand next to your barracks", {k})));
+  const train = ["I", "A", "C", "S"].flatMap(k => pick(a => a.kind === "recruit" && a.k === k, ph("recruit", "Train " + unitNames(k, p.o)[0], "stand next to your barracks", {k})));
   return {act, res, build, train, hints: raw.filter(a => a.kind === "hint")};
 }
 // the panel always shows the full set of actions for a piece; the ones that cannot be used now are greyed out
@@ -2979,7 +2989,7 @@ function withSlots(p, list) {
     S(a => a.kind === "repair" || a.kind === "raise", ph("repair", "Repair", "stand next to your damaged building"));
     S(a => a.kind === "crown" || a.kind === "castle", ph("crown", "Castle / tower", "stand next to a finished barracks or mill"));
     S(a => a.kind === "gild", null);
-    for (const k of ["I", "A", "C", "S"]) S(a => a.kind === "recruit" && a.k === k, ph("recruit", "Train " + LVL[k][0], "stand next to your barracks", {k}));
+    for (const k of ["I", "A", "C", "S"]) S(a => a.kind === "recruit" && a.k === k, ph("recruit", "Train " + unitNames(k, p.o)[0], "stand next to your barracks", {k}));
   } else if (isUnit(p)) {
     S(a => a.kind === "move", ph("move", "Move", "blocked"));
     S(a => a.kind === "attack", ph("attack", "Attack", "nothing in reach"));
@@ -3189,7 +3199,7 @@ function chooseAction(i) {
     case "attack": UI.mode = {type: "target", p, targets: a.targets}; break;
     case "camp": UI.mode = {type: "place", what: "camp", squares: a.squares, act: {kind: "camp", cls: a.cls, p}}; break;
     case "barracks": UI.mode = {type: "place", what: "barracks", squares: a.squares, act: {kind: "barracks", cls: a.cls, p}}; break;
-    case "recruit": if (a.squares) { UI.mode = {type: "place", what: LVL[a.k][0], squares: a.squares, act: {kind: "recruit", cls: a.cls, p, k: a.k}}; break; }
+    case "recruit": if (a.squares) { UI.mode = {type: "place", what: unitNames(a.k, p.o)[0], squares: a.squares, act: {kind: "recruit", cls: a.cls, p, k: a.k}}; break; }
       UI.msg = ""; exec(Object.assign({}, a)); return afterAct(p);
     case "train": UI.mode = {type: "place", what: "train", squares: a.squares, act: {kind: "train", cls: a.cls, p, free: a.free}}; break;
     case "campshoot": UI.mode = {type: "shoot", p, targets: a.targets}; break;
@@ -3250,6 +3260,7 @@ document.getElementById("endBtn").addEventListener("click", async () => {
   if (isAI(G.turn)) await runAI();
 });
 const menu = document.getElementById("menu"), rulesDlg = document.getElementById("rulesDlg"), logDlg = document.getElementById("logDlg");
+let menuCiv = ["teutons", "teutons"];
 let menuActs = 3, menuHome3 = true, menuSure = false, menuMode = "ai", menuDiff = 10, menuCastle = "4,2", menuMap = "open";
 function openMenu() {
   menuMode = G ? (byLink() ? "link" : G.mode === "hot" || G.mode === "watch" || G.mode === "online" ? G.mode : "ai") : "ai";
@@ -3258,6 +3269,7 @@ function openMenu() {
   menuDiff = G && G.level ? G.level[1] : 10;
   menuSure = !!r.sure; menuHome3 = G ? !!r.home3 : true; menuActs = G && r.acts ? r.acts : 3;
   menuCastle = G && G.rules.costs && G.rules.costs[2] ? G.rules.costs[2][0] + "," + G.rules.costs[2][1] : "4,2";
+  menuCiv = G && G.civ ? G.civ.slice() : ["teutons", "teutons"];
   showTab("play"); segUpdate(); libList(); menu.showModal();
 }
 let MENU_TAB = "play";
@@ -3267,6 +3279,9 @@ function showTab(t) {
   document.querySelectorAll("#menuTabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
 }
 function segUpdate() {
+  for (const i of [0, 1]) { const el = document.getElementById("civ" + i); if (!el.options.length) el.innerHTML = Object.values(CIVS).map(c => `<option value="${c.id}">${c.n}</option>`).join(""); el.value = menuCiv[i]; }
+  document.getElementById("civ1l").textContent = menuMode === "ai" ? "Black (computer)" : "Black";
+  document.getElementById("civNote").innerHTML = [0, 1].map(i => `<b>${CIVS[menuCiv[i]].n}</b>: ${CIVS[menuCiv[i]].d}`).join("<br>");
   document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === menuMode));
   document.querySelectorAll("#homeSeg button").forEach(b => b.classList.toggle("on", (b.dataset.h === "3") === menuHome3));
   document.querySelectorAll("#diffSeg button").forEach(b => b.classList.toggle("on", +b.dataset.d === menuDiff));
@@ -3294,6 +3309,7 @@ document.getElementById("ckSeg").addEventListener("click", e => { const b = e.ta
 document.getElementById("lookSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setLook(b.dataset.l); segUpdate(); render(); aoeWalk(document.body); if (!aoeOn()) location.reload(); } });
 document.getElementById("viewSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setView(b.dataset.v); segUpdate(); render(); } });
 
+["civ0", "civ1"].forEach((id, i) => document.getElementById(id).addEventListener("change", e => { menuCiv[i] = e.target.value; segUpdate(); }));
 document.getElementById("actSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuActs = +b.dataset.n; segUpdate(); } });
 document.getElementById("homeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuHome3 = b.dataset.h === "3"; segUpdate(); } });
 document.getElementById("diffSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuDiff = +b.dataset.d; segUpdate(); } });
@@ -3304,6 +3320,7 @@ document.getElementById("startBtn").onclick = () => {
   newGame(menuMode === "link" ? "online" : menuMode, {pools: false, garrison: false, 
     gatherHalf: true, goldHalf: true, vilHalf: false, vilAtk1: true, woundMark: true, prices2: true, milFlex: false, pawnOne: true, noHandicap: false, ecoTiers: false, bothLines: true, goldBack: true, chk: true, bTrain: false, tcDef1: true, needB: true, campTwo: false, quadrant: true, noCastle: true, noTech: true, freeVill: false, crown: true, tcEarly: true, cavWalk: true, noBeside: true, piles: false, towerFeudal: true, darkCamps: true, towerOnOne: true, rookW: 3, queenW: 4, needC: true, start2: true, darkWar: true, oneEach: true, tcSafeDark: false, tcNear: true, away3: false, crewInQuad: true, camp3: false, homeGather: !menuHome3, home3: !!menuHome3, trebCastle: true, tcMill: false, raidGold: false, trade: true, goldSupply: true, trebDiag: true, home4: true, rocks: menuMap !== "open", rockMap: menuMap === "open" ? null : menuMap, rockShape: menuMap === "plus" ? "plus" : "2x2", goldRes: true, gold2: true, needCamp: true, flex2: true, ageOne: true,
     split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}, sure: true, acts: menuActs}, menuDiff);
+  G.civ = menuCiv.slice();
   UI = {sel: null, mode: null, msg: "", busy: false};
   document.getElementById("over").classList.remove("show");
   if (menuMode === "link") cloudCreate(); else if (menuMode === "online") netCreate(); else netLeave();
