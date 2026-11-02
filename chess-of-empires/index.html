@@ -130,6 +130,7 @@ header{background:linear-gradient(180deg,#6b4826,#4a2f16 55%,#3a2410);border:2px
 h1{font-family:Cinzel,'Trajan Pro',Georgia,serif;font-weight:900;color:#f3cf6b;letter-spacing:.04em;
   text-shadow:0 1px 0 #3a2208,0 2px 3px rgba(0,0,0,.7);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 h1 .crest{width:30px;height:34px;flex:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+h1 .crest path:first-child{fill:var(--civ);transition:fill .4s}
 header{flex-wrap:wrap;row-gap:4px}
 h1{flex:1 1 100%;white-space:nowrap;font-size:clamp(20px,6.4vw,26px)}
 header .fan{flex:1;font-size:11.5px;line-height:1.3;color:#e3cd92;letter-spacing:.02em}
@@ -177,6 +178,19 @@ body{overflow:hidden}
 .wrap{height:calc(100vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;padding:6px 10px 8px}
 header{flex:none;flex-wrap:nowrap;padding:5px 8px;margin:0 0 6px;gap:8px}
 .tb{flex:1;min-width:0}
+:root{--civ:#8e1f16}
+header{border-bottom:3px solid var(--civ);padding-bottom:4px;transition:border-color .4s}
+.boardbox{border-radius:6px;box-shadow:0 0 0 3px var(--civ),0 0 14px -2px var(--civ);transition:box-shadow .4s}
+.panel{border-top:3px solid var(--civ)!important;transition:border-color .4s}
+.status .civem{flex:none;margin-left:-2px}
+.status .civn{font-family:Alegreya,Georgia,serif;font-weight:700;color:var(--civ);filter:brightness(1.15)}
+#status{background:linear-gradient(90deg,color-mix(in srgb,var(--civ) 38%,transparent),transparent 55%);border-radius:8px}
+#panel{position:relative}
+#panel::before{content:"";position:absolute;left:10px;right:10px;top:4px;height:4px;border-radius:3px;background:var(--civ);opacity:.85;pointer-events:none}
+:root[data-civ="franks"] .boardbox{background-image:radial-gradient(circle at 50% 0,rgba(230,196,77,.12),transparent 60%)}
+:root[data-civ="huns"] .boardbox{background-image:radial-gradient(circle at 50% 100%,rgba(207,122,44,.16),transparent 65%)}
+:root[data-civ="britons"] .boardbox{background-image:radial-gradient(circle at 0 50%,rgba(194,58,58,.12),transparent 65%)}
+:root[data-civ="teutons"] .boardbox{background-image:radial-gradient(circle at 100% 50%,rgba(220,222,228,.14),transparent 65%)}
 h1{flex:none;font-size:clamp(15px,4.9vw,22px);gap:6px;overflow:hidden;text-overflow:ellipsis}
 h1 .crest{width:22px;height:26px}
 header .fan{display:block;font-size:10.5px;margin-top:1px}
@@ -552,7 +566,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <li>The checkers give the level: one checker is the base unit; a second checker (Castle Age) makes it <b>heavy</b>, +1 hit point; a gold checker (Imperial Age) makes it <b>elite</b>, +1 attack, and your own checker goes back.</li>
       <li><b>One price per checker:</b> 1 food on a unit, 1 wood on a building or machine, 1 gold for a gold checker. <b>One price per piece:</b> pawn 1 food, bishop 1 food, knight 2 food, coin 3 wood, rook 3 wood, queen 4 wood. So an archer is bishop 1 food + checker 1 food; cavalry 3 food.</li>
       <li>At most two archers, two cavalry and one trebuchet.</li>
-      <li><b>Civilizations</b>: each player picks one in the New game menu. A civ swaps one unit for a special one at the same age and price, with the same attack and hit points. Franks have none. Teutons: teutonic knight. Huns: tarkan. Goths: huskarl. Britons: longbowman. Mayans: plumed archer. Saracens: camel rider. Turks: bombard cannon. Mongols: onager.</li>
+      <li><b>Civilizations</b>: each player picks one in the New game menu. A civ swaps one unit for a special one at the same age and price, with the same attack and hit points. Franks have none. Teutons: teutonic knight. Huns: tarkan. Britons: longbowman.</li>
     </ul>
     <h3>Buildings</h3>
     <ul>
@@ -597,14 +611,9 @@ const CIVS = {
   teutons: {n: "Teutons", k: "I", u: ["teutonic knight", "heavy teutonic knight", "elite teutonic knight"], d: "Teutonic knight (infantry): defence 1 against everything · moves 1."},
   huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], d: "Tarkan (cavalry): ignores building defence · walks up to 3, cannot jump."},
   franks: {n: "Franks", d: "Standard units."},
-  goths: {n: "Goths", k: "I", u: ["huskarl", "heavy huskarl", "elite huskarl"], d: "Huskarl (infantry): defence 1 against archers and siege · cannot be healed."},
-  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], d: "Longbowman (archer): shoots 2 away, or 3 in a straight or diagonal line · moves 1."},
-  mayans: {n: "Mayans", k: "A", u: ["plumed archer", "heavy plumed archer", "elite plumed archer"], d: "Plumed archer (archer): moves 3 · shoots exactly 2 away, only in a straight or diagonal line."},
-  saracens: {n: "Saracens", k: "C", u: ["camel rider", "heavy camel rider", "elite camel rider"], d: "Camel rider (cavalry): jumps up to 4 · attacks only after moving 1 or less."},
-  turks: {n: "Turks", k: "S", u: ["bombard cannon", "bombard cannon", "elite bombard cannon"], d: "Bombard cannon (siege): shoots exactly 3 away in any direction · needs a turn to set up after moving."},
-  mongols: {n: "Mongols", k: "S", u: ["onager", "onager", "elite onager"], d: "Onager (siege): shoots 3 or 4 away in a straight line."}};
+  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], d: "Longbowman (archer): shoots 2 away, or 3 in a straight or diagonal line · moves 1."}};
 Object.keys(CIVS).forEach(k => { CIVS[k].id = k; });
-const civ = s => (typeof G !== "undefined" && G && G.civ && CIVS[G.civ[s]]) || CIVS.teutons;
+const civ = s => (typeof G !== "undefined" && G && G.civ && CIVS[G.civ[s]]) || CIVS.franks;
 const uid = p => { const c = p && p.o !== undefined && p.k ? civ(p.o) : null; return c && c.k === p.k ? c.id : ""; };
 const unitNames = (k, s) => { const c = civ(s); return c.k === k ? c.u : LVL[k]; };
 const tick = () => G.round * 2 + G.turn;
@@ -2716,7 +2725,19 @@ function pieceSVG(p) {
   }
   return s + "</g>";
 }
+const THEME = {
+  franks: {c: "#3f6ec4", c2: "#e6c44d", g: "M10 1 C12 5 14 6 14 9 C14 11 12 12 10 11 C8 12 6 11 6 9 C6 6 8 5 10 1 Z M4 7 C6 7 7 9 7 11 C5 12 3 11 3 9 Z M16 7 C14 7 13 9 13 11 C15 12 17 11 17 9 Z M7 13 H13 L12 16 H8 Z"},
+  britons: {c: "#c23a3a", c2: "#f1efe6", g: "M2 10 H18 M10 2 V18 M4 4 L16 16 M16 4 L4 16"},
+  teutons: {c: "#b9bcc4", c2: "#1d1d1f", g: "M8 2 H12 V8 H18 V12 H12 V18 H8 V12 H2 V8 H8 Z"},
+  huns: {c: "#cf7a2c", c2: "#2a1a0c", g: "M3 15 C3 8 8 3 17 3 C14 6 14 10 11 12 C9 14 7 15 3 15 Z"}};
+const civEmblem = (id, w) => { const t = THEME[id] || THEME.franks; const st = t.g.includes("M2 10") ? `fill="none" stroke="${t.c2}" stroke-width="2.4" stroke-linecap="round"` : `fill="${t.c2}"`;
+  return `<svg class="civem" viewBox="0 0 20 22" width="${w || 15}" height="${(w || 15) * 1.1}" aria-hidden="true"><path d="M10 1 L18 4 V11 C18 16 14 19 10 21 C6 19 2 16 2 11 V4 Z" fill="${t.c}" stroke="#2a1c0c" stroke-width="1.2"/><g transform="translate(3.5 3.5) scale(.65)"><path d="${t.g}" ${st}/></g></svg>`; };
+function civTheme() {
+  const id = civ(G.turn).id, t = THEME[id] || THEME.franks, root = document.documentElement;
+  root.style.setProperty("--civ", t.c); root.dataset.civ = id;
+}
 function renderStatus() {
+  civTheme();
   const s = G.turn, A = age(s);
   let who = SIDE[s];
   if (G.mode === "ai") who = s === 0 ? "Your turn" : "Computer";
@@ -2725,7 +2746,7 @@ function renderStatus() {
     ? `<span>Eco ${pipStr(G.acts.eco, 2)}</span><span>Mil ${pipStr(G.acts.mil, 2)}</span>`
     : `<span>Actions ${pipStr(G.acts.any, G.rules.flex2 ? (G.round === 1 && s === 0 && !G.rules.noHandicap ? 1 : (G.rules.acts || 3)) : 2)}</span>` + (G.rules.chk && G.acts.camp !== undefined && camps(G.turn).length ? `<span>Camps ${pipStr(G.acts.camp, camps(G.turn).length)}</span>` : "");
   document.getElementById("status").innerHTML =
-    `<span class="dot" style="background:${s ? "var(--ebony)" : "var(--ivory)"}"></span><b>${who}</b><span>r${G.round} · ${AGES[A]} Age</span><span class="pips">${pools}</span>`;
+    `<span class="dot" style="background:${s ? "var(--ebony)" : "var(--ivory)"}"></span>${civEmblem(civ(s).id, 15)}<b>${who}</b><span class="civn">${civ(s).n}</span><span>r${G.round} · ${AGES[A]} Age</span><span class="pips">${pools}</span>`;
 }
 function pipStr(n, m) { let o = ""; for (let i = 0; i < m; i++) o += `<i class="pip${i < n ? " on" : ""}"></i>`; return o; }
 function renderStrips() {
@@ -3261,7 +3282,7 @@ document.getElementById("endBtn").addEventListener("click", async () => {
   if (isAI(G.turn)) await runAI();
 });
 const menu = document.getElementById("menu"), rulesDlg = document.getElementById("rulesDlg"), logDlg = document.getElementById("logDlg");
-let menuCiv = ["teutons", "teutons"];
+let menuCiv = ["franks", "franks"];
 let menuActs = 3, menuHome3 = true, menuSure = false, menuMode = "ai", menuDiff = 10, menuCastle = "4,2", menuMap = "open";
 function openMenu() {
   menuMode = G ? (byLink() ? "link" : G.mode === "hot" || G.mode === "watch" || G.mode === "online" ? G.mode : "ai") : "ai";
@@ -3270,7 +3291,7 @@ function openMenu() {
   menuDiff = G && G.level ? G.level[1] : 10;
   menuSure = !!r.sure; menuHome3 = G ? !!r.home3 : true; menuActs = G && r.acts ? r.acts : 3;
   menuCastle = G && G.rules.costs && G.rules.costs[2] ? G.rules.costs[2][0] + "," + G.rules.costs[2][1] : "4,2";
-  menuCiv = G && G.civ ? G.civ.slice() : ["teutons", "teutons"];
+  menuCiv = G && G.civ ? G.civ.slice() : ["franks", "franks"];
   showTab("play"); segUpdate(); libList(); menu.showModal();
 }
 let MENU_TAB = "play";
