@@ -419,6 +419,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .urow2 .stat .sl{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#7a6642}
 .urow2 .stat b{margin-left:2px}
 .urow2 .ustats{flex-wrap:nowrap!important;gap:4px 12px!important}.udesc{display:block;font-size:12px;color:#5a4a30;margin-top:3px}
+.stat.sx{cursor:pointer}.stat .cmp{margin-left:3px;vertical-align:-2px}.sexpl{font-size:12px;color:#4a3a22;background:rgba(255,246,214,.9);border:1px solid #b9985a;border-radius:6px;padding:5px 8px;margin:4px 0}
 </style>
 </head>
 <body>
@@ -647,6 +648,12 @@ const ONE = {
   turks: "Shoots exactly 2 away in a line, ignores building defence, and has pierce defence 1.",
   V: "Gathers, builds and repairs.", I: "Walks up to 2, then hits the square next to it.", A: "Shoots exactly 2 away without moving first.",
   C: "Jumps up to 3, then hits the square next to it.", S: "Shoots exactly 3 away in a line, needs a standing castle, and ignores building defence."};
+const compass = (c, orth) => { let l = ""; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, dg = i % 2, on = !(orth && dg); l += `<line x1="8" y1="8" x2="${(8 + 6.5 * Math.cos(a)).toFixed(1)}" y2="${(8 + 6.5 * Math.sin(a)).toFixed(1)}" stroke="${on ? c : "#cbb98f"}" stroke-width="${on ? 1.6 : 1}" stroke-linecap="round"/>`; } return `<svg class="cmp" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">${l}<circle cx="8" cy="8" r="1.6" fill="${c}"/></svg>`; };
+const esc = t => String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+document.addEventListener("click", e => { const el = e.target.closest && e.target.closest(".stat[data-ex]"); if (!el) return;
+  const bar = el.parentElement, nx = bar.nextElementSibling; const same = nx && nx.classList.contains("sexpl") && nx.dataset.for === el.dataset.ex;
+  if (nx && nx.classList.contains("sexpl")) nx.remove();
+  if (!same) { const d = document.createElement("div"); d.className = "sexpl"; d.dataset.for = el.dataset.ex; d.textContent = el.dataset.ex; bar.insertAdjacentElement("afterend", d); } });
 const civ = s => (typeof G !== "undefined" && G && G.civ && CIVS[G.civ[s]]) || CIVS.franks;
 const uid = p => { const c = p && p.o !== undefined && p.k ? civ(p.o) : null; return c && c.k === p.k ? c.id : ""; };
 const unitNames = (k, s) => { const c = civ(s); return c.k === k ? c.u : LVL[k]; };
@@ -3118,7 +3125,7 @@ function renderPanel() {
   const meta = [];
   const IC = {"hp": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M8 14.2C3.2 10.8 1.5 8.6 1.5 5.9 1.5 3.8 3.1 2.3 5 2.3c1.3 0 2.4.7 3 1.8.6-1.1 1.7-1.8 3-1.8 1.9 0 3.5 1.5 3.5 3.6 0 2.7-1.7 4.9-6.5 8.3z\" fill=\"#c0392b\" stroke=\"#6e140e\" stroke-width=\"1\"/></svg>", "atk": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M13.8 1.6 L14.4 2.2 L6.4 10.2 L5.8 9.6 Z\" fill=\"#d7dde2\" stroke=\"#4a5560\" stroke-width=\"0.9\"/><path d=\"M3.2 8.6 L7.4 12.8\" stroke=\"#a8741c\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><path d=\"M4.9 11.1 L2.2 13.8\" stroke=\"#5b3614\" stroke-width=\"2\" stroke-linecap=\"round\"/><circle cx=\"1.9\" cy=\"14.1\" r=\"1.1\" fill=\"#e7bd52\"/></svg>", "def": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M8 1.2 L14 3.4 V8 C14 11.6 11.2 13.9 8 15 C4.8 13.9 2 11.6 2 8 V3.4 Z\" fill=\"#245f96\" stroke=\"#e7bd52\" stroke-width=\"1.2\"/><path d=\"M8 3.2 V13\" stroke=\"#e7bd52\" stroke-width=\"1\"/></svg>", "rng": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.3\" fill=\"none\" stroke=\"#8e1f16\" stroke-width=\"1.6\"/><circle cx=\"8\" cy=\"8\" r=\"3.4\" fill=\"none\" stroke=\"#8e1f16\" stroke-width=\"1.4\"/><circle cx=\"8\" cy=\"8\" r=\"1.2\" fill=\"#8e1f16\"/></svg>"};
   const STATNAME = {HP: "hit points", att: "attack", def: "defence", rng: "range", spd: "speed"};
-  const stat = (k, v, lab, q) => `<span class="stat" title="${STATNAME[lab]}${q ? ": " + q : ""}">${IC[k]}<b>${v}</b></span>`;
+  const stat = (k, v, lab, q) => `<span class="stat${q ? " sx" : ""}" title="${STATNAME[lab]}"${q ? ` data-ex="${esc(q)}"` : ""}>${IC[k]}<b>${v}</b></span>`;
   const A0 = age(sp.o), isTower = sp.k === "camp" && (CR() ? !!sp.cr : sp.st.length >= 2), isCastle = sp.k === "B" && (CR() ? !!sp.cr : (sp.cs || (G.rules.chk && sp.st.length >= 2))), isTC2 = G.rules.chk && sp.k === "K" && (CR() ? shoots(sp) : sp.st.length >= 2);
   const aVal = sp.k === "V" ? fmtA(atk(sp)) : isUnit(sp) ? atk(sp) : G.rules.chk && (isTower || isCastle || isTC2) ? (hasGold(sp) ? 2 : 1) : isTower ? (A0 >= 3 ? 2 : 1) : isCastle ? 1 : 0;
   IC.spd = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 3.5 L7.5 8 L2.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 3.5 L13.5 8 L8.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -3136,8 +3143,8 @@ function renderPanel() {
   })();
   const nOwn = sp.st.filter(c => c === sp.o).length, nGold = sp.st.length - nOwn;
   const hpTitle = `hit points: ${sp.k === "camp" ? "" : "the piece"}${sp.k !== "camp" && sp.st.length ? " + " : ""}${nOwn ? nOwn + " checker" + (nOwn > 1 ? "s" : "") : ""}${nGold ? (nOwn ? " + " : "") + nGold + " gold" : ""}`;
-  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att", isBreach(sp) ? "breach" : "")}${stat("def", mDef(sp), "def", "melee" + (uid(sp) === "saracens" ? " · 1 vs cav" : ""))}${stat("def", pDef(sp), "def", "pierce")}` +
-    (rVal ? stat("rng", rVal, "rng", ({britons: "line", mongols: "line", turks: "line", chinese: "line ×2", koreans: "any way", huns: "bldg only", aztecs: "after walk", saracens: "after 1 step"})[uid(sp)] || "") : "") + (sVal ? stat("spd", sVal, "spd") : "") + `</span>`);
+  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att", isBreach(sp) ? "breach" : "")}${stat("def", mDef(sp) + "/" + pDef(sp), "def", `Defence ${mDef(sp)}/${pDef(sp)}: melee ${mDef(sp)} (first), pierce ${pDef(sp)} (second, against arrows from archers, towers, the castle and the Town Center). A hit deals attack minus defence.${uid(sp) === "saracens" ? " Against cavalry it is 1." : ""}${isBld(sp) ? " Breach damage ignores it." : ""}`)}` +
+    (rVal ? stat("rng", rVal + compass("#8e1f16"), "rng", `Range ${rVal}: ${uniOf(sp) ? "hits " + uniOf(sp).rg : sp.k === "A" ? "hits exactly 2 away" : sp.k === "S" ? "hits exactly 3 away in a line" : "hits the square next to it, also after walking"}. All eight lines are lit: it works in every direction.`) : "") + (sVal ? stat("spd", sVal + compass("#3f7d24", sp.k === "S"), "spd", `Move ${sVal}: up to ${sVal} square${sVal > 1 ? "s" : ""} ${sp.k === "S" ? "in the four straight directions only" : "in all eight directions"}${canJump(sp) ? ", jumping over pieces" : ""}.`) : "") + `</span>`);
   if (isUnit(sp) || sp.k === "V") meta.push(`<span class="udesc">${ONE[uniOf(sp) ? uid(sp) : sp.k] || ""}</span>`);
   const info = [];
   if (sp.k === "K") info.push(`${AGES[age(sp.o)]} Age` + (G.rules.chk && G.pile[sp.o] ? " · damaged: repair it before advancing" : ""));
@@ -3643,11 +3650,11 @@ function rangePic(sp) {
 }
 function unitSheet(s) {
   const LB = {hp: "hit points", atk: "attack", def: "defence", rng: "range", spd: "speed"};
-  const st = (k, v, l) => `<span class="stat" title="${l || LB[k]}">${TICON[k]}<b>${v}</b></span>`;
+  const st = (k, v, l, ex) => `<span class="stat${ex ? " sx" : ""}" title="${l || LB[k]}"${ex ? ` data-ex="${esc(ex)}"` : ""}>${TICON[k]}<b>${v}</b></span>`;
   const cc = k => costStr(DCOST(k));
-  const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId, nkey) => { def = String(def); return `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
+  const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId, nkey) => { def = String(def); const dm = def.split("|")[0], dp = def.split("|")[1] === undefined ? dm : def.split("|")[1]; return `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
     <div class="ubody"><div class="uname"><span class="upc">${civId ? civEmblem(civId, 18) : gl}</span>${name}<small>${cost}</small></div>
-    <div class="ustats">${st("hp", hp)}${st("atk", atk)}${st("def", def.split("|")[0], "melee defence")}${st("def", def.split("|")[1] === undefined ? def.split("|")[0] : def.split("|")[1], "pierce defence")}${st("rng", rng)}${st("spd", spd)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
+    <div class="ustats">${st("hp", hp)}${st("atk", atk)}${st("def", dm + "/" + dp, "defence", `Defence ${dm}/${dp}: melee ${dm} (first), pierce ${dp} (second, against arrows from archers, towers, the castle and the Town Center). A hit deals attack minus defence.`)}${st("rng", rng + compass("#8e1f16"), "range", `Range ${rng}: all eight lines are lit, so it works in every direction. ${ONE[civId || nkey] || ""}`)}${st("spd", spd + compass("#3f7d24", civId === "turks" || nkey === "S"), "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
   const mine = G.civ ? [...new Set([G.civ[0], G.civ[1]])].filter(x => x !== "franks") : [];
   const order = mine.concat(Object.keys(CIVS).filter(x => x !== "franks" && !mine.includes(x)));
   let h = `<div class="ulegend"><span><i style="background:#3f8a2c"></i>can move to</span><span><i style="background:#d9453a"></i>hits from where it stands</span><span><i style="background:#f0a79e"></i>hits after walking there</span><span>(centre = the unit)</span></div>`;
