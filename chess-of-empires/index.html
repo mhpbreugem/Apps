@@ -415,6 +415,9 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .ulegend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:#5a4a30}.ulegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
 @media (max-width:520px){.urow2{flex-direction:column;align-items:flex-start}}
 .usec2{margin:16px 0 4px;font-size:15px;color:#4a2f10}
+.stat .sq{font-style:normal;font-size:9.5px;opacity:.8;margin-left:2px}
+.urow2 .stat .sl{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#7a6642}
+.urow2 .stat b{margin-left:2px}
 </style>
 </head>
 <body>
@@ -3097,7 +3100,7 @@ function renderPanel() {
   const meta = [];
   const IC = {"hp": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M8 14.2C3.2 10.8 1.5 8.6 1.5 5.9 1.5 3.8 3.1 2.3 5 2.3c1.3 0 2.4.7 3 1.8.6-1.1 1.7-1.8 3-1.8 1.9 0 3.5 1.5 3.5 3.6 0 2.7-1.7 4.9-6.5 8.3z\" fill=\"#c0392b\" stroke=\"#6e140e\" stroke-width=\"1\"/></svg>", "atk": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M13.8 1.6 L14.4 2.2 L6.4 10.2 L5.8 9.6 Z\" fill=\"#d7dde2\" stroke=\"#4a5560\" stroke-width=\"0.9\"/><path d=\"M3.2 8.6 L7.4 12.8\" stroke=\"#a8741c\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><path d=\"M4.9 11.1 L2.2 13.8\" stroke=\"#5b3614\" stroke-width=\"2\" stroke-linecap=\"round\"/><circle cx=\"1.9\" cy=\"14.1\" r=\"1.1\" fill=\"#e7bd52\"/></svg>", "def": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M8 1.2 L14 3.4 V8 C14 11.6 11.2 13.9 8 15 C4.8 13.9 2 11.6 2 8 V3.4 Z\" fill=\"#245f96\" stroke=\"#e7bd52\" stroke-width=\"1.2\"/><path d=\"M8 3.2 V13\" stroke=\"#e7bd52\" stroke-width=\"1\"/></svg>", "rng": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.3\" fill=\"none\" stroke=\"#8e1f16\" stroke-width=\"1.6\"/><circle cx=\"8\" cy=\"8\" r=\"3.4\" fill=\"none\" stroke=\"#8e1f16\" stroke-width=\"1.4\"/><circle cx=\"8\" cy=\"8\" r=\"1.2\" fill=\"#8e1f16\"/></svg>"};
   const STATNAME = {HP: "hit points", att: "attack", def: "defence", rng: "range", spd: "speed"};
-  const stat = (k, v, lab) => `<span class="stat" title="${STATNAME[lab]}">${IC[k]}<b>${v}</b><i>${lab}</i></span>`;
+  const stat = (k, v, lab, q) => `<span class="stat" title="${STATNAME[lab]}${q ? ": " + q : ""}">${IC[k]}<b>${v}</b><i>${lab}</i>${q ? `<em class="sq">${q}</em>` : ""}</span>`;
   const A0 = age(sp.o), isTower = sp.k === "camp" && (CR() ? !!sp.cr : sp.st.length >= 2), isCastle = sp.k === "B" && (CR() ? !!sp.cr : (sp.cs || (G.rules.chk && sp.st.length >= 2))), isTC2 = G.rules.chk && sp.k === "K" && (CR() ? shoots(sp) : sp.st.length >= 2);
   const aVal = sp.k === "V" ? fmtA(atk(sp)) : isUnit(sp) ? atk(sp) : G.rules.chk && (isTower || isCastle || isTC2) ? (hasGold(sp) ? 2 : 1) : isTower ? (A0 >= 3 ? 2 : 1) : isCastle ? 1 : 0;
   IC.spd = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 3.5 L7.5 8 L2.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 3.5 L13.5 8 L8.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -3115,8 +3118,8 @@ function renderPanel() {
   })();
   const nOwn = sp.st.filter(c => c === sp.o).length, nGold = sp.st.length - nOwn;
   const hpTitle = `hit points: ${sp.k === "camp" ? "" : "the piece"}${sp.k !== "camp" && sp.st.length ? " + " : ""}${nOwn ? nOwn + " checker" + (nOwn > 1 ? "s" : "") : ""}${nGold ? (nOwn ? " + " : "") + nGold + " gold" : ""}`;
-  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att")}${stat("def", defn(sp) + (uid(sp) === "teutons" || uid(sp) === "persians" ? 1 : 0) + (["koreans", "turks", "saracens"].includes(uid(sp)) ? "*" : ""), "def")}` +
-    (rVal ? stat("rng", rVal, "rng") : "") + (sVal ? stat("spd", sVal, "spd") : "") + `</span>`);
+  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att")}${stat("def", defn(sp) + (uid(sp) === "teutons" || uid(sp) === "persians" || ["koreans", "turks", "saracens"].includes(uid(sp)) ? 1 : 0), "def", ({teutons: "all", persians: "all", koreans: "vs arrows", turks: "vs arrows", saracens: "vs cavalry"})[uid(sp)] || "")}` +
+    (rVal ? stat("rng", rVal, "rng", ({britons: "line", mongols: "line", turks: "line", chinese: "line ×2", koreans: "any way", huns: "bldg only", aztecs: "after walk", saracens: "after 1 step"})[uid(sp)] || "") : "") + (sVal ? stat("spd", sVal, "spd") : "") + `</span>`);
   const info = [];
   if (sp.k === "K") info.push(`${AGES[age(sp.o)]} Age` + (G.rules.chk && G.pile[sp.o] ? " · damaged: repair it before advancing" : ""));
   if (G.rules.chk && sp.k !== "K" && +sp.w) info.push(`damaged: ${+sp.w} checker${+sp.w > 1 ? "s" : ""} beside it · ${isUnit(sp) ? "heal next to the barracks" : "a villager next to it repairs"}`);
@@ -3620,7 +3623,8 @@ function rangePic(sp) {
   return `<svg class="rpic" viewBox="0 0 ${W} ${W}" width="${W}" height="${W}" role="img" aria-label="range picture"><rect width="${W}" height="${W}" rx="3" fill="#5a4426"/>${g}</svg>`;
 }
 function unitSheet(s) {
-  const st = (k, v) => `<span class="stat">${TICON[k]}<b>${v}</b></span>`;
+  const LB = {hp: "hit points", atk: "attack", def: "defence", rng: "range", spd: "speed"};
+  const st = (k, v) => `<span class="stat">${TICON[k]}<span class="sl">${LB[k]}</span><b>${v}</b></span>`;
   const cc = k => costStr(DCOST(k));
   const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId) => `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
     <div class="ubody"><div class="uname"><span class="upc">${civId ? civEmblem(civId, 18) : gl}</span>${name}<small>${cost}</small></div>
@@ -3629,7 +3633,7 @@ function unitSheet(s) {
   const order = mine.concat(Object.keys(CIVS).filter(x => x !== "franks" && !mine.includes(x)));
   let h = `<div class="ulegend"><span><i style="background:#3f8a2c"></i>can move to</span><span><i style="background:#d9453a"></i>hits from where it stands</span><span><i style="background:#f0a79e"></i>hits after walking there</span><span>(centre = the unit)</span></div>`;
   h += `<h4 class="usec">Standard units</h4>`;
-  h += row("Villager", GLY.V, "1", "1 food at the Town Center", "1", vilFight(s) ? "1" : "does not fight", 0, vilFight(s) ? "1" : "—", 2, "Gathers, builds, repairs.", RANGE_SPEC.vil);
+  h += row("Villager", GLY.V, "1", "1 food at the Town Center", "1", vilFight(s) ? "1" : "does not fight", 0, vilFight(s) ? "1" : "—", 2, "Defence 0 (buildings: 1). Gathers, builds, repairs.", RANGE_SPEC.vil);
   h += row("Infantry line", GLY.I, "2 Feudal · 3 Castle", cc("I"), "2 · 3 heavy", "1 · 2 elite", 0, "1 after walking up to 1", 2, "Walks one step, then hits next to it. Bare pawn 1 hp.", RANGE_SPEC.I);
   h += row("Archer line", GLY.A, "2 · 3 from Castle", cc("A"), "2 · 3 heavy", "1 · 2 elite", 0, "exactly 2, any direction", 2, "Shoots only from where it stands.", RANGE_SPEC.A);
   h += row("Cavalry line", GLY.C, "2 · 3 from Castle", cc("C"), "2 · 3 heavy", "1 · 2 elite", 0, "1 after walking up to 2", 3, "Jumps over pieces. Cap 2.", RANGE_SPEC.C);
