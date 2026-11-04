@@ -412,7 +412,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .urow2 .uname small{font-weight:400;color:#6b5636;margin-left:auto}.urow2 .ucn{font-style:normal;font-size:11px;font-weight:400;color:#6b5636;border:1px solid #b9985a;border-radius:9px;padding:0 6px}
 .urow2 .ustats{display:flex;flex-wrap:wrap;gap:4px 10px;margin:4px 0}.urow2 .stat{display:inline-flex;gap:3px;align-items:center;font-size:12px}.urow2 .unote{font-size:12px;color:#5a4a30}
 .usec{margin:12px 0 2px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#6b4a1c;border-bottom:1px solid #b9985a}
-.ulegend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:#5a4a30}.ulegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.ulegend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:#5a4a30}.ulegend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 @media (max-width:520px){.urow2{flex-direction:column;align-items:flex-start}}
 .usec2{margin:16px 0 4px;font-size:15px;color:#4a2f10}
 .stat .sq{font-style:normal;font-size:9.5px;opacity:.8;margin-left:2px}
@@ -420,7 +420,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .urow2 .stat b{margin-left:2px}
 .urow2 .ustats{flex-wrap:nowrap!important;gap:4px 12px!important}.udesc{display:block;font-size:12px;color:#5a4a30;margin-top:3px}
 .stat.sx{cursor:pointer}.stat .cmp{margin-left:3px;vertical-align:-2px}.sexpl{font-size:12px;color:#4a3a22;background:rgba(255,246,214,.9);border:1px solid #b9985a;border-radius:6px;padding:5px 8px;margin:4px 0}
-.sexpl .rpic{display:block;margin:6px auto 2px;width:112px;height:112px}.sexpl .sleg{font-size:11px;text-align:center}.sexpl .sleg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 3px 0 6px}
+.sexpl .rpic{display:block;margin:6px auto 2px;width:112px;height:112px}.sexpl .sleg{font-size:11px;text-align:center}.sexpl .sleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 3px 0 6px}
 </style>
 </head>
 <body>
@@ -652,11 +652,20 @@ const ONE = {
 const compass = (c, orth) => { let l = ""; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, dg = i % 2, on = !(orth && dg); l += `<line x1="8" y1="8" x2="${(8 + 6.5 * Math.cos(a)).toFixed(1)}" y2="${(8 + 6.5 * Math.sin(a)).toFixed(1)}" stroke="${on ? c : "#cbb98f"}" stroke-width="${on ? 1.6 : 1}" stroke-linecap="round"/>`; } return `<svg class="cmp" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">${l}<circle cx="8" cy="8" r="1.6" fill="${c}"/></svg>`; };
 const LINEU = p => ["britons", "mongols", "turks", "chinese"].includes(uid(p)) || p.k === "S";
 function specKey(p) { return p.k === "V" ? "vil" : uniOf(p) ? uid(p) : p.k; }
+const rngText = p => { const u = uid(p), N = {britons: 3, mongols: 2, turks: 2, chinese: 2, koreans: 2}[u] || (p.k === "A" ? 2 : p.k === "S" ? 3 : 1), line = LINEU(p);
+  if (u === "huns") return "Hits buildings on a neighbouring square, and can walk first. Other pieces cannot be hit.";
+  if (u === "aztecs") return "Hits a piece on a neighbouring square, and still can after walking up to 2, so it reaches 3 squares.";
+  if (u === "saracens") return "Hits a piece on a neighbouring square, but only if it moved 1 square or less first.";
+  if (N === 1) return "Hits a piece on a neighbouring square (any of the 8 around it), also after walking.";
+  return `Hits a piece exactly ${N} squares away, ${line ? "straight or diagonal only (the 8 lines)" : "in any direction"}. Nearer pieces cannot be hit.` + (u === "chinese" ? " One action fires two bolts at two different targets." : "") + (u === "britons" ? " Units only, not buildings." : "") + (p.k === "A" || p.k === "S" ? " It fires without moving." : ""); };
+const moveText = p => { const n = speedOf(p), u = uid(p);
+  return (p.k === "S" ? "Moves 1 square up, down, left or right, never diagonal." : `Moves up to ${n} square${n > 1 ? "s" : ""} in any direction${canJump(p) ? ", jumping over pieces." : ", but cannot pass through pieces."}`) +
+    (p.k === "A" ? " Shoots only without moving first." : u === "saracens" ? " Strikes only if it moved 1 square or less." : ""); };
 const esc = t => String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 document.addEventListener("click", e => { const el = e.target.closest && e.target.closest(".stat[data-ex]"); if (!el) return;
   const bar = el.parentElement, nx = bar.nextElementSibling; const same = nx && nx.classList.contains("sexpl") && nx.dataset.for === el.dataset.ex;
   if (nx && nx.classList.contains("sexpl")) nx.remove();
-  if (!same) { const d = document.createElement("div"); d.className = "sexpl"; d.dataset.for = el.dataset.ex; d.textContent = el.dataset.ex; if (el.dataset.pic && RANGE_SPEC[el.dataset.pic]) d.insertAdjacentHTML("beforeend", rangePic(RANGE_SPEC[el.dataset.pic]) + '<div class="sleg"><i style="background:#3f8a2c"></i>moves to <i style="background:#d9453a"></i>hits standing <i style="background:#f0a79e"></i>hits after walking</div>'); bar.insertAdjacentElement("afterend", d); } });
+  if (!same) { const d = document.createElement("div"); d.className = "sexpl"; d.dataset.for = el.dataset.ex; d.textContent = el.dataset.ex; if (el.dataset.pic && el.dataset.pic.startsWith("move:") && RANGE_SPEC[el.dataset.pic.slice(5)]) d.insertAdjacentHTML("beforeend", rangePic(RANGE_SPEC[el.dataset.pic.slice(5)], true) + '<div class="sleg"><i style="background:#7fbf63"></i>squares it can move to</div>'); else if (el.dataset.pic && RANGE_SPEC[el.dataset.pic]) d.insertAdjacentHTML("beforeend", rangePic(RANGE_SPEC[el.dataset.pic]) + '<div class="sleg"><i style="background:#7fbf63"></i>moves <i style="background:#d9453a"></i>hits <i style="background:#f1b3ab"></i>hits after a walk</div>'); bar.insertAdjacentElement("afterend", d); } });
 const civ = s => (typeof G !== "undefined" && G && G.civ && CIVS[G.civ[s]]) || CIVS.franks;
 const uid = p => { const c = p && p.o !== undefined && p.k ? civ(p.o) : null; return c && c.k === p.k ? c.id : ""; };
 const unitNames = (k, s) => { const c = civ(s); return c.k === k ? c.u : LVL[k]; };
@@ -3147,7 +3156,7 @@ function renderPanel() {
   const nOwn = sp.st.filter(c => c === sp.o).length, nGold = sp.st.length - nOwn;
   const hpTitle = `hit points: ${sp.k === "camp" ? "" : "the piece"}${sp.k !== "camp" && sp.st.length ? " + " : ""}${nOwn ? nOwn + " checker" + (nOwn > 1 ? "s" : "") : ""}${nGold ? (nOwn ? " + " : "") + nGold + " gold" : ""}`;
   meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att", isBreach(sp) ? "breach" : "")}${stat("def", mDef(sp) + "/" + pDef(sp), "def", `Defence ${mDef(sp)}/${pDef(sp)}: melee ${mDef(sp)} (first), pierce ${pDef(sp)} (second, against arrows from archers, towers, the castle and the Town Center). A hit deals attack minus defence.${uid(sp) === "saracens" ? " Against cavalry it is 1." : ""}${isBld(sp) ? " Breach damage ignores it." : ""}`)}` +
-    (rVal ? stat("rng", rVal + compass("#8e1f16"), "rng", `Range ${rVal}: ${uniOf(sp) ? "hits " + uniOf(sp).rg : sp.k === "A" ? "hits exactly 2 away, any square at that distance" : sp.k === "S" ? "hits exactly 3 away, straight or diagonal lines only" : "hits the square next to it, also after walking"}. ${(LINEU(sp)) ? "Only the eight straight and diagonal lines count." : "Every square at that distance counts, not only the lines."} The picture shows it.`, specKey(sp)) : "") + (sVal ? stat("spd", sVal + compass("#3f7d24", sp.k === "S"), "spd", `Move ${sVal}: up to ${sVal} square${sVal > 1 ? "s" : ""} ${sp.k === "S" ? "in the four straight directions only, never diagonal" : "in all eight directions"}${canJump(sp) ? ", jumping over pieces" : (sp.k === "C" || uid(sp) === "persians" ? ", blocked by pieces in the way (no jumping)" : "")}${sp.k === "A" ? ". Archers shoot only from where they stand" : uid(sp) === "saracens" ? ". It strikes only after moving 1 or less" : ""}.`) : "") + `</span>`);
+    (rVal ? stat("rng", rVal + compass("#8e1f16"), "rng", rngText(sp), specKey(sp)) : "") + (sVal ? stat("spd", sVal + compass("#3f7d24", sp.k === "S"), "spd", moveText(sp), "move:" + specKey(sp)) : "") + `</span>`);
   if (isUnit(sp) || sp.k === "V") meta.push(`<span class="udesc">${ONE[uniOf(sp) ? uid(sp) : sp.k] || ""}</span>`);
   const info = [];
   if (sp.k === "K") info.push(`${AGES[age(sp.o)]} Age` + (G.rules.chk && G.pile[sp.o] ? " · damaged: repair it before advancing" : ""));
@@ -3635,21 +3644,20 @@ const RANGE_SPEC = {
   koreans: {mv: d => d <= 1, st: d => d === 2},
   chinese: {mv: d => d <= 1, st: (d, l) => d === 2 && l},
   turks: {mv: (d, l, o) => d === 1 && o, st: (d, l) => d === 2 && l}};
-function rangePic(sp) {
-  const N = 4, C = 9, z = 15, pad = 2, W = C * z + pad * 2;
+function rangePic(sp, moveOnly) {
+  const N = 4, C = 9, z = 16, W = C * z;
   let g = "";
   for (let y = -N; y <= N; y++) for (let x = -N; x <= N; x++) {
     const d = Math.max(Math.abs(x), Math.abs(y)), o = x === 0 || y === 0, l = o || Math.abs(x) === Math.abs(y);
-    const px = pad + (x + N) * z, py = pad + (y + N) * z;
-    let fill = (x + y + 2 * N) % 2 ? "#c9a56b" : "#ead7a8", dot = "";
-    if (x === 0 && y === 0) { g += `<rect x="${px}" y="${py}" width="${z}" height="${z}" fill="#7b6a4a"/><circle cx="${px + z / 2}" cy="${py + z / 2}" r="5.2" fill="#2a1c0c" stroke="#f3e7c2" stroke-width="1.2"/>`; continue; }
-    const hit = sp.st(d, l, o), wk = sp.wk && sp.wk(d, l, o) && !hit, mv = sp.mv(d, l, o) && (sp.jump || true);
-    if (hit) fill = "#d9453a"; else if (wk) fill = "#f0a79e";
-    g += `<rect x="${px}" y="${py}" width="${z}" height="${z}" fill="${fill}"/>`;
-    if (mv && !hit) g += `<circle cx="${px + z / 2}" cy="${py + z / 2}" r="3.1" fill="#3f8a2c" stroke="#1d4a12" stroke-width=".8"/>`;
-    else if (mv && hit) g += `<circle cx="${px + z / 2}" cy="${py + z / 2}" r="2.2" fill="#3f8a2c" stroke="#fff" stroke-width=".8"/>`;
+    const px = (x + N) * z, py = (y + N) * z, cx = px + z / 2, cy = py + z / 2;
+    if (x === 0 && y === 0) { g += `<circle cx="${cx}" cy="${cy}" r="6" fill="#2a1c0c"/><circle cx="${cx}" cy="${cy}" r="2.2" fill="#f3e7c2"/>`; continue; }
+    const hit = !moveOnly && sp.st(d, l, o), wk = !moveOnly && sp.wk && sp.wk(d, l, o) && !hit, mv = sp.mv(d, l, o);
+    const fill = hit ? "#d9453a" : wk ? "#f1b3ab" : mv ? "#7fbf63" : null;
+    if (fill) g += `<rect x="${px + 1}" y="${py + 1}" width="${z - 2}" height="${z - 2}" rx="3" fill="${fill}"/>`;
+    if (hit && mv) g += `<circle cx="${cx}" cy="${cy}" r="2.4" fill="#7fbf63" stroke="#fff" stroke-width="1"/>`;
   }
-  return `<svg class="rpic" viewBox="0 0 ${W} ${W}" width="${W}" height="${W}" role="img" aria-label="range picture"><rect width="${W}" height="${W}" rx="3" fill="#5a4426"/>${g}</svg>`;
+  let grid = ""; for (let i = 1; i < C; i++) grid += `<path d="M${i * z} 0V${W}M0 ${i * z}H${W}"/>`;
+  return `<svg class="rpic" viewBox="0 0 ${W} ${W}" width="${W}" height="${W}" role="img" aria-label="range picture"><rect width="${W}" height="${W}" rx="6" fill="#f7efd6" stroke="#8a6a2a" stroke-width="1.5"/><g stroke="#e3d4a8" stroke-width="1">${grid}</g>${g}</svg>`;
 }
 function unitSheet(s) {
   const LB = {hp: "hit points", atk: "attack", def: "defence", rng: "range", spd: "speed"};
@@ -3660,7 +3668,7 @@ function unitSheet(s) {
     <div class="ustats">${st("hp", hp)}${st("atk", atk)}${st("def", dm + "/" + dp, "defence", `Defence ${dm}/${dp}: melee ${dm} (first), pierce ${dp} (second, against arrows from archers, towers, the castle and the Town Center). A hit deals attack minus defence.`)}${st("rng", rng + compass("#8e1f16"), "range", `Range ${rng}: all eight lines are lit, so it works in every direction. ${ONE[civId || nkey] || ""}`)}${st("spd", spd + compass("#3f7d24", civId === "turks" || nkey === "S"), "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
   const mine = G.civ ? [...new Set([G.civ[0], G.civ[1]])].filter(x => x !== "franks") : [];
   const order = mine.concat(Object.keys(CIVS).filter(x => x !== "franks" && !mine.includes(x)));
-  let h = `<div class="ulegend"><span><i style="background:#3f8a2c"></i>can move to</span><span><i style="background:#d9453a"></i>hits from where it stands</span><span><i style="background:#f0a79e"></i>hits after walking there</span><span>(centre = the unit)</span></div>`;
+  let h = `<div class="ulegend"><span><i style="background:#7fbf63"></i>moves</span><span><i style="background:#d9453a"></i>hits</span><span><i style="background:#f1b3ab"></i>hits after a walk</span></div>`;
   h += `<h4 class="usec">Standard units</h4>`;
   h += row("Villager", GLY.V, "1", "1 food at the Town Center", "1", vilFight(s) ? "1" : "does not fight", "0", vilFight(s) ? "1" : "—", 2, "Defence 0 (buildings: 1). Gathers, builds, repairs.", RANGE_SPEC.vil, null, "V");
   h += row("Infantry line", GLY.I, "2 Feudal · 3 Castle", cc("I"), "2 · 3 heavy", "1 · 2 elite", "0", "1", 2, "Walks one step, then hits next to it. Bare pawn 1 hp.", RANGE_SPEC.I, null, "I");
