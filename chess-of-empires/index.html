@@ -405,6 +405,16 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .acts button.tile.cat.sel{outline:3px solid #f2c431;outline-offset:1px}
 #subsheet{position:fixed;z-index:60;box-sizing:border-box;background:#f6ecd0;border:3px solid #6e4c28;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.55);padding:6px 8px 8px}
 #subsheet .stl{font:800 10px system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6e4c28;margin:0 0 4px 2px}
+.urow2{display:flex;gap:10px;align-items:center;padding:8px 10px;margin:6px 0;border:1px solid #b9985a;border-radius:7px;background:rgba(255,248,226,.55)}
+.urow2.ucivrow{border-left:5px solid var(--civ)}
+.urow2 .rpic{flex:none;width:139px;height:139px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.urow2 .ubody{flex:1;min-width:0}.urow2 .uname{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-weight:700}
+.urow2 .uname small{font-weight:400;color:#6b5636;margin-left:auto}.urow2 .ucn{font-style:normal;font-size:11px;font-weight:400;color:#6b5636;border:1px solid #b9985a;border-radius:9px;padding:0 6px}
+.urow2 .ustats{display:flex;flex-wrap:wrap;gap:4px 10px;margin:4px 0}.urow2 .stat{display:inline-flex;gap:3px;align-items:center;font-size:12px}.urow2 .unote{font-size:12px;color:#5a4a30}
+.usec{margin:12px 0 2px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#6b4a1c;border-bottom:1px solid #b9985a}
+.ulegend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:#5a4a30}.ulegend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+@media (max-width:520px){.urow2{flex-direction:column;align-items:flex-start}}
+.usec2{margin:16px 0 4px;font-size:15px;color:#4a2f10}
 </style>
 </head>
 <body>
@@ -566,7 +576,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <li>The checkers give the level: one checker is the base unit; a second checker (Castle Age) makes it <b>heavy</b>, +1 hit point; a gold checker (Imperial Age) makes it <b>elite</b>, +1 attack, and your own checker goes back.</li>
       <li><b>One price per checker:</b> 1 food on a unit, 1 wood on a building or machine, 1 gold for a gold checker. <b>One price per piece:</b> pawn 1 food, bishop 1 food, knight 2 food, coin 3 wood, rook 3 wood, queen 4 wood. So an archer is bishop 1 food + checker 1 food; cavalry 3 food.</li>
       <li>At most two archers, two cavalry and one trebuchet.</li>
-      <li><b>Civilizations</b>: each player picks one in the New game menu. A civ swaps one unit for a special one at the same age and price, with the same attack and hit points. Franks have none. Teutons: teutonic knight. Huns: tarkan. Britons: longbowman (shoots 2 or 3 along a diagonal).</li>
+      <li><b>Civilizations</b>: each player picks one in the New game menu. A civ swaps one unit for a special one at the same age and price, with the same attack and hit points; only movement, range, defence and targets change. Franks have none. Teutons: teutonic knight. Aztecs: jaguar warrior (no cavalry). Huns: tarkan. Saracens: mameluke. Persians: war elephant. Britons: longbowman. Mongols: mangudai. Koreans: war wagon. Chinese: chu ko nu. Turks: bombard cannon. The Unit stats sheet draws each one's range.</li>
     </ul>
     <h3>Buildings</h3>
     <ul>
@@ -608,17 +618,25 @@ const AGECOST = {1: {f: 2, w: 1, g: 0}, 2: {f: 3, w: 1, g: 0}, 3: {f: 4, w: 0, g
 const D8 = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], DIAG = D8.slice(4), ORTH = D8.slice(0, 4);
 const UNITS = ["I", "A", "C", "S"];
 const CIVS = {
-  teutons: {n: "Teutons", k: "I", u: ["teutonic knight", "heavy teutonic knight", "elite teutonic knight"], d: "Teutonic knight (infantry): defence 1 against everything · moves 1."},
-  huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], d: "Tarkan (cavalry): ignores building defence · walks up to 3, cannot jump."},
   franks: {n: "Franks", d: "Standard units."},
-  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], d: "Longbowman (archer): shoots 2 or 3 away, only along a diagonal · moves 2."}};
+  teutons: {n: "Teutons", k: "I", u: ["teutonic knight", "heavy teutonic knight", "elite teutonic knight"], rg: "1", d: "Teutonic knight (infantry): defence 1 against everything · moves 1."},
+  aztecs: {n: "Aztecs", k: "I", no: ["C"], u: ["jaguar warrior", "heavy jaguar warrior", "elite jaguar warrior"], rg: "1 after walking 2", d: "Jaguar warrior (infantry): walks 2 and still hits, reach 3 · the Aztecs train no cavalry."},
+  huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], rg: "1, buildings only", d: "Tarkan (cavalry): jumps up to 3 · hits buildings only and ignores their defence."},
+  saracens: {n: "Saracens", k: "C", u: ["mameluke", "heavy mameluke", "elite mameluke"], rg: "1 after moving 1 or less", d: "Mameluke (cavalry): jumps up to 4 · defence 1 against cavalry · hits only after moving 1 or less."},
+  persians: {n: "Persians", k: "C", u: ["war elephant", "heavy war elephant", "elite war elephant"], rg: "1, ignores building defence", d: "War elephant (cavalry): defence 1 against everything · moves 1, cannot jump · ignores building defence · no other cavalry."},
+  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], rg: "exactly 3, line", d: "Longbowman (archer): shoots exactly 3 away in a straight line or diagonal · units only · moves 2."},
+  mongols: {n: "Mongols", k: "A", u: ["mangudai", "heavy mangudai", "elite mangudai"], rg: "exactly 2, line", d: "Mangudai (archer): jumps up to 3 · shoots only from where it stands, exactly 2 away in a straight line or diagonal."},
+  koreans: {n: "Koreans", k: "A", u: ["war wagon", "heavy war wagon", "elite war wagon"], rg: "exactly 2", d: "War wagon (archer): defence 1 against arrows (archers, towers, castles, Town Center) · moves 1."},
+  chinese: {n: "Chinese", k: "A", u: ["chu ko nu", "heavy chu ko nu", "elite chu ko nu"], rg: "exactly 2, line, two bolts", d: "Chu ko nu (archer): one action fires two bolts at two different targets, each exactly 2 away in a line or diagonal · moves 1."},
+  turks: {n: "Turks", k: "S", u: ["bombard cannon", "bombard cannon", "elite bombard cannon"], rg: "exactly 2, line", d: "Bombard cannon (siege): shoots exactly 2 away in a line or diagonal · ignores building defence · defence 1 against arrows · moves 1."}};
 Object.keys(CIVS).forEach(k => { CIVS[k].id = k; });
 const civ = s => (typeof G !== "undefined" && G && G.civ && CIVS[G.civ[s]]) || CIVS.franks;
 const uid = p => { const c = p && p.o !== undefined && p.k ? civ(p.o) : null; return c && c.k === p.k ? c.id : ""; };
 const unitNames = (k, s) => { const c = civ(s); return c.k === k ? c.u : LVL[k]; };
-const tick = () => G.round * 2 + G.turn;
-const setupWait = p => uid(p) === "turks" && p.mt !== undefined && tick() - p.mt < 4;
-const uDef = (p, t) => uid(t) === "teutons" ? 1 : uid(t) === "goths" && p && (p.k === "A" || p.k === "S") ? 1 : 0;
+const noUnit = (k, s) => civ(s).no && civ(s).no.includes(k) ? `the ${civ(s).n} train no ${k === "C" ? "cavalry" : "such unit"}` : null;
+const ARROWS = p => !p || p.k === "A" || p.k === "arrow";
+const uDef = (p, t) => { const x = uid(t); return x === "teutons" || x === "persians" ? 1 : (x === "koreans" || x === "turks") && ARROWS(p) ? 1 : x === "saracens" && p && p.k === "C" ? 1 : 0; };
+const canJump = p => (p.k === "C" && !G.rules.cavWalk && uid(p) !== "persians") || uid(p) === "mongols";
 const LVL = {I: ["infantry", "heavy infantry", "elite infantry"], A: ["archer", "heavy archer", "elite archer"],
   C: ["cavalry", "heavy cavalry", "elite cavalry"], S: ["trebuchet", "trebuchet", "elite trebuchet"]};
 const VAL = {K: 9, B: 4.5, S: 4, C: 3.3, A: 3.2, I: 2.6, camp: 3, V: 2};
@@ -779,14 +797,13 @@ function defn(t) {
       G.pcs.some(q => q.o === t.o && q.k === "I" && q.st.length && cd(q.f, q.r, t.f, t.r) === 1)) d += 1;
   return d;
 }
-const defVs = (p, t) => (p && (p.k === "S" || uid(p) === "huns") && isBld(t) ? 0 : defn(t)) + uDef(p, t);   // the trebuchet ignores building defence   // building defence counts for everyone, trebuchet included
+const defVs = (p, t) => (p && (p.k === "S" || uid(p) === "huns" || uid(p) === "persians") && isBld(t) ? 0 : defn(t)) + uDef(p, t);   // the trebuchet ignores building defence   // building defence counts for everyone, trebuchet included
 function reaches(p, f, r, t) {
   if (atk(p, t) === 0) return false;
   const d = cd(f, r, t.f, t.r), ux = uid(p), line = Math.abs(t.f - f) === 0 || Math.abs(t.r - r) === 0 || Math.abs(t.f - f) === Math.abs(t.r - r);
-  if (ux === "britons") return (d === 2 || d === 3) && Math.abs(t.f - f) === Math.abs(t.r - r);
-  if (ux === "mayans") return d === 2 && line;
-  if (ux === "turks") return d === 3 && !setupWait(p);
-  if (ux === "mongols") return (d === 3 || d === 4) && (Math.abs(t.f - f) === 0 || Math.abs(t.r - r) === 0);
+  if (ux === "huns") return d === 1 && isBld(t);
+  if (ux === "britons") return d === 3 && line && !isBld(t);
+  if (ux === "mongols" || ux === "chinese" || ux === "turks") return d === 2 && line;
   if (p.k === "A") return d === 2;
   if (p.k === "S") { const dx = Math.abs(t.f - f), dy = Math.abs(t.r - r); return d === 3 && (dx === 0 || dy === 0 || dx === dy); }   // trebuchet: exactly 3 away, straight or diagonal only
   return d === 1;
@@ -1003,8 +1020,8 @@ function pieceActions(p) {
       const lineOk = k => true;
       mk("recruit", "Train " + unitNames("A", s)[0], costStr(UCOST("A")), A >= 1 && lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A")[0], UCOST("A")[1]) && r,
          A < 1 ? "needs the Feudal Age" : !lineOk("A") ? "you chose cavalry for the Feudal Age" : count(s, "A") >= 2 ? "both bishops in use" : !r ? "reserve empty" : `needs ${costStr(UCOST("A"))}`, {k: "A"});
-      mk("recruit", "Train " + unitNames("C", s)[0], costStr(UCOST("C")), A >= 1 && lineOk("C") && count(s, "C") < 2 && afford(s, UCOST("C")[0], UCOST("C")[1]) && r,
-         A < 1 ? "needs the Feudal Age" : !lineOk("C") ? "you chose archers for the Feudal Age" : count(s, "C") >= 2 ? "both knights in use" : !r ? "reserve empty" : `needs ${costStr(UCOST("C"))}`, {k: "C"});
+      mk("recruit", "Train " + unitNames("C", s)[0], costStr(UCOST("C")), A >= 1 && !noUnit("C", s) && count(s, "C") < 2 && afford(s, UCOST("C")[0], UCOST("C")[1]) && r,
+         A < 1 ? "needs the Feudal Age" : noUnit("C", s) ? noUnit("C", s) : count(s, "C") >= 2 ? (civ(s).id === "persians" ? "both elephants in use" : "both knights in use") : !r ? "reserve empty" : `needs ${costStr(UCOST("C"))}`, {k: "C"});
       mk("recruit", "Train " + unitNames("S", s)[0], costStr(UCOST("S")), A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S")[0], UCOST("S")[1]) && G.res[s] >= 2,
          A < 2 ? "needs the Castle Age" : !trebOk(s) ? "needs a standing castle" : count(s, "S") >= TMAX() ? (TMAX() === 1 ? "one trebuchet at a time" : "at most 2 trebuchets") : !r ? "reserve empty" : "needs " + costStr(UCOST("S")), {k: "S"});
     } else if (!(G.rules.chk && G.rules.bTrain) && b && A >= 1) {
@@ -1023,15 +1040,14 @@ function pieceActions(p) {
   }
   if (isUnit(p)) {
     const mv = moves(p);
-    mk("move", "Move", uniOf(p) ? `up to ${speedOf(p)}` + (p.k === "C" && uid(p) !== "huns" ? ", jumps" : "") : p.k === "C" ? (G.rules.cavWalk ? "up to 3, no jumping" : "up to 3, jumps") : p.k === "A" ? "up to 2, any direction" : p.k === "S" ? (G.rules.trebDiag ? "1, any direction" : "1 straight") : "up to 2", mv.length > 0, "blocked");
+    mk("move", "Move", uniOf(p) ? `up to ${speedOf(p)}` + (canJump(p) ? ", jumps" : "") : p.k === "C" ? (G.rules.cavWalk ? "up to 3, no jumping" : "up to 3, jumps") : p.k === "A" ? "up to 2, any direction" : p.k === "S" ? (G.rules.trebDiag ? "1, any direction" : "1 straight") : "up to 2", mv.length > 0, "blocked");
     const tg = attackTargets(p);
-    mk("attack", "Attack", "pick a target", A >= 1 && tg.length > 0, "nothing in reach", {targets: tg});
+    mk("attack", "Attack", uniOf(p) ? "range " + uniOf(p).rg : "pick a target", A >= 1 && tg.length > 0, "nothing in reach", {targets: tg});
     const b = barracks(s), near = b && nextTo(p, b), cap = A >= 2 ? 2 : 1;
     const own = p.st.filter(c => c === s).length;
     if (near) {
       const uc = UPCOST(p.k), uf = uc[0] > 0, uHave = uf ? G.food[s] : G.wood[s], uTxt = uf ? "1 food" : "1 wood";   // each line pays in its own resource
-      if (uid(p) === "goths" && (+p.w || +p.wg)) mk("upgrade", "Heal", "", false, "huskarls cannot be healed");
-      else if (G.rules.chk && +p.wg) mk("upgrade", "Heal", "1 gold · the gold slides back under", G.gold[s] >= 1, "needs 1 gold");
+      if (G.rules.chk && +p.wg) mk("upgrade", "Heal", "1 gold · the gold slides back under", G.gold[s] >= 1, "needs 1 gold");
       else mk("upgrade", (G.rules.chk ? +p.w : p.st.length < (hasGold(p) ? 2 : 1) || (hasGold(p) && p.st.length < 2)) ? "Heal" : "Add checker", uTxt,
          p.st.length < cap && uHave >= 1 && resOk(s), p.st.length >= cap ? (A < 2 ? "second checker needs the Castle Age" : "stack is full") : G.res[s] <= 0 ? "reserve empty" : "needs " + uTxt);
       if (A >= 3) mk("swap", "Swap in gold", "1 gold → +1 attack", !hasGold(p) && p.st.length >= 2 && G.gold[s] >= 1,
@@ -1062,7 +1078,7 @@ function pieceActions(p) {
          why || (sq.length === 0 ? "no free square next to it" : !r ? "reserve empty" : `needs ${costStr(c)}`), {k, squares: sq}); };
     tr("I", pawns(s) < 8, pawns(s) >= 8 ? "all 8 pawns in use" : null);
     tr("A", count(s, "A") < 2, count(s, "A") >= 2 ? "both bishops in use" : null);
-    tr("C", count(s, "C") < 2, count(s, "C") >= 2 ? "both knights in use" : null);
+    tr("C", count(s, "C") < 2 && !noUnit("C", s), noUnit("C", s) || (count(s, "C") >= 2 ? "both knights in use" : null));
     tr("S", A >= 2 && count(s, "S") < TMAX() && trebOk(s), A < 2 ? "needs the Castle Age" : !trebOk(s) ? "needs a standing castle" : count(s, "S") >= TMAX() ? (TMAX() === 1 ? "one trebuchet at a time" : "at most 2 trebuchets") : null);
   }
   if (p.k === "B") {
@@ -1096,10 +1112,10 @@ function pieceActions(p) {
 }
 // archers shoot only from where they stand; other units may move first
 // speed of a piece, and the squares it can reach in n steps (scout cavalry jumps)
-const speedOf = p => uid(p) === "saracens" ? 4 : uid(p) === "teutons" ? 1 : uid(p) === "mayans" ? 3 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0;
+const speedOf = p => { const x = uid(p); return x === "saracens" ? 4 : x === "mongols" ? 3 : (x === "teutons" || x === "persians" || x === "koreans" || x === "chinese") ? 1 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0; };
 function movesN(p, n) {
   if (n <= 0) return [];
-  if (p.k === "C" && !G.rules.cavWalk && uid(p) !== "huns") {
+  if (canJump(p)) {
     const out = [];
     for (let a = -n; a <= n; a++) for (let b = -n; b <= n; b++) if ((a || b) && free(p.f + a, p.r + b)) out.push([p.f + a, p.r + b]);
     return out;
@@ -1117,7 +1133,7 @@ function movesN(p, n) {
   return out;
 }
 // the attack itself uses one step: speed 2 = walk 2, or walk 1 and attack. Archers always shoot from where they stand.
-const attackFrom = (u, mv) => u.k === "A" ? [[u.f, u.r]] : [[u.f, u.r]].concat(movesN(u, uid(u) === "saracens" ? 1 : speedOf(u) - 1));
+const attackFrom = (u, mv) => u.k === "A" ? [[u.f, u.r]] : [[u.f, u.r]].concat(movesN(u, uid(u) === "saracens" ? 1 : uid(u) === "aztecs" ? 2 : speedOf(u) - 1));
 // villagers may only fight at home: within 3 of their Town Center or next to one of their own buildings (variant)
 function vilMayHit(v, t) {
   if (!G.rules.vilHome || (v.k !== "V" && !(G.rules.pawnOne && v.k === "I"))) return true;
@@ -1231,7 +1247,7 @@ function exec(a) {
   G.last = [];
   if (a.cls && a.cls !== "free") spend(a.cls);
   switch (a.kind) {
-    case "move": if (uid(p) === "turks") p.mt = tick(); G.last = [[p.f, p.r], a.to]; text = `${name(p)} ${SQ([p.f, p.r])} → ${SQ(a.to)}`; p.f = a.to[0]; p.r = a.to[1]; G.acted.push(p.id); break;
+    case "move": G.last = [[p.f, p.r], a.to]; text = `${name(p)} ${SQ([p.f, p.r])} → ${SQ(a.to)}`; p.f = a.to[0]; p.r = a.to[1]; G.acted.push(p.id); break;
     case "gather": {
       const x = roll(); G.acted.push(p.id); G.last = [[p.f, p.r]];
       if (a.res === "gold") {
@@ -1295,6 +1311,10 @@ function exec(a) {
       const who = name(p) + (a.partner ? " and " + name(a.partner) : "");
       const tn = name(t), res = damage(t, dmg, s);
       text = `${who} attack${a.partner ? "" : "s"} the ${tn}: ${fmtA(tot)} − ${d} = ${Math.max(0, dmg)}; ${res}`;
+      if (uid(p) === "chinese" && !a.partner && G.pcs.includes(p) && G.winner === null) {   // the second bolt flies at a different target
+        const more = attackTargets(p).filter(x => x !== t && G.pcs.includes(x) && Math.floor(atk(p, x) - defVs(p, x)) > 0).sort((x, y) => hp(x) - hp(y));
+        if (more.length) { const t2 = more[0], n2 = name(t2), r2 = damage(t2, Math.floor(atk(p, t2) - defVs(p, t2)), s); text += `; second bolt at the ${n2}: ${r2}`; G.last.push([t2.f, t2.r]); }
+      }
       UI.msg = text; break;
     }
     case "tcgather": {
@@ -1475,7 +1495,7 @@ function aiOptions(s) {
       let base = 4.4 + (army < 1 + A ? 1 : 0) + (threatHome ? 1 : 0) - (army >= (aggrOn(s) ? 2 + AGG.cap + (2 + AGG.cap) * A : 2 + 2 * A) ? 3 : 0) + (FX.spend && G.food[s] >= 5 ? 1.8 : 0);
       const cand = [];
       if (A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S")[0], UCOST("S")[1])) cand.push(["S", count(s, "S") === 0 ? 1.8 : 0.3]);
-      if (lineOk("C") && count(s, "C") < 2 && afford(s, UCOST("C")[0], UCOST("C")[1])) cand.push(["C", 0.5]);
+      if (!noUnit("C", s) && count(s, "C") < 2 && afford(s, UCOST("C")[0], UCOST("C")[1])) cand.push(["C", 0.5]);
       if (lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A")[0], UCOST("A")[1])) cand.push(["A", 0.45]);
       if (G.rules.prices2 && !G.rules.milFlex ? G.food[s] >= 1 : milPay(s)) cand.push(["I", 0.2]);
       for (const [k, b] of cand) push(base + b, {kind: "recruit", cls: cls("recruit"), p: v, k});
@@ -1548,7 +1568,7 @@ function aiOptions(s) {
     if (acted(u)) continue;
     if (B && nextTo(u, B)) {
       const cap = A >= 2 ? 2 : 1;
-      if (!(uid(u) === "goths" && (+u.w || +u.wg)) && (+u.wg ? G.gold[s] >= 1 : u.st.length < cap && (UPCOST(u.k)[0] ? G.food[s] : G.wood[s]) >= 1 && resOk(s))) push(3.2, {kind: "upgrade", cls: cls("upgrade"), p: u});
+      if (+u.wg ? G.gold[s] >= 1 : u.st.length < cap && (UPCOST(u.k)[0] ? G.food[s] : G.wood[s]) >= 1 && resOk(s)) push(3.2, {kind: "upgrade", cls: cls("upgrade"), p: u});
       if (A >= 3 && !hasGold(u) && u.st.length >= 2 && G.gold[s] >= 1) push(4.4, {kind: "swap", cls: cls("swap"), p: u});
     }
   }
@@ -1763,7 +1783,7 @@ function aiAdjust(s, opts, push, cls) {
     if (best) push(3.8 + (vc <= 3 ? 1.5 : 0) + bv, {kind: "move", cls: cls("move", v), p: v, to: best});
   }
   // wounded units walk back to the barracks to heal
-  if (B) for (const u of my.filter(q => isUnit(q) && uid(q) !== "goths" && +q.w && !acted(q) && !nextTo(q, B))) {
+  if (B) for (const u of my.filter(q => isUnit(q) && +q.w && !acted(q) && !nextTo(q, B))) {
     const now = cd(u.f, u.r, B.f, B.r); let bm = null, bd = now;
     for (const t of moves(u)) { const d = cd(t[0], t[1], B.f, B.r) + (hit(t[0], t[1]) >= hp(u) ? 3 : 0); if (d < bd) { bd = d; bm = t; } }
     if (bm) push(2.2, {kind: "move", cls: cls("move", u), p: u, to: bm});
@@ -2727,10 +2747,17 @@ function pieceSVG(p) {
 }
 const THEME = {
   franks: {c: "#3f6ec4", c2: "#e6c44d", g: "M10 1 C12 5 14 6 14 9 C14 11 12 12 10 11 C8 12 6 11 6 9 C6 6 8 5 10 1 Z M4 7 C6 7 7 9 7 11 C5 12 3 11 3 9 Z M16 7 C14 7 13 9 13 11 C15 12 17 11 17 9 Z M7 13 H13 L12 16 H8 Z"},
-  britons: {c: "#c23a3a", c2: "#f1efe6", g: "M2 10 H18 M10 2 V18 M4 4 L16 16 M16 4 L4 16"},
+  britons: {c: "#c23a3a", c2: "#f1efe6", s: 1, g: "M2 10 H18 M10 2 V18 M4 4 L16 16 M16 4 L4 16"},
   teutons: {c: "#b9bcc4", c2: "#1d1d1f", g: "M8 2 H12 V8 H18 V12 H12 V18 H8 V12 H2 V8 H8 Z"},
-  huns: {c: "#cf7a2c", c2: "#2a1a0c", g: "M3 15 C3 8 8 3 17 3 C14 6 14 10 11 12 C9 14 7 15 3 15 Z"}};
-const civEmblem = (id, w) => { const t = THEME[id] || THEME.franks; const st = t.g.includes("M2 10") ? `fill="none" stroke="${t.c2}" stroke-width="2.4" stroke-linecap="round"` : `fill="${t.c2}"`;
+  huns: {c: "#cf7a2c", c2: "#2a1a0c", g: "M3 15 C3 8 8 3 17 3 C14 6 14 10 11 12 C9 14 7 15 3 15 Z"},
+  aztecs: {c: "#2fa37a", c2: "#f3d66b", g: "M10 2 L18 10 L10 18 L2 10 Z M10 6 L14 10 L10 14 L6 10 Z"},
+  mongols: {c: "#8a9a3d", c2: "#1f2410", g: "M10 3 L18 17 L2 17 Z"},
+  koreans: {c: "#5fa8d3", c2: "#13293a", g: "M10 2 A8 8 0 1 0 10.01 2 Z M10 6 A4 4 0 1 1 9.99 6 Z"},
+  chinese: {c: "#e0b020", c2: "#5a1010", g: "M3 3 H17 V17 H3 Z M7 7 V13 H13 V7 Z"},
+  persians: {c: "#7b4fb3", c2: "#f5ecc8", g: "M10 1 L12.4 7.4 L19 7.6 L13.8 11.6 L15.6 18 L10 14.3 L4.4 18 L6.2 11.6 L1 7.6 L7.6 7.4 Z"},
+  turks: {c: "#a8452e", c2: "#f5ecc8", g: "M13 2 A8 8 0 1 0 13 18 A6 6 0 1 1 13 2 Z"},
+  saracens: {c: "#3aa5a0", c2: "#10302e", g: "M10 2 L17 6 V14 L10 18 L3 14 V6 Z M10 6 L13 8 V12 L10 14 L7 12 V8 Z"}};
+const civEmblem = (id, w) => { const t = THEME[id] || THEME.franks; const st = t.s ? `fill="none" stroke="${t.c2}" stroke-width="2.4" stroke-linecap="round"` : `fill="${t.c2}" fill-rule="evenodd"`;
   return `<svg class="civem" viewBox="0 0 20 22" width="${w || 15}" height="${(w || 15) * 1.1}" aria-hidden="true"><path d="M10 1 L18 4 V11 C18 16 14 19 10 21 C6 19 2 16 2 11 V4 Z" fill="${t.c}" stroke="#2a1c0c" stroke-width="1.2"/><g transform="translate(3.5 3.5) scale(.65)"><path d="${t.g}" ${st}/></g></svg>`; };
 function civTheme() {
   const id = civ(G.turn).id, t = THEME[id] || THEME.franks, root = document.documentElement;
@@ -3074,8 +3101,8 @@ function renderPanel() {
   const A0 = age(sp.o), isTower = sp.k === "camp" && (CR() ? !!sp.cr : sp.st.length >= 2), isCastle = sp.k === "B" && (CR() ? !!sp.cr : (sp.cs || (G.rules.chk && sp.st.length >= 2))), isTC2 = G.rules.chk && sp.k === "K" && (CR() ? shoots(sp) : sp.st.length >= 2);
   const aVal = sp.k === "V" ? fmtA(atk(sp)) : isUnit(sp) ? atk(sp) : G.rules.chk && (isTower || isCastle || isTC2) ? (hasGold(sp) ? 2 : 1) : isTower ? (A0 >= 3 ? 2 : 1) : isCastle ? 1 : 0;
   IC.spd = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 3.5 L7.5 8 L2.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 3.5 L13.5 8 L8.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const rVal = sp.k === "A" ? "2" : sp.k === "S" ? "3" : (sp.k === "I" || sp.k === "C") ? "1" : (isTower || isCastle || isTC2) ? (CR() ? (sp.k === "B" ? "1–2" : sp.k === "K" ? (hasMH(sp.o) || G.rules.tcNear ? "1–2" : "2") : "2") : (hasMH(sp.o) ? "1–2" : "2")) : (sp.k === "V" && vilFight(sp.o)) ? "1" : null;
-  const sVal = sp.k === "C" ? 3 : sp.k === "S" ? (G.rules.siege2 ? 2 : 1) : (sp.k === "V" || sp.k === "I" || sp.k === "A") ? 2 : null;
+  const rVal = uniOf(sp) ? ({"exactly 3, line": "3", "exactly 2, line": "2", "exactly 2, line, two bolts": "2×2", "exactly 2": "2"}[uniOf(sp).rg] || "1") : sp.k === "A" ? "2" : sp.k === "S" ? "3" : (sp.k === "I" || sp.k === "C") ? "1" : (isTower || isCastle || isTC2) ? (CR() ? (sp.k === "B" ? "1–2" : sp.k === "K" ? (hasMH(sp.o) || G.rules.tcNear ? "1–2" : "2") : "2") : (hasMH(sp.o) ? "1–2" : "2")) : (sp.k === "V" && vilFight(sp.o)) ? "1" : null;
+  const sVal = speedOf(sp) || null;
   const hpMake = (() => {
     if (aoeOn()) return aoeMini(sp) + `<span class="hearts">${aoeHeartRow(sp)}</span>`;
     const glyph = sp.k === "camp" ? (CR() && sp.cr ? GLY.S : "") : (CR() && sp.k === "B" && !sp.cr) ? "" : (GLY[sp.k] || "");
@@ -3088,7 +3115,7 @@ function renderPanel() {
   })();
   const nOwn = sp.st.filter(c => c === sp.o).length, nGold = sp.st.length - nOwn;
   const hpTitle = `hit points: ${sp.k === "camp" ? "" : "the piece"}${sp.k !== "camp" && sp.st.length ? " + " : ""}${nOwn ? nOwn + " checker" + (nOwn > 1 ? "s" : "") : ""}${nGold ? (nOwn ? " + " : "") + nGold + " gold" : ""}`;
-  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att")}${stat("def", defn(sp) + (uid(sp) === "teutons" ? 1 : 0), "def")}` +
+  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att")}${stat("def", defn(sp) + (uid(sp) === "teutons" || uid(sp) === "persians" ? 1 : 0) + (["koreans", "turks", "saracens"].includes(uid(sp)) ? "*" : ""), "def")}` +
     (rVal ? stat("rng", rVal, "rng") : "") + (sVal ? stat("spd", sVal, "spd") : "") + `</span>`);
   const info = [];
   if (sp.k === "K") info.push(`${AGES[age(sp.o)]} Age` + (G.rules.chk && G.pile[sp.o] ? " · damaged: repair it before advancing" : ""));
@@ -3427,6 +3454,8 @@ function treeGroupsChk(s) {
   const costOf = n => { const c = ageCost(n); return costTxt([c.f, c.w, c.g]); };
   const it = (id, a, n, c, extra) => ({id, a, n, c, ...(extra || {})});
   const dc = k => costStr(DCOST(k));
+  const UN = k => unitNames(k, s).map(x => x.charAt(0).toUpperCase() + x.slice(1)), cv = civ(s), sp = k => cv.k === k ? cv.d.replace(/^[^(]*\([^)]*\):\s*/, "") : "";
+  const MI = UN("I"), MA = UN("A"), MC = UN("C"), MS = UN("S");
   return {groups: [
     {name: "Town Center (its checkers are your age)", rows: [
       [it("tc", 0, "Town Center", "bare king · defence 1", {st: "done"}), it("feu", 1, "Feudal Age", costOf(1) + " · 2 actions", {up: 1}),
@@ -3441,13 +3470,13 @@ function treeGroupsChk(s) {
       [it("bar", 1, "Barracks", CR() ? "2 wood, built two checkers high · home 3×3" : "2 wood + 1 checker · trains units", {st: B ? "done" : "now"}),
        it("castle", 2, "Castle", CR() ? "built two high; the queen (4 wood) · fires 1–2, every direction" : "+1 checker · 1 wood · shoots", {st: B && B.st.length >= 2 ? "done" : "now"}),
        it("bgold", 3, "Gold layer", "1 gold · shoots 2", {st: B && hasGold(B) ? "done" : "now"})],
-      [it("mil", 1, "Infantry", dc("I") + (G.rules.bTrain ? "" : " · a villager next to the barracks"), {st: "now"}), it("maa", 2, "Heavy infantry", "+1 checker · 1 food", {st: "now"}), it("champ", 3, "Elite infantry", "gold checker · +1 attack", {st: "now"})],
-      [it("arch", 1, "Archer", dc("A")), it("xbow", 2, "Heavy archer", "+1 checker · 1 food", {st: "now"}), it("arb", 3, "Elite archer", "gold checker · +1 attack", {st: "now"})],
-      [it("scout", 1, "Cavalry", dc("C")), it("knight", 2, "Heavy cavalry", "+1 checker · 1 food", {st: "now"}), it("pal", 3, "Elite cavalry", "gold checker · +1 attack", {st: "now"})],
-      [it("mang", 3, "Trebuchet", "3 wood + 1 gold · coin on a gold and a wood checker · 2 hit points, attack 2", {st: "now"}), it("onager", 3, "No upgrades", "it starts with both checkers", {st: "now"})]]}],
+      [it("mil", 1, MI[0], dc("I") + (sp("I") ? " · " + sp("I") : ""), {st: "now"}), it("maa", 2, MI[1], "+1 checker · 1 food", {st: "now"}), it("champ", 3, MI[2], "gold checker · +1 attack", {st: "now"})],
+      [it("arch", 1, MA[0], dc("A") + (sp("A") ? " · " + sp("A") : ""), {st: "now"}), it("xbow", 2, MA[1], "+1 checker · 1 food", {st: "now"}), it("arb", 3, MA[2], "gold checker · +1 attack", {st: "now"})],
+      [noUnit("C", s) ? it("scout", 1, "No cavalry", "the " + cv.n + " train none", {st: "now"}) : it("scout", 1, MC[0], dc("C") + (sp("C") ? " · " + sp("C") : ""), {st: "now"}), ...(noUnit("C", s) ? [] : [it("knight", 2, MC[1], "+1 checker · 1 food", {st: "now"}), it("pal", 3, MC[2], "gold checker · +1 attack", {st: "now"})])],
+      [it("mang", 3, MS[0].replace(/^Bombard cannon$/, "Bombard cannon"), dc("S") + (sp("S") ? " · " + sp("S") : " · coin on a castle"), {st: "now"}), it("onager", 3, "No upgrades", "it starts with both checkers", {st: "now"})]]}],
     edges: [["tc", "feu"], ["feu", "cas"], ["cas", "imp"], ["tc", "vil"], ["mill", "tower"], ["lumb", "tower"], ["tower", "cgold"],
             ["bar", "castle"], ["castle", "bgold"], ["bar", "mil"], ["bar", "arch"], ["bar", "scout"], ["bar", "mang"],
-            ["mil", "maa"], ["maa", "champ"], ["arch", "xbow"], ["xbow", "arb"], ["scout", "knight"], ["knight", "pal"], ["mang", "onager"]]};
+            ["mil", "maa"], ["maa", "champ"], ["arch", "xbow"], ["xbow", "arb"], ...(noUnit("C", s) ? [] : [["scout", "knight"], ["knight", "pal"]]), ["mang", "onager"]]};
 }
 function treeGroups(s) {
   if (G.rules.chk) return treeGroupsChk(s);
@@ -3521,9 +3550,15 @@ function treeUnitStats(s) {
   const L = vilFight(s), sp = G.rules.siege2 ? 2 : 1;
   const u = (hp, atk, rng, spd) => ({hp, atk, rng, spd});
   const CK = G.rules.chk;
-  return {vil: u(1, CK && !vilFight(s) ? 0 : G.rules.vilAtk1 ? 1 : 0.5, "1", 2), tcmil: u(2, 1, "1", 2), mil: u(2, 1, "1", 2), maa: u(3, 1, "1", 2), champ: u(3, 2, "1", 2),
+  const X = k => { const x = uid({k, o: s}); return x; };
+  const sx = civ(s), spd = k => sx.k === k ? speedOf({k, o: s}) : null;
+  const R = k => sx.k === k ? ({teutons: "1", aztecs: "1 (3 after walking)", huns: "1 · buildings", saracens: "1 (2 after moving)", persians: "1", britons: "3 line", mongols: "2 line", koreans: "2", chinese: "2 line ×2", turks: "2 line"}[sx.id]) : null;
+  const base = {vil: u(1, CK && !vilFight(s) ? 0 : G.rules.vilAtk1 ? 1 : 0.5, "1", 2), tcmil: u(2, 1, "1", 2), mil: u(2, 1, "1", 2), maa: u(3, 1, "1", 2), champ: u(3, 2, "1", 2),
     arch: u(2, 1, "2", 2), xbow: u(3, 1, "2", 2), arb: u(3, 2, "2", 2), scout: u(2, 1, "1", 3), knight: u(3, 1, "1", 3), pal: u(3, 2, "1", 3),
     mang: u(2, CK ? 1 : 2, "3", sp), onager: u(3, CK ? 2 : 3, "3", sp)};
+  const ov = {I: ["mil", "maa", "champ"], A: ["arch", "xbow", "arb"], C: ["scout", "knight", "pal"], S: ["mang", "onager"]}[sx.k] || [];
+  for (const id of ov) { if (R(sx.k)) base[id] = {...base[id], rng: R(sx.k), spd: spd(sx.k)}; }
+  return base;
 }
 function treeStatsHtml(id, US) {
   const u = US[id]; if (!u) return "";
@@ -3549,22 +3584,72 @@ function renderTree() {
   h += `</div></div><p class="tnote">Showing ${G.mode === "ai" ? "your" : SIDE[s] + "'s"} progress. Lines show what leads to what; green lines are paths you have completed. ${G.rules.chk ? "Buildings grow by checkers: a villager next to them adds one (Castle Age) or a gold layer (Imperial Age)." : "Technologies are researched once, for one action, at the building in their group."}</p>`;
   document.getElementById("treeBody").innerHTML = h;
   document.querySelector("#treeBody .ttree").__edges = T.edges;
-  const U = [
-    ["Villager", GLY.V, "1", G.rules.vilAtk1 ? "1" : "½ (two together deal 1)", 0, "1", 2, "1 food"],
-    ["Infantry line (armoured pawn)", GLY.I, "2 Feudal · 3 Castle", "1 · 2 with gold", 0, "1", 2, "1 food or wood; then 1 food per checker"],
-    ["Archer line", GLY.A, "2 · 3 from Castle", "1 · 2 with gold", 0, "2, stands still", 2, "2 wood"],
-    ["Cavalry line", GLY.C, "2 · 3 from Castle", "1 · 2 with gold", 0, "1", 3, "2 food + 1 wood"],
-    ["Trebuchet", GLY.S, "2 · 3 with a 2nd checker", "2 · 3 with gold", 0, "exactly 3, all round, stands still", G.rules.siege2 ? 2 : 1, "3 wood + 1 food"]];
-  if (G.rules.chk) {
-    U[0] = ["Villager", GLY.V, "1", G.rules.vilAtk1 ? "1" : vilFight(s) ? "½ (two together deal 1)" : "does not fight", 0, vilFight(s) ? "1" : "—", 2, "1 food at the Town Center"];
-    U[1] = ["Infantry line (armoured pawn)", GLY.I, "2 Feudal · 3 Castle", "1 · 2 with gold", 0, "1", 2, costStr(DCOST("I")) + " at the barracks; then 1 food"];
-    U[2][7] = costStr(DCOST("A")); U[3][7] = costStr(DCOST("C"));
-    U[4] = ["Trebuchet (coin)", GLY.S, CR() ? "its checkers: 1, 2 with a 2nd" : "2 · 3 with a 2nd checker", "2 (two checkers)", 0, "exactly 3, all round, stands still", G.rules.siege2 ? 2 : 1, "5 wood"];
+  document.getElementById("unitBody").innerHTML = unitSheet(s);
+}
+/* unit sheet: every unit with a 9x9 picture of where it moves and where it hits */
+const RANGE_SPEC = {
+  vil: {mv: d => d <= 2 && d >= 1, st: d => d === 1},
+  I: {mv: (d, l, o) => d <= 2, st: (d, l, o) => d === 1, wk: d => d <= 2},
+  A: {mv: d => d <= 2, st: d => d === 2},
+  C: {mv: d => d <= 3, st: d => d === 1, wk: d => d <= 3, jump: 1},
+  S: {mv: (d, l, o) => d === 1 && o, st: (d, l) => d === 3 && l},
+  teutons: {mv: d => d <= 1, st: d => d === 1},
+  aztecs: {mv: d => d <= 2, st: d => d === 1, wk: d => d <= 3},
+  huns: {mv: d => d <= 3, st: d => d === 1, wk: d => d <= 3, jump: 1, bld: 1},
+  saracens: {mv: d => d <= 4, st: d => d === 1, wk: d => d <= 2, jump: 1},
+  persians: {mv: d => d <= 1, st: d => d === 1},
+  britons: {mv: d => d <= 2, st: (d, l) => d === 3 && l},
+  mongols: {mv: d => d <= 3, st: (d, l) => d === 2 && l, jump: 1},
+  koreans: {mv: d => d <= 1, st: d => d === 2},
+  chinese: {mv: d => d <= 1, st: (d, l) => d === 2 && l},
+  turks: {mv: (d, l, o) => d === 1 && o, st: (d, l) => d === 2 && l}};
+function rangePic(sp) {
+  const N = 4, C = 9, z = 15, pad = 2, W = C * z + pad * 2;
+  let g = "";
+  for (let y = -N; y <= N; y++) for (let x = -N; x <= N; x++) {
+    const d = Math.max(Math.abs(x), Math.abs(y)), o = x === 0 || y === 0, l = o || Math.abs(x) === Math.abs(y);
+    const px = pad + (x + N) * z, py = pad + (y + N) * z;
+    let fill = (x + y + 2 * N) % 2 ? "#c9a56b" : "#ead7a8", dot = "";
+    if (x === 0 && y === 0) { g += `<rect x="${px}" y="${py}" width="${z}" height="${z}" fill="#7b6a4a"/><circle cx="${px + z / 2}" cy="${py + z / 2}" r="5.2" fill="#2a1c0c" stroke="#f3e7c2" stroke-width="1.2"/>`; continue; }
+    const hit = sp.st(d, l, o), wk = sp.wk && sp.wk(d, l, o) && !hit, mv = sp.mv(d, l, o) && (sp.jump || true);
+    if (hit) fill = "#d9453a"; else if (wk) fill = "#f0a79e";
+    g += `<rect x="${px}" y="${py}" width="${z}" height="${z}" fill="${fill}"/>`;
+    if (mv && !hit) g += `<circle cx="${px + z / 2}" cy="${py + z / 2}" r="3.1" fill="#3f8a2c" stroke="#1d4a12" stroke-width=".8"/>`;
+    else if (mv && hit) g += `<circle cx="${px + z / 2}" cy="${py + z / 2}" r="2.2" fill="#3f8a2c" stroke="#fff" stroke-width=".8"/>`;
   }
+  return `<svg class="rpic" viewBox="0 0 ${W} ${W}" width="${W}" height="${W}" role="img" aria-label="range picture"><rect width="${W}" height="${W}" rx="3" fill="#5a4426"/>${g}</svg>`;
+}
+function unitSheet(s) {
   const st = (k, v) => `<span class="stat">${TICON[k]}<b>${v}</b></span>`;
-  document.getElementById("unitBody").innerHTML = U.map(u => `<div class="urow"><div class="uname"><span class="upc">${u[1]}</span>${u[0]}<small>${u[7]}</small></div>
-    <div class="ustats">${st("hp", u[2])}${st("atk", u[3])}${st("def", u[4])}${st("rng", u[5])}${st("spd", u[6])}</div></div>`).join("") +
-    `<p class="tnote">HP = the chess piece + its checkers (one per age up to 2). Damage moves a checker beside the piece. Attacking uses one step of speed. A joint attack costs 2 actions.</p>`;
+  const cc = k => costStr(DCOST(k));
+  const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId) => `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
+    <div class="ubody"><div class="uname"><span class="upc">${civId ? civEmblem(civId, 18) : gl}</span>${name}<small>${cost}</small></div>
+    <div class="ustats">${st("hp", hp)}${st("atk", atk)}${st("def", def)}${st("rng", rng)}${st("spd", spd)}</div><div class="unote">${note}</div></div></div>`;
+  const mine = G.civ ? [...new Set([G.civ[0], G.civ[1]])].filter(x => x !== "franks") : [];
+  const order = mine.concat(Object.keys(CIVS).filter(x => x !== "franks" && !mine.includes(x)));
+  let h = `<div class="ulegend"><span><i style="background:#3f8a2c"></i>can move to</span><span><i style="background:#d9453a"></i>hits from where it stands</span><span><i style="background:#f0a79e"></i>hits after walking there</span><span>(centre = the unit)</span></div>`;
+  h += `<h4 class="usec">Standard units</h4>`;
+  h += row("Villager", GLY.V, "1", "1 food at the Town Center", "1", vilFight(s) ? "1" : "does not fight", 0, vilFight(s) ? "1" : "—", 2, "Gathers, builds, repairs.", RANGE_SPEC.vil);
+  h += row("Infantry line", GLY.I, "2 Feudal · 3 Castle", cc("I"), "2 · 3 heavy", "1 · 2 elite", 0, "1 after walking up to 1", 2, "Walks one step, then hits next to it. Bare pawn 1 hp.", RANGE_SPEC.I);
+  h += row("Archer line", GLY.A, "2 · 3 from Castle", cc("A"), "2 · 3 heavy", "1 · 2 elite", 0, "exactly 2, any direction", 2, "Shoots only from where it stands.", RANGE_SPEC.A);
+  h += row("Cavalry line", GLY.C, "2 · 3 from Castle", cc("C"), "2 · 3 heavy", "1 · 2 elite", 0, "1 after walking up to 2", 3, "Jumps over pieces. Cap 2.", RANGE_SPEC.C);
+  h += row("Trebuchet", GLY.S, "2 · 3 with a 2nd checker", cc("S"), "2", "1 · 2 with gold", 0, "exactly 3, line", G.rules.siege2 ? 2 : 1, "Needs a standing castle. Ignores building defence. Straight steps.", RANGE_SPEC.S);
+  h += `<h4 class="usec">Civilization units</h4>`;
+  const TX = {
+    teutons: ["Teutonic knight", "2 · 3 · 3", "1", 1, "1", 1, "Defence 1 against everything, but only moves 1."],
+    aztecs: ["Jaguar warrior", "2 · 3 · 3", "1", 0, "1, after walking up to 2", 2, "Reaches 3 away by walking 2 first. The Aztecs train no cavalry."],
+    huns: ["Tarkan", "2 · 3 · 3", "1", 0, "buildings only", 3, "Jumps 3. Ignores building defence, so it can take down a Town Center."],
+    saracens: ["Mameluke", "2 · 3 · 3", "1", "1 vs cavalry", "1 after moving 1 or less", 4, "Jumps up to 4. A hit costs the move: after 2 or more steps it cannot strike."],
+    persians: ["War elephant", "2 · 3 · 3", "1", 1, "1", 1, "Defence 1 against everything. Moves 1, cannot jump. Ignores building defence."],
+    britons: ["Longbowman", "2 · 3 · 3", "1", 0, "exactly 3, line", 2, "Units only, never buildings. Straight or diagonal."],
+    mongols: ["Mangudai", "2 · 3 · 3", "1", 0, "exactly 2, line", 3, "Jumps up to 3, shoots only where it stands."],
+    koreans: ["War wagon", "2 · 3 · 3", "1", "1 vs arrows", "exactly 2, any direction", 1, "Arrows (archers, towers, castle, Town Center) lose 1."],
+    chinese: ["Chu ko nu", "2 · 3 · 3", "1", 0, "exactly 2, line, two bolts", 1, "One action fires at two different targets."],
+    turks: ["Bombard cannon", "2 · 3 · 3", "1", "1 vs arrows", "exactly 2, line", 1, "Ignores building defence. Straight steps. Needs a castle."]};
+  const slot = {teutons: "I", aztecs: "I", huns: "C", saracens: "C", persians: "C", britons: "A", mongols: "A", koreans: "A", chinese: "A", turks: "S"};
+  for (const id of order) { const t = TX[id], c = CIVS[id]; if (!t) continue;
+    h += row(`${t[0]} <em class="ucn">${c.n}</em>`, GLY[slot[id]], "", cc(slot[id]), t[1].split(" · ")[0] + " · 3 heavy", t[2] + " · 2 elite", t[3], t[4], t[5], t[6], RANGE_SPEC[id], id); }
+  return h + `<p class="tnote">HP = the chess piece + its checkers. Damage moves a checker beside the piece. Attacking after a walk uses the walk up to the distance shown. A joint attack costs 2 actions. A civilization unit costs the same as the unit it replaces and has the same attack and hit points.</p>`;
 }
 /* ================= the index: in-game tree, same design as the printed sheet ================= */
 function renderIndex() {
@@ -3580,12 +3665,16 @@ function renderIndex() {
   const stack = (p, bars) => `<span class="ix-st">${p === "coin" ? coin : p ? `<span class="ix-pc">${GL[p]}</span>` : ""}${[...bars].reverse().map(k => `<span class="ix-bar" style="background:${BC[k]}"></span>`).join("")}</span>`;
   const stat = (h, a) => `<span class="ix-stat"><b style="color:#B03A2E">\u2665</b>${h} <b>\u2694</b>${a}</span>`;
   const mk = (k, gain) => `<span class="ix-mk">+${k === "R" || k === "Q" ? `<span class="ix-pcs">${GL[k]}</span>` : ic[k]}${gain === "hp" ? `<b style="color:#B03A2E">\u2665</b>` : gain === "at" ? "<b>\u2694</b>" : ""}</span>`;
+  const sx = G.mode === "ai" ? 0 : G.turn, cvx = civ(sx);
+  const cs = (k, base) => { const nm = noUnit(k, sx) ? "no " + (k === "C" ? "cavalry" : "such unit") : null;
+    if (nm) return `<b>${cvx.n}: ${nm}</b>`;
+    return cvx.k === k ? `<b>${unitNames(k, sx)[0].replace(/^./, c => c.toUpperCase())}</b> (${cvx.n}) \u00b7 reach ${cvx.rg} \u00b7 speed ${speedOf({k, o: sx})}` : base; };
   const ROWS = [
     ["Villager", `reach 1 \u00b7 speed 2 \u00b7 gathers, builds`, [["P", "", 1, 1], null, null, null], []],
-    ["Infantry", `the villager's pawn stays \u00b7 reach 1 \u00b7 speed 2`, [null, ["P", "f", 2, 1], ["P", "ff", 3, 1], ["P", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
-    ["Archer", `reach 2 \u00b7 speed 2`, [null, ["B", "f", 2, 1], ["B", "ff", 3, 1], ["B", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
-    ["Cavalry", `reach 1 \u00b7 speed 3, no jumping`, [null, ["N", "f", 2, 1], ["N", "ff", 3, 1], ["N", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
-    ["Trebuchet", `needs a castle \u00b7 one at a time \u00b7 ignores building defence`, [null, null, ["coin", "ww", 2, 1], ["coin", "gw", 2, 2]], []],
+    ["Infantry", cs("I", `the villager's pawn stays \u00b7 reach 1 \u00b7 speed 2`), [null, ["P", "f", 2, 1], ["P", "ff", 3, 1], ["P", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
+    ["Archer", cs("A", `reach 2 \u00b7 speed 2`), [null, ["B", "f", 2, 1], ["B", "ff", 3, 1], ["B", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
+    ["Cavalry", cs("C", `reach 1 \u00b7 speed 3, jumps`), [null, ["N", "f", 2, 1], ["N", "ff", 3, 1], ["N", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
+    ["Trebuchet", cs("S", `needs a castle \u00b7 one at a time \u00b7 ignores building defence`), [null, null, ["coin", "ww", 2, 1], ["coin", "gw", 2, 2]], []],
     ["Town Center", "your age \u00b7 shoots 1\u20132 from the start", [["K", "", 1, 1], ["K", "w", 2, 1], ["K", "ww", 3, 1], ["K", "gw", 3, 2]], []],
     ["Barracks / castle", `built two high \u00b7 the queen crowns it: castle`, [null, [null, "ww", 2, 0], ["Q", "ww", 3, 1], ["Q", "gw", 3, 2]], [null, ["Q", ""], ["g", "at"]]],
     ["Mill / camp / tower", `from the Dark Age \u00b7 the rook crowns it: tower`, [[null, "w", 1, 0], ["R", "w", 2, 1], ["R", "ww", 3, 1], ["R", "gw", 3, 2]], [["R", ""], ["w", "hp"], ["g", "at"]]],
@@ -3608,6 +3697,7 @@ function renderIndex() {
     });
   });
   h += `</div></div><p class="ix-foot">Everything gathers on 4+: the fields give food, the forest wood, your 3×3 home nothing; from the Castle Age a villager on the four centre squares mines gold (4+), or a villager on a8 (food) or h1 (wood) buys it for 6 of that resource (any mix with both); hold 2. Food buys people and horses; wood buys buildings, ages and machines. Checker colour shows its price: <span class="ix-sw" style="background:${F}"></span> 1 food on a unit, <span class="ix-sw" style="background:${W}"></span> 1 wood on a building or machine, <span class="ix-sw" style="background:${Gd}"></span> 1 gold. A chess piece adds its own price; ages cost wood. The small shield is building defence: every building has 1.</p>`;
+  h += `<h3 class="usec2">Unit stats and range</h3>` + unitSheet(sx);
   document.getElementById("treeBody").innerHTML = h;
 }
 
