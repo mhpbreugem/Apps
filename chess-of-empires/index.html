@@ -650,6 +650,7 @@ const ONE = {
   V: "Gathers, builds and repairs.", I: "Walks up to 2, then hits the square next to it.", A: "Shoots exactly 2 away without moving first.",
   C: "Jumps up to 3, then hits the square next to it.", S: "Shoots exactly 3 away in a line, needs a standing castle, and ignores building defence."};
 const compass = (c, orth) => { let l = ""; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, dg = i % 2, on = !(orth && dg); l += `<line x1="8" y1="8" x2="${(8 + 6.5 * Math.cos(a)).toFixed(1)}" y2="${(8 + 6.5 * Math.sin(a)).toFixed(1)}" stroke="${on ? c : "#cbb98f"}" stroke-width="${on ? 1.6 : 1}" stroke-linecap="round"/>`; } return `<svg class="cmp" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">${l}<circle cx="8" cy="8" r="1.6" fill="${c}"/></svg>`; };
+const MELEE = p => p.k === "I" || p.k === "C" || p.k === "V";
 const LINEU = p => ["britons", "mongols", "turks", "chinese"].includes(uid(p)) || p.k === "S";
 function specKey(p) { return p.k === "V" ? "vil" : uniOf(p) ? uid(p) : p.k; }
 const rngText = p => { const u = uid(p), N = {britons: 3, mongols: 2, turks: 2, chinese: 2, koreans: 2}[u] || (p.k === "A" ? 2 : p.k === "S" ? 3 : 1), line = LINEU(p);
@@ -660,7 +661,7 @@ const rngText = p => { const u = uid(p), N = {britons: 3, mongols: 2, turks: 2, 
   return `Hits a piece exactly ${N} squares away, ${line ? "straight or diagonal only (the 8 lines)" : "in any direction"}. Nearer pieces cannot be hit.` + (u === "chinese" ? " One action fires two bolts at two different targets." : "") + (u === "britons" ? " Units only, not buildings." : "") + (p.k === "A" || p.k === "S" ? " It fires without moving." : ""); };
 const moveText = p => { const n = speedOf(p), u = uid(p);
   return (p.k === "S" ? "Moves 1 square up, down, left or right, never diagonal." : `Moves up to ${n} square${n > 1 ? "s" : ""} in any direction${canJump(p) ? ", jumping over pieces." : ", but cannot pass through pieces."}`) +
-    (p.k === "A" ? " Shoots only without moving first." : u === "saracens" ? " Strikes only if it moved 1 square or less." : ""); };
+    (p.k === "A" ? " Shoots only without moving first." : ""); };
 const esc = t => String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 document.addEventListener("click", e => { const el = e.target.closest && e.target.closest(".stat[data-ex]"); if (!el) return;
   const bar = el.parentElement, nx = bar.nextElementSibling; const same = nx && nx.classList.contains("sexpl") && nx.dataset.for === el.dataset.ex;
@@ -3141,7 +3142,7 @@ function renderPanel() {
   const A0 = age(sp.o), isTower = sp.k === "camp" && (CR() ? !!sp.cr : sp.st.length >= 2), isCastle = sp.k === "B" && (CR() ? !!sp.cr : (sp.cs || (G.rules.chk && sp.st.length >= 2))), isTC2 = G.rules.chk && sp.k === "K" && (CR() ? shoots(sp) : sp.st.length >= 2);
   const aVal = sp.k === "V" ? fmtA(atk(sp)) : isUnit(sp) ? atk(sp) : G.rules.chk && (isTower || isCastle || isTC2) ? (hasGold(sp) ? 2 : 1) : isTower ? (A0 >= 3 ? 2 : 1) : isCastle ? 1 : 0;
   IC.spd = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 3.5 L7.5 8 L2.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 3.5 L13.5 8 L8.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const rVal = uniOf(sp) ? ({britons: "3", mongols: "2", turks: "2", koreans: "2", chinese: "2×2"}[uid(sp)] || "1") : sp.k === "A" ? "2" : sp.k === "S" ? "3" : (sp.k === "I" || sp.k === "C") ? "1" : (isTower || isCastle || isTC2) ? (CR() ? (sp.k === "B" ? "1–2" : sp.k === "K" ? (hasMH(sp.o) || G.rules.tcNear ? "1–2" : "2") : "2") : (hasMH(sp.o) ? "1–2" : "2")) : (sp.k === "V" && vilFight(sp.o)) ? "1" : null;
+  const rVal = uniOf(sp) ? ({britons: "3", mongols: "2", turks: "2", koreans: "2", chinese: "2"}[uid(sp)] || "1") : sp.k === "A" ? "2" : sp.k === "S" ? "3" : (sp.k === "I" || sp.k === "C") ? "1" : (isTower || isCastle || isTC2) ? (CR() ? (sp.k === "B" ? "1–2" : sp.k === "K" ? (hasMH(sp.o) || G.rules.tcNear ? "1–2" : "2") : "2") : (hasMH(sp.o) ? "1–2" : "2")) : (sp.k === "V" && vilFight(sp.o)) ? "1" : null;
   const sVal = speedOf(sp) || null;
   const hpMake = (() => {
     if (aoeOn()) return aoeMini(sp) + `<span class="hearts">${aoeHeartRow(sp)}</span>`;
@@ -3156,7 +3157,7 @@ function renderPanel() {
   const nOwn = sp.st.filter(c => c === sp.o).length, nGold = sp.st.length - nOwn;
   const hpTitle = `hit points: ${sp.k === "camp" ? "" : "the piece"}${sp.k !== "camp" && sp.st.length ? " + " : ""}${nOwn ? nOwn + " checker" + (nOwn > 1 ? "s" : "") : ""}${nGold ? (nOwn ? " + " : "") + nGold + " gold" : ""}`;
   meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att", isBreach(sp) ? "breach" : "")}${stat("def", mDef(sp) + "/" + pDef(sp), "def", `Defence ${mDef(sp)}/${pDef(sp)}: melee ${mDef(sp)} (first), pierce ${pDef(sp)} (second, against arrows from archers, towers, the castle and the Town Center). A hit deals attack minus defence.${uid(sp) === "saracens" ? " Against cavalry it is 1." : ""}${isBld(sp) ? " Breach damage ignores it." : ""}`)}` +
-    (rVal ? stat("rng", rVal + compass("#8e1f16"), "rng", rngText(sp), specKey(sp)) : "") + (sVal ? stat("spd", sVal + compass("#3f7d24", sp.k === "S"), "spd", moveText(sp), "move:" + specKey(sp)) : "") + `</span>`);
+    (rVal && !MELEE(sp) ? stat("rng", rVal + (LINEU(sp) ? "-" : ""), "rng", rngText(sp), specKey(sp)) : "") + (sVal ? stat("spd", sVal, "spd", MELEE(sp) ? moveText(sp) + " " + rngText(sp) : moveText(sp), (MELEE(sp) ? "" : "move:") + specKey(sp)) : "") + `</span>`);
   if (isUnit(sp) || sp.k === "V") meta.push(`<span class="udesc">${ONE[uniOf(sp) ? uid(sp) : sp.k] || ""}</span>`);
   const info = [];
   if (sp.k === "K") info.push(`${AGES[age(sp.o)]} Age` + (G.rules.chk && G.pile[sp.o] ? " · damaged: repair it before advancing" : ""));
@@ -3663,9 +3664,9 @@ function unitSheet(s) {
   const LB = {hp: "hit points", atk: "attack", def: "defence", rng: "range", spd: "speed"};
   const st = (k, v, l, ex) => `<span class="stat${ex ? " sx" : ""}" title="${l || LB[k]}"${ex ? ` data-ex="${esc(ex)}"` : ""}>${TICON[k]}<b>${v}</b></span>`;
   const cc = k => costStr(DCOST(k));
-  const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId, nkey) => { def = String(def); const dm = def.split("|")[0], dp = def.split("|")[1] === undefined ? dm : def.split("|")[1]; return `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
+  const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId, nkey) => { def = String(def); const melee = !!spec.st(1, true, true), lineS = ["britons", "mongols", "chinese", "turks"].includes(civId) || nkey === "S"; const dm = def.split("|")[0], dp = def.split("|")[1] === undefined ? dm : def.split("|")[1]; return `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
     <div class="ubody"><div class="uname"><span class="upc">${civId ? civEmblem(civId, 18) : gl}</span>${name}<small>${cost}</small></div>
-    <div class="ustats">${st("hp", hp)}${st("atk", atk)}${st("def", dm + "/" + dp, "defence", `Defence ${dm}/${dp}: melee ${dm} (first), pierce ${dp} (second, against arrows from archers, towers, the castle and the Town Center). A hit deals attack minus defence.`)}${st("rng", rng + compass("#8e1f16"), "range", `Range ${rng}: all eight lines are lit, so it works in every direction. ${ONE[civId || nkey] || ""}`)}${st("spd", spd + compass("#3f7d24", civId === "turks" || nkey === "S"), "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
+    <div class="ustats">${st("hp", hp)}${st("atk", atk)}${st("def", dm + "/" + dp, "defence", `Defence ${dm}/${dp}: melee ${dm} (first), pierce ${dp} (second, against arrows from archers, towers, the castle and the Town Center). A hit deals attack minus defence.`)}${melee ? "" : st("rng", rng + (lineS ? "-" : ""), "range", ONE[civId || nkey] || "")}${st("spd", spd, "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
   const mine = G.civ ? [...new Set([G.civ[0], G.civ[1]])].filter(x => x !== "franks") : [];
   const order = mine.concat(Object.keys(CIVS).filter(x => x !== "franks" && !mine.includes(x)));
   let h = `<div class="ulegend"><span><i style="background:#7fbf63"></i>moves</span><span><i style="background:#d9453a"></i>hits</span><span><i style="background:#f1b3ab"></i>hits after a walk</span></div>`;
