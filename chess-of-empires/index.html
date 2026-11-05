@@ -578,7 +578,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     <h3>Units</h3>
     <ul>
       <li>Villager: a pawn bought at the Town Center for 1 food, attack 1. A villager next to the barracks becomes a unit for one action.</li>
-      <li>The chess piece names the unit: pawn <b>infantry</b>, bishop <b>archer</b> (moves 2 or shoots exactly 2), knight <b>cavalry</b> (moves 3 through free squares, no jumping), steel coin <b>trebuchet</b> (once your castle stands, one at a time): it arrives at Castle height, the coin on two checkers, so 5 wood (coin 3 + two checkers); 2 hit points, attack 1, ignoring building defence. No heavy step: in the Imperial Age a gold checker makes it elite, +1 attack.</li>
+      <li>The chess piece names the unit: pawn <b>infantry</b>, bishop <b>archer</b> (moves 2 or shoots exactly 2), knight <b>cavalry</b> (moves 3 through free squares, no jumping), steel coin <b>trebuchet</b> (once your castle stands, one at a time): it arrives at Castle height, the coin on two checkers, so 5 wood (coin 3 + two checkers); 2 hit points, crush attack 1: it hits buildings only and ignores all armour. No heavy step: in the Imperial Age a gold checker makes it elite, +1 attack.</li>
       <li>The checkers give the level: one checker is the base unit; a second checker (Castle Age) makes it <b>heavy</b>, +1 hit point; a gold checker (Imperial Age) makes it <b>elite</b>, +1 attack, and your own checker goes back.</li>
       <li><b>One price per checker:</b> 1 food on a unit, 1 wood on a building or machine, 1 gold for a gold checker. <b>One price per piece:</b> pawn 1 food, bishop 1 food, knight 2 food, coin 3 wood, rook 3 wood, queen 4 wood. So an archer is bishop 1 food + checker 1 food; cavalry 3 food.</li>
       <li>At most two archers, two cavalry and one trebuchet.</li>
@@ -589,7 +589,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
       <li><b>Barracks</b>: home only (White a1–c3, Black f6–h8), built two checkers high: 2 wood + 2 checkers. <b>Mill</b> and <b>lumber camp</b>: 1 wood + 1 checker, from the Dark Age; one of each at most.</li>
       <li>A <b>crown</b> is a chess piece set on a building. <b>Watch tower</b>: from the Feudal Age a rook on a mill or camp, 3 wood; shoots exactly 2, one action. It climbs like a unit: a second checker (1 wood) from the Castle Age, +1 hit point; a gold checker in the Imperial Age, +1 attack. <b>Castle</b>: from the Castle Age the queen on the barracks, 4 wood; shoots 1–2, one action.</li>
       <li>A crowned building shoots while the piece stands; hits take its checkers first. Shots deal 1, or 2 with gold. The Town Center shoots 1–2 away, like the castle, from the start, for one action.</li>
-      <li>The <b>trebuchet</b> is a coin, not a rook: its checkers are its hit points. Moves 1 in any direction, shoots exactly 3 away, straight or diagonal only. It ignores building defence.</li>
+      <li>The <b>trebuchet</b> is a coin, not a rook: its checkers are its hit points. Moves 1 in any direction, hits only buildings, exactly 3 away in any direction (crush: it ignores all armour). It cannot hurt units.</li>
     </ul>
     <h3>Combat</h3>
     <ul>
@@ -627,34 +627,37 @@ const CIVS = {
   franks: {n: "Franks", d: "Standard units."},
   teutons: {n: "Teutons", k: "I", u: ["teutonic knight", "heavy teutonic knight", "elite teutonic knight"], rg: "1", d: "Teutonic knight (infantry): defence 1 against everything · moves 1."},
   aztecs: {n: "Aztecs", k: "I", no: ["C"], u: ["jaguar warrior", "heavy jaguar warrior", "elite jaguar warrior"], rg: "1 after walking 2", d: "Jaguar warrior (infantry): walks 2 and still hits, reach 3 · the Aztecs train no cavalry."},
-  huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], rg: "1, buildings only", d: "Tarkan (cavalry): jumps up to 3 · hits buildings only and ignores their defence."},
+  huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], rg: "1, buildings only", d: "Tarkan (cavalry): jumps up to 3 · crush: hits buildings only, ignoring all armour."},
   saracens: {n: "Saracens", k: "C", u: ["mameluke", "heavy mameluke", "elite mameluke"], rg: "1 after moving 1 or less", d: "Mameluke (cavalry): jumps up to 4 · defence 1 against cavalry · hits only after moving 1 or less."},
   persians: {n: "Persians", k: "C", u: ["war elephant", "heavy war elephant", "elite war elephant"], rg: "1, ignores building defence", d: "War elephant (cavalry): defence 1 against everything · moves 1, cannot jump · ignores building defence · no other cavalry."},
   britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], rg: "exactly 3, line", d: "Longbowman (archer): shoots exactly 3 away in a straight line or diagonal · units only · moves 2."},
   mongols: {n: "Mongols", k: "A", u: ["mangudai", "heavy mangudai", "elite mangudai"], rg: "exactly 2, line", d: "Mangudai (archer): jumps up to 3 · shoots only from where it stands, exactly 2 away in a straight line or diagonal."},
   koreans: {n: "Koreans", k: "A", u: ["war wagon", "heavy war wagon", "elite war wagon"], rg: "exactly 2", d: "War wagon (archer): defence 1 against arrows (archers, towers, castles, Town Center) · moves 1."},
   chinese: {n: "Chinese", k: "A", u: ["chu ko nu", "heavy chu ko nu", "elite chu ko nu"], rg: "exactly 2, line, two bolts", d: "Chu ko nu (archer): one action fires two bolts at two different targets, each exactly 2 away in a line or diagonal · moves 1."},
-  turks: {n: "Turks", k: "S", u: ["bombard cannon", "bombard cannon", "elite bombard cannon"], rg: "exactly 2, line", d: "Bombard cannon (siege): shoots exactly 2 away in a line or diagonal · ignores building defence · defence 1 against arrows · moves 1."}};
+  turks: {n: "Turks", k: "S", u: ["bombard cannon", "bombard cannon", "elite bombard cannon"], rg: "exactly 2, buildings only", d: "Bombard cannon (siege): crush, hits only buildings exactly 2 away, ignoring all armour · pierce armour 1 · moves 1."}};
 Object.keys(CIVS).forEach(k => { CIVS[k].id = k; });
 const ONE = {
   teutons: "Defence 1 against everything, but it moves only 1.",
   aztecs: "Walks 2 and still strikes, so it reaches 3; the Aztecs train no cavalry.",
-  huns: "Jumps up to 3 and hits buildings only, ignoring their defence.",
+  huns: "Jumps up to 3. Crush: hits buildings only, ignoring all armour.",
   saracens: "Jumps up to 4, has defence 1 against cavalry, and strikes only after moving 1 or less.",
   persians: "Defence 1 against everything, moves 1 without jumping, and ignores building defence.",
   britons: "Shoots exactly 3 away in a line, at units only.",
   mongols: "Jumps up to 3 and shoots exactly 2 away in a line, only from where it stands.",
   koreans: "Pierce defence 1, so arrows lose 1; shoots exactly 2 away, moves 1.",
   chinese: "Fires two bolts at two different targets, each exactly 2 away in a line.",
-  turks: "Shoots exactly 2 away in a line, ignores building defence, and has pierce defence 1.",
+  turks: "Crush: hits only buildings exactly 2 away, ignoring all armour. Pierce armour 1.",
   V: "Gathers, builds and repairs.", I: "Walks up to 2, then hits the square next to it.", A: "Shoots exactly 2 away without moving first.",
-  C: "Jumps up to 3, then hits the square next to it.", S: "Shoots exactly 3 away in a line, needs a standing castle, and ignores building defence."};
+  C: "Jumps up to 3, then hits the square next to it.", S: "Crush: hits only buildings exactly 3 away, ignoring all armour. Needs a standing castle."};
 const compass = (c, orth) => { let l = ""; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, dg = i % 2, on = !(orth && dg); l += `<line x1="8" y1="8" x2="${(8 + 6.5 * Math.cos(a)).toFixed(1)}" y2="${(8 + 6.5 * Math.sin(a)).toFixed(1)}" stroke="${on ? c : "#cbb98f"}" stroke-width="${on ? 1.6 : 1}" stroke-linecap="round"/>`; } return `<svg class="cmp" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">${l}<circle cx="8" cy="8" r="1.6" fill="${c}"/></svg>`; };
 const MELEE = p => p.k === "I" || p.k === "C" || p.k === "V";
-const LINEU = p => ["britons", "mongols", "turks", "chinese"].includes(uid(p)) || p.k === "S";
+const LINEU = p => ["britons", "mongols", "chinese"].includes(uid(p));
+const CRUSH = p => !!p && (p.k === "S" || uid(p) === "huns");
+const BOWU = p => !!p && p.k === "A";
 function specKey(p) { return p.k === "V" ? "vil" : uniOf(p) ? uid(p) : p.k; }
 const rngText = p => { const u = uid(p), N = {britons: 3, mongols: 2, turks: 2, chinese: 2, koreans: 2}[u] || (p.k === "A" ? 2 : p.k === "S" ? 3 : 1), line = LINEU(p);
-  if (u === "huns") return "Hits buildings on a neighbouring square, and can walk first. Other pieces cannot be hit.";
+  if (u === "huns") return "Crush: hits buildings on a neighbouring square, and can walk first. Units cannot be hit.";
+  if (p.k === "S") return `Crush: hits a building exactly ${u === "turks" ? 2 : 3} squares away, in any direction. Units cannot be hit.`;
   if (u === "aztecs") return "Hits a piece on a neighbouring square, and still can after walking up to 2, so it reaches 3 squares.";
   if (u === "saracens") return "Hits a piece on a neighbouring square, but only if it moved 1 square or less first.";
   if (N === 1) return "Hits a piece on a neighbouring square (any of the 8 around it), also after walking.";
@@ -838,11 +841,12 @@ function defn(t) {
       G.pcs.some(q => q.o === t.o && q.k === "I" && q.st.length && cd(q.f, q.r, t.f, t.r) === 1)) d += 1;
   return d;
 }
-const defVs = (p, t) => (isBreach(p) && isBld(t) ? 0 : defn(t)) + uDef(p, t);   // the trebuchet ignores building defence   // building defence counts for everyone, trebuchet included
+const defVs = (p, t) => isBreach(p) && isBld(t) ? 0 : defn(t) + uDef(p, t);   // crush ignores all armour   // the trebuchet ignores building defence   // building defence counts for everyone, trebuchet included
 function reaches(p, f, r, t) {
   if (atk(p, t) === 0) return false;
   const d = cd(f, r, t.f, t.r), ux = uid(p), line = Math.abs(t.f - f) === 0 || Math.abs(t.r - r) === 0 || Math.abs(t.f - f) === Math.abs(t.r - r);
   if (ux === "huns") return d === 1 && isBld(t);
+  if (p.k === "S") return d === (ux === "turks" ? 2 : 3) && isBld(t);   // crush: siege hits buildings only, every square of its ring
   if (ux === "britons") return d === 3 && line && !isBld(t);
   if (ux === "mongols" || ux === "chinese" || ux === "turks") return d === 2 && line;
   if (p.k === "A") return d === 2;
@@ -3141,6 +3145,7 @@ function renderPanel() {
   const stat = (k, v, lab, q, pic) => `<span class="stat${q ? " sx" : ""}" title="${STATNAME[lab]}"${q ? ` data-ex="${esc(q)}"` : ""}${pic ? ` data-pic="${pic}"` : ""}>${IC[k]}<b>${v}</b></span>`;
   const A0 = age(sp.o), isTower = sp.k === "camp" && (CR() ? !!sp.cr : sp.st.length >= 2), isCastle = sp.k === "B" && (CR() ? !!sp.cr : (sp.cs || (G.rules.chk && sp.st.length >= 2))), isTC2 = G.rules.chk && sp.k === "K" && (CR() ? shoots(sp) : sp.st.length >= 2);
   const aVal = sp.k === "V" ? fmtA(atk(sp)) : isUnit(sp) ? atk(sp) : G.rules.chk && (isTower || isCastle || isTC2) ? (hasGold(sp) ? 2 : 1) : isTower ? (A0 >= 3 ? 2 : 1) : isCastle ? 1 : 0;
+  IC.atkb = "<svg viewBox='0 0 16 16' width='15' height='15' aria-hidden='true'><path d='M4.5 1.8 C11.5 4 11.5 12 4.5 14.2' fill='none' stroke='#8a5a22' stroke-width='2' stroke-linecap='round'/><path d='M4.5 1.8 V14.2' stroke='#6b6b6b' stroke-width='.8'/><path d='M2 8 H14.5' stroke='#7a7a7a' stroke-width='1.4' stroke-linecap='round'/><path d='M14.8 8 L11.8 5.8 V10.2 Z' fill='#8c8c8c'/><path d='M2 8 L3.6 6.6 M2 8 L3.6 9.4' stroke='#b3412f' stroke-width='1' stroke-linecap='round'/></svg>"; IC.atkc = "<svg viewBox='0 0 16 16' width='15' height='15' aria-hidden='true'><defs><radialGradient id='gcr' cx='.35' cy='.3' r='.8'><stop offset='0' stop-color='#9aa0a8'/><stop offset='1' stop-color='#2c3036'/></radialGradient></defs><path d='M2.2 1.6 L5.2 6.4' stroke='#6b4a1f' stroke-width='1.6' stroke-linecap='round'/><path d='M3 2.4 L4.6 5.2' stroke='#c9a55a' stroke-width='.8' stroke-dasharray='1 1'/><circle cx='9.6' cy='9.6' r='5' fill='url(#gcr)' stroke='#1d2024' stroke-width='.8'/><circle cx='8' cy='8' r='1.3' fill='#e7eaee' opacity='.7'/></svg>";
   IC.spd = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 3.5 L7.5 8 L2.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 3.5 L13.5 8 L8.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const rVal = uniOf(sp) ? ({britons: "3", mongols: "2", turks: "2", koreans: "2", chinese: "2"}[uid(sp)] || "1") : sp.k === "A" ? "2" : sp.k === "S" ? "3" : (sp.k === "I" || sp.k === "C") ? "1" : (isTower || isCastle || isTC2) ? (CR() ? (sp.k === "B" ? "1–2" : sp.k === "K" ? (hasMH(sp.o) || G.rules.tcNear ? "1–2" : "2") : "2") : (hasMH(sp.o) ? "1–2" : "2")) : (sp.k === "V" && vilFight(sp.o)) ? "1" : null;
   const sVal = speedOf(sp) || null;
@@ -3156,7 +3161,7 @@ function renderPanel() {
   })();
   const nOwn = sp.st.filter(c => c === sp.o).length, nGold = sp.st.length - nOwn;
   const hpTitle = `hit points: ${sp.k === "camp" ? "" : "the piece"}${sp.k !== "camp" && sp.st.length ? " + " : ""}${nOwn ? nOwn + " checker" + (nOwn > 1 ? "s" : "") : ""}${nGold ? (nOwn ? " + " : "") + nGold + " gold" : ""}`;
-  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${stat("atk", aVal, "att", isBreach(sp) ? "breach" : "")}${mDef(sp) ? stat("defm", mDef(sp), "def", `Melee armour ${mDef(sp)}: every melee hit on it loses ${mDef(sp)}. Damage is attack minus armour.${uid(sp) === "saracens" ? " Against cavalry it is 1." : ""}${isBld(sp) ? " Breach damage ignores it." : ""}`) : ""}${pDef(sp) ? stat("defp", pDef(sp), "def", `Pierce armour ${pDef(sp)}: every arrow from archers, towers, the castle and the Town Center loses ${pDef(sp)}.${isBld(sp) ? " Breach damage ignores it." : ""}`) : ""}` +
+  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${(CRUSH(sp) ? stat("atkc", aVal + "*", "att", "Crush " + aVal + ": hits buildings only and ignores all armour. It cannot hurt units.") : stat((BOWU(sp) || isTower || isCastle || isTC2) ? "atkb" : "atk", aVal, "att", isBreach(sp) ? "Ignores building defence." : (BOWU(sp) || isTower || isCastle || isTC2) ? "Pierce attack: armour against arrows (buckler) lowers it." : ""))}${mDef(sp) ? stat("defm", mDef(sp), "def", `Melee armour ${mDef(sp)}: every melee hit on it loses ${mDef(sp)}. Damage is attack minus armour.${uid(sp) === "saracens" ? " Against cavalry it is 1." : ""}${isBld(sp) ? " Breach damage ignores it." : ""}`) : ""}${pDef(sp) ? stat("defp", pDef(sp), "def", `Pierce armour ${pDef(sp)}: every arrow from archers, towers, the castle and the Town Center loses ${pDef(sp)}.${isBld(sp) ? " Breach damage ignores it." : ""}`) : ""}` +
     (rVal && !MELEE(sp) ? stat("rng", rVal + (LINEU(sp) ? "-" : ""), "rng", rngText(sp), specKey(sp)) : "") + (sVal ? stat("spd", sVal, "spd", MELEE(sp) ? moveText(sp) + " " + rngText(sp) : moveText(sp), (MELEE(sp) ? "" : "move:") + specKey(sp)) : "") + `</span>`);
   if (isUnit(sp) || sp.k === "V") meta.push(`<span class="udesc">${ONE[uniOf(sp) ? uid(sp) : sp.k] || ""}</span>`);
   const info = [];
@@ -3438,7 +3443,7 @@ const AGE_TIPS = {
   2: ["<b>Stronger units</b>: next to the barracks a unit takes a 2nd checker, 1 food, +1 hit point.",
       "<b>Stronger buildings</b>: a villager raises a mill, camp or tower to two checkers, 1 wood.",
       "<b>Castle</b>: put the queen on the barracks, 4 wood. It fires 1–2 away. You need it for the Imperial Age.",
-      "<b>Trebuchet</b>: once the castle stands, 5 wood. It shoots exactly 3 away and ignores building defence.",
+      "<b>Trebuchet</b>: once the castle stands, 5 wood. It hits only buildings, exactly 3 away, ignoring all armour.",
       "<b>Gold</b> (hold 2): <b>buy</b> it with villagers on a8 and h1 (1 action: 6 of that post’s resource, any mix with both), or <b>mine</b> with a villager on the centre squares d4, e4, d5, e5 (4+).",
       "<b>Next</b>: Imperial Age costs 4 wood + 1 gold and needs a castle."],
   3: ["<b>Elite units</b>: next to the barracks a unit swaps a checker for gold, 1 gold, +1 attack.",
@@ -3489,7 +3494,7 @@ document.getElementById("texSeg").addEventListener("click", e => {
 });
 texUpdate();
 /* ================= tech and unit tree ================= */
-const TICON = {"hp": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M8 14.2C3.2 10.8 1.5 8.6 1.5 5.9 1.5 3.8 3.1 2.3 5 2.3c1.3 0 2.4.7 3 1.8.6-1.1 1.7-1.8 3-1.8 1.9 0 3.5 1.5 3.5 3.6 0 2.7-1.7 4.9-6.5 8.3z\" fill=\"#c0392b\" stroke=\"#6e140e\" stroke-width=\"1\"/></svg>", "atk": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M13.8 1.6 L14.4 2.2 L6.4 10.2 L5.8 9.6 Z\" fill=\"#d7dde2\" stroke=\"#4a5560\" stroke-width=\"0.9\"/><path d=\"M3.2 8.6 L7.4 12.8\" stroke=\"#a8741c\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><path d=\"M4.9 11.1 L2.2 13.8\" stroke=\"#5b3614\" stroke-width=\"2\" stroke-linecap=\"round\"/><circle cx=\"1.9\" cy=\"14.1\" r=\"1.1\" fill=\"#e7bd52\"/></svg>", "defm": "<svg viewBox='0 0 24 24' width='15' height='15' aria-hidden='true'><defs><linearGradient id='gsA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#eef1f4'/><stop offset='.45' stop-color='#b3bac3'/><stop offset='1' stop-color='#7d8692'/></linearGradient><radialGradient id='gbA' cx='.35' cy='.35' r='.8'><stop offset='0' stop-color='#f4f6f8'/><stop offset='1' stop-color='#6c7580'/></radialGradient></defs><path d='M12 1.5 L21 4.5 V12 C21 17.5 17 20.5 12 22.5 C7 20.5 3 17.5 3 12 V4.5 Z' fill='url(#gsA)' stroke='#3f4650' stroke-width='2' stroke-linejoin='round'/><path d='M12 3 L12 21' stroke='#fff' stroke-opacity='.55' stroke-width='1'/><path d='M12 4 L18.5 6.2 V12 C18.5 16 15.8 18.4 12 20.2 C8.2 18.4 5.5 16 5.5 12 V6.2 Z' fill='none' stroke='#3f4650' stroke-width='.8' stroke-opacity='.7'/><circle cx='12' cy='11' r='3.2' fill='url(#gbA)' stroke='#3f4650' stroke-width='1'/></svg>", "defp": "<svg viewBox='0 0 24 24' width='15' height='15' aria-hidden='true'><defs><radialGradient id='gwA' cx='.4' cy='.35' r='.85'><stop offset='0' stop-color='#d9a869'/><stop offset='.7' stop-color='#a8733a'/><stop offset='1' stop-color='#7a4f26'/></radialGradient><radialGradient id='gcA' cx='.35' cy='.35' r='.8'><stop offset='0' stop-color='#f4f6f8'/><stop offset='1' stop-color='#6c7580'/></radialGradient></defs><circle cx='12' cy='12' r='9.8' fill='url(#gwA)' stroke='#3b2412' stroke-width='2'/><path d='M7.5 5 V19 M16.5 5 V19 M12 2.5 V21.5' stroke='#5b3614' stroke-opacity='.45' stroke-width='.8'/><circle cx='12' cy='12' r='8' fill='none' stroke='#4a3320' stroke-width='.8' stroke-opacity='.8'/><circle cx='12' cy='12' r='3' fill='url(#gcA)' stroke='#3f4650' stroke-width='1'/></svg>", "def": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M8 1.2 L14 3.4 V8 C14 11.6 11.2 13.9 8 15 C4.8 13.9 2 11.6 2 8 V3.4 Z\" fill=\"#245f96\" stroke=\"#e7bd52\" stroke-width=\"1.2\"/><path d=\"M8 3.2 V13\" stroke=\"#e7bd52\" stroke-width=\"1\"/></svg>", "rng": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.3\" fill=\"none\" stroke=\"#8e1f16\" stroke-width=\"1.6\"/><circle cx=\"8\" cy=\"8\" r=\"3.4\" fill=\"none\" stroke=\"#8e1f16\" stroke-width=\"1.4\"/><circle cx=\"8\" cy=\"8\" r=\"1.2\" fill=\"#8e1f16\"/></svg>", "spd": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M2.5 3.5 L7.5 8 L2.5 12.5\" fill=\"none\" stroke=\"#3f7d24\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8.5 3.5 L13.5 8 L8.5 12.5\" fill=\"none\" stroke=\"#3f7d24\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"};
+const TICON = {"atkb": "<svg viewBox='0 0 16 16' width='15' height='15' aria-hidden='true'><path d='M4.5 1.8 C11.5 4 11.5 12 4.5 14.2' fill='none' stroke='#8a5a22' stroke-width='2' stroke-linecap='round'/><path d='M4.5 1.8 V14.2' stroke='#6b6b6b' stroke-width='.8'/><path d='M2 8 H14.5' stroke='#7a7a7a' stroke-width='1.4' stroke-linecap='round'/><path d='M14.8 8 L11.8 5.8 V10.2 Z' fill='#8c8c8c'/><path d='M2 8 L3.6 6.6 M2 8 L3.6 9.4' stroke='#b3412f' stroke-width='1' stroke-linecap='round'/></svg>", "atkc": "<svg viewBox='0 0 16 16' width='15' height='15' aria-hidden='true'><defs><radialGradient id='gcr' cx='.35' cy='.3' r='.8'><stop offset='0' stop-color='#9aa0a8'/><stop offset='1' stop-color='#2c3036'/></radialGradient></defs><path d='M2.2 1.6 L5.2 6.4' stroke='#6b4a1f' stroke-width='1.6' stroke-linecap='round'/><path d='M3 2.4 L4.6 5.2' stroke='#c9a55a' stroke-width='.8' stroke-dasharray='1 1'/><circle cx='9.6' cy='9.6' r='5' fill='url(#gcr)' stroke='#1d2024' stroke-width='.8'/><circle cx='8' cy='8' r='1.3' fill='#e7eaee' opacity='.7'/></svg>", "hp": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M8 14.2C3.2 10.8 1.5 8.6 1.5 5.9 1.5 3.8 3.1 2.3 5 2.3c1.3 0 2.4.7 3 1.8.6-1.1 1.7-1.8 3-1.8 1.9 0 3.5 1.5 3.5 3.6 0 2.7-1.7 4.9-6.5 8.3z\" fill=\"#c0392b\" stroke=\"#6e140e\" stroke-width=\"1\"/></svg>", "atk": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M13.8 1.6 L14.4 2.2 L6.4 10.2 L5.8 9.6 Z\" fill=\"#d7dde2\" stroke=\"#4a5560\" stroke-width=\"0.9\"/><path d=\"M3.2 8.6 L7.4 12.8\" stroke=\"#a8741c\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><path d=\"M4.9 11.1 L2.2 13.8\" stroke=\"#5b3614\" stroke-width=\"2\" stroke-linecap=\"round\"/><circle cx=\"1.9\" cy=\"14.1\" r=\"1.1\" fill=\"#e7bd52\"/></svg>", "defm": "<svg viewBox='0 0 24 24' width='15' height='15' aria-hidden='true'><defs><linearGradient id='gsA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#eef1f4'/><stop offset='.45' stop-color='#b3bac3'/><stop offset='1' stop-color='#7d8692'/></linearGradient><radialGradient id='gbA' cx='.35' cy='.35' r='.8'><stop offset='0' stop-color='#f4f6f8'/><stop offset='1' stop-color='#6c7580'/></radialGradient></defs><path d='M12 1.5 L21 4.5 V12 C21 17.5 17 20.5 12 22.5 C7 20.5 3 17.5 3 12 V4.5 Z' fill='url(#gsA)' stroke='#3f4650' stroke-width='2' stroke-linejoin='round'/><path d='M12 3 L12 21' stroke='#fff' stroke-opacity='.55' stroke-width='1'/><path d='M12 4 L18.5 6.2 V12 C18.5 16 15.8 18.4 12 20.2 C8.2 18.4 5.5 16 5.5 12 V6.2 Z' fill='none' stroke='#3f4650' stroke-width='.8' stroke-opacity='.7'/><circle cx='12' cy='11' r='3.2' fill='url(#gbA)' stroke='#3f4650' stroke-width='1'/></svg>", "defp": "<svg viewBox='0 0 24 24' width='15' height='15' aria-hidden='true'><defs><radialGradient id='gwA' cx='.4' cy='.35' r='.85'><stop offset='0' stop-color='#d9a869'/><stop offset='.7' stop-color='#a8733a'/><stop offset='1' stop-color='#7a4f26'/></radialGradient><radialGradient id='gcA' cx='.35' cy='.35' r='.8'><stop offset='0' stop-color='#f4f6f8'/><stop offset='1' stop-color='#6c7580'/></radialGradient></defs><circle cx='12' cy='12' r='9.8' fill='url(#gwA)' stroke='#3b2412' stroke-width='2'/><path d='M7.5 5 V19 M16.5 5 V19 M12 2.5 V21.5' stroke='#5b3614' stroke-opacity='.45' stroke-width='.8'/><circle cx='12' cy='12' r='8' fill='none' stroke='#4a3320' stroke-width='.8' stroke-opacity='.8'/><circle cx='12' cy='12' r='3' fill='url(#gcA)' stroke='#3f4650' stroke-width='1'/></svg>", "def": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M8 1.2 L14 3.4 V8 C14 11.6 11.2 13.9 8 15 C4.8 13.9 2 11.6 2 8 V3.4 Z\" fill=\"#245f96\" stroke=\"#e7bd52\" stroke-width=\"1.2\"/><path d=\"M8 3.2 V13\" stroke=\"#e7bd52\" stroke-width=\"1\"/></svg>", "rng": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"8\" r=\"6.3\" fill=\"none\" stroke=\"#8e1f16\" stroke-width=\"1.6\"/><circle cx=\"8\" cy=\"8\" r=\"3.4\" fill=\"none\" stroke=\"#8e1f16\" stroke-width=\"1.4\"/><circle cx=\"8\" cy=\"8\" r=\"1.2\" fill=\"#8e1f16\"/></svg>", "spd": "<svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" aria-hidden=\"true\"><path d=\"M2.5 3.5 L7.5 8 L2.5 12.5\" fill=\"none\" stroke=\"#3f7d24\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M8.5 3.5 L13.5 8 L8.5 12.5\" fill=\"none\" stroke=\"#3f7d24\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"};
 function treeGroupsChk(s) {
   const A = age(s), B = barracks(s), cs = camps(s);
   const mill = cs.some(c => campRes(c)[0] === FOOD), lumber = cs.some(c => campRes(c)[0] === WOOD), tower = cs.some(c => c.st.length >= 2), gl = cs.some(c => hasGold(c));
@@ -3634,7 +3639,7 @@ const RANGE_SPEC = {
   I: {mv: (d, l, o) => d <= 2, st: (d, l, o) => d === 1, wk: d => d <= 2},
   A: {mv: d => d <= 2, st: d => d === 2},
   C: {mv: d => d <= 3, st: d => d === 1, wk: d => d <= 3, jump: 1},
-  S: {mv: (d, l, o) => d === 1 && o, st: (d, l) => d === 3 && l},
+  S: {mv: (d, l, o) => d === 1 && o, st: d => d === 3, bld: 1},
   teutons: {mv: d => d <= 1, st: d => d === 1},
   aztecs: {mv: d => d <= 2, st: d => d === 1, wk: d => d <= 3},
   huns: {mv: d => d <= 3, st: d => d === 1, wk: d => d <= 3, jump: 1, bld: 1},
@@ -3644,7 +3649,7 @@ const RANGE_SPEC = {
   mongols: {mv: d => d <= 3, st: (d, l) => d === 2 && l, jump: 1},
   koreans: {mv: d => d <= 1, st: d => d === 2},
   chinese: {mv: d => d <= 1, st: (d, l) => d === 2 && l},
-  turks: {mv: (d, l, o) => d === 1 && o, st: (d, l) => d === 2 && l}};
+  turks: {mv: (d, l, o) => d === 1 && o, st: d => d === 2, bld: 1}};
 function rangePic(sp, moveOnly) {
   const N = 4, C = 9, z = 16, W = C * z;
   let g = "";
@@ -3666,7 +3671,7 @@ function unitSheet(s) {
   const cc = k => costStr(DCOST(k));
   const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId, nkey) => { def = String(def); const melee = !!spec.st(1, true, true), lineS = ["britons", "mongols", "chinese", "turks"].includes(civId) || nkey === "S"; const dm = def.split("|")[0], dp = def.split("|")[1] === undefined ? dm : def.split("|")[1]; return `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
     <div class="ubody"><div class="uname"><span class="upc">${civId ? civEmblem(civId, 18) : gl}</span>${name}<small>${cost}</small></div>
-    <div class="ustats">${st("hp", hp)}${st("atk", atk)}${+dm ? st("defm", dm, "melee armour", `Melee armour ${dm}: every melee hit on it loses ${dm}.`) : ""}${+dp ? st("defp", dp, "pierce armour", `Pierce armour ${dp}: every arrow (archers, towers, castle, Town Center) loses ${dp}.`) : ""}${melee ? "" : st("rng", rng + (lineS ? "-" : ""), "range", ONE[civId || nkey] || "")}${st("spd", spd, "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
+    <div class="ustats">${st("hp", hp)}${(nkey === "S" || civId === "huns" || civId === "turks") ? st("atkc", atk + "*", "attack", "Crush " + atk + ": hits buildings only and ignores all armour.") : st((nkey === "A" || (civId && CIVS[civId].k === "A")) ? "atkb" : "atk", atk, "attack", (nkey === "A" || (civId && CIVS[civId].k === "A")) ? "Pierce attack: pierce armour lowers it." : "")}${+dm ? st("defm", dm, "melee armour", `Melee armour ${dm}: every melee hit on it loses ${dm}.`) : ""}${+dp ? st("defp", dp, "pierce armour", `Pierce armour ${dp}: every arrow (archers, towers, castle, Town Center) loses ${dp}.`) : ""}${melee ? "" : st("rng", rng + (lineS ? "-" : ""), "range", ONE[civId || nkey] || "")}${st("spd", spd, "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
   const mine = G.civ ? [...new Set([G.civ[0], G.civ[1]])].filter(x => x !== "franks") : [];
   const order = mine.concat(Object.keys(CIVS).filter(x => x !== "franks" && !mine.includes(x)));
   let h = `<div class="ulegend"><span><i style="background:#7fbf63"></i>moves</span><span><i style="background:#d9453a"></i>hits</span><span><i style="background:#f1b3ab"></i>hits after a walk</span></div>`;
@@ -3675,19 +3680,19 @@ function unitSheet(s) {
   h += row("Infantry line", GLY.I, "2 Feudal · 3 Castle", cc("I"), "2 · 3 heavy", "1 · 2 elite", "0", "1", 2, "Walks one step, then hits next to it. Bare pawn 1 hp.", RANGE_SPEC.I, null, "I");
   h += row("Archer line", GLY.A, "2 · 3 from Castle", cc("A"), "2 · 3 heavy", "1 · 2 elite", "0", "2", 2, "Shoots only from where it stands.", RANGE_SPEC.A, null, "A");
   h += row("Cavalry line", GLY.C, "2 · 3 from Castle", cc("C"), "2 · 3 heavy", "1 · 2 elite", "0", "1", 3, "Jumps over pieces. Cap 2.", RANGE_SPEC.C, null, "C");
-  h += row("Trebuchet", GLY.S, "2 · 3 with a 2nd checker", cc("S"), "2", "1 · 2 with gold", "0|0", "3", G.rules.siege2 ? 2 : 1, "Needs a standing castle. Breach: ignores building defence. Straight steps.", RANGE_SPEC.S, null, "S");
+  h += row("Trebuchet", GLY.S, "2 · 3 with a 2nd checker", cc("S"), "2", "1 · 2 with gold", "0|0", "3", G.rules.siege2 ? 2 : 1, "Crush: hits buildings only, exactly 3 away, ignoring all armour. Needs a standing castle. Straight steps.", RANGE_SPEC.S, null, "S");
   h += `<h4 class="usec">Civilization units</h4>`;
   const TX = {
     teutons: ["Teutonic knight", "2 · 3 · 3", "1", "1|1", "1", 1, "Melee 1, pierce 1: blocks everything, but only moves 1."],
     aztecs: ["Jaguar warrior", "2 · 3 · 3", "1", "0", "1", 2, "Reaches 3 away by walking 2 first. The Aztecs train no cavalry."],
-    huns: ["Tarkan", "2 · 3 · 3", "1", "0", "1", 3, "Jumps 3. Breach: ignores building defence, so it can take down a Town Center."],
+    huns: ["Tarkan", "2 · 3 · 3", "1", "0", "1", 3, "Jumps 3. Crush: hits buildings only, ignoring all armour, so it can take down a Town Center."],
     saracens: ["Mameluke", "2 · 3 · 3", "1", "0|0", "1", 4, "Jumps up to 4. A hit costs the move: after 2 or more steps it cannot strike."],
     persians: ["War elephant", "2 · 3 · 3", "1", "1|1", "1", 1, "Melee 1, pierce 1. Moves 1, cannot jump. Breach: ignores building defence."],
     britons: ["Longbowman", "2 · 3 · 3", "1", "0", "3", 2, "Units only, never buildings. Straight or diagonal."],
     mongols: ["Mangudai", "2 · 3 · 3", "1", "0", "2", 3, "Jumps up to 3, shoots only where it stands."],
     koreans: ["War wagon", "2 · 3 · 3", "1", "0|1", "2", 1, "Pierce defence 1: arrows (archers, towers, castle, Town Center) lose 1. Melee defence 0."],
     chinese: ["Chu ko nu", "2 · 3 · 3", "1", "0", "2", 1, "One action fires at two different targets."],
-    turks: ["Bombard cannon", "2 · 3 · 3", "1", "0|1", "2", 1, "Pierce defence 1. Breach: ignores building defence. Straight steps. Needs a castle."]};
+    turks: ["Bombard cannon", "2 · 3 · 3", "1", "0|1", "2", 1, "Pierce armour 1. Crush: hits buildings only, exactly 2 away. Straight steps. Needs a castle."]};
   const slot = {teutons: "I", aztecs: "I", huns: "C", saracens: "C", persians: "C", britons: "A", mongols: "A", koreans: "A", chinese: "A", turks: "S"};
   for (const id of order) { const t = TX[id], c = CIVS[id]; if (!t) continue;
     h += row(`${t[0]} <em class="ucn">${c.n}</em>`, GLY[slot[id]], "", cc(slot[id]), t[1].split(" · ")[0] + " · 3 heavy", t[2] + " · 2 elite", t[3], t[4], t[5], t[6], RANGE_SPEC[id], id); }
