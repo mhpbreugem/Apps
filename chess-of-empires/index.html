@@ -630,7 +630,7 @@ const CIVS = {
   huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], rg: "1, buildings only", d: "Tarkan (cavalry): jumps up to 3 · crush: hits buildings only, ignoring all armour."},
   saracens: {n: "Saracens", k: "C", u: ["mameluke", "heavy mameluke", "elite mameluke"], rg: "1 after moving 1 or less", d: "Mameluke (cavalry): jumps up to 4 · defence 1 against cavalry · hits only after moving 1 or less."},
   persians: {n: "Persians", k: "C", u: ["war elephant", "heavy war elephant", "elite war elephant"], rg: "1, ignores building defence", d: "War elephant (cavalry): defence 1 against everything · moves 1, cannot jump · ignores building defence · no other cavalry."},
-  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], rg: "exactly 3", d: "Longbowman (archer): shoots exactly 3 away in any direction, only from where it stands · moves 1."},
+  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], rg: "exactly 3", d: "Longbowman (archer): shoots exactly 3 away in any direction, only from where it stands · moves 1 · costs 4 food."},
   mongols: {n: "Mongols", k: "A", u: ["mangudai", "heavy mangudai", "elite mangudai"], rg: "exactly 2, line", d: "Mangudai (archer): jumps up to 3 · shoots only from where it stands, exactly 2 away in a straight line or diagonal."},
   koreans: {n: "Koreans", k: "A", u: ["war wagon", "heavy war wagon", "elite war wagon"], rg: "exactly 2", d: "War wagon (archer): defence 1 against arrows (archers, towers, castles, Town Center) · moves 1."},
   chinese: {n: "Chinese", k: "A", u: ["chu ko nu", "heavy chu ko nu", "elite chu ko nu"], rg: "exactly 2, line, two bolts", d: "Chu ko nu (archer): one action fires two bolts at two different targets, each exactly 2 away in a line or diagonal · moves 1."},
@@ -642,7 +642,7 @@ const ONE = {
   huns: "Jumps up to 3. Crush: hits buildings only, ignoring all armour.",
   saracens: "Jumps up to 4, has defence 1 against cavalry, and strikes only after moving 1 or less.",
   persians: "Defence 1 against everything, moves 1 without jumping, and ignores building defence.",
-  britons: "Shoots exactly 3 away in any direction, but moves only 1.",
+  britons: "Shoots exactly 3 away in any direction, but moves only 1 and costs 4 food, twice an archer.",
   mongols: "Jumps up to 3 and shoots exactly 2 away in a line, only from where it stands.",
   koreans: "Pierce defence 1, so arrows lose 1; shoots exactly 2 away, moves 1.",
   chinese: "Fires two bolts at two different targets, each exactly 2 away in a line.",
@@ -1064,12 +1064,12 @@ function pieceActions(p) {
       if (G.rules.prices2 && !G.rules.milFlex) mk("recruit", "Train infantry", "1 food", A >= 1 && r && G.food[s] >= 1, A < 1 ? "needs the Feudal Age" : !r ? "reserve empty" : "needs 1 food", {k: "I"});
       else mk("recruit", "Train infantry", milPay(s) ? `1 ${milPay(s)}` : "1 food or 1 wood", A >= 1 && r && !!milPay(s), A < 1 ? "needs the Feudal Age" : !r ? "reserve empty" : "needs 1 food or 1 wood", {k: "I"});
       const lineOk = k => true;
-      mk("recruit", "Train " + unitNames("A", s)[0], costStr(UCOST("A")), A >= 1 && lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A")[0], UCOST("A")[1]) && r,
-         A < 1 ? "needs the Feudal Age" : !lineOk("A") ? "you chose cavalry for the Feudal Age" : count(s, "A") >= 2 ? "both bishops in use" : !r ? "reserve empty" : `needs ${costStr(UCOST("A"))}`, {k: "A"});
-      mk("recruit", "Train " + unitNames("C", s)[0], costStr(UCOST("C")), A >= 1 && !noUnit("C", s) && count(s, "C") < 2 && afford(s, UCOST("C")[0], UCOST("C")[1]) && r,
-         A < 1 ? "needs the Feudal Age" : noUnit("C", s) ? noUnit("C", s) : count(s, "C") >= 2 ? (civ(s).id === "persians" ? "both elephants in use" : "both knights in use") : !r ? "reserve empty" : `needs ${costStr(UCOST("C"))}`, {k: "C"});
-      mk("recruit", "Train " + unitNames("S", s)[0], costStr(UCOST("S")), A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S")[0], UCOST("S")[1]) && G.res[s] >= 2,
-         A < 2 ? "needs the Castle Age" : !trebOk(s) ? "needs a standing castle" : count(s, "S") >= TMAX() ? (TMAX() === 1 ? "one trebuchet at a time" : "at most 2 trebuchets") : !r ? "reserve empty" : "needs " + costStr(UCOST("S")), {k: "S"});
+      mk("recruit", "Train " + unitNames("A", s)[0], costStr(UCOST("A", s)), A >= 1 && lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A", s)[0], UCOST("A", s)[1]) && r,
+         A < 1 ? "needs the Feudal Age" : !lineOk("A") ? "you chose cavalry for the Feudal Age" : count(s, "A") >= 2 ? "both bishops in use" : !r ? "reserve empty" : `needs ${costStr(UCOST("A", s))}`, {k: "A"});
+      mk("recruit", "Train " + unitNames("C", s)[0], costStr(UCOST("C", s)), A >= 1 && !noUnit("C", s) && count(s, "C") < 2 && afford(s, UCOST("C", s)[0], UCOST("C", s)[1]) && r,
+         A < 1 ? "needs the Feudal Age" : noUnit("C", s) ? noUnit("C", s) : count(s, "C") >= 2 ? (civ(s).id === "persians" ? "both elephants in use" : "both knights in use") : !r ? "reserve empty" : `needs ${costStr(UCOST("C", s))}`, {k: "C"});
+      mk("recruit", "Train " + unitNames("S", s)[0], costStr(UCOST("S", s)), A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S", s)[0], UCOST("S", s)[1]) && G.res[s] >= 2,
+         A < 2 ? "needs the Castle Age" : !trebOk(s) ? "needs a standing castle" : count(s, "S") >= TMAX() ? (TMAX() === 1 ? "one trebuchet at a time" : "at most 2 trebuchets") : !r ? "reserve empty" : "needs " + costStr(UCOST("S", s)), {k: "S"});
     } else if (!(G.rules.chk && G.rules.bTrain) && b && A >= 1) {
       out.push({kind: "hint", label: "Stand next to your barracks to train units"});
     }
@@ -1120,7 +1120,7 @@ function pieceActions(p) {
   if (p.k === "K" && G.rules.chk && (G.rules.tcEarly || p.st.length >= 2)) { const tgt = towerTargets(p); mk("campshoot", "Fire arrows", `${hasGold(p) ? 2 : 1} at a piece ${G.rules.tcNear ? "1–2" : "2"} away`, tgt.length > 0, "nothing in range to hurt", {targets: tgt}); }
   if (p.k === "B" && G.rules.chk && G.rules.bTrain) {
     const sq = adjFree(p), r = resOk(s);
-    const tr = (k, ok, why) => { const c = DCOST(k);
+    const tr = (k, ok, why) => { const c = DCOST(k, s);
       mk("recruit", `Train ${unitNames(k, s)[0]}`, costStr(c), ok && r && sq.length > 0 && afford(s, c[0], c[1]),
          why || (sq.length === 0 ? "no free square next to it" : !r ? "reserve empty" : `needs ${costStr(c)}`), {k, squares: sq}); };
     tr("I", pawns(s) < 8, pawns(s) >= 8 ? "all 8 pawns in use" : null);
@@ -1209,7 +1209,9 @@ const TECHS = {
 const vilFight = s => !!G.rules.vilAtk1 || !!G.rules.vilHalf || !!G.rules.vilCoin;
 const VCOST = () => G.rules.vilCost2 ? 2 : 1;
 // unit prices [food, wood]; upgrade/repair price [food, wood] per line
-const UCOST = k => G.rules.split ? {I: [1, 0], A: [2, 0], C: [3, 0], S: [0, 5]}[k] : G.rules.prices2 ? {I: [1, 0], A: [0, 2], C: [2, 0], S: [0, 3]}[k] : {I: [1, 0], A: [1, 1], C: [2, 1], S: [3, 1]}[k];
+const UBASEC = k => G.rules.split ? {I: [1, 0], A: [2, 0], C: [3, 0], S: [0, 5]}[k] : G.rules.prices2 ? {I: [1, 0], A: [0, 2], C: [2, 0], S: [0, 3]}[k] : {I: [1, 0], A: [1, 1], C: [2, 1], S: [3, 1]}[k];
+const UNIPRICE = {britons: {A: [4, 0]}};   // a special unit that is worth more than its slot costs more
+const UCOST = (k, w) => { const id = typeof w === "string" ? w : w === undefined ? null : civ(w).id; return (id && UNIPRICE[id] && UNIPRICE[id][k]) || UBASEC(k); };
 const UPCOST = k => G.rules.split ? (k === "S" ? [0, 1] : [1, 0]) : G.rules.prices2 ? ((k === "I" || k === "C") ? [1, 0] : [0, 1]) : (k === "I" ? [1, 0] : [0, 1]);
 const costStr = c => [c[1] ? c[1] + " wood" : "", c[0] ? c[0] + " food" : ""].filter(Boolean).join(" + ");
 const fmtA = x => x === 0.5 ? "½" : x % 1 ? Math.floor(x) + "½" : String(x);
@@ -1226,7 +1228,7 @@ const hMax = s => age(s) >= 2 ? 2 : 1;
 const shoots = b => CR() && b.k !== "K" ? isBld(b) && !!b.cr : G.rules.chk ? isBld(b) && (b.st.length >= 2 || (b.k === "K" && !!G.rules.tcEarly)) : (b.k === "camp" ? b.st.length >= 2 : !!b.cs);
 const campAuto = c => G.rules.chk ? false : autoRes(c.o, campRes(c)[0]);
 const campNeed = c => G.rules.chk ? (G.rules.away3 || G.rules.camp3 ? 2 : 3) : effD(c.o, campRes(c)[0], campRes(c)[1]);   // the die must beat this
-const DCOST = k => { const c = UCOST(k); return G.rules.bTrain ? [c[0] + 1, c[1]] : c; };   // trained at the barracks: +1 food, no villager needed
+const DCOST = (k, w) => { const c = UCOST(k, w); return G.rules.bTrain ? [c[0] + 1, c[1]] : c; };   // trained at the barracks: +1 food, no villager needed
 const towerShotOk = p => true;   // a tower shot takes one action
 const TOWER_AGE = () => G.rules.towerFeudal ? 1 : 2;
 const hasMH = s => techOn() && !!(G.tech && G.tech[s] && G.tech[s].mh);
@@ -1315,10 +1317,10 @@ function exec(a) {
     case "recruit": {
       G.trained = G.trained || {}; G.trained[a.k] = (G.trained[a.k] || 0) + 1;
       if (G.rules.chk && G.rules.bTrain) {
-        const c = DCOST(a.k); pay(s, c[0], c[1]); G.res[s]--; const u = add(s, a.k, a.to[0], a.to[1], [s]);
+        const c = DCOST(a.k, s); pay(s, c[0], c[1]); G.res[s]--; const u = add(s, a.k, a.to[0], a.to[1], [s]);
         G.acted.push(p.id, u.id); G.last = [a.to]; text = `trains ${/^[aeiou]/.test(unitNames(a.k, s)[0]) ? "an" : "a"} ${unitNames(a.k, s)[0]} on ${SQ(a.to)}`; break;
       }
-      const c = a.k === "I" ? (G.rules.prices2 && !G.rules.milFlex ? [1, 0] : milPay(s) === "wood" ? [0, 1] : [1, 0]) : UCOST(a.k);
+      const c = a.k === "I" ? (G.rules.prices2 && !G.rules.milFlex ? [1, 0] : milPay(s) === "wood" ? [0, 1] : [1, 0]) : UCOST(a.k, s);
       pay(s, c[0], c[1]); if (CR() && a.k === "S") { G.res[s] -= 2; p.k = a.k; p.st = [s, s]; } else { G.res[s]--; p.k = a.k; p.st = [s]; } G.acted.push(p.id); G.last = [[p.f, p.r]];
       if (A === 1 && (a.k === "A" || a.k === "C") && G.line[s] === null) G.line[s] = a.k;
       text = `trains ${/^[aeiou]/.test(unitNames(a.k, s)[0]) ? "an" : "a"} ${unitNames(a.k, s)[0]}`; break;
@@ -1542,9 +1544,9 @@ function aiOptions(s) {
       const lineOk = k => true;
       let base = 4.4 + (army < 1 + A ? 1 : 0) + (threatHome ? 1 : 0) - (army >= (aggrOn(s) ? 2 + AGG.cap + (2 + AGG.cap) * A : 2 + 2 * A) ? 3 : 0) + (FX.spend && G.food[s] >= 5 ? 1.8 : 0);
       const cand = [];
-      if (A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S")[0], UCOST("S")[1])) cand.push(["S", count(s, "S") === 0 ? 1.8 : 0.3]);
-      if (!noUnit("C", s) && count(s, "C") < 2 && afford(s, UCOST("C")[0], UCOST("C")[1])) cand.push(["C", 0.5]);
-      if (lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A")[0], UCOST("A")[1])) cand.push(["A", 0.45]);
+      if (A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S", s)[0], UCOST("S", s)[1])) cand.push(["S", count(s, "S") === 0 ? 1.8 : 0.3]);
+      if (!noUnit("C", s) && count(s, "C") < 2 && afford(s, UCOST("C", s)[0], UCOST("C", s)[1])) cand.push(["C", 0.5]);
+      if (lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A", s)[0], UCOST("A", s)[1])) cand.push(["A", 0.45]);
       if (G.rules.prices2 && !G.rules.milFlex ? G.food[s] >= 1 : milPay(s)) cand.push(["I", 0.2]);
       for (const [k, b] of cand) push(base + b, {kind: "recruit", cls: cls("recruit"), p: v, k});
     }
@@ -1646,7 +1648,7 @@ function aiOptions(s) {
         if (count(s, "C") < 2) cand.push(["C", 0.5]);
         if (count(s, "A") < 2) cand.push(["A", 0.45]);
         if (pawns(s) < 8) cand.push(["I", 0.2]);
-        for (const [k, b] of cand) { const c = DCOST(k); if (afford(s, c[0], c[1])) push(base + b, {kind: "recruit", cls: cls("recruit", B), p: B, k, to: sq[0]}); }
+        for (const [k, b] of cand) { const c = DCOST(k, s); if (afford(s, c[0], c[1])) push(base + b, {kind: "recruit", cls: cls("recruit", B), p: B, k, to: sq[0]}); }
       }
     }
     // a Town Center of 2+ checkers shoots
@@ -3509,7 +3511,7 @@ function treeGroupsChk(s) {
   const mill = cs.some(c => campRes(c)[0] === FOOD), lumber = cs.some(c => campRes(c)[0] === WOOD), tower = cs.some(c => c.st.length >= 2), gl = cs.some(c => hasGold(c));
   const costOf = n => { const c = ageCost(n); return costTxt([c.f, c.w, c.g]); };
   const it = (id, a, n, c, extra) => ({id, a, n, c, ...(extra || {})});
-  const dc = k => costStr(DCOST(k));
+  const dc = k => costStr(DCOST(k, s));
   const UN = k => unitNames(k, s).map(x => x.charAt(0).toUpperCase() + x.slice(1)), cv = civ(s), sp = k => cv.k === k ? cv.d.replace(/^[^(]*\([^)]*\):\s*/, "") : "";
   const MI = UN("I"), MA = UN("A"), MC = UN("C"), MS = UN("S");
   return {groups: [
@@ -3697,14 +3699,14 @@ function unitSheet(s) {
     huns: ["Tarkan", "2 · 3 · 3", "1", "0", "1", 3, "Jumps 3. Crush: hits buildings only, ignoring all armour, so it can take down a Town Center."],
     saracens: ["Mameluke", "2 · 3 · 3", "1", "0|0", "1", 4, "Jumps up to 4. A hit costs the move: after 2 or more steps it cannot strike."],
     persians: ["War elephant", "2 · 3 · 3", "1", "1|1", "1", 1, "Melee 1, pierce 1. Moves 1, cannot jump. Breach: ignores building defence."],
-    britons: ["Longbowman", "2 · 3 · 3", "1", "0", "3", 1, "Shoots exactly 3 away in any direction, only where it stands. Moves 1."],
+    britons: ["Longbowman", "2 · 3 · 3", "1", "0", "3", 1, "Shoots exactly 3 away in any direction, only where it stands. Moves 1. Costs 4 food."],
     mongols: ["Mangudai", "2 · 3 · 3", "1", "0", "2", 3, "Jumps up to 3, shoots only where it stands."],
     koreans: ["War wagon", "2 · 3 · 3", "1", "0|1", "2", 1, "Pierce defence 1: arrows (archers, towers, castle, Town Center) lose 1. Melee defence 0."],
     chinese: ["Chu ko nu", "2 · 3 · 3", "1", "0", "2", 1, "One action fires at two different targets."],
     turks: ["Bombard cannon", "2 · 3 · 3", "1", "0|1", "2", 1, "Pierce armour 1. Set up to fire exactly 2 away. Ignores building defence. Needs a castle."]};
   const slot = {teutons: "I", aztecs: "I", huns: "C", saracens: "C", persians: "C", britons: "A", mongols: "A", koreans: "A", chinese: "A", turks: "S"};
   for (const id of order) { const t = TX[id], c = CIVS[id]; if (!t) continue;
-    h += row(`${t[0]} <em class="ucn">${c.n}</em>`, GLY[slot[id]], "", cc(slot[id]), t[1].split(" · ")[0] + " · 3 heavy", t[2] + " · 2 elite", t[3], t[4], t[5], t[6], RANGE_SPEC[id], id); }
+    h += row(`${t[0]} <em class="ucn">${c.n}</em>`, GLY[slot[id]], "", costStr(DCOST(slot[id], id)), t[1].split(" · ")[0] + " · 3 heavy", t[2] + " · 2 elite", t[3], t[4], t[5], t[6], RANGE_SPEC[id], id); }
   return h + `<p class="tnote">HP = the chess piece + its checkers. Damage moves a checker beside the piece. Attacking after a walk uses the walk up to the distance shown. A joint attack costs 2 actions. A civilization unit costs the same as the unit it replaces and has the same attack and hit points.</p>`;
 }
 /* ================= the index: in-game tree, same design as the printed sheet ================= */
