@@ -421,6 +421,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .urow2 .ustats{flex-wrap:nowrap!important;gap:4px 12px!important}.udesc{display:block;font-size:12px;color:#5a4a30;margin-top:3px}
 .stat.sx{cursor:pointer}.stat .cmp{margin-left:3px;vertical-align:-2px}.sexpl{font-size:12px;color:#4a3a22;background:rgba(255,246,214,.9);border:1px solid #b9985a;border-radius:6px;padding:5px 8px;margin:4px 0}
 .sexpl .rpic{display:block;margin:6px auto 2px;width:112px;height:112px}.sexpl .sleg{font-size:11px;text-align:center}.sexpl .sleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 3px 0 6px}
+.stat small.bo{font-size:11px;font-weight:600;opacity:.8;margin-left:2px}
 </style>
 </head>
 <body>
@@ -639,7 +640,7 @@ Object.keys(CIVS).forEach(k => { CIVS[k].id = k; });
 const ONE = {
   teutons: "Defence 1 against everything, but it moves only 1.",
   aztecs: "Walks 2 and still strikes, so it reaches 3; the Aztecs train no cavalry.",
-  huns: "Jumps up to 3. Crush: hits buildings only, ignoring all armour.",
+  huns: "Jumps up to 3. Crush: hits <b>buildings only</b>, ignoring all armour.",
   saracens: "Jumps up to 4, has defence 1 against cavalry, and strikes only after moving 1 or less.",
   persians: "Defence 1 against everything, moves 1 without jumping, and ignores building defence.",
   britons: "Shoots exactly 3 away in any direction, but moves only 1 and costs 4 food, twice an archer.",
@@ -665,7 +666,7 @@ const rngText = p => { const u = uid(p), N = {britons: 3, mongols: 2, turks: 2, 
 const moveText = p => { const n = speedOf(p), u = uid(p);
   return (p.k === "S" ? "Moves 1 square in any direction while packed. Set up (flip the coin) to fire; packing up costs an action too." : `Moves up to ${n} square${n > 1 ? "s" : ""} in any direction${canJump(p) ? ", jumping over pieces." : ", but cannot pass through pieces."}`) +
     (p.k === "A" ? " Shoots only without moving first." : ""); };
-const esc = t => String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const esc = t => String(t).replace(/<\/?b>/g, "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 document.addEventListener("click", e => { const el = e.target.closest && e.target.closest(".stat[data-ex]"); if (!el) return;
   const bar = el.parentElement, nx = bar.nextElementSibling; const same = nx && nx.classList.contains("sexpl") && nx.dataset.for === el.dataset.ex;
   if (nx && nx.classList.contains("sexpl")) nx.remove();
@@ -3172,7 +3173,7 @@ function renderPanel() {
   })();
   const nOwn = sp.st.filter(c => c === sp.o).length, nGold = sp.st.length - nOwn;
   const hpTitle = `hit points: ${sp.k === "camp" ? "" : "the piece"}${sp.k !== "camp" && sp.st.length ? " + " : ""}${nOwn ? nOwn + " checker" + (nOwn > 1 ? "s" : "") : ""}${nGold ? (nOwn ? " + " : "") + nGold + " gold" : ""}`;
-  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${(CRUSH(sp) ? stat("atkc", aVal + "*", "att", "Crush " + aVal + ": hits buildings only and ignores all armour. It cannot hurt units.") : stat((BOWU(sp) || isTower || isCastle || isTC2) ? "atkb" : "atk", aVal, "att", isBreach(sp) ? "Ignores building defence." : (BOWU(sp) || isTower || isCastle || isTC2) ? "Pierce attack: armour against arrows (buckler) lowers it." : ""))}${mDef(sp) ? stat("defm", mDef(sp), "def", `Melee armour ${mDef(sp)}: every melee hit on it loses ${mDef(sp)}. Damage is attack minus armour.${uid(sp) === "saracens" ? " Against cavalry it is 1." : ""}${isBld(sp) ? " Breach damage ignores it." : ""}`) : ""}${pDef(sp) ? stat("defp", pDef(sp), "def", `Pierce armour ${pDef(sp)}: every arrow from archers, towers, the castle and the Town Center loses ${pDef(sp)}.${isBld(sp) ? " Breach damage ignores it." : ""}`) : ""}` +
+  meta.push(`<span class="stats"><span class="stat" title="${hpTitle}">${IC.hp}<b>${hp(sp)}</b><span class="hpbox">${hpMake}</span></span>${(CRUSH(sp) ? stat("atkc", aVal + '*', "att", "Crush " + aVal + ": hits buildings only and ignores all armour. It cannot hurt units.") : stat((BOWU(sp) || isTower || isCastle || isTC2) ? "atkb" : "atk", aVal, "att", isBreach(sp) ? "Ignores building defence." : (BOWU(sp) || isTower || isCastle || isTC2) ? "Pierce attack: armour against arrows (buckler) lowers it." : ""))}${(mDef(sp) || pDef(sp)) ? stat("defm", mDef(sp) + "/" + pDef(sp), "def", `Armour ${mDef(sp)}/${pDef(sp)} (melee/pierce). Melee armour ${mDef(sp)}: every melee hit on it loses ${mDef(sp)}. Pierce armour ${pDef(sp)}: every arrow from archers, towers, the castle and the Town Center loses ${pDef(sp)}.${uid(sp) === "saracens" ? " Against cavalry melee armour is 1." : ""}${isBld(sp) ? " Crush and building-defence-ignoring hits skip it." : ""}`) : ""}` +
     (rVal && !MELEE(sp) ? stat("rng", rVal + (LINEU(sp) ? "-" : ""), "rng", rngText(sp), specKey(sp)) : "") + (sVal ? stat("spd", sVal, "spd", MELEE(sp) ? moveText(sp) + " " + rngText(sp) : moveText(sp), (MELEE(sp) ? "" : "move:") + specKey(sp)) : "") + `</span>`);
   if (isUnit(sp) || sp.k === "V") meta.push(`<span class="udesc">${ONE[uniOf(sp) ? uid(sp) : sp.k] || ""}</span>`);
   const info = [];
@@ -3682,7 +3683,7 @@ function unitSheet(s) {
   const cc = k => costStr(DCOST(k));
   const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId, nkey) => { def = String(def); const melee = !!spec.st(1, true, true), lineS = ["mongols", "chinese"].includes(civId) || nkey === "S"; const dm = def.split("|")[0], dp = def.split("|")[1] === undefined ? dm : def.split("|")[1]; return `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
     <div class="ubody"><div class="uname"><span class="upc">${civId ? civEmblem(civId, 18) : gl}</span>${name}<small>${cost}</small></div>
-    <div class="ustats">${st("hp", hp)}${(civId === "huns") ? st("atkc", atk + "*", "attack", "Crush " + atk + ": hits buildings only and ignores all armour.") : st((nkey === "A" || nkey === "S" || (civId && (CIVS[civId].k === "A" || CIVS[civId].k === "S"))) ? "atkb" : "atk", atk, "attack", (nkey === "A" || nkey === "S" || (civId && (CIVS[civId].k === "A" || CIVS[civId].k === "S"))) ? "Pierce attack: pierce armour lowers it." : "")}${+dm ? st("defm", dm, "melee armour", `Melee armour ${dm}: every melee hit on it loses ${dm}.`) : ""}${+dp ? st("defp", dp, "pierce armour", `Pierce armour ${dp}: every arrow (archers, towers, castle, Town Center) loses ${dp}.`) : ""}${melee ? "" : st("rng", rng + (lineS ? "-" : ""), "range", ONE[civId || nkey] || "")}${st("spd", spd, "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
+    <div class="ustats">${st("hp", hp)}${(civId === "huns") ? st("atkc", atk + '*', "attack", "Crush " + atk + ": hits buildings only and ignores all armour.") : st((nkey === "A" || nkey === "S" || (civId && (CIVS[civId].k === "A" || CIVS[civId].k === "S"))) ? "atkb" : "atk", atk, "attack", (nkey === "A" || nkey === "S" || (civId && (CIVS[civId].k === "A" || CIVS[civId].k === "S"))) ? "Pierce attack: pierce armour lowers it." : "")}${(+dm || +dp) ? st("defm", dm + "/" + dp, "armour", `Armour ${dm}/${dp} (melee/pierce). Melee armour ${dm}: every melee hit loses ${dm}. Pierce armour ${dp}: every arrow (archers, towers, castle, Town Center) loses ${dp}.`) : ""}${melee ? "" : st("rng", rng + (lineS ? "-" : ""), "range", ONE[civId || nkey] || "")}${st("spd", spd, "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
   const mine = G.civ ? [...new Set([G.civ[0], G.civ[1]])].filter(x => x !== "franks") : [];
   const order = mine.concat(Object.keys(CIVS).filter(x => x !== "franks" && !mine.includes(x)));
   let h = `<div class="ulegend"><span><i style="background:#7fbf63"></i>moves</span><span><i style="background:#d9453a"></i>hits</span><span><i style="background:#f1b3ab"></i>hits after a walk</span></div>`;
