@@ -630,7 +630,7 @@ const CIVS = {
   huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], rg: "1, buildings only", d: "Tarkan (cavalry): jumps up to 3 · crush: hits buildings only, ignoring all armour."},
   saracens: {n: "Saracens", k: "C", u: ["mameluke", "heavy mameluke", "elite mameluke"], rg: "1 after moving 1 or less", d: "Mameluke (cavalry): jumps up to 4 · defence 1 against cavalry · hits only after moving 1 or less."},
   persians: {n: "Persians", k: "C", u: ["war elephant", "heavy war elephant", "elite war elephant"], rg: "1, ignores building defence", d: "War elephant (cavalry): defence 1 against everything · moves 1, cannot jump · ignores building defence · no other cavalry."},
-  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], rg: "exactly 3, line", d: "Longbowman (archer): shoots exactly 3 away in a straight line or diagonal · units only · moves 2."},
+  britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], rg: "exactly 3", d: "Longbowman (archer): shoots exactly 3 away in any direction, only from where it stands · moves 1."},
   mongols: {n: "Mongols", k: "A", u: ["mangudai", "heavy mangudai", "elite mangudai"], rg: "exactly 2, line", d: "Mangudai (archer): jumps up to 3 · shoots only from where it stands, exactly 2 away in a straight line or diagonal."},
   koreans: {n: "Koreans", k: "A", u: ["war wagon", "heavy war wagon", "elite war wagon"], rg: "exactly 2", d: "War wagon (archer): defence 1 against arrows (archers, towers, castles, Town Center) · moves 1."},
   chinese: {n: "Chinese", k: "A", u: ["chu ko nu", "heavy chu ko nu", "elite chu ko nu"], rg: "exactly 2, line, two bolts", d: "Chu ko nu (archer): one action fires two bolts at two different targets, each exactly 2 away in a line or diagonal · moves 1."},
@@ -642,7 +642,7 @@ const ONE = {
   huns: "Jumps up to 3. Crush: hits buildings only, ignoring all armour.",
   saracens: "Jumps up to 4, has defence 1 against cavalry, and strikes only after moving 1 or less.",
   persians: "Defence 1 against everything, moves 1 without jumping, and ignores building defence.",
-  britons: "Shoots exactly 3 away in a line, at units only.",
+  britons: "Shoots exactly 3 away in any direction, but moves only 1.",
   mongols: "Jumps up to 3 and shoots exactly 2 away in a line, only from where it stands.",
   koreans: "Pierce defence 1, so arrows lose 1; shoots exactly 2 away, moves 1.",
   chinese: "Fires two bolts at two different targets, each exactly 2 away in a line.",
@@ -651,7 +651,7 @@ const ONE = {
   C: "Jumps up to 3, then hits the square next to it.", S: "Set it up (flip the coin) to fire at exactly 3 away, in any direction; it cannot move while set up. Ignores building defence. Needs a standing castle."};
 const compass = (c, orth) => { let l = ""; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, dg = i % 2, on = !(orth && dg); l += `<line x1="8" y1="8" x2="${(8 + 6.5 * Math.cos(a)).toFixed(1)}" y2="${(8 + 6.5 * Math.sin(a)).toFixed(1)}" stroke="${on ? c : "#cbb98f"}" stroke-width="${on ? 1.6 : 1}" stroke-linecap="round"/>`; } return `<svg class="cmp" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">${l}<circle cx="8" cy="8" r="1.6" fill="${c}"/></svg>`; };
 const MELEE = p => p.k === "I" || p.k === "C" || p.k === "V";
-const LINEU = p => ["britons", "mongols", "chinese"].includes(uid(p));
+const LINEU = p => ["mongols", "chinese"].includes(uid(p));
 const CRUSH = p => !!p && uid(p) === "huns";
 const BOWU = p => !!p && (p.k === "A" || p.k === "S");
 function specKey(p) { return p.k === "V" ? "vil" : uniOf(p) ? uid(p) : p.k; }
@@ -661,7 +661,7 @@ const rngText = p => { const u = uid(p), N = {britons: 3, mongols: 2, turks: 2, 
   if (u === "aztecs") return "Hits a piece on a neighbouring square, and still can after walking up to 2, so it reaches 3 squares.";
   if (u === "saracens") return "Hits a piece on a neighbouring square, but only if it moved 1 square or less first.";
   if (N === 1) return "Hits a piece on a neighbouring square (any of the 8 around it), also after walking.";
-  return `Hits a piece exactly ${N} squares away, ${line ? "straight or diagonal only (the 8 lines)" : "in any direction"}. Nearer pieces cannot be hit.` + (u === "chinese" ? " One action fires two bolts at two different targets." : "") + (u === "britons" ? " Units only, not buildings." : "") + (p.k === "A" || p.k === "S" ? " It fires without moving." : ""); };
+  return `Hits a piece exactly ${N} squares away, ${line ? "straight or diagonal only (the 8 lines)" : "in any direction"}. Nearer pieces cannot be hit.` + (u === "chinese" ? " One action fires two bolts at two different targets." : "") + (p.k === "A" || p.k === "S" ? " It fires without moving." : ""); };
 const moveText = p => { const n = speedOf(p), u = uid(p);
   return (p.k === "S" ? "Moves 1 square in any direction while packed. Set up (flip the coin) to fire; packing up costs an action too." : `Moves up to ${n} square${n > 1 ? "s" : ""} in any direction${canJump(p) ? ", jumping over pieces." : ", but cannot pass through pieces."}`) +
     (p.k === "A" ? " Shoots only without moving first." : ""); };
@@ -848,7 +848,7 @@ function reaches(p, f, r, t) {
   const d = cd(f, r, t.f, t.r), ux = uid(p), line = Math.abs(t.f - f) === 0 || Math.abs(t.r - r) === 0 || Math.abs(t.f - f) === Math.abs(t.r - r);
   if (ux === "huns") return d === 1 && isBld(t);
   if (p.k === "S") return d === (ux === "turks" ? 2 : 3);   // siege: every square of its ring, units and buildings
-  if (ux === "britons") return d === 3 && line && !isBld(t);
+  if (ux === "britons") return d === 3;
   if (ux === "mongols" || ux === "chinese" || ux === "turks") return d === 2 && line;
   if (p.k === "A") return d === 2;
   if (p.k === "S") { const dx = Math.abs(t.f - f), dy = Math.abs(t.r - r); return d === 3 && (dx === 0 || dy === 0 || dx === dy); }   // trebuchet: exactly 3 away, straight or diagonal only
@@ -1159,7 +1159,7 @@ function pieceActions(p) {
 }
 // archers shoot only from where they stand; other units may move first
 // speed of a piece, and the squares it can reach in n steps (scout cavalry jumps)
-const speedOf = p => { const x = uid(p); return x === "saracens" ? 4 : x === "mongols" ? 3 : (x === "teutons" || x === "persians" || x === "koreans" || x === "chinese") ? 1 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0; };
+const speedOf = p => { const x = uid(p); return x === "saracens" ? 4 : x === "mongols" ? 3 : (x === "teutons" || x === "persians" || x === "koreans" || x === "chinese" || x === "britons") ? 1 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0; };
 function movesN(p, n) {
   if (n <= 0 || (p.k === "S" && p.up)) return [];   // a set-up siege piece cannot move
   if (canJump(p)) {
@@ -3608,7 +3608,7 @@ function treeUnitStats(s) {
   const CK = G.rules.chk;
   const X = k => { const x = uid({k, o: s}); return x; };
   const sx = civ(s), spd = k => sx.k === k ? speedOf({k, o: s}) : null;
-  const R = k => sx.k === k ? ({teutons: "1", aztecs: "1 (3 after walking)", huns: "1 · buildings", saracens: "1 (2 after moving)", persians: "1", britons: "3 line", mongols: "2 line", koreans: "2", chinese: "2 line ×2", turks: "2 line"}[sx.id]) : null;
+  const R = k => sx.k === k ? ({teutons: "1", aztecs: "1 (3 after walking)", huns: "1 · buildings", saracens: "1 (2 after moving)", persians: "1", britons: "3", mongols: "2 line", koreans: "2", chinese: "2 line ×2", turks: "2 line"}[sx.id]) : null;
   const base = {vil: u(1, CK && !vilFight(s) ? 0 : G.rules.vilAtk1 ? 1 : 0.5, "1", 2), tcmil: u(2, 1, "1", 2), mil: u(2, 1, "1", 2), maa: u(3, 1, "1", 2), champ: u(3, 2, "1", 2),
     arch: u(2, 1, "2", 2), xbow: u(3, 1, "2", 2), arb: u(3, 2, "2", 2), scout: u(2, 1, "1", 3), knight: u(3, 1, "1", 3), pal: u(3, 2, "1", 3),
     mang: u(2, CK ? 1 : 2, "3", sp), onager: u(3, CK ? 2 : 3, "3", sp)};
@@ -3654,7 +3654,7 @@ const RANGE_SPEC = {
   huns: {mv: d => d <= 3, st: d => d === 1, wk: d => d <= 3, jump: 1, bld: 1},
   saracens: {mv: d => d <= 4, st: d => d === 1, wk: d => d <= 2, jump: 1},
   persians: {mv: d => d <= 1, st: d => d === 1},
-  britons: {mv: d => d <= 2, st: (d, l) => d === 3 && l},
+  britons: {mv: d => d <= 1, st: d => d === 3},
   mongols: {mv: d => d <= 3, st: (d, l) => d === 2 && l, jump: 1},
   koreans: {mv: d => d <= 1, st: d => d === 2},
   chinese: {mv: d => d <= 1, st: (d, l) => d === 2 && l},
@@ -3678,7 +3678,7 @@ function unitSheet(s) {
   const LB = {hp: "hit points", atk: "attack", def: "defence", rng: "range", spd: "speed"};
   const st = (k, v, l, ex) => `<span class="stat${ex ? " sx" : ""}" title="${l || LB[k]}"${ex ? ` data-ex="${esc(ex)}"` : ""}>${TICON[k]}<b>${v}</b></span>`;
   const cc = k => costStr(DCOST(k));
-  const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId, nkey) => { def = String(def); const melee = !!spec.st(1, true, true), lineS = ["britons", "mongols", "chinese", "turks"].includes(civId) || nkey === "S"; const dm = def.split("|")[0], dp = def.split("|")[1] === undefined ? dm : def.split("|")[1]; return `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
+  const row = (name, gl, c, cost, hp, atk, def, rng, spd, note, spec, civId, nkey) => { def = String(def); const melee = !!spec.st(1, true, true), lineS = ["mongols", "chinese"].includes(civId) || nkey === "S"; const dm = def.split("|")[0], dp = def.split("|")[1] === undefined ? dm : def.split("|")[1]; return `<div class="urow2${civId ? " ucivrow" : ""}"${civId ? ` style="--civ:${(THEME[civId] || THEME.franks).c}"` : ""}>${rangePic(spec)}
     <div class="ubody"><div class="uname"><span class="upc">${civId ? civEmblem(civId, 18) : gl}</span>${name}<small>${cost}</small></div>
     <div class="ustats">${st("hp", hp)}${(civId === "huns") ? st("atkc", atk + "*", "attack", "Crush " + atk + ": hits buildings only and ignores all armour.") : st((nkey === "A" || nkey === "S" || (civId && (CIVS[civId].k === "A" || CIVS[civId].k === "S"))) ? "atkb" : "atk", atk, "attack", (nkey === "A" || nkey === "S" || (civId && (CIVS[civId].k === "A" || CIVS[civId].k === "S"))) ? "Pierce attack: pierce armour lowers it." : "")}${+dm ? st("defm", dm, "melee armour", `Melee armour ${dm}: every melee hit on it loses ${dm}.`) : ""}${+dp ? st("defp", dp, "pierce armour", `Pierce armour ${dp}: every arrow (archers, towers, castle, Town Center) loses ${dp}.`) : ""}${melee ? "" : st("rng", rng + (lineS ? "-" : ""), "range", ONE[civId || nkey] || "")}${st("spd", spd, "speed", `Move ${spd}: up to ${spd} square${spd > 1 ? "s" : ""} ${civId === "turks" || nkey === "S" ? "in the four straight directions only" : "in all eight directions"}.`)}</div><div class="unote">${ONE[civId || nkey] || note}</div></div></div>`; };
   const mine = G.civ ? [...new Set([G.civ[0], G.civ[1]])].filter(x => x !== "franks") : [];
@@ -3697,7 +3697,7 @@ function unitSheet(s) {
     huns: ["Tarkan", "2 · 3 · 3", "1", "0", "1", 3, "Jumps 3. Crush: hits buildings only, ignoring all armour, so it can take down a Town Center."],
     saracens: ["Mameluke", "2 · 3 · 3", "1", "0|0", "1", 4, "Jumps up to 4. A hit costs the move: after 2 or more steps it cannot strike."],
     persians: ["War elephant", "2 · 3 · 3", "1", "1|1", "1", 1, "Melee 1, pierce 1. Moves 1, cannot jump. Breach: ignores building defence."],
-    britons: ["Longbowman", "2 · 3 · 3", "1", "0", "3", 2, "Units only, never buildings. Straight or diagonal."],
+    britons: ["Longbowman", "2 · 3 · 3", "1", "0", "3", 1, "Shoots exactly 3 away in any direction, only where it stands. Moves 1."],
     mongols: ["Mangudai", "2 · 3 · 3", "1", "0", "2", 3, "Jumps up to 3, shoots only where it stands."],
     koreans: ["War wagon", "2 · 3 · 3", "1", "0|1", "2", 1, "Pierce defence 1: arrows (archers, towers, castle, Town Center) lose 1. Melee defence 0."],
     chinese: ["Chu ko nu", "2 · 3 · 3", "1", "0", "2", 1, "One action fires at two different targets."],
