@@ -688,7 +688,7 @@ const CIVS = {
   franks: {n: "Franks", d: "Standard units."},
   teutons: {n: "Teutons", k: "I", u: ["teutonic knight", "heavy teutonic knight", "elite teutonic knight"], rg: "1", d: "Teutonic knight (infantry): defence 1 against everything · moves 1 · costs 3 food."},
   aztecs: {n: "Aztecs", k: "I", no: ["C"], u: ["jaguar warrior", "heavy jaguar warrior", "elite jaguar warrior"], rg: "1 after walking 2", d: "Jaguar warrior (infantry): walks 2 and still hits, reach 3 · the Aztecs train no cavalry."},
-  huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], rg: "1, buildings only", d: "Tarkan (cavalry): moves 3 · crush: hits buildings only, ignoring all armour · costs 2 food."},
+  huns: {n: "Huns", k: "C", u: ["tarkan", "heavy tarkan", "elite tarkan"], rg: "1, buildings only", d: "Tarkan (cavalry): moves 3 · crush: hits buildings only, ignoring all armour · costs 3 food."},
   persians: {n: "Persians", k: "C", u: ["war elephant", "heavy war elephant", "elite war elephant"], rg: "1", d: "War elephant (cavalry): crush 1, ignores all armour · armour 1/1 · moves 1 · costs 5 food · no other cavalry."},
   britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], rg: "exactly 3", d: "Longbowman (archer): shoots exactly 3 away in any direction, only from where it stands · moves 1 · costs 4 food."},
   koreans: {n: "Koreans", k: "A", u: ["war wagon", "heavy war wagon", "elite war wagon"], rg: "exactly 2", d: "War wagon (archer): defence 1 against arrows (archers, towers, castles, Town Center) · moves 1."},
@@ -698,7 +698,7 @@ Object.keys(CIVS).forEach(k => { CIVS[k].id = k; });
 const ONE = {
   teutons: "Defence 1 against everything, but it moves only 1 and costs 3 food.",
   aztecs: "Walks 2 and still strikes, so it reaches 3; the Aztecs train no cavalry.",
-  huns: "Moves 3. Crush: hits <b>buildings only</b>, ignoring all armour. Costs 2 food.",
+  huns: "Moves 3. Crush: hits <b>buildings only</b>, ignoring all armour. Costs 3 food.",
   saracens: "Jumps up to 4, has defence 1 against cavalry, and strikes only after moving 1 or less.",
   persians: "Crush 1: ignores all armour, units and buildings. Armour 1/1, moves 1, costs 5 food.",
   britons: "Shoots exactly 3 away in any direction, but moves only 1 and costs 4 food, twice an archer.",
@@ -1270,7 +1270,7 @@ const vilFight = s => !!G.rules.vilAtk1 || !!G.rules.vilHalf || !!G.rules.vilCoi
 const VCOST = () => G.rules.vilCost2 ? 2 : 1;
 // unit prices [food, wood]; upgrade/repair price [food, wood] per line
 const UBASEC = k => G.rules.split ? {I: [1, 0], A: [2, 0], C: [3, 0], S: [0, 5]}[k] : G.rules.prices2 ? {I: [1, 0], A: [0, 2], C: [2, 0], S: [0, 3]}[k] : {I: [1, 0], A: [1, 1], C: [2, 1], S: [3, 1]}[k];
-const UNIPRICE = {teutons: {I: [3, 0]}, britons: {A: [4, 0]}, huns: {C: [2, 0]}, persians: {C: [5, 0]}, chinese: {A: [4, 0]}, turks: {S: [0, 7]}};   // a special unit that is worth more than its slot costs more
+const UNIPRICE = {teutons: {I: [3, 0]}, britons: {A: [4, 0]}, huns: {C: [3, 0]}, persians: {C: [5, 0]}, chinese: {A: [4, 0]}, turks: {S: [0, 7]}};   // a special unit that is worth more than its slot costs more
 const UCOST = (k, w) => { const id = typeof w === "string" ? w : w === undefined ? null : civ(w).id; return (id && UNIPRICE[id] && UNIPRICE[id][k]) || UBASEC(k); };
 const UPCOST = k => G.rules.split ? (k === "S" ? [0, 1] : [1, 0]) : G.rules.prices2 ? ((k === "I" || k === "C") ? [1, 0] : [0, 1]) : (k === "I" ? [1, 0] : [0, 1]);
 const costStr = c => [c[1] ? c[1] + " wood" : "", c[0] ? c[0] + " food" : ""].filter(Boolean).join(" + ");
