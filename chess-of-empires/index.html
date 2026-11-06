@@ -314,6 +314,10 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .ix-stripc{display:flex;align-items:center;justify-content:center}
 .ix-strip{width:38px;min-height:44px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1}.ix-strip b{font-size:13px}
 .ix-def{display:inline-flex;align-items:center;gap:1px;font-size:11px;color:#a89a82;margin-left:-2px}
+.ix-hs{display:inline-block;background:#fffaf0;border:1px solid color-mix(in srgb,var(--c) 45%,transparent);border-radius:9px;padding:1px 7px;margin-bottom:4px;font-weight:700}.ix-hs .ix-stat{font-size:15px}
+.ix-exc{font-size:12.5px;font-weight:700;color:#B03A2E;white-space:nowrap}.ix-exc b{font-weight:400}
+.ix-defn{display:inline-flex;align-items:center;gap:1px;font-size:11px;color:#8a7a60;margin-left:3px;vertical-align:middle}
+.ix-rule{display:flex;gap:12px;align-items:center;background:rgba(255,250,236,.7);border:1px solid #d9c39a;border-radius:12px;padding:9px 12px;margin:0 0 10px;font-size:14px;line-height:1.45;color:#3b2716}.ix-rs{flex:0 0 auto}.ix-rsub{font-size:12px;color:#6d5a40}
 .ix-up{margin-top:6px;padding-top:5px;border-top:2px solid var(--c);min-height:46px}.ix-uph{font-weight:700;font-size:14px}.ix-upp{font-size:13px;line-height:1.35}.ix-upp b{font-weight:400}
 .ix-m{display:inline-flex;align-items:center;gap:1px;font-weight:600}
 .ix-row{border-top:.5px solid #e2d7c3;min-height:52px}
@@ -329,7 +333,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 #treeDlg .ix-row{min-height:38px}
 #treeDlg .ix-strip{width:26px;min-height:30px;border-radius:6px}#treeDlg .ix-strip b{font-size:10.5px}#treeDlg .ix-strip .ix-pc{font-size:15px !important}
 #treeDlg .ix-pc{font-size:18px}#treeDlg .ix-bar{width:15px;height:3px;margin-top:1.5px}
-#treeDlg .ix-cell{gap:2px}#treeDlg .ix-stat{font-size:11px;letter-spacing:-.2px}
+#treeDlg .ix-hs{padding:0 3px}#treeDlg .ix-hs .ix-stat{font-size:12px}#treeDlg .ix-exc{font-size:10.5px}#treeDlg .ix-rule{font-size:12.5px;padding:7px 9px}#treeDlg .ix-cell{gap:2px}#treeDlg .ix-stat{font-size:11px;letter-spacing:-.2px}
 #treeDlg .ix-age{padding:4px 1px 4px}#treeDlg .ix-rn{font-size:14px}#treeDlg .ix-an{font-size:8.5px;letter-spacing:.06em}#treeDlg .ix-ap{font-size:10px;gap:1px}
 #treeDlg .ix-up{margin-top:3px;padding-top:3px;min-height:0}#treeDlg .ix-uph{font-size:10.5px}#treeDlg .ix-upp{font-size:10px;line-height:1.2}
 #treeDlg .ix-ph{font-size:7.5px;padding-bottom:3px;letter-spacing:.04em}
@@ -3733,26 +3737,29 @@ function renderIndex() {
     ["Infantry", cs("I", `the villager's pawn stays \u00b7 reach 1 \u00b7 speed 2`), [null, ["P", "f", 2, 1], ["P", "ff", 3, 1], ["P", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
     ["Archer", cs("A", `reach 2 \u00b7 speed 2`), [null, ["B", "f", 2, 1], ["B", "ff", 3, 1], ["B", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
     ["Cavalry", cs("C", `reach 1 \u00b7 speed 3, jumps`), [null, ["N", "f", 2, 1], ["N", "ff", 3, 1], ["N", "gf", 3, 2]], [null, ["f", "hp"], ["g", "at"]]],
-    ["Trebuchet", cs("S", `needs a castle \u00b7 one at a time \u00b7 ignores building defence`), [null, null, ["coin", "ww", 2, 1], ["coin", "gw", 2, 2]], []],
+    ["Trebuchet", cs("S", `needs a castle \u00b7 one at a time \u00b7 set up to fire \u00b7 ignores building defence`), [null, null, ["coin", "ww", 2, 1], ["coin", "gw", 2, 2]], []],
     ["Town Center", "your age \u00b7 shoots 1\u20132 from the start", [["K", "", 1, 1], ["K", "w", 2, 1], ["K", "ww", 3, 1], ["K", "gw", 3, 2]], []],
     ["Barracks / castle", `built two high \u00b7 the queen crowns it: castle`, [null, [null, "ww", 2, 0], ["Q", "ww", 3, 1], ["Q", "gw", 3, 2]], [null, ["Q", ""], ["g", "at"]]],
     ["Mill / camp / tower", `from the Dark Age \u00b7 the rook crowns it: tower`, [[null, "w", 1, 0], ["R", "w", 2, 1], ["R", "ww", 3, 1], ["R", "gw", 3, 2]], [["R", ""], ["w", "hp"], ["g", "at"]]],
   ];
-  const AGES = [["I", "Dark", "start", "", "villagers, mills, camps"], ["II", "Feudal", `advance ${money("w", 3)} + camp`, "new unit", "piece + 1 checker"], ["III", "Castle", `advance ${money("w", 5)} + barracks`, "+ one checker", `${money("f", 1)} unit \u00b7 ${money("w", 1)} building<br><b style="color:#B03A2E">\u2665</b> +1 hit point`], ["IV", "Imperial", `advance ${money("w", 4)} ${money("g", 1)} + castle`, "+ gold checker", `${money("g", 1)}<br><b>\u2694</b> +1 attack`]];
+  const AGES = [["I", "Dark", "start", "", "villagers, mills, camps"], ["II", "Feudal", `advance ${money("w", 3)} + camp`, "new unit", "piece + 1 checker"], ["III", "Castle", `advance ${money("w", 5)} + barracks`, "+1 checker", `${money("f", 1)} unit \u00b7 ${money("w", 1)} building`], ["IV", "Imperial", `advance ${money("w", 4)} ${money("g", 1)} + castle`, "gold checker", `${money("g", 1)} replaces one`]];
+  const STD = [[1, 1], [2, 1], [3, 1], [3, 2]];
+  const exc = (c, i) => { const hd = c[2] !== STD[i][0], ad = c[3] !== STD[i][1]; return hd || ad ? `<span class="ix-exc">${hd ? `<b>\u2665</b>${c[2]}` : ""}${hd && ad ? " " : ""}${ad ? `<b>\u2694</b>${c[3]}` : ""}</span>` : ""; };
   const DEF = `<span class="ix-def" title="building defence 1"><svg width="10" height="12" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 .6 9.2 2.2v3.4c0 2.9-1.9 4.9-4.2 5.8C2.7 10.5.8 8.5.8 5.6V2.2z" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>1</span>`;
   const PS = {Villager: ["P", "f", "1"], Infantry: ["P", "", "\u2013"], Archer: ["B", "f", "1"], Cavalry: ["N", "f", "2"], Trebuchet: ["coin", "w", "3"],
     "Town Center": ["K", "", "\u2013"], "Barracks / castle": ["Q", "w", "4"], "Mill / camp / tower": ["R", "w", "3"]};
   const strip = (nm, cls) => { const p = PS[nm], bg = p[1] === "f" ? F : p[1] === "w" ? W : "#ECE6DA", fg = p[1] ? "#FFFDF8" : "#A89A82";
     const glyph = p[0] === "coin" ? `<svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><ellipse cx="11" cy="5" rx="9.5" ry="3.8" fill="none" stroke="${fg}" stroke-width="1.4"/><text x="11" y="7" text-anchor="middle" font-size="5.5" font-weight="700" fill="${fg}">T</text></svg>` : `<span class="ix-pc" style="color:${fg};font-size:22px">${GL[p[0]]}</span>`;
     return `<div class="ix-row${cls} ix-stripc"><div class="ix-strip" style="background:${bg};color:${fg}">${glyph}<b>${p[2]}${p[3] ? `<span style="color:#F4D774"> +${p[3]}</span>` : ""}</b></div></div>`; };
-  let h = `<div class="ix-wrap"><div class="ix">`;
-  h += `<div class="ix-lab"></div><div class="ix-ph"><div>piece</div><div>${ic.f}${ic.w}</div></div>` + AGES.map((a, i) => `<div class="ix-age" style="--c:${AG[i]}"><div class="ix-rn">${a[0]}</div><div class="ix-an">${a[1]}</div><div class="ix-ap">${a[2]}</div><div class="ix-up">${a[3] ? `<div class="ix-uph">${a[3]}</div>` : ""}<div class="ix-upp">${a[4]}</div></div></div>`).join("");
+  const RULE = `<div class="ix-rule"><span class="ix-rs">${stack("N", "gf")}</span><div><div><b style="color:#B03A2E">\u2665</b> <b>= height</b>: one per piece or checker (the trebuchet coin does not count).</div><div><b>\u2694</b> <b>= 1 with a piece on top</b>, +1 with a gold checker. No piece, no attack.</div><div class="ix-rsub">So every unit and building shows the stats in its age column. Red numbers are the only exceptions. Buildings also have ${DEF.replace("ix-def", "ix-defn")} defence.</div></div></div>`;
+  let h = RULE + `<div class="ix-wrap"><div class="ix">`;
+  h += `<div class="ix-lab"></div><div class="ix-ph"><div>piece</div><div>${ic.f}${ic.w}</div></div>` + AGES.map((a, i) => `<div class="ix-age" style="--c:${AG[i]}"><div class="ix-rn">${a[0]}</div><div class="ix-an">${a[1]}</div><div class="ix-ap">${a[2]}</div><div class="ix-up"><div class="ix-hs">${stat(STD[i][0], STD[i][1])}</div>${a[3] ? `<div class="ix-uph">${a[3]}</div>` : ""}<div class="ix-upp">${a[4]}</div></div></div>`).join("");
   ROWS.forEach((r, k) => {
     const cls = k === 5 ? " ix-sep" : "";
-    h += `<div class="ix-lab ix-row${cls}"><div class="ix-nm">${r[0]}</div><div class="ix-sub">${r[1]}</div></div>` + strip(r[0], cls);
+    h += `<div class="ix-lab ix-row${cls}"><div class="ix-nm">${r[0]}${k >= 5 ? `<span class="ix-dn">${DEF.replace("ix-def", "ix-defn")}</span>` : ""}</div><div class="ix-sub">${r[1]}</div></div>` + strip(r[0], cls);
     r[2].forEach((c, i) => {
       const cap = k === 6 ? (i >= 2 ? "castle" : i === 1 ? "barracks" : "") : k === 7 ? (i >= 1 ? "tower" : "mill / camp") : "";
-      h += `<div class="ix-cell ix-row${cls}" style="--c:${AG[i]}">${c ? (cap ? `<span class="ix-capw">` : "") + stack(c[0], c[1]) + (cap ? `<span class="ix-cap">${cap}</span></span>` : "") + stat(c[2], c[3]) + (k >= 5 ? DEF : "") : ""}</div>`;
+      h += `<div class="ix-cell ix-row${cls}" style="--c:${AG[i]}">${c ? (cap ? `<span class="ix-capw">` : "") + stack(c[0], c[1]) + (cap ? `<span class="ix-cap">${cap}</span></span>` : "") + exc(c, i) : ""}</div>`;
     });
   });
   h += `</div></div><p class="ix-foot">Everything gathers on 4+: the fields give food, the forest wood, your 3×3 home nothing; from the Castle Age a villager on the four centre squares mines gold (4+), or a villager on a8 (food) or h1 (wood) buys it for 6 of that resource (any mix with both); hold 2. Food buys people and horses; wood buys buildings, ages and machines. Checker colour shows its price: <span class="ix-sw" style="background:${F}"></span> 1 food on a unit, <span class="ix-sw" style="background:${W}"></span> 1 wood on a building or machine, <span class="ix-sw" style="background:${Gd}"></span> 1 gold. A chess piece adds its own price; ages cost wood. The small shield is building defence: every building has 1.</p>`;
