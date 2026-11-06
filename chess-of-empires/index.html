@@ -459,6 +459,22 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 #civPick .cp-tag.w{background:#f4efe2;color:#2f2418}#civPick .cp-tag.b{background:#2a2420;color:#fff}
 #civPick .cp-note{font-size:13px!important;line-height:1.45;background:rgba(255,250,240,.7);border:1px dashed #d9c39a;border-radius:10px;padding:7px 9px;margin:8px 0 2px}
 #civPick .cp-note svg{vertical-align:-3px}
+/* compact bottom panel */
+.panel{padding:4px 8px!important;max-height:22dvh}
+.panel .ptitle{display:inline-block;font-size:14px;margin:0 8px 0 0;vertical-align:middle}
+.panel .pmeta{display:inline-block;margin:0;vertical-align:middle}
+.panel .udesc{display:none}
+.panel{min-height:0!important;flex:0 0 auto!important}
+.panel .acts>div[style*="margin-top:8px"]{display:none}
+.panel .acts{margin-top:3px}
+.acts.big button.tile{padding:3px 0 2px}
+.acts.big button.tile .aic svg{width:26px;height:20px}
+.acts.big button.tile .tl{font-size:10.5px}
+.acts .tiles.big{gap:4px}
+.acts .tiles.big.sub{margin-top:3px!important}
+.panel .msg{margin-top:3px;font-size:12px}
+.bar{margin-top:4px}.bar button{min-height:34px!important;padding:4px 6px;font-size:13px}
+.bar button.primary{font-size:13px;line-height:1.05}
 </style>
 </head>
 <body>
@@ -479,7 +495,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
     <button id="logBtn">Log</button>
     <button id="treeBtn">Tree</button>
     <button id="autoBtn" style="display:none">Auto off</button>
-    <button id="undoBtn" disabled>Undo</button>
+    <button id="undoBtn" disabled>Undo turn</button>
     <button id="endBtn" class="primary">End turn</button>
   </div>
   <div class="log" id="log"></div>
@@ -3292,7 +3308,7 @@ function render() {
 }
 document.getElementById("undoBtn").onclick = () => {
   if (!UNDO.length || UI.busy) return;
-  G = JSON.parse(UNDO.pop()); UI = {sel: null, mode: null, msg: "", busy: false};
+  G = JSON.parse(UNDO[0]); UNDO = [];   // back to the start of this turn UI = {sel: null, mode: null, msg: "", busy: false};
   save(); render();
 };
 function finish() {
