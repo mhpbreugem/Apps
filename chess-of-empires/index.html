@@ -228,7 +228,7 @@ header .fan{font-size:9.5px;line-height:1.15;margin-top:0}
 .status{margin:0 0 4px;padding:1px 7px;font-size:12px;min-height:20px}
 .status b{font-size:14px}
 .boardbox{flex:none;min-height:0;container-type:normal;display:block;margin:0 0 4px}
-svg.board{width:min(100%,calc(100vh - 350px));width:min(100%,calc(100dvh - 350px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));height:auto;margin:0 auto;padding:3px;border-width:2px}
+svg.board{width:min(100%,calc(100vh - 250px));width:min(100%,calc(100dvh - 250px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));height:auto;margin:0 auto;padding:3px;border-width:2px}
 svg.board.dia{width:min(100%,calc((100dvh - 250px) * 1.32))}
 .players{margin:0 0 4px;padding:2px 6px;font-size:12px}
 .players .h svg{width:14px;height:14px}
@@ -465,9 +465,17 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .panel{padding:12px 8px 6px!important;min-height:0!important;flex:1 1 auto!important;max-height:none!important;overflow:auto}
 .pgrid{display:grid;grid-template-columns:42% 1fr;gap:8px;align-items:stretch}.pgrid.solo{grid-template-columns:1fr}
 .pleft{background:rgba(255,252,242,.7);border:1px solid #dcc59a;border-radius:10px;padding:6px 8px}
-.pleft .ptitle{font-size:14px;margin:0 0 4px;line-height:1.15}
-.pleft .stats{flex-direction:column;align-items:flex-start;gap:4px;font-size:15px}
-.pleft .stat{font-size:15px}.pleft .stat .hpbox{margin-left:6px}
+.pleft .ptitle{font-size:15px;margin:0 0 6px;line-height:1.15;text-transform:none;font-variant:normal}.pleft .ptitle small{display:block;font:12px Inter,system-ui,sans-serif;color:#7a6446;margin-top:1px;text-transform:none;font-variant:normal}
+.prow{display:flex;align-items:center;gap:10px}
+.pbig{display:flex;flex-direction:column;align-items:center;gap:2px;flex:none;min-width:44px}
+.pbg{font-size:44px;line-height:1;color:#1d1712;font-family:'DejaVu Sans','Segoe UI Symbol',serif}
+.pck{display:block;width:44px;height:7px;border-radius:2px;border:1px solid #35210f;box-sizing:border-box}
+.pck.own0{background:#f7efdc}.pck.own1{background:#221d18}.pck.gold{background:#e7bd52;border-color:#7c5a12}
+.pleft .hpbox{display:none!important}
+.pright .pnote{margin:0}
+@media (min-height:760px){.pbg{font-size:58px}.pck{width:54px;height:8px}.pleft .stat{font-size:19px}.pleft .stat svg{width:21px;height:21px}.pleft .ptitle{font-size:17px}.pleft{padding:10px}}
+.pleft .stats{flex-direction:column;align-items:flex-start;gap:6px;font-size:16px}
+.pleft .stat{font-size:16px}.pleft .stat svg{width:18px;height:18px}.pleft .stat .hpbox{margin-left:6px}
 .pleft .stat small.bo{display:block;margin:0}
 .pright .acts{margin:0}
 .pright .tiles.big{display:grid!important;grid-template-columns:1fr 1fr;gap:5px}
@@ -3295,8 +3303,11 @@ function renderPanel() {
     if (hints.length && sp.k !== "V") acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     if (sp.k !== "V" && !isUnit(sp)) UI.list = list;
   }
-  const noAct = !acts;
-  el.innerHTML = `<div class="pgrid${noAct ? " solo" : ""}"><div class="pleft"><div class="ptitle">${title}</div><div class="pmeta">${meta[0]}</div></div>${noAct ? "" : `<div class="pright"><div class="acts${dense}">${acts}</div></div>`}</div><div class="pnote">${meta.slice(1).join("")}</div>${msg}`;
+  const noAct = !acts, note = meta.slice(1).join("");
+  const gl = sp.k === "camp" ? (sp.cr ? GLY.S : "") : (GLY[sp.k] || "");
+  const big = `<div class="pbig">${gl ? `<span class="pbg">${gl}</span>` : ""}${sp.st.map(c => `<span class="pck ${c === sp.o ? "own" + sp.o : "gold"}"></span>`).join("")}</div>`;
+  const left = `<div class="pleft"><div class="ptitle">${name(sp).replace(/^./, c => c.toUpperCase())}<small> ${SIDE[sp.o]} · ${SQ([sp.f, sp.r])}</small></div><div class="prow">${big}<div class="pmeta">${meta[0]}</div></div></div>`;
+  el.innerHTML = `<div class="pgrid">${left}<div class="pright">${noAct ? `<div class="pnote">${note}</div>` : `<div class="acts${dense}">${acts}</div>`}</div></div>${noAct ? "" : `<div class="pnote">${note}</div>`}${msg}`;
 }
 function renderLog() {
   const L = G.log.slice(-4).reverse();
