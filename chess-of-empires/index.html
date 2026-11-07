@@ -461,31 +461,37 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 #civPick .cp-tag.w{background:#f4efe2;color:#2f2418}#civPick .cp-tag.b{background:#2a2420;color:#fff}
 #civPick .cp-note{font-size:13px!important;line-height:1.45;background:rgba(255,250,240,.7);border:1px dashed #d9c39a;border-radius:10px;padding:7px 9px;margin:8px 0 2px}
 #civPick .cp-note svg{vertical-align:-3px}
-/* bottom panel: stats left, actions right */
-.panel{padding:12px 8px 6px!important;min-height:0!important;flex:1 1 auto!important;max-height:none!important;overflow:auto}
-.pgrid{display:grid;grid-template-columns:42% 1fr;gap:8px;align-items:stretch}.pgrid.solo{grid-template-columns:1fr}
-.pleft{background:rgba(255,252,242,.7);border:1px solid #dcc59a;border-radius:10px;padding:6px 8px}
-.pleft .ptitle{font-size:15px;margin:0 0 6px;line-height:1.15;text-transform:none;font-variant:normal}.pleft .ptitle small{display:block;font:12px Inter,system-ui,sans-serif;color:#7a6446;margin-top:1px;text-transform:none;font-variant:normal}
-.prow{display:flex;align-items:center;gap:10px}
-.pbig{display:flex;flex-direction:column;align-items:center;gap:2px;flex:none;min-width:44px}
-.pbg{font-size:44px;line-height:1;color:#1d1712;font-family:'DejaVu Sans','Segoe UI Symbol',serif}
+/* bottom panel: stats card left, actions right, fixed height, never scrolls */
+.panel{padding:8px!important;min-height:184px!important;flex:1 1 auto!important;max-height:none!important;overflow:hidden!important;display:flex;flex-direction:column}
+.panel>.ptitle,.panel>.pmeta{flex:none}
+.pgrid{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;min-height:0}
+.pleft{background:#fbf5e6;border:1px solid #dcc59a;border-radius:10px;padding:7px 10px 6px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.pleft .ptitle{font:700 16px Georgia,'Times New Roman',serif;color:#5a2e0e;margin:0;text-transform:none;font-variant:normal;letter-spacing:0;padding-bottom:3px;border-bottom:1px solid transparent;border-image:linear-gradient(90deg,#c9a46a,transparent) 1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow{display:flex;align-items:center;gap:10px;margin-top:4px}
+.pbig{display:flex;flex-direction:column;align-items:center;gap:2px;flex:none;width:52px}
+.pbg{font-size:46px;line-height:1;color:#1d1712;font-family:'DejaVu Sans','Segoe UI Symbol',serif}
 .pck{display:block;width:44px;height:7px;border-radius:2px;border:1px solid #35210f;box-sizing:border-box}
 .pck.own0{background:#f7efdc}.pck.own1{background:#221d18}.pck.gold{background:#e7bd52;border-color:#7c5a12}
-.pleft .hpbox{display:none!important}
-.pright .pnote{margin:0}
-@media (min-height:760px){.pbg{font-size:58px}.pck{width:54px;height:8px}.pleft .stat{font-size:19px}.pleft .stat svg{width:21px;height:21px}.pleft .ptitle{font-size:17px}.pleft{padding:10px}}
-.pleft .stats{flex-direction:column;align-items:flex-start;gap:6px;font-size:16px}
-.pleft .stat{font-size:16px}.pleft .stat svg{width:18px;height:18px}.pleft .stat .hpbox{margin-left:6px}
-.pleft .stat small.bo{display:block;margin:0}
-.pright .acts{margin:0}
-.pright .tiles.big{display:grid!important;grid-template-columns:1fr 1fr;gap:5px}
-.pright .tiles.big.sub{margin-top:5px!important}
-.acts.big button.tile{padding:4px 0 3px}
-.acts.big button.tile .aic svg{width:26px;height:20px}
-.acts.big button.tile .tl{font-size:11px}
-.pnote{margin-top:6px;font-size:12.5px;color:#5a4a30;line-height:1.35}.pnote .udesc{display:block;font-size:12.5px;margin:0 0 3px}
-.pnote .info{display:block;font-size:12px;margin-top:2px}
-.panel .msg{margin-top:5px;font-size:12.5px}
+.plinth{display:block;width:50px;height:5px;border-radius:50%;background:rgba(60,30,0,.15);margin-top:1px}
+.scol{flex:1;min-width:0}
+.srow{height:19px;display:flex;align-items:center}
+.srow .stat{display:flex!important;align-items:center;justify-content:space-between;width:100%;gap:6px;font-size:15px;margin:0;padding:0;background:none;border:0}
+.srow .stat svg{width:16px;height:16px;flex:none}
+.srow .stat b{font-variant-numeric:tabular-nums;margin-left:auto;font-size:15.5px}
+.srow .stat small{font-size:9px}
+.srow.off .stat b{color:#c4b494;font-weight:600}
+.pdesc,.pleft .msg{margin-top:auto;padding-top:4px;border-top:1px solid #eadcbc;font-size:11.5px;line-height:1.25;color:#6d5a40;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:none}
+.pleft .msg{color:#7a3b12;font-weight:600}
+.pright{min-height:0;display:flex;flex-direction:column}
+.pright .acts{margin:0!important;flex:1;display:flex;flex-direction:column;gap:5px;min-height:0}
+.pright .acts>div:not(.tiles){display:none}
+.pright .tiles.big{display:grid!important;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:5px;flex:2 1 0;min-height:0;margin:0!important}
+.pright .tiles.big.sub{flex:1 1 0}
+.pright .tiles.big.sub .aic{display:none}.pright .tiles.big.sub .tl{font-size:11px;line-height:1.05}
+.pright .tiles.big button.tile{min-height:0!important;height:auto;padding:2px!important;overflow:hidden}
+.acts.big button.tile .aic svg{width:24px;height:19px}
+.acts.big button.tile .tl{font-size:11.5px}
+.pright .pnote{font-size:12px;color:#6d5a40;line-height:1.35}
 .bar{margin-top:4px}.bar button{min-height:34px!important;padding:4px 6px;font-size:13px}
 .bar button.primary{font-size:13px;line-height:1.05}
 </style>
@@ -2949,7 +2955,16 @@ function renderStrips() {
     el.innerHTML = t;
   }
 }
-window.addEventListener("resize", () => { try { renderStrips(); } catch (e) {} });
+window.addEventListener("resize", () => { try { renderStrips(); fitBoard(); } catch (e) {} });
+// shrink the board just enough that the whole screen fits without scrolling
+function fitBoard() {
+  const b = document.querySelector("svg.board"), w = document.querySelector(".wrap");
+  if (!b || !w) return;
+  b.style.width = "";
+  if (getComputedStyle(w).display !== "flex") return;
+  const over = w.scrollHeight - w.clientHeight;
+  if (over > 0) b.style.width = Math.max(150, b.getBoundingClientRect().width - over) + "px";
+}
 /* ================= 3D view (three.js, loaded on demand) ================= */
 let T3 = null;
 const T3URL = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
@@ -3303,11 +3318,21 @@ function renderPanel() {
     if (hints.length && sp.k !== "V") acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     if (sp.k !== "V" && !isUnit(sp)) UI.list = list;
   }
-  const noAct = !acts, note = meta.slice(1).join("");
+  const noAct = !acts;
   const gl = sp.k === "camp" ? (sp.cr ? GLY.S : "") : (GLY[sp.k] || "");
-  const big = `<div class="pbig">${gl ? `<span class="pbg">${gl}</span>` : ""}${sp.st.map(c => `<span class="pck ${c === sp.o ? "own" + sp.o : "gold"}"></span>`).join("")}</div>`;
-  const left = `<div class="pleft"><div class="ptitle">${name(sp).replace(/^./, c => c.toUpperCase())}<small> ${SIDE[sp.o]} · ${SQ([sp.f, sp.r])}</small></div><div class="prow">${big}<div class="pmeta">${meta[0]}</div></div></div>`;
-  el.innerHTML = `<div class="pgrid">${left}<div class="pright">${noAct ? `<div class="pnote">${note}</div>` : `<div class="acts${dense}">${acts}</div>`}</div></div>${noAct ? "" : `<div class="pnote">${note}</div>`}${msg}`;
+  const big = `<div class="pbig">${gl ? `<span class="pbg">${gl}</span>` : ""}${sp.st.map(c => `<span class="pck ${c === sp.o ? "own" + sp.o : "gold"}"></span>`).join("")}<span class="plinth"></span></div>`;
+  const tmp = document.createElement("div"); tmp.innerHTML = meta[0];
+  const all = [...tmp.querySelectorAll(".stat")];
+  const rows = [["hit points", "hp"], ["attack", "atk"], ["defence", "def"], ["speed", "spd"], ["range", "rng"]].map(([t, k]) => {
+    const e = all.find(x => (x.getAttribute("title") || "").startsWith(t));
+    if (!e) return `<div class="srow off"><span class="stat" title="${t}">${IC[k] || ""}<b>${k === "def" ? "0" : "–"}</b></span></div>`;
+    const hb = e.querySelector(".hpbox"); if (hb) hb.remove();
+    const v = (e.querySelector("b") || {}).textContent || "";
+    return `<div class="srow${/^0(\/0)?$/.test(v.trim()) ? " off" : ""}">${e.outerHTML}</div>`;
+  }).join("");
+  const desc = UI.msg ? msg : `<div class="pdesc">${meta[1] ? meta[1].replace(/<[^>]+>/g, "") : (info[0] || "")}</div>`;
+  const left = `<div class="pleft"><div class="ptitle">${name(sp).replace(/^./, c => c.toUpperCase())}</div><div class="prow">${big}<div class="scol">${rows}</div></div>${desc}</div>`;
+  el.innerHTML = `<div class="pgrid">${left}<div class="pright">${noAct ? `<div class="pnote">${info.join("<br>") || (mineP ? "" : sp.o === G.turn ? "" : "Not this side's turn.")}</div>` : `<div class="acts${dense}">${acts}</div>`}</div></div>`;
 }
 function renderLog() {
   const L = G.log.slice(-4).reverse();
@@ -3315,7 +3340,7 @@ function renderLog() {
 }
 function render() {
   setTimeout(() => { try { checkOwe(); } catch (e) {} }, 0);
-  renderStatus(); renderBoard(); if (VIEW === "3d") render3D(); renderStrips(); renderPlayers(); if (typeof autoLabel === "function") autoLabel(); renderPanel(); renderLog();
+  renderStatus(); renderBoard(); if (VIEW === "3d") render3D(); renderStrips(); renderPlayers(); if (typeof autoLabel === "function") autoLabel(); renderPanel(); fitBoard();; renderLog();
   const endB = document.getElementById("endBtn");
   endB.disabled = UI.busy || G.winner !== null || isAI(G.turn) || remote(G.turn);
   const ub = document.getElementById("undoBtn");
