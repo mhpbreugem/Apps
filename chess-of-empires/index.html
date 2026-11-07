@@ -464,25 +464,25 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 /* bottom panel: stats card left, actions right, fixed height, never scrolls */
 .panel{padding:8px!important;min-height:0!important;flex:1 1 0!important;max-height:none!important;overflow:hidden!important;display:flex;flex-direction:column}
 .panel>.ptitle,.panel>.pmeta{flex:none}
-.pgrid{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;min-height:0}
+.pgrid{flex:1 1 auto;display:grid;grid-template-columns:54% 1fr;gap:8px;min-height:0}
 .pleft{background:transparent;border:1px solid rgba(160,120,60,.45);border-radius:10px;padding:7px 10px 6px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .pleft .ptitle{font:700 16px Georgia,'Times New Roman',serif;color:#5a2e0e;margin:0;text-transform:none;font-variant:normal;letter-spacing:0;padding-bottom:3px;border-bottom:1px solid transparent;border-image:linear-gradient(90deg,#c9a46a,transparent) 1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prow{display:flex;align-items:center;gap:10px;margin-top:4px}
-.pbig{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:0;flex:none;width:56px}
-.pbig .pbg{color:#1d1712;text-shadow:0 1px 0 rgba(255,245,220,.6);margin-bottom:-7px;position:relative;z-index:1}
-.pbig .plinth{display:none}
-.pbg{font-size:46px;line-height:1;color:#1d1712;font-family:'DejaVu Sans','Segoe UI Symbol',serif}
-.pck{display:block;width:46px;height:11px;margin-top:-1px;border-radius:46%/45%;border:1px solid #35210f;box-sizing:border-box;box-shadow:inset 0 3px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.25)}
+.prow{display:flex;align-items:stretch;gap:8px;margin-top:4px;flex:1 0 auto!important}
+.pbw{flex:1 1 0;min-width:0;position:relative}.pbig{position:absolute;left:0;right:0;bottom:0;width:100%;height:100%;max-height:150px;overflow:visible}
+.pbig .pg{font:100px 'DejaVu Sans','Segoe UI Symbol','Apple Symbols',serif;stroke-linejoin:round;paint-order:stroke}
+.pbig .pg.w{fill:#f8f1e0;stroke:#2a1d10;stroke-width:2.2}.pbig .pg.b{fill:#211a14;stroke:#000;stroke-width:1}
+.pbig .ck{stroke-width:1.2}.pbig .ck.w{fill:#f4ecd8;stroke:#3a2614}.pbig .ck.b{fill:#2b241e;stroke:#0d0905}.pbig .ck.g{fill:#d8a83e;stroke:#6e4c0e}
+.pbig .ckl{stroke-width:.8}.pbig .ckl.w{stroke:#cbbd9c}.pbig .ckl.b{stroke:#4a4038}.pbig .ckl.g{stroke:#f2cf74}
 .pck.own0{background:linear-gradient(#fffaf0,#d9cdb3)}.pck.own1{background:linear-gradient(#4a423a,#16120e)}.pck.gold{background:#e7bd52;border-color:#7c5a12}
 .plinth{display:block;width:50px;height:5px;border-radius:50%;background:rgba(60,30,0,.15);margin-top:1px}
-.scol{flex:1;min-width:0}
+.scol{flex:none;width:auto;min-width:58px;display:flex;flex-direction:column;justify-content:center;min-height:95px}
 .srow{height:19px;display:flex;align-items:center}
-.srow .stat{display:flex!important;align-items:center;justify-content:space-between;width:100%;gap:6px;font-size:15px;margin:0;padding:0;background:none;border:0}
+.srow .stat{display:flex!important;align-items:center;justify-content:flex-start;width:100%;gap:8px;font-size:15px;margin:0;padding:0;background:none;border:0}
 .srow .stat svg{width:16px;height:16px;flex:none}
-.srow .stat b{font-variant-numeric:tabular-nums;margin-left:auto;font-size:15.5px}
+.srow .stat b{font-variant-numeric:tabular-nums;margin:0;font-size:15.5px;text-align:left;white-space:nowrap}.srow .stat b sup{font-size:.65em;color:#8a5a22;margin-left:1px}.pfn{color:#5a2e0e;font-weight:600}
 .srow .stat small{font-size:9px}
 .srow.off .stat b{color:#c4b494;font-weight:600}
-.pdesc,.pleft .msg{margin-top:auto;padding-top:4px;border-top:1px solid #eadcbc;font-size:11.5px;line-height:1.25;color:#6d5a40;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:none}
+.pdesc,.pleft .msg{margin-top:auto;padding-top:4px;border-top:1px solid #eadcbc;font-size:11.5px;line-height:1.25;color:#6d5a40;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:none}
 .pleft .msg{color:#7a3b12;font-weight:600}
 .pright{min-height:0;display:flex;flex-direction:column}
 .pright .acts{margin:0!important;flex:1;display:flex;flex-direction:column;gap:5px;min-height:0}
@@ -493,10 +493,10 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .pright .tiles.big button.tile{min-height:0!important;height:auto;padding:2px!important;overflow:hidden}
 .acts.big button.tile .aic svg{width:24px;height:19px}
 .acts.big button.tile .tl{font-size:11.5px}
-.panel.t1 .pdesc,.panel.t1 .plinth{display:none}.panel.t1 .srow{height:16px}.panel.t1 .pbg{font-size:34px}.panel.t1 .pck{height:8px;width:36px}.panel.t1 .pbig{width:40px}
-.panel.t2 .pbig{width:34px}.panel.t2 .pbg{font-size:28px;margin-bottom:-5px}.panel.t2 .pck{width:28px;height:7px}.panel.t2 .prow{gap:8px;margin-top:2px}.panel.t2 .srow{height:14px}.panel.t2 .srow .stat{font-size:13px}.panel.t2 .srow .stat b{font-size:13px}.panel.t2 .srow .stat svg{width:13px;height:13px}.panel.t2 .pleft .ptitle{font-size:13px}.panel.t2 .pleft{padding:4px 8px}
+.panel.t1 .pdesc{-webkit-line-clamp:2}.panel.t2 .pdesc,.panel.t1 .plinth{display:none}.panel.t1 .srow{height:16px}
+.panel.t2 .prow{gap:8px;margin-top:2px}.panel.t2 .srow{height:14px}.panel.t2 .scol{min-height:70px}.panel.t1 .scol{min-height:80px}.panel.t2 .srow .stat{font-size:13px}.panel.t2 .srow .stat b{font-size:13px}.panel.t2 .srow .stat svg{width:13px;height:13px}.panel.t2 .pleft .ptitle{font-size:13px}.panel.t2 .pleft{padding:4px 8px}
 .panel.t2{padding:5px 6px!important}.panel.t2 .acts.big button.tile .aic{display:none}.panel.t2 .pright .tiles.big{gap:3px}.panel.t2 .pright .acts{gap:3px}
-.panel.t3 .pleft{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-content:center;gap:0 6px;padding:3px 6px}.panel.t3 .prow{display:contents}.panel.t3 .pbig{grid-column:1;grid-row:1/3;width:26px}.panel.t3 .pbg{font-size:22px;margin-bottom:-4px}.panel.t3 .pck{width:22px;height:5px;box-shadow:none}.panel.t3 .ptitle{grid-column:2;grid-row:1}.panel.t3 .scol{grid-column:2;grid-row:2}.panel.t3 .pleft .ptitle{border:0;padding:0;font-size:13px}.panel.t3 .prow{margin:0}
+.panel.t3 .pleft{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-content:center;gap:0 6px;padding:3px 6px}.panel.t3 .prow{display:contents}.panel.t3 .pbw{grid-column:1;grid-row:1/3;width:30px;height:38px;flex:none}.panel.t3 .ptitle{grid-column:2;grid-row:1}.panel.t3 .scol{grid-column:2;grid-row:2;width:auto;flex-direction:row;flex-wrap:wrap;min-height:0}.panel.t3 .pleft .ptitle{border:0;padding:0;font-size:13px}.panel.t3 .prow{margin:0}
 .panel.t3 .scol{display:flex;flex-wrap:wrap;gap:0 8px}.panel.t3 .srow{width:auto;height:15px}.panel.t3 .srow.off{display:none}.panel.t3 .srow .stat{gap:2px}
 .panel.t3 .acts.big button.tile .tl{font-size:10px}
 .pleft>*{flex-shrink:0}
@@ -3342,17 +3342,27 @@ function renderPanel() {
   }
   const noAct = !acts;
   const gl = sp.k === "camp" ? (sp.cr ? GLY.S : "") : (GLY[sp.k] || "");
-  const big = `<div class="pbig">${gl ? `<span class="pbg">${gl}</span>` : ""}${sp.st.map(c => `<span class="pck ${c === sp.o ? "own" + sp.o : "gold"}"></span>`).join("")}<span class="plinth"></span></div>`;
+  // flat 2D portrait at one fixed scale: a queen on two checkers just fills it
+  const ck = sp.st.slice(0, 3).map((c, i) => { const y = 100 - 11 - i * 12.5, cl = c === sp.o ? (sp.o ? "b" : "w") : "g";
+    return `<rect class="ck ${cl}" x="6" y="${y}" width="68" height="11" rx="2.6"/><line class="ckl ${cl}" x1="9" x2="71" y1="${y + 5.5}" y2="${y + 5.5}"/>`; }).join("");
+  const big = `<div class="pbw"><svg class="pbig" viewBox="0 0 80 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${ck}${gl ? `<text class="pg ${sp.o ? "b" : "w"}" x="40" y="${100 - sp.st.length * 12.5 - 1}" text-anchor="middle">${gl}</text>` : ""}</svg></div>`;
   const tmp = document.createElement("div"); tmp.innerHTML = meta[0];
-  const all = [...tmp.querySelectorAll(".stat")];
+  const all = [...tmp.querySelectorAll(".stat")], notes = [];
   const rows = [["hit points", "hp"], ["attack", "atk"], ["defence", "def"], ["speed", "spd"], ["range", "rng"]].map(([t, k]) => {
     const e = all.find(x => (x.getAttribute("title") || "").startsWith(t));
     if (!e) return `<div class="srow off"><span class="stat" title="${t}">${IC[k] || ""}<b>${k === "def" ? "0" : "–"}</b></span></div>`;
     const hb = e.querySelector(".hpbox"); if (hb) hb.remove();
+    const sm = [...e.querySelectorAll("small")];
+    if (sm.length) {   // special value: keep the first number, star it, explain below
+      const txt = e.textContent.replace(/\s+/g, " ").trim();
+      const num = (txt.match(/[\d/–-]+/) || [""])[0];
+      notes.push(/\(buildings\)/.test(txt) ? `Buildings only (0 against units).` : `${t[0].toUpperCase() + t.slice(1)}: ${txt}.`);
+      const ic = e.querySelector("svg"); e.innerHTML = (ic ? ic.outerHTML : "") + `<b>${num}<sup>*</sup></b>`;
+    }
     const v = (e.querySelector("b") || {}).textContent || "";
     return `<div class="srow${/^0(\/0)?$/.test(v.trim()) ? " off" : ""}">${e.outerHTML}</div>`;
   }).join("");
-  const desc = UI.msg ? msg : `<div class="pdesc">${meta[1] ? meta[1].replace(/<[^>]+>/g, "") : (info[0] || "")}</div>`;
+  const desc = UI.msg ? msg : `<div class="pdesc">${notes.map(n => `<span class="pfn">* ${n}</span> `).join("")}${meta[1] ? meta[1].replace(/<[^>]+>/g, "") : (info[0] || "")}</div>`;
   const left = `<div class="pleft"><div class="ptitle">${name(sp).replace(/^./, c => c.toUpperCase())}</div><div class="prow">${big}<div class="scol">${rows}</div></div>${desc}</div>`;
   el.innerHTML = `<div class="pgrid">${left}<div class="pright">${noAct ? `<div class="pnote">${info.join("<br>") || (mineP ? (actionsLeft() > 0 ? "" : "No actions left. End your turn.") : (isAI(G.turn) || remote(G.turn)) ? "Opponent is moving." : sp.o !== G.turn ? "Opponent's piece." : "")}</div>` : `<div class="acts${dense}">${acts}</div>`}</div></div>`;
 }
