@@ -462,7 +462,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 #civPick .cp-note{font-size:13px!important;line-height:1.45;background:rgba(255,250,240,.7);border:1px dashed #d9c39a;border-radius:10px;padding:7px 9px;margin:8px 0 2px}
 #civPick .cp-note svg{vertical-align:-3px}
 /* bottom panel: stats card left, actions right, fixed height, never scrolls */
-.panel{padding:8px!important;min-height:184px!important;flex:1 1 auto!important;max-height:none!important;overflow:hidden!important;display:flex;flex-direction:column}
+.panel{padding:8px!important;min-height:0!important;flex:1 1 0!important;max-height:none!important;overflow:hidden!important;display:flex;flex-direction:column}
 .panel>.ptitle,.panel>.pmeta{flex:none}
 .pgrid{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;min-height:0}
 .pleft{background:#fbf5e6;border:1px solid #dcc59a;border-radius:10px;padding:7px 10px 6px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
@@ -491,6 +491,24 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .pright .tiles.big button.tile{min-height:0!important;height:auto;padding:2px!important;overflow:hidden}
 .acts.big button.tile .aic svg{width:24px;height:19px}
 .acts.big button.tile .tl{font-size:11.5px}
+.panel.t1 .pdesc,.panel.t1 .plinth{display:none}.panel.t1 .srow{height:16px}.panel.t1 .pbg{font-size:34px}.panel.t1 .pck{height:5px;width:34px}.panel.t1 .pbig{width:40px}
+.panel.t2 .pbig{display:none}.panel.t2 .srow{height:14px}.panel.t2 .srow .stat{font-size:13px}.panel.t2 .srow .stat b{font-size:13px}.panel.t2 .srow .stat svg{width:13px;height:13px}.panel.t2 .pleft .ptitle{font-size:13px}.panel.t2 .pleft{padding:4px 8px}
+.panel.t2{padding:5px 6px!important}.panel.t2 .acts.big button.tile .aic{display:none}.panel.t2 .pright .tiles.big{gap:3px}.panel.t2 .pright .acts{gap:3px}
+.panel.t3 .pleft{flex-direction:row;flex-wrap:wrap;align-items:center;gap:0 8px;padding:3px 6px}.panel.t3 .pleft .ptitle{border:0;padding:0;font-size:13px}.panel.t3 .prow{margin:0}
+.panel.t3 .scol{display:flex;flex-wrap:wrap;gap:0 8px}.panel.t3 .srow{width:auto;height:15px}.panel.t3 .srow.off{display:none}.panel.t3 .srow .stat{gap:2px}
+.panel.t3 .acts.big button.tile .tl{font-size:10px}
+.pleft>*{flex-shrink:0}
+.pright .tiles.big button.tile{display:flex!important;flex-direction:column;align-items:center;justify-content:center}
+.pright .acts{display:grid!important;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr);gap:4px}
+.pright .acts:has(.tiles.big.sub){grid-template-columns:1fr 1fr}
+.pright .tiles.big{grid-template-columns:1fr!important;grid-row:1;flex:none}
+.pright .tiles.big:not(.sub){grid-column:1}.pright .tiles.big.sub{grid-column:2;grid-auto-rows:minmax(0,1fr)}
+.pright .tiles.big.sub button.tile{background:linear-gradient(#a27443,#7a5430)!important;border-color:#d6b47a!important}
+.pright .tiles.big .aic{display:none}.panel:not(.t1) .pright .tiles.big:not(.sub) .aic{display:block}.pright .tiles.big:not(.sub) .tc{display:none}.pright .tiles.big.sub .tc{font-size:9.5px}.pright .tiles.big .tl{font-size:12px!important;line-height:1.1}
+.panel.t3 .pgrid{grid-template-columns:30% 1fr}.panel.t3 .pright .tiles.big .tl{font-size:10px!important}
+.panel.t3 .pright .tiles.big:not(.sub){grid-template-columns:1fr 1fr!important}
+.panel.t3 .pright .acts:has(.tiles.big.sub){grid-template-columns:1fr 1fr}
+.panel.t3 .pright .tiles.big.sub{grid-template-columns:1fr 1fr!important}
 .pright .pnote{font-size:12px;color:#6d5a40;line-height:1.35}
 .bar{margin-top:4px}.bar button{min-height:34px!important;padding:4px 6px;font-size:13px}
 .bar button.primary{font-size:13px;line-height:1.05}
@@ -2960,10 +2978,12 @@ window.addEventListener("resize", () => { try { renderStrips(); fitBoard(); } ca
 function fitBoard() {
   const b = document.querySelector("svg.board"), w = document.querySelector(".wrap");
   if (!b || !w) return;
-  b.style.width = "";
-  if (getComputedStyle(w).display !== "flex") return;
-  const over = w.scrollHeight - w.clientHeight;
-  if (over > 0) b.style.width = Math.max(150, b.getBoundingClientRect().width - over) + "px";
+  // the board keeps its size; the panel compacts itself instead
+  const p = document.getElementById("panel"); if (!p) return;
+  p.classList.remove("t1", "t2", "t3");
+  const over = () => [p, p.querySelector(".pleft"), p.querySelector(".pright .acts")].some(e => e && e.scrollHeight > e.clientHeight + 1)
+    || [...p.querySelectorAll(".pright button.tile")].some(t => t.scrollHeight > t.clientHeight + 2);
+  for (const c of ["t1", "t2", "t3"]) { if (!over()) break; p.classList.add(c); }
 }
 /* ================= 3D view (three.js, loaded on demand) ================= */
 let T3 = null;
