@@ -459,23 +459,24 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 #civPick .cp-tag.w{background:#f4efe2;color:#2f2418}#civPick .cp-tag.b{background:#2a2420;color:#fff}
 #civPick .cp-note{font-size:13px!important;line-height:1.45;background:rgba(255,250,240,.7);border:1px dashed #d9c39a;border-radius:10px;padding:7px 9px;margin:8px 0 2px}
 #civPick .cp-note svg{vertical-align:-3px}
-/* compact bottom panel */
-.panel{padding:4px 8px!important;max-height:22dvh}
-.panel .ptitle{display:inline-block;font-size:14px;margin:0 8px 0 0;vertical-align:middle}
-.panel .pmeta{display:inline-block;margin:0;vertical-align:middle}
-.panel .udesc{display:block;font-size:12.5px;margin-top:2px}
-.panel .pmeta{display:block!important}.panel .ptitle{display:block!important}
-@media (max-height:780px){.panel .udesc{display:none}.panel .pmeta,.panel .ptitle{display:inline-block!important}}
-.panel{min-height:0!important;flex:1 1 auto!important;max-height:none!important;margin-top:0!important}
-.boardbox{margin-bottom:6px}
-
-.panel .acts{margin-top:3px}
-.acts.big button.tile{padding:3px 0 2px}
+/* bottom panel: stats left, actions right */
+.panel{padding:12px 8px 6px!important;min-height:0!important;flex:1 1 auto!important;max-height:none!important;overflow:auto}
+.pgrid{display:grid;grid-template-columns:42% 1fr;gap:8px;align-items:stretch}.pgrid.solo{grid-template-columns:1fr}
+.pleft{background:rgba(255,252,242,.7);border:1px solid #dcc59a;border-radius:10px;padding:6px 8px}
+.pleft .ptitle{font-size:14px;margin:0 0 4px;line-height:1.15}
+.pleft .stats{flex-direction:column;align-items:flex-start;gap:5px;font-size:15px}
+.pleft .stat{font-size:15px}.pleft .stat .hpbox{margin-left:6px}
+.pleft .stat small.bo{display:block;margin:0}
+.pright .acts{margin:0}
+.pright .tiles.big{display:grid!important;grid-template-columns:1fr 1fr;gap:5px}
+.pright .tiles.big.sub{margin-top:5px!important}
+.acts.big button.tile{padding:4px 0 3px}
 .acts.big button.tile .aic svg{width:26px;height:20px}
-.acts.big button.tile .tl{font-size:10.5px}
-.acts .tiles.big{gap:4px}
-.acts .tiles.big.sub{margin-top:3px!important}
-.panel .msg{margin-top:3px;font-size:12px}
+.acts.big button.tile .tl{font-size:11px}
+@media (max-height:780px){.pleft .stats{flex-direction:row;flex-wrap:wrap;gap:3px 10px}.pleft .ptitle{font-size:13px;margin-bottom:2px}.pgrid{grid-template-columns:46% 1fr}.pnote{display:none}.panel{padding-top:10px!important}.acts.big button.tile .tc{display:none}.acts.big button.tile .aic svg{width:22px;height:16px}}
+.pnote{margin-top:6px;font-size:12.5px;color:#5a4a30;line-height:1.35}.pnote .udesc{display:block;font-size:12.5px;margin:0 0 3px}
+.pnote .info{display:block;font-size:12px;margin-top:2px}
+.panel .msg{margin-top:5px;font-size:12.5px}
 .bar{margin-top:4px}.bar button{min-height:34px!important;padding:4px 6px;font-size:13px}
 .bar button.primary{font-size:13px;line-height:1.05}
 </style>
@@ -3293,7 +3294,8 @@ function renderPanel() {
     if (hints.length && sp.k !== "V") acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
     if (sp.k !== "V" && !isUnit(sp)) UI.list = list;
   }
-  el.innerHTML = `<div class="ptitle">${title}</div><div class="pmeta">${meta.join("")}</div><div class="acts${dense}">${acts}</div>${msg}`;
+  const noAct = !acts;
+  el.innerHTML = `<div class="pgrid${noAct ? " solo" : ""}"><div class="pleft"><div class="ptitle">${title}</div><div class="pmeta">${meta[0]}</div></div>${noAct ? "" : `<div class="pright"><div class="acts${dense}">${acts}</div></div>`}</div><div class="pnote">${meta.slice(1).join("")}</div>${msg}`;
 }
 function renderLog() {
   const L = G.log.slice(-4).reverse();
@@ -3311,7 +3313,8 @@ function render() {
 }
 document.getElementById("undoBtn").onclick = () => {
   if (!UNDO.length || UI.busy) return;
-  G = JSON.parse(UNDO[0]); UNDO = [];   // back to the start of this turn UI = {sel: null, mode: null, msg: "", busy: false};
+  G = JSON.parse(UNDO[0]); UNDO = [];   // back to the start of this turn
+  UI = {sel: null, mode: null, msg: "", busy: false};
   save(); render();
 };
 function finish() {
