@@ -228,7 +228,7 @@ header .fan{font-size:9.5px;line-height:1.15;margin-top:0}
 .status{margin:0 0 4px;padding:1px 7px;font-size:12px;min-height:20px}
 .status b{font-size:14px}
 .boardbox{flex:none;min-height:0;container-type:normal;display:block;margin:0 0 4px}
-svg.board{width:min(100%,calc(100vh - 250px));width:min(100%,calc(100dvh - 250px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));height:auto;margin:0 auto;padding:3px;border-width:2px}
+svg.board{width:min(100%,calc(100vh - 350px));width:min(100%,calc(100dvh - 350px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));height:auto;margin:0 auto;padding:3px;border-width:2px}
 svg.board.dia{width:min(100%,calc((100dvh - 250px) * 1.32))}
 .players{margin:0 0 4px;padding:2px 6px;font-size:12px}
 .players .h svg{width:14px;height:14px}
@@ -466,7 +466,7 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .pgrid{display:grid;grid-template-columns:42% 1fr;gap:8px;align-items:stretch}.pgrid.solo{grid-template-columns:1fr}
 .pleft{background:rgba(255,252,242,.7);border:1px solid #dcc59a;border-radius:10px;padding:6px 8px}
 .pleft .ptitle{font-size:14px;margin:0 0 4px;line-height:1.15}
-.pleft .stats{flex-direction:column;align-items:flex-start;gap:5px;font-size:15px}
+.pleft .stats{flex-direction:column;align-items:flex-start;gap:4px;font-size:15px}
 .pleft .stat{font-size:15px}.pleft .stat .hpbox{margin-left:6px}
 .pleft .stat small.bo{display:block;margin:0}
 .pright .acts{margin:0}
@@ -475,7 +475,6 @@ svg.board{padding:0;border-width:2px;border-radius:5px;overflow:visible}
 .acts.big button.tile{padding:4px 0 3px}
 .acts.big button.tile .aic svg{width:26px;height:20px}
 .acts.big button.tile .tl{font-size:11px}
-@media (max-height:780px){.pleft .stats{flex-direction:row;flex-wrap:wrap;gap:3px 10px}.pleft .ptitle{font-size:13px;margin-bottom:2px}.pgrid{grid-template-columns:46% 1fr}.pnote{display:none}.panel{padding-top:10px!important}.acts.big button.tile .tc{display:none}.acts.big button.tile .aic svg{width:22px;height:16px}}
 .pnote{margin-top:6px;font-size:12.5px;color:#5a4a30;line-height:1.35}.pnote .udesc{display:block;font-size:12.5px;margin:0 0 3px}
 .pnote .info{display:block;font-size:12px;margin-top:2px}
 .panel .msg{margin-top:5px;font-size:12.5px}
