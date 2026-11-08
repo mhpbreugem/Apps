@@ -2930,7 +2930,7 @@ function cpUse(o, k, x, yb, h) { const c = CPK[k] || "p", sc = h * CPB[c] / CPH[
 // a square shows its stack as it stands: checker discs, the chess piece on top, a thin owner ring at the foot
 let NORING = true;
 function pieceStack(p) {
-  const [x, y] = pos(p.f, p.r), rim = p.o ? "#c23b2e" : "#2f6fd0", yb = y + 16.5, T = 5, W = 14.5, RY = 3.2;
+  const [x, y] = pos(p.f, p.r), rim = p.o ? "#c23b2e" : "#2f6fd0", yb = y + 16.5, T = 4.6, W = 14.5, RY = 5;
   const dim = p.o === G.turn && acted(p) ? ' opacity="0.6"' : "";
   let s = `<g pointer-events="none"${dim}>` + (NORING ? `<ellipse cx="${x}" cy="${yb + .8}" rx="${W + 1}" ry="${RY + .8}" fill="rgba(0,0,0,.18)"/>` : `<ellipse cx="${x}" cy="${yb + .6}" rx="${W + 3}" ry="${RY + 1.4}" fill="rgba(0,0,0,.16)" stroke="${rim}" stroke-width="2"/>`);
   let top = yb;
@@ -2943,7 +2943,7 @@ function pieceStack(p) {
   if (!p.st.length) top = yb - 1;
   const crowned = CR() && p.cr, bare = (p.k === "camp" || p.k === "B") && !crowned && !(p.k === "B" && !CR());
   if (bare) { const lab = p.k === "B" ? "B" : CR() ? (campRes(p)[0] === FOOD ? "M" : "L") : p.st.length >= 2 ? "T" : "C";
-    s += `<text x="${x}" y="${top + T + .7 - T + 2.7}" text-anchor="middle" font-size="7.6" font-weight="800" font-family="Alegreya Sans,sans-serif" fill="${p.st[p.st.length - 1] === 1 ? "#f2ecdf" : "#2a1e12"}">${lab}</text>`; }
+    s += `<text x="${x}" y="${top + .7 + 3.5}" text-anchor="middle" font-size="10.5" font-weight="800" transform="translate(0 ${top + .7}) scale(1 .62) translate(0 ${-(top + .7)})" font-family="Alegreya Sans,sans-serif" fill="${p.st[p.st.length - 1] === 1 ? "#f2ecdf" : "#2a1e12"}">${lab}</text>`; }
   else if (CR() && p.k === "S") {
     s += `<ellipse cx="${x}" cy="${top - 2.5}" rx="${W - 1}" ry="${RY + 1}" fill="${p.up ? "#c9a45a" : "#a9b2ba"}" stroke="#3e454c" stroke-width="1"/><path d="M${x - W + 1},${top - 2.5} v2.4 a${W - 1} ${RY + 1} 0 0 0 ${2 * W - 2} 0 v-2.4" fill="${p.up ? "#9c7a34" : "#7e878f"}" stroke="#3e454c" stroke-width="1"/><text x="${x}" y="${top - .4}" text-anchor="middle" font-size="5.5" font-weight="800" fill="#2b2f33" font-family="Inter,sans-serif">T</text>`;
     s += cpUse(p.o, "S", x, top - 4.6, 16); }
