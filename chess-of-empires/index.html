@@ -2934,15 +2934,16 @@ function pieceStack(p) {
   const dim = p.o === G.turn && acted(p) ? ' opacity="0.6"' : "";
   let s = `<g pointer-events="none"${dim}>` + (NORING ? `<ellipse cx="${x}" cy="${yb + .8}" rx="${W + 1}" ry="${RY + .8}" fill="rgba(0,0,0,.18)"/>` : `<ellipse cx="${x}" cy="${yb + .6}" rx="${W + 3}" ry="${RY + 1.4}" fill="rgba(0,0,0,.16)" stroke="${rim}" stroke-width="2"/>`);
   let top = yb;
-  const disc = c => { const own = c === p.o, f = own ? (p.o ? "#3a322b" : "#f4ecd9") : "#dcae44", e = own ? (p.o ? "#0d0905" : "#2a1e12") : "#6a480c", sd = own ? (p.o ? "#1d1813" : "#cdbd9a") : "#a07418";
+  // a gold checker is simply a checker of the other colour, as on the real board
+  const disc = c => { const own = c === p.o, blk = c === 1, f = blk ? "#3a322b" : "#f4ecd9", e = blk ? "#0d0905" : "#2a1e12", sd = blk ? "#1d1813" : "#cdbd9a";
     s += `<path d="M${x - W},${top - T} v${T} a${W} ${RY} 0 0 0 ${2 * W} 0 v${-T}" fill="${sd}" stroke="${e}" stroke-width=".9"/><ellipse cx="${x}" cy="${top - T}" rx="${W}" ry="${RY}" fill="${f}" stroke="${e}" stroke-width=".9"/>`;
-    if (top < yb) s += `<path d="M${x - W},${top} a${W} ${RY} 0 0 0 ${2 * W} 0" fill="none" stroke="${own && !p.o ? "#2a1e12" : own ? "#9b8f82" : "#5a3e08"}" stroke-width=".55"/>`;
+    if (top < yb) s += `<path d="M${x - W},${top} a${W} ${RY} 0 0 0 ${2 * W} 0" fill="none" stroke="${blk ? "#9b8f82" : "#2a1e12"}" stroke-width=".55"/>`;
     top -= T + .7; };
   p.st.forEach(disc);
   if (!p.st.length) top = yb - 1;
   const crowned = CR() && p.cr, bare = (p.k === "camp" || p.k === "B") && !crowned && !(p.k === "B" && !CR());
   if (bare) { const lab = p.k === "B" ? "B" : CR() ? (campRes(p)[0] === FOOD ? "M" : "L") : p.st.length >= 2 ? "T" : "C";
-    s += `<text x="${x}" y="${top + T + .7 - T + 2.7}" text-anchor="middle" font-size="7.6" font-weight="800" font-family="Alegreya Sans,sans-serif" fill="${p.st[p.st.length - 1] === p.o ? (p.o ? "#f2ecdf" : "#2a1e12") : "#3a2a00"}">${lab}</text>`; }
+    s += `<text x="${x}" y="${top + T + .7 - T + 2.7}" text-anchor="middle" font-size="7.6" font-weight="800" font-family="Alegreya Sans,sans-serif" fill="${p.st[p.st.length - 1] === 1 ? "#f2ecdf" : "#2a1e12"}">${lab}</text>`; }
   else if (CR() && p.k === "S") {
     s += `<ellipse cx="${x}" cy="${top - 2.5}" rx="${W - 1}" ry="${RY + 1}" fill="${p.up ? "#c9a45a" : "#a9b2ba"}" stroke="#3e454c" stroke-width="1"/><path d="M${x - W + 1},${top - 2.5} v2.4 a${W - 1} ${RY + 1} 0 0 0 ${2 * W - 2} 0 v-2.4" fill="${p.up ? "#9c7a34" : "#7e878f"}" stroke="#3e454c" stroke-width="1"/><text x="${x}" y="${top - .4}" text-anchor="middle" font-size="5.5" font-weight="800" fill="#2b2f33" font-family="Inter,sans-serif">T</text>`;
     s += cpUse(p.o, "S", x, top - 4.6, 16); }
