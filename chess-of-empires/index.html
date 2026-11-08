@@ -588,6 +588,62 @@ header #status{font-size:12px!important;gap:5px!important}header #status b{font-
 .pleft .pdesc{margin-top:auto!important;font-size:12.5px!important}
 .sc b{margin:1px 0 2px}.sc small{margin-top:1px}
 
+/* ===== card v5: unit sheet left, action list right ===== */
+.pgrid{gap:10px!important;grid-template-columns:52% 1fr!important}
+.pleft{background:linear-gradient(180deg,rgba(255,251,240,.78),rgba(255,248,230,.45))!important;border:1px solid rgba(150,108,48,.38)!important;border-radius:12px!important;padding:9px 12px 8px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.pleft .ptitle{display:flex!important;flex-direction:column;align-items:flex-start;gap:2px;font:700 19px/1.15 Georgia,'Times New Roman',serif!important;color:#4a230a!important;padding-bottom:5px!important;border-bottom:1px solid rgba(150,108,48,.3)!important;border-image:none!important}
+.ptitle .pnm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ptitle .psub{flex:none;display:inline-flex;align-items:center;gap:4px;font:700 9.5px/1 Inter,system-ui,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#9a7f5a}
+.pdot{display:inline-block;width:7px;height:7px;border-radius:50%;border:1px solid #3a2a18}.pdot.p0{background:#fbf5e6}.pdot.p1{background:#2a2521}
+.sgrid{display:grid!important;grid-template-columns:1fr 1fr!important;grid-template-rows:repeat(3,auto);grid-auto-flow:column;gap:0 14px!important;margin-top:4px!important}
+.sc{display:grid!important;grid-template-columns:24px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:7px;padding:6px 0 5px!important;background:none!important;border:0!important;border-bottom:1px solid rgba(150,108,48,.16)!important;border-radius:0!important;box-shadow:none!important}
+.sc:nth-child(3),.sc:nth-child(6){border-bottom:0!important}
+.sc .si{grid-column:1;grid-row:1/3;height:auto!important;justify-content:center}.sc .si svg{width:20px!important;height:20px!important}
+.sc small{grid-column:2;grid-row:2;margin:1px 0 0!important;text-align:left!important;font:700 8.5px/1.1 Inter,system-ui,sans-serif!important;letter-spacing:.06em;color:#8a7454!important;white-space:nowrap!important;overflow:visible!important}
+.sc b{grid-column:2;grid-row:1;margin:0!important;font:800 20px/1 Inter,system-ui,sans-serif!important;color:#2f2418!important;text-align:left}
+.sc.off b{color:#cdbc98!important;font-weight:700!important}.sc.off .si{opacity:.32!important;filter:grayscale(1)}.sc.off small{color:#b9a786!important}
+.sc.sx{cursor:pointer}.sc.sx:active{background:rgba(201,154,62,.12)!important}
+.pleft .pdesc{border-top:0!important;padding-top:6px!important;font-size:12.5px!important;color:#6d5a40!important;font-style:italic}
+
+/* actions: a list of wide buttons, icon medallion, label and cost */
+.pright .acts{gap:6px!important}
+.pright .tiles.big{display:flex!important;flex-direction:column!important;gap:6px!important;height:100%}
+.pright .tiles.big>button.tile{display:grid!important;grid-template-columns:30px minmax(0,1fr) auto;grid-template-rows:auto auto;align-content:center;align-items:center;column-gap:9px;row-gap:1px;text-align:left!important;
+  flex:1 1 0!important;max-height:62px;min-height:0!important;padding:5px 10px 5px 7px!important;border-radius:11px!important;
+  background:linear-gradient(180deg,#80592f 0%,#5c3d1e 100%)!important;border:1px solid #b8914c!important;
+  box-shadow:inset 0 1px 0 rgba(255,225,160,.3),inset 0 -2px 0 rgba(0,0,0,.18),0 2px 0 #2a190a!important;color:#fbeecb!important;opacity:1!important;filter:none!important;text-shadow:none!important}
+.pright .tiles.big>button.tile:active{transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,225,160,.2),0 1px 0 #2a190a!important}
+.pright .tiles.big>button.tile .aic{grid-column:1;grid-row:1/3;display:flex!important;width:30px!important;height:30px!important;border-radius:50%;align-items:center;justify-content:center;background:radial-gradient(circle at 40% 35%,#6b4824,#3b2610);box-shadow:inset 0 0 0 1px rgba(240,210,122,.45);color:#f3d27a}
+.pright .tiles.big>button.tile .aic svg{width:18px!important;height:18px!important}
+.pright .tiles.big>button.tile *{text-shadow:none!important}
+.pright .tiles.big>button.tile .tl{grid-column:2;grid-row:1;font:700 14.5px/1.05 'Alegreya Sans',system-ui,sans-serif!important;color:#fff3d4!important;white-space:normal!important;overflow:hidden;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;padding:0!important}
+.pright .tiles.big>button.tile .tc{grid-column:2;grid-row:2;display:block!important;font:500 11px/1.15 Inter,system-ui,sans-serif!important;color:#e8cf92!important;opacity:1!important;white-space:normal!important;overflow:hidden;display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.pright .tiles.big>button.tile .tc:empty{display:none!important}
+  .pright .tiles.big>button.tile:has(.tc:empty) .tl{grid-row:1/3}
+/* a category opens a list: chevron on the category */
+.pright .tiles.big>button.tile.cat::after{content:"";grid-column:3;grid-row:1/3;width:7px;height:7px;border-right:2px solid #e8cf92;border-top:2px solid #e8cf92;transform:rotate(45deg);margin-right:3px}
+.pright .tiles.big>button.tile.cat.sel{background:linear-gradient(180deg,#b4823a,#87591f)!important;border-color:#f2c431!important;outline:0!important;box-shadow:0 0 0 2px #f2c431,0 2px 0 #2a190a!important}
+.pright .tiles.big>button.tile.cat.sel::after{transform:rotate(-135deg);border-color:#fff3d4}
+/* not possible now: flat parchment with the reason */
+.pright .tiles.big>button.tile.off{opacity:1!important;filter:none!important;background:rgba(255,250,236,.55)!important;border:1px dashed rgba(122,84,39,.55)!important;box-shadow:none!important;color:#7a6446!important}
+.pright .tiles.big>button.tile.off .aic{display:flex!important;background:rgba(122,84,39,.1);box-shadow:inset 0 0 0 1px rgba(122,84,39,.25);color:#9a8464}
+.pright .tiles.big>button.tile.off .aic svg{opacity:.55;filter:grayscale(1)}
+.pright .tiles.big>button.tile.off .tl{color:#6e5838!important}
+.pright .tiles.big>button.tile.off .tc{color:#9a7f5a!important;font-style:italic;font-size:10.5px!important}
+.pright .tiles.big>button.tile.off:active{transform:none}
+/* a category is open: icon rail left, the list right */
+.pright .acts:has(.tiles.big.sub){display:grid!important;grid-template-columns:44px minmax(0,1fr)!important;gap:6px!important}
+.pright .acts:has(.tiles.big.sub) .tiles.big:not(.sub)>button.tile{grid-template-columns:1fr;padding:4px!important;justify-items:center}
+.pright .acts:has(.tiles.big.sub) .tiles.big:not(.sub)>button.tile .aic{grid-row:1}
+.pright .acts:has(.tiles.big.sub) .tiles.big:not(.sub)>button.tile .tl,.pright .acts:has(.tiles.big.sub) .tiles.big:not(.sub)>button.tile .tc,.pright .acts:has(.tiles.big.sub) .tiles.big:not(.sub)>button.tile::after{display:none!important}
+.pright .tiles.big.sub{margin-top:0!important}
+.pright .tiles.big.sub>button.tile{grid-template-columns:minmax(0,1fr);padding:4px 9px!important;background:linear-gradient(180deg,#9a6c3b,#76502b)!important;border-color:#d6b47a!important}
+.pright .tiles.big.sub>button.tile .aic{display:none!important}
+.pright .tiles.big.sub>button.tile .tl,.pright .tiles.big.sub>button.tile .tc{grid-column:1}
+.pright .tiles.big.sub>button.tile .tl{font-size:13.5px!important}.pright .tiles.big.sub>button.tile .tc{font-size:10px!important;line-height:1.1!important}
+.pright .tiles.big.sub>button.tile.off{background:rgba(255,250,236,.55)!important;border-color:rgba(122,84,39,.55)!important}
+.pright .pnote{display:flex;align-items:center;justify-content:center;height:100%;text-align:center;font-style:italic;color:#8a7454;border:1px dashed rgba(150,108,48,.35);border-radius:12px;padding:10px}
+.pright .pnote:empty{display:none}
 </style>
 </head>
 <body>
@@ -2931,7 +2987,7 @@ function cpUse(o, k, x, yb, h) { const c = CPK[k] || "p", sc = h * CPB[c] / CPH[
 let NORING = true;
 function pieceStack(p) {
   const [x, y] = pos(p.f, p.r), rim = p.o ? "#c23b2e" : "#2f6fd0", yb = y + 16.5, T = 4.6, W = 14.5, RY = 5;
-  let s = `<g pointer-events="none">` + (NORING ? `<ellipse cx="${x}" cy="${yb + .8}" rx="${W + 1}" ry="${RY + .8}" fill="rgba(0,0,0,.18)"/>` : `<ellipse cx="${x}" cy="${yb + .6}" rx="${W + 3}" ry="${RY + 1.4}" fill="rgba(0,0,0,.16)" stroke="${rim}" stroke-width="2"/>`) + `<g>`;
+  let s = `<g pointer-events="none">` + (NORING ? "" : `<ellipse cx="${x}" cy="${yb + .6}" rx="${W + 3}" ry="${RY + 1.4}" fill="rgba(0,0,0,.16)" stroke="${rim}" stroke-width="2"/>`) + `<g>`;
   let top = yb;
   // a gold checker is simply a checker of the other colour, as on the real board
   const disc = c => { const own = c === p.o, blk = c === 1, f = blk ? "#3a322b" : "#f4ecd9", e = blk ? "#0d0905" : "#2a1e12", sd = blk ? "#1d1813" : "#cdbd9a";
@@ -3474,7 +3530,7 @@ function renderPanel() {
       const off = !a.ok, note = sureHint(off ? (a.why || "not now") : (a.note || "")), cost = off ? "" : (a.note || "").split(" · ")[0];
       const tl0 = tileLabel(a.label), rc = BUILD_KINDS.includes(a.kind) || TRAIN_KINDS.includes(a.kind) ? "" : /^(Wood|Lumber)/i.test(tl0) ? " r-wood" : /^(Food|Farm|Berr)/i.test(tl0) ? " r-food" : /^(Gold|Mine)/i.test(tl0) ? " r-gold" : "";
       return `<button class="tile${off ? " off" : ""}${TRAIN_KINDS.includes(a.kind) ? " train" : ""}${BUILD_KINDS.includes(a.kind) ? " bld" : ""}${rc}" ${off ? `data-tip="${note.replace(/"/g, "&quot;")}"` : `data-act="${i}"`} title="${(a.label + (note ? " — " + note : "")).replace(/"/g, "&quot;")}">` +
-        `<span class="aic">${actIcon(a)}</span><span class="tl">${tileLabel(a.label)}</span><span class="tc">${off ? note : cost ? sureHint(cost) : "&nbsp;"}</span></button>`;
+        `<span class="aic">${actIcon(a)}</span><span class="tl">${tileLabel(a.label)}</span><span class="tc">${off ? note : cost ? sureHint(cost) : ""}</span></button>`;
     };
     const doT = [], trainT = [], upT = [], buildT = [], gatT = [];
     list.forEach((a, i) => { if (a.kind === "hint") return; (sp.k === "V" && (a.kind === "gather" || a.kind === "trade") ? gatT : BUILD_KINDS.includes(a.kind) ? buildT : (a.kind === "upgrade" || a.kind === "swap") ? upT : TRAIN_KINDS.includes(a.kind) ? trainT : doT).push(tile(a, i)); });
@@ -3486,7 +3542,7 @@ function renderPanel() {
       const C = vilCats(sp, pieceActions(sp)), all = [...C.act, ...C.res, ...C.build, ...C.train, ...C.hints];
       UI.list = all;
       const cnt = k => C[k].filter(a => a.ok).length;
-      const cat = (k, ico, lab) => `<button class="tile cat${UI.cat === k ? " sel" : ""}" data-cat="${k}"><span class="aic">${ico}</span><span class="tl">${lab}</span><span class="tc">${cnt(k) ? cnt(k) + " ready" : "&nbsp;"}</span></button>`;
+      const cat = (k, ico, lab) => `<button class="tile cat${UI.cat === k ? " sel" : ""}" data-cat="${k}"><span class="aic">${ico}</span><span class="tl">${lab}</span><span class="tc">${cnt(k) ? cnt(k) + " ready" : ""}</span></button>`;
       const cur = C[UI.cat];
       acts = `<div class="tiles big">${tile(C.act[0], 0)}${cat("res", ICONS.food, "Resources")}${cat("build", ICONS.building, "Build")}${cat("train", ICONS.unit, "Train")}</div>` +
         (cur ? `<div class="tiles big sub${cur.length > 4 ? " five" : ""}" style="margin-top:5px">${cur.map(a => tile(a, all.indexOf(a))).join("")}</div>` : `<div style="margin-top:8px;font-size:13px;color:var(--dim)">Move / attack: tap a green square to move, a red piece to attack.</div>`);
@@ -3527,15 +3583,16 @@ function renderPanel() {
   const dm = vD.match(/^(\d+)\s*\/\s*(\d+)$/), dMel = dm ? dm[1] : vD, dPie = dm ? dm[2] : vD;
   const atkIcon = eA ? (eA.querySelector("svg") || {}).outerHTML || IC.atk : IC.atk;
   const isOff = v => v === null || /^(0|–|-)?$/.test(String(v).replace(/<[^>]+>/g, ""));
-  const rows = cell(IC.hp, valOf(eH, "hit points") || "–", "health", eH, false)
-    + cell(atkIcon, vA === null ? "0" : vA, "attack", eA, isOff(vA))
-    + cell(eR ? IC.rng : IC.rng, vR === null ? "–" : vR, "range", eR, isOff(vR))
+  const vH = valOf(eH, "hit points") || "–";
+  const rows = cell(atkIcon, vA === null ? "0" : vA, "attack", eA, isOff(vA))
+    + cell(IC.rng, vR === null ? "–" : vR, "range", eR, isOff(vR))
+    + cell(IC.spd, vS === null ? "–" : vS, "moves", eS, isOff(vS))
+    + cell(IC.hp, vH, "health", eH, false)
     + cell(IC.defm || IC.def, dMel, "melee", eD, isOff(dMel))
-    + cell(IC.defp || IC.def, dPie, "pierce", eD, isOff(dPie))
-    + cell(IC.spd, vS === null ? "–" : vS, "moves", eS, isOff(vS));
+    + cell(IC.defp || IC.def, dPie, "pierce", eD, isOff(dPie));
   const cap = t => t.replace(/^(\s*(?:<[^>]+>\s*)*)([a-z])/, (m, a, b) => a + b.toUpperCase());
   const desc = UI.msg ? msg : `<div class="pdesc">${notes.map(n => `<span class="pfn">* ${n}</span> `).join("")}${cap(meta[1] ? meta[1].replace(/<[^>]+>/g, "") : (info[0] || ""))}</div>`;
-  const left = `<div class="pleft"><div class="ptitle">${name(sp).replace(/^./, c => c.toUpperCase())}</div><div class="sgrid">${rows}</div>${desc}</div>`;
+  const left = `<div class="pleft"><div class="ptitle"><span class="pnm">${name(sp).replace(/^./, c => c.toUpperCase())}</span><span class="psub"><i class="pdot p${sp.o}"></i>${SIDE[sp.o]} · ${SQ([sp.f, sp.r])}</span></div><div class="sgrid">${rows}</div>${desc}</div>`;
   const lastOpp = [...G.log].reverse().find(e => e.s === 1 - sp.o && e.s !== null), nextA = age(G.turn) < 3 ? ageCost(age(G.turn) + 1) : null;
   const goal = nextA ? `<b>Next: ${AGES[age(G.turn) + 1]} Age</b> · ${[nextA.f ? nextA.f + " food" : "", nextA.w ? nextA.w + " wood" : "", nextA.g ? nextA.g + " gold" : ""].filter(Boolean).join(" + ")}` : "<b>Imperial Age</b> reached";
   const pinfo = `<div class="pinfo">${lastOpp ? `<span><b>${SIDE[lastOpp.s]}:</b> ${lastOpp.t}</span>` : ""}<span>${goal}</span></div>`;
