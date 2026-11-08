@@ -577,6 +577,18 @@ header .iconbtn{flex:none}
 .pright .tiles.big>button.tile .tl{font-size:14px!important;line-height:1.1}
 .pright .tiles.big.sub>button.tile .tl{font-size:12.5px!important}
 header #status{font-size:12px!important;gap:5px!important}header #status b{font-size:15px!important}header #status .civem{display:none}
+
+/* stats card v4: six cells, no picture */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;flex:none}
+.sc{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px 2px 5px;border-radius:9px;background:rgba(255,251,240,.75);border:1px solid rgba(160,120,60,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.6);min-width:0;cursor:default}
+.sc.sx{cursor:pointer}
+.sc .si{display:flex;height:20px;align-items:center}.sc .si svg{width:20px!important;height:20px!important}
+.sc b{font:800 21px/1.05 Inter,system-ui,sans-serif;color:#2f2418;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sc b sup{font-size:.55em;color:#8a5a22}
+.sc small{font:700 8px/1.1 Inter,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8a7454;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sc.off{background:rgba(255,251,240,.35);border-style:dashed}
+.sc.off b{color:#c4b494;font-weight:700}.sc.off .si{opacity:.45}
+.pleft .pdesc{margin-top:auto!important;font-size:12.5px!important}
 </style><defs id="celticb-defs2202"><linearGradient xlink:href="#celticb-fillGradient" id="celticb-main-gradient" x1="824.6" x2="992.7" y1="119.5" y2="168.5" gradientTransform="translate(-3372 -24)scale(4.2241)" gradientUnits="userSpaceOnUse"/><linearGradient id="celticb-fillGradient"><stop id="celticb-stop0" offset="0" stop-color="#7f899b" stop-opacity="1"/><stop id="celticb-stop1" offset="1" stop-color="#1c1c2f" stop-opacity="1"/></linearGradient></defs><path id="celticb-boundary" fill="none" stroke-width="35" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color"/><path id="celticb-main" fill="url(#celticb-main-gradient)" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color stroke-medium"/><path id="celticb-eyebrow" fill="none" d="M336 282c-28 2-50 16-65 41" class="base stroke-color stroke-medium"/><path id="celticb-eye" fill="none" d="M310 316c12 8 25 5 22-12" class="base stroke-color stroke-medium"/><path id="celticb-nose" fill="none" d="M155 501c-13-5-23 17-15 17" class="base stroke-color stroke-medium"/><path id="celticb-cheek" fill="none" d="M508 405c10-13 9-19 11-27" class="base stroke-color stroke-medium"/><path id="celticb-deco-lines" fill="none" d="M644 699H370zm64 64H360z" class="base stroke-color stroke-medium" opacity=".5"/><path id="celticb-deco-side" fill="none" d="M723 876c63 0 78-76 36-92-39 0-58-60-25-88 3-74 3-143-13-213-2-7 2-23 11-24-7-24-31-36-41-60-5-12-18-17 20-19-12-21-61-57-77-77-5-7 25-13 19-20-34-36-84-49-109-68-8-6 23-14 15-20-33-22-81-55-124-72" class="base stroke-color stroke-medium" opacity=".5"/></svg></g></g></defs></svg>
 <div class="wrap">
   <header>
@@ -2908,7 +2920,8 @@ const MINI = {sw: '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M13.
   ar: '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M2 14 13 3M13 3h-4M13 3v4" fill="none" stroke="#6b4a1f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
 const CPH = {p: 43.5, b: 59.1, r: 52.2, q: 69.6, k: 78.3, n: 60};
 const CPK = {V: "p", I: "p", A: "b", C: "n", S: "r", K: "k", B: "q", camp: "r"};
-function cpUse(o, k, x, yb, h) { const c = CPK[k] || "p", sc = h / (c === "p" ? 52 : c === "b" || c === "r" ? 66 : CPH.k); return `<use href="#cp-${o ? "b" : "w"}${c}" transform="translate(${x},${yb}) scale(${sc.toFixed(3)})"/>`; }
+const CPB = {p: .74, n: .86, b: .88, r: .84, q: .94, k: 1};   // board height of each piece relative to the king
+function cpUse(o, k, x, yb, h) { const c = CPK[k] || "p", sc = h * CPB[c] / CPH[c], sx = c === "r" ? sc * 1.22 : sc; return `<use href="#cp-${o ? "b" : "w"}${c}" transform="translate(${x},${yb}) scale(${sx.toFixed(3)} ${sc.toFixed(3)})"/>`; }
 // a square shows its stack as it stands: checker discs, the chess piece on top, a thin owner ring at the foot
 function pieceStack(p) {
   const [x, y] = pos(p.f, p.r), rim = p.o ? "#c23b2e" : "#2f6fd0", yb = y + 16.5, T = 5, W = 14.5, RY = 3.2;
@@ -2917,6 +2930,7 @@ function pieceStack(p) {
   let top = yb;
   const disc = c => { const own = c === p.o, f = own ? (p.o ? "#3a322b" : "#f4ecd9") : "#dcae44", e = own ? (p.o ? "#0d0905" : "#2a1e12") : "#6a480c", sd = own ? (p.o ? "#1d1813" : "#cdbd9a") : "#a07418";
     s += `<path d="M${x - W},${top - T} v${T} a${W} ${RY} 0 0 0 ${2 * W} 0 v${-T}" fill="${sd}" stroke="${e}" stroke-width=".9"/><ellipse cx="${x}" cy="${top - T}" rx="${W}" ry="${RY}" fill="${f}" stroke="${e}" stroke-width=".9"/>`;
+    if (top < yb) s += `<path d="M${x - W},${top} a${W} ${RY} 0 0 0 ${2 * W} 0" fill="none" stroke="${own && !p.o ? "#2a1e12" : own ? "#9b8f82" : "#5a3e08"}" stroke-width=".55"/>`;
     top -= T + .7; };
   p.st.forEach(disc);
   if (!p.st.length) top = yb - 1;
@@ -2926,7 +2940,7 @@ function pieceStack(p) {
   else if (CR() && p.k === "S") {
     s += `<ellipse cx="${x}" cy="${top - 2.5}" rx="${W - 1}" ry="${RY + 1}" fill="${p.up ? "#c9a45a" : "#a9b2ba"}" stroke="#3e454c" stroke-width="1"/><path d="M${x - W + 1},${top - 2.5} v2.4 a${W - 1} ${RY + 1} 0 0 0 ${2 * W - 2} 0 v-2.4" fill="${p.up ? "#9c7a34" : "#7e878f"}" stroke="#3e454c" stroke-width="1"/><text x="${x}" y="${top - .4}" text-anchor="middle" font-size="5.5" font-weight="800" fill="#2b2f33" font-family="Inter,sans-serif">T</text>`;
     s += cpUse(p.o, "S", x, top - 4.6, 16); }
-  else s += cpUse(p.o, crowned ? (p.k === "B" ? "B" : "S") : p.k, x, top + 1.4, p.st.length >= 2 ? 25 : 27);
+  else s += cpUse(p.o, crowned ? (p.k === "B" ? "B" : "S") : p.k, x, top + 1.4, p.st.length >= 2 ? 26 : 28);
   const dmg = p.k === "K" ? (G.pile[p.o] || 0) : (+p.w || 0);
   for (let i = 0; i < dmg; i++) s += `<ellipse cx="${x + W + 4}" cy="${yb - 2 - i * 4.4}" rx="4.4" ry="1.9" fill="#fff" stroke="var(--danger)" stroke-width="1" stroke-dasharray="1.6 1.1"/>`;
   return s + "</g>";
@@ -3469,25 +3483,27 @@ function renderPanel() {
   const big = `<div class="pbw"><svg class="pbig" viewBox="0 0 80 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${ck}${pc}</svg></div>`;
   const tmp = document.createElement("div"); tmp.innerHTML = meta[0];
   const all = [...tmp.querySelectorAll(".stat")], notes = [];
-  const rows = [["hit points", "hp"], ["attack", "atk"], ["defence", "def"], ["speed", "spd"], ["range", "rng"]].map(([t, k]) => {
-    const e = all.find(x => (x.getAttribute("title") || "").startsWith(t));
-    if (!e) return `<div class="srow off"><span class="stat" title="${t}">${IC[k] || ""}<b>${k === "def" ? "0" : "–"}</b></span></div>`;
+  const cell = (icon, val, lab, e, off) => `<div class="sc${off ? " off" : ""}${e && e.dataset.ex ? " stat sx" : ""}"${e && e.dataset.ex ? ` data-ex="${e.dataset.ex.replace(/"/g, "&quot;")}"` : ""}${e && e.dataset.pic ? ` data-pic="${e.dataset.pic}"` : ""}><span class="si">${icon}</span><b>${val}</b><small>${lab}</small></div>`;
+  const find = t => all.find(x => (x.getAttribute("title") || "").startsWith(t));
+  const valOf = (e, t) => { if (!e) return null;
     const hb = e.querySelector(".hpbox"); if (hb) hb.remove();
-    const sm = [...e.querySelectorAll("small")];
-    if (sm.length) {   // special value: keep the first number, star it, explain below
-      const txt = e.textContent.replace(/\s+/g, " ").trim();
-      const num = (txt.match(/[\d/–-]+/) || [""])[0];
-      notes.push(/\(buildings\)/.test(txt) ? `Buildings only (0 against units).` : `${t[0].toUpperCase() + t.slice(1)}: ${txt}.`);
-      const ic = e.querySelector("svg"); e.innerHTML = (ic ? ic.outerHTML : "") + `<b>${num}<sup>*</sup></b>`;
-    }
-    const v = (e.querySelector("b") || {}).textContent || "";
-    const am = k === "def" && v.trim().match(/^(\d+)\s*\/\s*(\d+)$/);
-    if (am) e.querySelector("b").innerHTML = `${am[1]}<i class="am" title="melee">${MINI.sw}</i><span class="amsep"></span>${am[2]}<i class="am" title="pierce">${MINI.ar}</i>`;
-    return `<div class="srow${/^0(\/0)?$/.test(v.trim()) ? " off" : ""}">${e.outerHTML}</div>`;
-  }).join("");
+    if (e.querySelector("small")) { const txt = e.textContent.replace(/\s+/g, " ").trim(), num = (txt.match(/[\d/–-]+/) || [""])[0];
+      notes.push(/\(buildings\)/.test(txt) ? `Buildings only (0 against units).` : `${t[0].toUpperCase() + t.slice(1)}: ${txt}.`); return num + "<sup>*</sup>"; }
+    return ((e.querySelector("b") || {}).textContent || "").trim(); };
+  const eH = find("hit points"), eA = find("attack"), eD = find("defence"), eS = find("speed"), eR = find("range");
+  const vA = valOf(eA, "attack"), vD = valOf(eD, "defence") || "0", vS = valOf(eS, "speed"), vR = valOf(eR, "range");
+  const dm = vD.match(/^(\d+)\s*\/\s*(\d+)$/), dMel = dm ? dm[1] : vD, dPie = dm ? dm[2] : vD;
+  const atkIcon = eA ? (eA.querySelector("svg") || {}).outerHTML || IC.atk : IC.atk;
+  const isOff = v => v === null || /^(0|–|-)?$/.test(String(v).replace(/<[^>]+>/g, ""));
+  const rows = cell(IC.hp, valOf(eH, "hit points") || "–", "health", eH, false)
+    + cell(atkIcon, vA === null ? "0" : vA, "attack", eA, isOff(vA))
+    + cell(eR ? IC.rng : IC.rng, vR === null ? "–" : vR, "range", eR, isOff(vR))
+    + cell(IC.defm || IC.def, dMel, "melee", eD, isOff(dMel))
+    + cell(IC.defp || IC.def, dPie, "pierce", eD, isOff(dPie))
+    + cell(IC.spd, vS === null ? "–" : vS, "moves", eS, isOff(vS));
   const cap = t => t.replace(/^(\s*(?:<[^>]+>\s*)*)([a-z])/, (m, a, b) => a + b.toUpperCase());
   const desc = UI.msg ? msg : `<div class="pdesc">${notes.map(n => `<span class="pfn">* ${n}</span> `).join("")}${cap(meta[1] ? meta[1].replace(/<[^>]+>/g, "") : (info[0] || ""))}</div>`;
-  const left = `<div class="pleft"><div class="ptitle">${name(sp).replace(/^./, c => c.toUpperCase())}</div><div class="prow">${big}<div class="scol">${rows}</div></div>${desc}</div>`;
+  const left = `<div class="pleft"><div class="ptitle">${name(sp).replace(/^./, c => c.toUpperCase())}</div><div class="sgrid">${rows}</div>${desc}</div>`;
   const lastOpp = [...G.log].reverse().find(e => e.s === 1 - sp.o && e.s !== null), nextA = age(G.turn) < 3 ? ageCost(age(G.turn) + 1) : null;
   const goal = nextA ? `<b>Next: ${AGES[age(G.turn) + 1]} Age</b> · ${[nextA.f ? nextA.f + " food" : "", nextA.w ? nextA.w + " wood" : "", nextA.g ? nextA.g + " gold" : ""].filter(Boolean).join(" + ")}` : "<b>Imperial Age</b> reached";
   const pinfo = `<div class="pinfo">${lastOpp ? `<span><b>${SIDE[lastOpp.s]}:</b> ${lastOpp.t}</span>` : ""}<span>${goal}</span></div>`;
