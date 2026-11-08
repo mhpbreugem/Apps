@@ -469,10 +469,10 @@ h1{font-size:clamp(14px,4.4vw,18px)!important;line-height:1.2}
 .status{min-height:18px!important;padding:0 7px!important;margin:0 0 2px!important;font-size:11.5px!important}
 .strip{margin:2px auto!important}
 /* fixed card design, zoomed as a whole by fitBoard() */
-.pgrid{height:200px!important;flex:none!important;grid-template-columns:52% 1fr!important}
+.pgrid{height:200px!important;flex:none!important;grid-template-columns:56% 1fr!important}
 .pleft{padding:7px 10px 6px!important}
-.prow{flex:none!important;align-items:center!important;gap:10px!important;margin-top:6px!important}
-.pbw{flex:none!important;width:92px!important;height:118px!important;position:relative}
+.prow{flex:none!important;align-items:center!important;gap:6px!important;margin-top:6px!important}
+.pbw{flex:none!important;width:80px!important;height:118px!important;position:relative}
 .pbig{max-height:none!important}
 .scol{flex:1!important;width:auto!important;min-height:0!important}
 .srow{height:21px!important}
@@ -556,6 +556,9 @@ header .iconbtn{flex:none}
 .pinfo b{color:#5a2e0e}
 .pright .tiles.big>button.tile.off .aic{display:none!important}.pright .tiles.big>button.tile .tl{white-space:normal}
 .bar #undoBtn{white-space:nowrap}
+.srow .stat b .am{display:inline-flex;vertical-align:1px;margin:0 1px 0 1px;font-style:normal}.srow .stat b .amsep{display:inline-block;width:6px}
+.srow .stat b .am svg{width:11px!important;height:11px!important}
+.srow .stat{gap:6px!important}
 </style><defs id="celticb-defs2202"><linearGradient xlink:href="#celticb-fillGradient" id="celticb-main-gradient" x1="824.6" x2="992.7" y1="119.5" y2="168.5" gradientTransform="translate(-3372 -24)scale(4.2241)" gradientUnits="userSpaceOnUse"/><linearGradient id="celticb-fillGradient"><stop id="celticb-stop0" offset="0" stop-color="#7f899b" stop-opacity="1"/><stop id="celticb-stop1" offset="1" stop-color="#1c1c2f" stop-opacity="1"/></linearGradient></defs><path id="celticb-boundary" fill="none" stroke-width="35" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color"/><path id="celticb-main" fill="url(#celticb-main-gradient)" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color stroke-medium"/><path id="celticb-eyebrow" fill="none" d="M336 282c-28 2-50 16-65 41" class="base stroke-color stroke-medium"/><path id="celticb-eye" fill="none" d="M310 316c12 8 25 5 22-12" class="base stroke-color stroke-medium"/><path id="celticb-nose" fill="none" d="M155 501c-13-5-23 17-15 17" class="base stroke-color stroke-medium"/><path id="celticb-cheek" fill="none" d="M508 405c10-13 9-19 11-27" class="base stroke-color stroke-medium"/><path id="celticb-deco-lines" fill="none" d="M644 699H370zm64 64H360z" class="base stroke-color stroke-medium" opacity=".5"/><path id="celticb-deco-side" fill="none" d="M723 876c63 0 78-76 36-92-39 0-58-60-25-88 3-74 3-143-13-213-2-7 2-23 11-24-7-24-31-36-41-60-5-12-18-17 20-19-12-21-61-57-77-77-5-7 25-13 19-20-34-36-84-49-109-68-8-6 23-14 15-20-33-22-81-55-124-72" class="base stroke-color stroke-medium" opacity=".5"/></svg></g></g></defs></svg>
 <div class="wrap">
   <header>
@@ -2695,8 +2698,8 @@ function renderBoard() {
     let fill = gold ? "url(#goldG)" : farmSq ? (dk ? "#d9b84e" : "#e6c862") : woodSq ? (dk ? "#285c24" : "#2f6b2a") : TEX ? (dk ? "#7fa34c" : "#8fb35a") : (dk ? "var(--dk)" : "var(--lt)");
     g.push(`<polygon data-f="${f}" data-r="${r}" points="${diamond(x, y)}" fill="${fill}" stroke="${gold ? "var(--goldline)" : "var(--sqline)"}" stroke-width="0.5"/>`);
     g.push(`<polygon points="${diamond(x, y)}" fill="url(#sqSheen)" pointer-events="none"/>`);
-    if (isRock(f, r)) { g.push(`<polygon points="${diamond(x, y)}" fill="url(#rockGround)" pointer-events="none"/><polygon points="${diamond(x, y)}" fill="url(#gravel)" pointer-events="none"/>`); continue; }
-    if (G.rules.quadrant && TEX && !gold && (inQuad(f, r, FOOD) || inQuad(f, r, WOOD))) g.push(`<polygon points="${diamond(x, y)}" fill="url(#${inQuad(f, r, FOOD) ? "farm" : "forest"})" pointer-events="none"/>`);
+    if (isRock(f, r)) { g.push(`<polygon points="${diamond(x, y)}" fill="url(#rockGround)" pointer-events="none"/><polygon points="${diamond(x, y)}" fill="url(#gravel)" opacity=".55" pointer-events="none"/>`); continue; }
+    if (G.rules.quadrant && TEX && !gold && (inQuad(f, r, FOOD) || inQuad(f, r, WOOD))) g.push(`<polygon points="${diamond(x, y)}" fill="url(#${inQuad(f, r, FOOD) ? "farm" : "forest"})" opacity=".5" pointer-events="none"/>`);
     if (H.last.has(key)) g.push(`<polygon points="${diamond(x, y)}" fill="var(--lastw)" pointer-events="none"/>`);
     if (H.build.has(key)) g.push(`<polygon points="${diamond(x, y)}" fill="var(--buildw)" stroke="var(--build)" stroke-width="1.3" pointer-events="none"/>`);
     if (H.atk.has(key)) g.push(`<polygon points="${diamond(x, y)}" fill="var(--dangerw)" stroke="var(--danger)" stroke-width="1.6" pointer-events="none"/>`);
@@ -2747,7 +2750,7 @@ function renderBoard() {
   for (const p of ps) g.push(pieceSVG(p));
   if (H.sel.size) { const [sf, sr] = [...H.sel][0].split(",").map(Number), [sx, sy] = pos(sf, sr);
     g.push(`<polygon points="${diamond(sx, sy)}" fill="none" stroke="#3a2205" stroke-width="5" stroke-linejoin="round" opacity=".55" pointer-events="none"/><polygon class="selring" points="${diamond(sx, sy)}" fill="none" stroke="#f3cf6b" stroke-width="2.6" stroke-linejoin="round" pointer-events="none"/>`); }
-  document.getElementById("board").innerHTML = "<defs><linearGradient id='sqSheen' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff' stop-opacity='0.16'/><stop offset='0.5' stop-color='#fff' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='0.12'/></linearGradient><radialGradient id='tokW' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#fffdf6'/><stop offset='0.6' stop-color='#efe5cf'/><stop offset='1' stop-color='#cdbf9f'/></radialGradient><radialGradient id='tokB' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#5a524b'/><stop offset='0.55' stop-color='#2a2521'/><stop offset='1' stop-color='#0f0d0b'/></radialGradient><filter id='psh' x='-30%' y='-30%' width='160%' height='170%'><feDropShadow dx='0' dy='1.6' stdDeviation='1.3' flood-color='#1b120a' flood-opacity='0.42'/></filter><pattern id='farm' width='14' height='14' patternUnits='userSpaceOnUse'><path d='M3.5 13V5M3.5 5L1.9 3.2M3.5 5L5.1 3.2M3.5 8.4L1.9 6.6M3.5 8.4L5.1 6.6' stroke='#8f6f14' stroke-width='0.9' fill='none' stroke-linecap='round'/><path d='M10.5 13V6M10.5 6L8.9 4.2M10.5 6L12.1 4.2M10.5 9.4L8.9 7.6M10.5 9.4L12.1 7.6' stroke='#8f6f14' stroke-width='0.9' fill='none' stroke-linecap='round'/></pattern><radialGradient id='rockGround' cx='50%' cy='45%' r='75%'><stop offset='0' stop-color='#a2998a'/><stop offset='1' stop-color='#7d7466'/></radialGradient><linearGradient id='boulderA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#d3cbbd'/><stop offset='0.55' stop-color='#a29a8d'/><stop offset='1' stop-color='#6e665b'/></linearGradient><linearGradient id='boulderB' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#cdc2ae'/><stop offset='0.55' stop-color='#9b8f7b'/><stop offset='1' stop-color='#685d4e'/></linearGradient><pattern id='gravel' width='9' height='8' patternUnits='userSpaceOnUse'><circle cx='2' cy='2' r='0.8' fill='#5f584f' fill-opacity='0.35'/><circle cx='6.5' cy='5.5' r='0.6' fill='#5f584f' fill-opacity='0.3'/><circle cx='4.5' cy='7' r='0.5' fill='#efe8da' fill-opacity='0.35'/></pattern><radialGradient id='goldG' cx='50%' cy='50%' r='70%'><stop offset='0' stop-color='#fbe38a'/><stop offset='0.6' stop-color='#eac25a'/><stop offset='1' stop-color='#d4a03c'/></radialGradient><pattern id='forest' width='15' height='16' patternUnits='userSpaceOnUse'><path d='M7.5 1.2l5 8h-10z' fill='#143a16'/><path d='M7.5 5l5.5 8.5H2z' fill='#1b4a1c'/><rect x='6.9' y='13.4' width='1.3' height='2' fill='#5a3a1c'/></pattern></defs>" + g.join("");
+  document.getElementById("board").innerHTML = "<defs><radialGradient id='tokP' cx='.4' cy='.35' r='.75'><stop offset='0' stop-color='#fbf5e6'/><stop offset='1' stop-color='#e4d6b6'/></radialGradient><linearGradient id='sqSheen' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff' stop-opacity='0.16'/><stop offset='0.5' stop-color='#fff' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='0.12'/></linearGradient><radialGradient id='tokW' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#fffdf6'/><stop offset='0.6' stop-color='#efe5cf'/><stop offset='1' stop-color='#cdbf9f'/></radialGradient><radialGradient id='tokB' cx='38%' cy='32%' r='75%'><stop offset='0' stop-color='#5a524b'/><stop offset='0.55' stop-color='#2a2521'/><stop offset='1' stop-color='#0f0d0b'/></radialGradient><filter id='psh' x='-30%' y='-30%' width='160%' height='170%'><feDropShadow dx='0' dy='1.6' stdDeviation='1.3' flood-color='#1b120a' flood-opacity='0.42'/></filter><pattern id='farm' width='14' height='14' patternUnits='userSpaceOnUse'><path d='M3.5 13V5M3.5 5L1.9 3.2M3.5 5L5.1 3.2M3.5 8.4L1.9 6.6M3.5 8.4L5.1 6.6' stroke='#8f6f14' stroke-width='0.9' fill='none' stroke-linecap='round'/><path d='M10.5 13V6M10.5 6L8.9 4.2M10.5 6L12.1 4.2M10.5 9.4L8.9 7.6M10.5 9.4L12.1 7.6' stroke='#8f6f14' stroke-width='0.9' fill='none' stroke-linecap='round'/></pattern><radialGradient id='rockGround' cx='50%' cy='45%' r='75%'><stop offset='0' stop-color='#a2998a'/><stop offset='1' stop-color='#7d7466'/></radialGradient><linearGradient id='boulderA' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#d3cbbd'/><stop offset='0.55' stop-color='#a29a8d'/><stop offset='1' stop-color='#6e665b'/></linearGradient><linearGradient id='boulderB' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#cdc2ae'/><stop offset='0.55' stop-color='#9b8f7b'/><stop offset='1' stop-color='#685d4e'/></linearGradient><pattern id='gravel' width='9' height='8' patternUnits='userSpaceOnUse'><circle cx='2' cy='2' r='0.8' fill='#5f584f' fill-opacity='0.35'/><circle cx='6.5' cy='5.5' r='0.6' fill='#5f584f' fill-opacity='0.3'/><circle cx='4.5' cy='7' r='0.5' fill='#efe8da' fill-opacity='0.35'/></pattern><radialGradient id='goldG' cx='50%' cy='50%' r='70%'><stop offset='0' stop-color='#fbe38a'/><stop offset='0.6' stop-color='#eac25a'/><stop offset='1' stop-color='#d4a03c'/></radialGradient><pattern id='forest' width='15' height='16' patternUnits='userSpaceOnUse'><path d='M7.5 1.2l5 8h-10z' fill='#143a16'/><path d='M7.5 5l5.5 8.5H2z' fill='#1b4a1c'/><rect x='6.9' y='13.4' width='1.3' height='2' fill='#5a3a1c'/></pattern></defs>" + g.join("");
 }
 function rockSmall(f, r) {   // a few stones on a single rock square
   const [x, y] = pos(f, r), sq = VIEW === "square", u = sq ? SQS / 2 : HX * 0.95, k = sq ? 1 : HY / HX;
@@ -2881,6 +2884,12 @@ function aoeWalk(root) {
 new MutationObserver(ms => { if (!aoeOn() || aoeBusy) return; for (const m of ms) { if (m.type === "characterData") aoeWalk(m.target.parentNode); else m.addedNodes.forEach(n => aoeWalk(n.nodeType === 1 ? n : n.parentNode)); } })
   .observe(document.body, {childList: true, subtree: true, characterData: true});
 function setLook(l) { LOOK = l === "aoe" ? "aoe" : "chess"; try { localStorage.setItem("coe-look", LOOK); } catch (e) {} }
+// the turned-wood piece set (sprite #cp-*) drawn at a fixed height with its base at (x, yb)
+const MINI = {sw: '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M13.8 1.6 14.4 2.2 6.4 10.2 5.8 9.6Z" fill="#9aa4ad" stroke="#4a5560" stroke-width=".9"/><path d="M3.2 8.6 7.4 12.8" stroke="#a8741c" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  ar: '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M2 14 13 3M13 3h-4M13 3v4" fill="none" stroke="#6b4a1f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+const CPH = {p: 43.5, b: 59.1, r: 52.2, q: 69.6, k: 78.3, n: 60};
+const CPK = {V: "p", I: "p", A: "b", C: "n", S: "r", K: "k", B: "q", camp: "r"};
+function cpUse(o, k, x, yb, h) { const c = CPK[k] || "p", sc = h / (c === "p" ? 52 : c === "b" || c === "r" ? 66 : CPH.k); return `<use href="#cp-${o ? "b" : "w"}${c}" transform="translate(${x},${yb}) scale(${sc.toFixed(3)})"/>`; }
 function pieceSVG(p) {
   if (aoeOn()) return pieceAoE(p);
   const [x, y] = pos(p.f, p.r), col = p.o === 0 ? "url(#tokW)" : "url(#tokB)", edge = p.o === 0 ? "#7e7466" : "#000", txt = p.o === 0 ? "#1d1a16" : "#f2ecdf";
@@ -2900,7 +2909,7 @@ function pieceSVG(p) {
     });
     const topY = base - (n0 - 1) * 5.2;
     s += `<text x="${x}" y="${topY + 3}" text-anchor="middle" font-size="7.5" font-weight="700" font-family="Alegreya Sans,sans-serif" fill="${p.st[n0 - 1] === p.o ? txt : "#3a2a00"}">${p.k === "B" ? "B" : CR() ? (campRes(p)[0] === FOOD ? "M" : "L") : tower ? "T" : campRes(p)[0] === FOOD ? "M" : "L"}</text>`;
-    if (CR() && p.cr) s += `<text x="${x}" y="${topY + 1}" text-anchor="middle" font-size="19" fill="${txt}" stroke="${p.o ? "#c23b2e" : "#2f6fd0"}" stroke-width="0.7">${p.k === "B" ? GLY.B : GLY.S}</text>`;
+    if (CR() && p.cr) s += cpUse(p.o, p.k === "B" ? "B" : "S", x, topY + 2, 19);
     s += `</g>`;
     for (let i = 0; i < (+p.w || 0); i++) s += `<circle cx="${x + 12}" cy="${y + 9 - i * 4}" r="5.2" fill="${p.o ? "#221d18" : "#f7efdc"}" stroke="${p.o ? "#000" : "#6f6556"}" stroke-width="1"/>`;
   } else {
@@ -2910,9 +2919,9 @@ function pieceSVG(p) {
     s += `<g transform="translate(${x + dx} ${y - 1}) scale(${KP}) translate(${-x} ${1 - y})">`;
     if (hasGold(p) && !G.rules.chk) s += isBld(p) ? `<rect x="${x - 13.3}" y="${y - 14.3}" width="26.6" height="26.6" rx="3.4" fill="none" stroke="var(--goldline)" stroke-width="2.6"/>` : `<circle cx="${x}" cy="${y - 1}" r="13.4" fill="none" stroke="var(--goldline)" stroke-width="2.6"/>`;
     if (!G.rules.chk && p.k === "B" && p.cs) s += `<path d="M${x - 13},${y + 11} V${y - 11} h4 v3 h4 v-3 h10 v3 h4 v-3 h4 V${y + 11} Z" fill="${col}" stroke="${edge}" stroke-width="1.1"/>`;
-    if (isBld(p)) s += `<rect x="${x - 11.4}" y="${y - 12.4}" width="22.8" height="22.8" rx="2.4" fill="${col}" stroke="${p.o ? "#c23b2e" : "#2f6fd0"}" stroke-width="2"/>`;   // buildings: square
-    else s += `<circle cx="${x}" cy="${y - 1}" r="11.6" fill="${col}" stroke="${p.o ? "#c23b2e" : "#2f6fd0"}" stroke-width="2"/>`;
-    s += `<text x="${x}" y="${y + 5.6}" text-anchor="middle" font-size="18" fill="${txt}">${GLY[p.k]}</text>`;
+    if (isBld(p)) s += `<rect x="${x - 11.4}" y="${y - 12.4}" width="22.8" height="22.8" rx="2.4" fill="url(#tokP)" stroke="${p.o ? "#c23b2e" : "#2f6fd0"}" stroke-width="2"/>`;   // buildings: square
+    else s += `<circle cx="${x}" cy="${y - 1}" r="11.6" fill="url(#tokP)" stroke="${p.o ? "#c23b2e" : "#2f6fd0"}" stroke-width="2"/>`;
+    s += cpUse(p.o, p.k, x, y + 8.6, 17.5);
     if (CR() && p.k === "S") s += `<circle cx="${x}" cy="${y - 1}" r="11.6" fill="${p.up ? "#c9a45a" : "#a9b2ba"}" stroke="${p.o ? "#c23b2e" : "#2f6fd0"}" stroke-width="2"/><circle cx="${x}" cy="${y - 1}" r="8" fill="none" stroke="rgba(0,0,0,.28)"/><text x="${x}" y="${y + 3}" text-anchor="middle" font-size="10" font-weight="800" font-family="Alegreya Sans,sans-serif" fill="#3a2a00">${p.up ? "\u25B2" : "T"}</text>`;
     if (p.k === "I") s += `<circle cx="${x}" cy="${y - 1}" r="11.2" fill="none" stroke="${p.o ? "#c9bfa8" : "#6f6556"}" stroke-width="1.2" stroke-dasharray="2 2"/>`;
     s += `</g>`;
@@ -2982,6 +2991,8 @@ function renderStatus() {
     `<span class="dot" style="background:${s ? "var(--ebony)" : "var(--ivory)"}"></span>${civEmblem(civ(s).id, 15)}<b>${who}</b><span class="civn">${civ(s).n}</span><span>r${G.round} · ${AGES[A]} Age</span><span class="pips">${pools}</span>`;
 }
 function pipStr(n, m) { let o = ""; for (let i = 0; i < m; i++) o += `<i class="pip${i < n ? " on" : ""}"></i>`; return o; }
+let STRIPFULL = false; try { STRIPFULL = localStorage.getItem("coe-strip") === "full"; } catch (e) {}
+["strip0", "strip1"].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener("click", () => { STRIPFULL = !STRIPFULL; try { localStorage.setItem("coe-strip", STRIPFULL ? "full" : "simple"); } catch (e) {} renderStrips(); }); });
 function renderStrips() {
   const SMx = SM, SQ = SQS, CY = 13, ST = 8.8, R = 3.5;
   const C = {food: "#B5532C", res: "#6f6e68", wood: "#5E7F2E", gold: "#8A6A12", line: "#b7a98f", gd: "#C9A13A"};
@@ -3001,6 +3012,14 @@ function renderStrips() {
     if (bw) el.style.width = bw + "px";
     el.setAttribute("viewBox", `0 0 ${2 * SMx + 8 * SQ} 26`);
     const w = s === 0, L = SMx + 4, Rr = SMx + 8 * SQ - 4;
+    if (!STRIPFULL) {   // simple: four labelled numbers
+      let t = `<rect x="${SMx + .5}" y="0.5" width="${8 * SQ - 1}" height="25" rx="6" style="fill:var(--panel);stroke:var(--line)" stroke-width=".8"/>`;
+      const items = [["food", G.food[s], "food"], ["wood", G.wood[s], "wood"], ["gold", G.gold[s], "gold"], ["res", G.res[s], "left"]];
+      items.forEach(([k, n, lab], i) => { const cx = SMx + (i * 2 + 1) * SQ;
+        if (i) t += `<line x1="${SMx + i * 2 * SQ}" y1="5" x2="${SMx + i * 2 * SQ}" y2="21" stroke="${C.line}" stroke-width=".8"/>`;
+        t += ICON[k](cx - 22, w) + `<text x="${cx - 13}" y="${CY + .5}" dominant-baseline="central" fill="${C[k]}" style="font-size:14px;font-weight:700">${n}</text><text x="${cx - 13 + String(n).length * 8.5 + 3}" y="${CY + 1}" dominant-baseline="central" fill="#8a7a62" style="font-size:7.5px;font-weight:600">${lab}</text>`; });
+      el.innerHTML = t; el.style.cursor = "pointer"; continue;
+    }
     let t = `<rect x="${SMx + .5}" y="0.5" width="${8 * SQ - 1}" height="25" rx="6" style="fill:var(--panel);stroke:var(--line)" stroke-width=".8"/>`;
     for (const f of [2, 6]) t += `<line x1="${SMx + f * SQ}" y1="3" x2="${SMx + f * SQ}" y2="23" stroke="${C.line}" stroke-width="1"/>`;
     // food: flush left
@@ -3328,6 +3347,7 @@ function renderPanel() {
   const A0 = age(sp.o), isTower = sp.k === "camp" && (CR() ? !!sp.cr : sp.st.length >= 2), isCastle = sp.k === "B" && (CR() ? !!sp.cr : (sp.cs || (G.rules.chk && sp.st.length >= 2))), isTC2 = G.rules.chk && sp.k === "K" && (CR() ? shoots(sp) : sp.st.length >= 2);
   const aVal = sp.k === "V" ? fmtA(atk(sp)) : isUnit(sp) ? atk(sp) : G.rules.chk && (isTower || isCastle || isTC2) ? (hasGold(sp) ? 2 : 1) : isTower ? (A0 >= 3 ? 2 : 1) : isCastle ? 1 : 0;
   IC.atkb = "<svg viewBox='0 0 16 16' width='15' height='15' aria-hidden='true'><path d='M4.5 1.8 C11.5 4 11.5 12 4.5 14.2' fill='none' stroke='#8a5a22' stroke-width='2' stroke-linecap='round'/><path d='M4.5 1.8 V14.2' stroke='#6b6b6b' stroke-width='.8'/><path d='M2 8 H14.5' stroke='#7a7a7a' stroke-width='1.4' stroke-linecap='round'/><path d='M14.8 8 L11.8 5.8 V10.2 Z' fill='#8c8c8c'/><path d='M2 8 L3.6 6.6 M2 8 L3.6 9.4' stroke='#b3412f' stroke-width='1' stroke-linecap='round'/></svg>"; IC.atkc = "<svg viewBox='0 0 16 16' width='15' height='15' aria-hidden='true'><defs><radialGradient id='gcr' cx='.35' cy='.3' r='.8'><stop offset='0' stop-color='#9aa0a8'/><stop offset='1' stop-color='#2c3036'/></radialGradient></defs><path d='M2.2 1.6 L5.2 6.4' stroke='#6b4a1f' stroke-width='1.6' stroke-linecap='round'/><path d='M3 2.4 L4.6 5.2' stroke='#c9a55a' stroke-width='.8' stroke-dasharray='1 1'/><circle cx='9.6' cy='9.6' r='5' fill='url(#gcr)' stroke='#1d2024' stroke-width='.8'/><circle cx='8' cy='8' r='1.3' fill='#e7eaee' opacity='.7'/></svg>";
+  IC.rng = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M1.5 8h13M4 5.2 1.5 8 4 10.8M12 5.2 14.5 8 12 10.8" fill="none" stroke="#7a4a1e" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 6.2v3.6M8 6.2v3.6M10.5 6.2v3.6" stroke="#7a4a1e" stroke-width="1"/></svg>';
   IC.spd = '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 3.5 L7.5 8 L2.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 3.5 L13.5 8 L8.5 12.5" fill="none" stroke="#3f7d24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const rVal = uniOf(sp) ? ({britons: "3", mongols: "2", turks: "2", koreans: "2", chinese: "2"}[uid(sp)] || "1") : sp.k === "A" ? "2" : sp.k === "S" ? "3" : (sp.k === "I" || sp.k === "C") ? "1" : (isTower || isCastle || isTC2) ? (CR() ? (sp.k === "B" ? "1–2" : sp.k === "K" ? (hasMH(sp.o) || G.rules.tcNear ? "1–2" : "2") : "2") : (hasMH(sp.o) ? "1–2" : "2")) : (sp.k === "V" && vilFight(sp.o)) ? "1" : null;
   const sVal = speedOf(sp) || null;
@@ -3419,6 +3439,8 @@ function renderPanel() {
       const ic = e.querySelector("svg"); e.innerHTML = (ic ? ic.outerHTML : "") + `<b>${num}<sup>*</sup></b>`;
     }
     const v = (e.querySelector("b") || {}).textContent || "";
+    const am = k === "def" && v.trim().match(/^(\d+)\s*\/\s*(\d+)$/);
+    if (am) e.querySelector("b").innerHTML = `${am[1]}<i class="am" title="melee">${MINI.sw}</i><span class="amsep"></span>${am[2]}<i class="am" title="pierce">${MINI.ar}</i>`;
     return `<div class="srow${/^0(\/0)?$/.test(v.trim()) ? " off" : ""}">${e.outerHTML}</div>`;
   }).join("");
   const cap = t => t.replace(/^(\s*(?:<[^>]+>\s*)*)([a-z])/, (m, a, b) => a + b.toUpperCase());
