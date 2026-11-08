@@ -2924,8 +2924,8 @@ const MINI = {sw: '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M13.
   ar: '<svg viewBox="0 0 16 16" width="10" height="10"><path d="M2 14 13 3M13 3h-4M13 3v4" fill="none" stroke="#6b4a1f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
 const CPH = {p: 43.5, b: 59.1, r: 52.2, q: 69.6, k: 78.3, n: 60};
 const CPK = {V: "p", I: "p", A: "b", C: "n", S: "r", K: "k", B: "q", camp: "r"};
-const CPB = {p: .7, n: .84, b: .92, r: .8, q: 1.17, k: 1.28};   // board height of each piece; queen and king tower over the rest
-const CPX = {r: 1.5, q: 1.14, k: 1.14};                             // and are a little thicker
+const CPB = {p: .62, n: .84, b: 1.02, r: .8, q: 1.17, k: 1.28};   // board height of each piece; queen and king tower over the rest
+const CPX = {r: 1.5, b: 1.18, q: 1.14, k: 1.14};                             // and are a little thicker
 function cpUse(o, k, x, yb, h) { const c = CPK[k] || "p", sc = h * CPB[c] / CPH[c], sx = sc * (CPX[c] || 1); return `<use href="#cp-${o ? "b" : "w"}${c === "b" ? "Bb" : c}" transform="translate(${x},${yb}) scale(${sx.toFixed(3)} ${sc.toFixed(3)})"/>`; }
 // a square shows its stack as it stands: checker discs, the chess piece on top, a thin owner ring at the foot
 let NORING = true;
