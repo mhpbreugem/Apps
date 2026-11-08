@@ -3056,6 +3056,29 @@ function renderStatus() {
 function pipStr(n, m) { let o = ""; for (let i = 0; i < m; i++) o += `<i class="pip${i < n ? " on" : ""}"></i>`; return o; }
 let STRIPFULL = false; try { STRIPFULL = localStorage.getItem("coe-strip") === "full"; } catch (e) {}
 ["strip0", "strip1"].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener("click", () => { STRIPFULL = !STRIPFULL; try { localStorage.setItem("coe-strip", STRIPFULL ? "full" : "simple"); } catch (e) {} renderStrips(); }); });
+// player tray as a carved board edge: one hole per checker you can hold. Food on the fields' side (left), wood on the forest side (right), idle checkers in front of the player, gold in the other colour
+function trayJ(s) {
+  const own = s ? "b" : "w", opp = s ? "w" : "b";
+  const COL = {w: ["#f4ecd9", "#2a1e12", "#cdbd9a"], b: ["#4a423b", "#b8a78c", "#7a6e62"]};
+  const top = (x, y, c, r) => { const [f, e, sd] = COL[c]; return `<circle cx="${x + .7}" cy="${y + 1.1}" r="${r}" fill="#000" opacity=".3"/><circle cx="${x}" cy="${y}" r="${r}" fill="${f}" stroke="${e}" stroke-width=".9"/><circle cx="${x}" cy="${y}" r="${r * .6}" fill="none" stroke="${sd}" stroke-width=".8"/>`; };
+  const wells = (x0, cap, n, c, cols, r) => { let t = "";
+    for (let i = 0; i < cap; i++) { const rw = Math.floor(i / cols), cl = i % cols, x = x0 + cl * 18.5, y = 16.5 + rw * 24;
+      t += `<circle cx="${x}" cy="${y}" r="${r + 1.1}" fill="url(#trWell)" stroke="#2a1608" stroke-width=".7"/>`; if (i < n) t += top(x, y, c, r); }
+    return t; };
+  const even = (n, m) => Math.max(m, n + (n % 2));
+  const F = G.food[s], R = G.res[s], Gd = G.gold[s], Wd = G.wood[s];
+  const fc = even(F, 6), rc = even(R, 12), rcols = rc / 2, wc = even(Wd, 6), gc = even(Gd, 2);
+  const num = (x, y, n, c) => `<text x="${x}" y="${y}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="800" font-size="17" fill="${c || "#f6e7bf"}">${n}</text>`;
+  const fw = (fc / 2 - 1) * 18.5, ww = (wc / 2 - 1) * 18.5, rw = (rcols - 1) * 18.5;
+  const fx = 14, fnx = fx + fw + 24, wx = 368 - ww, wnx = wx - 24, gx = wnx - 26, rx = fnx + 24 + (gx - 24 - (fnx + 24) - rw) / 2;
+  let t = `<defs><linearGradient id="trWood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a2e"/><stop offset="1" stop-color="#5c3a1b"/></linearGradient><radialGradient id="trWell" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#2a1608"/><stop offset="1" stop-color="#5a3a1c"/></radialGradient><pattern id="trGrain" width="60" height="12" patternUnits="userSpaceOnUse"><path d="M0 3c15 1 30-1 60 0M0 8c20-1 35 1 60 0" stroke="#3a2410" stroke-opacity=".25" stroke-width=".7" fill="none"/></pattern></defs>`;
+  t += `<rect x="1" y="1" width="380" height="56" rx="8" fill="url(#trWood)" stroke="#2a1608" stroke-width="1.5"/><rect x="1" y="1" width="380" height="56" rx="8" fill="url(#trGrain)"/>`;
+  t += wells(fx, fc, F, own, fc / 2, 8.2) + `<g transform="translate(${fnx},17) scale(1.15)"><circle cx="0" cy=".8" r="4.4" fill="#C8643A"/><path d="M0 -3.3q1-2.5 3.5-2.5q-1 2.5-3.5 2.5z" fill="#5FA83A"/></g>` + num(fnx, 47, F);
+  t += wells(rx, rc, R, own, rcols, 7.6);
+  t += wells(gx, gc, Gd, opp, gc / 2, 7.6) + `<g transform="translate(${gx},${gc > 2 ? 52 : 52}) scale(.9)"></g>`;
+  t += `<g transform="translate(${wnx},17) scale(1.15)"><rect x="-4.6" y="-3.2" width="9.6" height="6.4" rx="1.5" fill="#9a6a38"/><ellipse cx="-4.6" cy="0" rx="2" ry="3.2" fill="#E8C690" stroke="#5C3A18" stroke-width=".5"/></g>` + num(wnx, 47, Wd) + wells(wx, wc, Wd, own, wc / 2, 8.2);
+  return t;
+}
 function renderStrips() {
   const SMx = SM, SQ = SQS, CY = 13, ST = 8.8, R = 3.5;
   const C = {food: "#B5532C", res: "#6f6e68", wood: "#5E7F2E", gold: "#8A6A12", line: "#b7a98f", gd: "#C9A13A"};
@@ -3075,7 +3098,8 @@ function renderStrips() {
     if (bw) el.style.width = bw + "px";
     el.setAttribute("viewBox", `0 0 ${2 * SMx + 8 * SQ} 26`);
     const w = s === 0, L = SMx + 4, Rr = SMx + 8 * SQ - 4;
-    if (!STRIPFULL) {   // simple: four labelled numbers
+    if (!STRIPFULL && innerHeight >= 760) { el.innerHTML = trayJ(s); el.setAttribute("viewBox", "0 0 382 58"); el.style.cursor = "pointer"; continue; }
+    if (!STRIPFULL) {   // short screens: four labelled numbers
       let t = `<rect x="${SMx + .5}" y="0.5" width="${8 * SQ - 1}" height="25" rx="6" style="fill:var(--panel);stroke:var(--line)" stroke-width=".8"/>`;
       const items = [["food", G.food[s], "food"], ["wood", G.wood[s], "wood"], ["gold", G.gold[s], "gold"], ["res", G.res[s], "left"]];
       items.forEach(([k, n, lab], i) => { const cx = SMx + (i * 2 + 1) * SQ;
