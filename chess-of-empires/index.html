@@ -3116,8 +3116,8 @@ function trayJ(s, cp) {
   const {HH, LB, DY} = trayDims(cp), own = s ? "b" : "w", opp = s ? "w" : "b";
   const even = (n, m) => Math.max(m, n + (n % 2));
   const F = G.food[s], R = G.res[s], Gd = G.gold[s], Wd = G.wood[s];
-  const groups = [["FOOD", F, even(F, 6), own, "#fff3d2", pv && pv.F], ["SPARE", R, even(R, 12), own, "#e9d6a8", pv && pv.R], ["GOLD", Gd, even(Gd, 2), opp, "#ffd34d", pv && pv.Gd], ["WOOD", Wd, even(Wd, 6), own, "#fff3d2", pv && pv.Wd]];
-  const cols = groups.reduce((a, g) => a + g[2] / 2, 0), DX = Math.min(24, (382 - 12 - 22 * 3) / cols), r = Math.min(DX, DY) / 2 - .7, DV = (382 - 12 - cols * DX) / 3;
+  const groups = [["FOOD", F, even(F, 6), own, "#fff3d2", pv && pv.F], ["SPARE", R, Math.max(15, R), own, "#e9d6a8", pv && pv.R], ["GOLD", Gd, even(Gd, 2), opp, "#ffd34d", pv && pv.Gd], ["WOOD", Wd, even(Wd, 6), own, "#fff3d2", pv && pv.Wd]];
+  const cols = groups.reduce((a, g) => a + Math.ceil(g[2] / 2), 0), DX = Math.min(24, (382 - 12 - 10 * 3) / cols), r = Math.min(DX, DY) / 2 - .7, DV = (382 - 12 - cols * DX) / 3;
   const y0 = LB + (HH - 7 - LB - 2 * DY) / 2;
   const CKF = {w: "url(#trCkW)", b: "url(#trCkB)"}, CKE = {w: "#2a1e12", b: "#d9c7a2"}, CKG = {w: "#c9b994", b: "#6b5f53"};
   const ck = (x, y, c) => `<circle cx="${x + .7}" cy="${y + 1.2}" r="${r}" fill="#000" opacity=".38"/><circle cx="${x}" cy="${y}" r="${r}" fill="${CKF[c]}" stroke="${CKE[c]}" stroke-width="${c === "b" ? 1.1 : .9}"/>`
@@ -3132,7 +3132,7 @@ function trayJ(s, cp) {
     + `<rect x="4" y="4" width="374" height="${HH - 8}" rx="7" fill="none" stroke="#c99a3e" stroke-opacity=".35" stroke-width=".8"/>`;
   let x = 6, fx = "";
   groups.forEach(([lab, n, cap, c, col, was], gi) => {
-    const nc = cap / 2, w = nc * DX, cx = x + w / 2;
+    const nc = Math.ceil(cap / 2), w = nc * DX, cx = x + w / 2;
     t += `<text x="${cx}" y="${LB - (cp ? 3.5 : 4.5)}" text-anchor="middle" font-family="Cinzel,Georgia,serif" font-weight="800" letter-spacing=".08em"><tspan font-size="${cp ? 7 : 8.4}" fill="${col}" opacity=".9">${lab}</tspan><tspan dx="4" font-family="Inter,system-ui,sans-serif" font-size="${cp ? 10 : 12.5}" fill="${col}">${n}</tspan></text>`;
     for (let i = 0; i < cap; i++) {
       const rw = Math.floor(i / nc), cl = i % nc, px = x + DX / 2 + cl * DX, py = y0 + DY / 2 + rw * DY;
