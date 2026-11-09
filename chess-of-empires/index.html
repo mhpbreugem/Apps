@@ -3117,7 +3117,7 @@ function trayJ(s, cp) {
   const even = (n, m) => Math.max(m, n + (n % 2));
   const F = G.food[s], R = G.res[s], Gd = G.gold[s], Wd = G.wood[s];
   const groups = [["FOOD", F, even(F, 6), own, "#fff3d2", pv && pv.F], ["SPARE", R, even(R, 12), own, "#e9d6a8", pv && pv.R], ["GOLD", Gd, even(Gd, 2), opp, "#ffd34d", pv && pv.Gd], ["WOOD", Wd, even(Wd, 6), own, "#fff3d2", pv && pv.Wd]];
-  const cols = groups.reduce((a, g) => a + g[2] / 2, 0), DV = 9, DX = Math.min(24, (382 - 12 - DV * 3) / cols), r = Math.min(DX, DY) / 2 - .7;
+  const cols = groups.reduce((a, g) => a + g[2] / 2, 0), DX = Math.min(24, (382 - 12 - 22 * 3) / cols), r = Math.min(DX, DY) / 2 - .7, DV = (382 - 12 - cols * DX) / 3;
   const y0 = LB + (HH - 7 - LB - 2 * DY) / 2;
   const CKF = {w: "url(#trCkW)", b: "url(#trCkB)"}, CKE = {w: "#2a1e12", b: "#d9c7a2"}, CKG = {w: "#c9b994", b: "#6b5f53"};
   const ck = (x, y, c) => `<circle cx="${x + .7}" cy="${y + 1.2}" r="${r}" fill="#000" opacity=".38"/><circle cx="${x}" cy="${y}" r="${r}" fill="${CKF[c]}" stroke="${CKE[c]}" stroke-width="${c === "b" ? 1.1 : .9}"/>`
