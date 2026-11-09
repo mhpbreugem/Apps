@@ -868,19 +868,19 @@ function oneLine(p, rng) {
   const hurt = dmg ? ` · <b class="hurt">−${dmg} damaged</b>` : "";
   if (p.k === "V") return "Gathers, builds and repairs" + hurt;
   if (isUnit(p)) return (ONE1[uniOf(p) ? uid(p) : p.k] || "") + hurt;
-  if (p.k === "K") return `Trains villagers · shoots ${R || "1–2"} away` + hurt;
+  if (p.k === "K") return "Trains villagers and shoots" + hurt;
   if (p.k === "camp") { const res = campRes(p)[0], what = res === FOOD ? "Mill" : "Lumber camp";
-    return (CR() && p.cr ? `Shoots ${R || 2} away · crew gathers ${RES[res]}` : `Its crew gathers ${RES[res]}`) + hurt; }
-  if (p.k === "B") return (CR() && p.cr ? `Shoots ${R || "1–2"} away · trains units` : "Trains infantry, archers, cavalry") + hurt;
+    return (CR() && p.cr ? `Shoots; its crew gathers ${RES[res]}` : `Its crew gathers ${RES[res]}`) + hurt; }
+  if (p.k === "B") return (CR() && p.cr ? "Shoots and trains units" : "Trains infantry, archers, cavalry") + hurt;
   return hurt.slice(3);
 }
-const ONE1 = {
-  I: "Walks up to 2, then strikes next to it", A: "Shoots exactly 2 away, in any direction",
-  C: "Rides up to 3, then strikes next to it", S: "Fires exactly 3 away; wrecks buildings",
-  teutons: "Armour 1/1, but moves only 1", aztecs: "Walks 2 and still strikes",
-  huns: "Fast: wrecks buildings only*", persians: "Crushes all armour; slow",
-  britons: "Shoots exactly 3 away; slow", koreans: "Pierce armour 1 · shoots 2 away",
-  chinese: "Two bolts at two targets", turks: "Crushes armour, exactly 2 away"};
+const ONE1 = {   // the stats show the numbers; the line says the role
+  I: "Walks, then strikes next to it", A: "Shoots from where it stands",
+  C: "Rides, then strikes next to it", S: "Wrecks buildings from afar",
+  teutons: "Heavily armoured, but slow", aztecs: "Walks, then still strikes far",
+  huns: "Fast raider: buildings only*", persians: "Crushes through all armour",
+  britons: "Longest-range archer", koreans: "Archer with arrow armour",
+  chinese: "Two bolts at two targets", turks: "Cannon that crushes armour"};
 const ONE = {
   teutons: "Defence 1 against everything, but it moves only 1 and costs 3 food.",
   aztecs: "Walks 2 and still strikes, so it reaches 3; the Aztecs train no cavalry.",
