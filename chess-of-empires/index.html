@@ -3172,6 +3172,24 @@ function flyFx() {
       {duration: 560, delay: 90 * k++, easing: "cubic-bezier(.45,0,.25,1)", fill: "both"});
     anim.onfinish = () => d.remove(); setTimeout(() => d.remove(), 2000);
   }
+  // stock changes with no partner (gathering, spending) fly from or to the piece that acted
+  const sq = G.last && G.last[0];
+  if (!sq) return;
+  const [bx, by] = pos(sq[0], sq[1]), bp = {el: "board", x: bx, y: by + 6, r: 10};
+  for (const a of L) {
+    if (!a.el.startsWith("strip") || used.has(a) || rem.some(q => q === a && q.done)) continue;
+    if (!a.add && add.some(q => used.has(q))) continue;
+    const from = a.add ? scr(bp) : scr(a), to = a.add ? scr(a) : scr(bp); if (!from || !to) continue;
+    const d = document.createElement("div"), R = Math.max(from.r, to.r, 6);
+    d.className = "flyck " + a.col; d.style.width = d.style.height = 2 * R + "px"; document.body.appendChild(d);
+    const lift = Math.min(70, Math.hypot(to.x - from.x, to.y - from.y) * .25);
+    const anim = d.animate([
+      {transform: `translate(${from.x - R}px,${from.y - R}px) scale(${from.r / R * .6})`, opacity: 0},
+      {transform: `translate(${(from.x + to.x) / 2 - R}px,${(from.y + to.y) / 2 - R - lift}px) scale(1.2)`, opacity: 1, offset: .45},
+      {transform: `translate(${to.x - R}px,${to.y - R}px) scale(${to.r / R})`, opacity: a.add ? 1 : 0}],
+      {duration: 620, delay: 90 * k++, easing: "cubic-bezier(.45,0,.25,1)", fill: "both"});
+    anim.onfinish = () => d.remove(); setTimeout(() => d.remove(), 2500);
+  }
 }
 function renderStrips() {
   const SMx = SM, SQ = SQS, CY = 13, ST = 8.8, R = 3.5;
