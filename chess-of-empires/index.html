@@ -608,6 +608,12 @@ header #status{gap:7px!important;white-space:nowrap}
 .fxR,.fxG{opacity:0;animation:fxBlink .62s ease-out forwards}
 @keyframes fxBlink{0%{opacity:0}8%{opacity:1}22%{opacity:.25}36%{opacity:1}50%{opacity:.3}62%{opacity:.95}100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.fxR,.fxG{animation-duration:.01s}}
+
+#fsGate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,rgba(74,47,22,.94),rgba(20,12,6,.97));cursor:pointer;-webkit-tap-highlight-color:transparent}
+#fsGate .fg-card{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+#fsGate .fg-t{font:900 26px Cinzel,Georgia,serif;color:#f3cf6b;letter-spacing:.06em}
+#fsGate .fg-b{font:900 18px Cinzel,Georgia,serif;letter-spacing:.08em;color:#fff3cf;background:linear-gradient(180deg,#c0392b,#8e1f16 60%,#6e140e);border:2px solid #f0c65b;border-radius:12px;padding:14px 34px;box-shadow:0 6px 18px rgba(0,0,0,.5);cursor:pointer}
+#fsGate .fg-s{font:600 12px Inter,system-ui,sans-serif;color:#d9c39a;opacity:.8}
 </style><defs id="celticb-defs2202"><linearGradient xlink:href="#celticb-fillGradient" id="celticb-main-gradient" x1="824.6" x2="992.7" y1="119.5" y2="168.5" gradientTransform="translate(-3372 -24)scale(4.2241)" gradientUnits="userSpaceOnUse"/><linearGradient id="celticb-fillGradient"><stop id="celticb-stop0" offset="0" stop-color="#7f899b" stop-opacity="1"/><stop id="celticb-stop1" offset="1" stop-color="#1c1c2f" stop-opacity="1"/></linearGradient></defs><path id="celticb-boundary" fill="none" stroke-width="35" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color"/><path id="celticb-main" fill="url(#celticb-main-gradient)" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color stroke-medium"/><path id="celticb-eyebrow" fill="none" d="M336 282c-28 2-50 16-65 41" class="base stroke-color stroke-medium"/><path id="celticb-eye" fill="none" d="M310 316c12 8 25 5 22-12" class="base stroke-color stroke-medium"/><path id="celticb-nose" fill="none" d="M155 501c-13-5-23 17-15 17" class="base stroke-color stroke-medium"/><path id="celticb-cheek" fill="none" d="M508 405c10-13 9-19 11-27" class="base stroke-color stroke-medium"/><path id="celticb-deco-lines" fill="none" d="M644 699H370zm64 64H360z" class="base stroke-color stroke-medium" opacity=".5"/><path id="celticb-deco-side" fill="none" d="M723 876c63 0 78-76 36-92-39 0-58-60-25-88 3-74 3-143-13-213-2-7 2-23 11-24-7-24-31-36-41-60-5-12-18-17 20-19-12-21-61-57-77-77-5-7 25-13 19-20-34-36-84-49-109-68-8-6 23-14 15-20-33-22-81-55-124-72" class="base stroke-color stroke-medium" opacity=".5"/></svg></g></g></defs></svg>
 <div class="wrap">
   <header>
@@ -3877,15 +3883,19 @@ document.getElementById("overNew").onclick = () => { document.getElementById("ov
   };
   const upd = () => { btn.innerHTML = (d.fullscreenElement || d.webkitFullscreenElement) ? '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M7 2v5H2M18 7h-5V2M13 18v-5h5M2 13h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M2 7V2h5M13 2h5v5M18 13v5h-5M7 18H2v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; };
   d.addEventListener("fullscreenchange", upd); d.addEventListener("webkitfullscreenchange", upd);
-  btn.addEventListener("click", () => { setTimeout(() => { try { localStorage.setItem("coe-fs", (d.fullscreenElement || d.webkitFullscreenElement) ? "on" : "off"); } catch (e) {} }, 300); });
-  let want = true; try { want = localStorage.getItem("coe-fs") !== "off"; } catch (e) {}
-  if (can && want) {
-    const first = ev => {   // browsers only allow full screen after a tap, so the first tap anywhere opens it
-      d.removeEventListener("pointerdown", first, true);
-      if (ev.target && ev.target.closest && ev.target.closest("#fsBtn")) return;
-      if (!(d.fullscreenElement || d.webkitFullscreenElement)) { try { const r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
-    };
-    d.addEventListener("pointerdown", first, true);
+  // the game is played full screen: wherever the browser allows it, a "Tap to play" screen covers the game until full screen is on
+  const isFs = () => !!(d.fullscreenElement || d.webkitFullscreenElement);
+  const standalone = matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches || navigator.standalone;
+  const enter = () => { try { const r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el); if (r && r.catch) r.catch(() => {}); } catch (e) {} };
+  if (can && !standalone && !(typeof SIM !== "undefined" && SIM)) {
+    const gate = document.createElement("div"); gate.id = "fsGate";
+    gate.innerHTML = `<div class="fg-card"><svg width="54" height="61" viewBox="0 0 30 34" aria-hidden="true"><path d="M15 1.5 L27.5 5.5 V16 C27.5 24 21.5 29.5 15 32.5 C8.5 29.5 2.5 24 2.5 16 V5.5 Z" fill="#8e1f16" stroke="#f0c65b" stroke-width="1.8"/><path d="M15 5 L24.5 8 V16 C24.5 22 20 26.5 15 29 V5 Z" fill="#245f96"/><path d="M8 23 L22 9 M22 23 L8 9" stroke="#e8e0cc" stroke-width="2.2" stroke-linecap="round"/><path d="M9.5 21.5 L11 23 M20.5 21.5 L19 23" stroke="#f0c65b" stroke-width="3" stroke-linecap="round"/></svg><div class="fg-t">Chess of Empires</div><button type="button" class="fg-b">Tap to play</button><div class="fg-s">The game plays full screen</div></div>`;
+    document.body.appendChild(gate);
+    const sync = () => { gate.style.display = isFs() ? "none" : "flex"; };
+    gate.addEventListener("click", enter);
+    d.addEventListener("fullscreenchange", sync); d.addEventListener("webkitfullscreenchange", sync);
+    d.addEventListener("pointerdown", ev => { if (!isFs() && !(ev.target.closest && ev.target.closest("#fsGate"))) enter(); }, true);   // a tap inside an open menu also goes full screen
+    sync();
   }
 })();
 /* ================= field / forest textures ================= */
