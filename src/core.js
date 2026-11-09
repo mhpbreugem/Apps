@@ -10,7 +10,7 @@ const IC={
  book:'<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
  sliders:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/>',
  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',approx:'<path d="M5 10c2-2 4-2 7 0s5 2 7 0M5 15c2-2 4-2 7 0s5 2 7 0"/>',
- arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',phone:'<path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 5.7 5.7L16 13l4 1.5v3A2 2 0 0 1 18 19.5 14 14 0 0 1 4.5 6 2 2 0 0 1 6.5 4z"/>',speaker:'<path d="M5 9.5h3l4-3.5v12l-4-3.5H5z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',chat:'<path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15h-.5A2.5 2.5 0 0 1 5 12.5z"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
+ camera:'<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.2"/>',arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',phone:'<path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 5.7 5.7L16 13l4 1.5v3A2 2 0 0 1 18 19.5 14 14 0 0 1 4.5 6 2 2 0 0 1 6.5 4z"/>',speaker:'<path d="M5 9.5h3l4-3.5v12l-4-3.5H5z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',chat:'<path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15h-.5A2.5 2.5 0 0 1 5 12.5z"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
  eye:'<path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/>',
  thumb:'<path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.6 10H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/>',
  play:'<path d="M7 4.5v15l12-7.5z"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',
@@ -39,7 +39,7 @@ const LANGS=[["fa","🇮🇷","فارسی","Persian"],["fr","🇫🇷","Françai
 const PACKS={};
 // ---------- state ----------
 const today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5);
-const LDEF=()=>({p:{},g:{},sp:{streak:0,last:0,best:0,hist:{}},d:{day:0,newDone:0,reviewed:0},decks:["A1"],npd:10,gmax:"auto",la:{}});
+const LDEF=()=>({p:{},g:{},sp:{streak:0,last:0,best:0,hist:{}},d:{day:0,newDone:0,reviewed:0},decks:["A1"],npd:10,gmax:"auto",la:{},bk:{},bb:{}});
 let S={v:2,s:{theme:"auto",lang:null,zoom:1,sprintMin:2,m2:1},L:{},t:0};
 const LSK="kashi-v2";
 function mergeL(x){const d=LDEF();return Object.assign(d,x||{},{sp:Object.assign(d.sp,(x||{}).sp||{}),d:Object.assign(d.d,(x||{}).d||{})});}
@@ -72,12 +72,15 @@ function parseCards(pack){
     const[en,t,tr,tag]=l.split("|");out.push({id:lvl+":"+en,deck:lvl,en,fa:t.split("/"),tr:tr||"",tag:tag||""});});
   (pack.topics||[]).forEach(g=>g.d.forEach(([en,t])=>out.push({id:"G:"+en,deck:"Grammar",sub:g.lvl+" · "+g.t,en,fa:t.split("/"),tr:""})));
   return out;}
+// words added from scanned book pages live in P.bk and join the cards as deck "Book"; P.bb marks existing cards to learn first
+const bookCardsOf=L=>Object.entries(L.bk||{}).map(([id,b])=>({id,deck:"Book",en:b.en,fa:[b.fa],tr:b.tr||"",tag:"",book:1}));
+function refreshCards(){CARDS=PACKS[PK.code]._cards.concat(bookCardsOf(P));BYID=Object.fromEntries(CARDS.map(c=>[c.id,c]));}
 function activate(code,quiet){
   const pk=PACKS[code];if(!pk)return;
   if(!pk._cards)pk._cards=parseCards(pk);
-  CARDS=pk._cards;BYID=Object.fromEntries(CARDS.map(c=>[c.id,c]));
   if(!S.L[code])S.L[code]=LDEF();
   P=S.L[code];S.s.lang=code;
+  CARDS=pk._cards.concat(bookCardsOf(P));BYID=Object.fromEntries(CARDS.map(c=>[c.id,c]));
   PK=pk;LEVELS=pk.levels;
   if(!pk._built)pk._built=pk.build();
   PK=Object.assign({},pk,pk._built);SKILLS=PK.skills;
@@ -176,7 +179,8 @@ function enV(v,p,tense,neg){const e=v.en,s3=p===2,be=["am","are","is","are","are
 // ---------- scheduling ----------
 function st(id){return P.p[id];}
 function due(id){const p=st(id);return !!p&&p.due<=today();}
-function inDecks(c){return P.decks.includes(c.deck)&&LEVELS.includes(c.deck);}
+function inDecks(c){return c.deck==="Book"||!!(P.bb&&P.bb[c.id])||(P.decks.includes(c.deck)&&LEVELS.includes(c.deck));}
+const isBk=c=>c.deck==="Book"||!!(P.bb&&P.bb[c.id]);
 let Q=[],cur=null,phase="ask",hinted=false,lapsed=new Set();
 function rollDay(){if(P.d.day!==today())P.d={day:today(),newDone:0,reviewed:0};}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -185,8 +189,10 @@ function buildQueue(){
   const rev=shuffle(CARDS.filter(c=>inDecks(c)&&due(c.id)));
   const room=Math.max(0,P.npd-P.d.newDone);
   const rank=PK.sentRank||(()=>0);
+  const nb=c=>isBk(c)?-1:0;
   const fresh=CARDS.filter(c=>inDecks(c)&&!st(c.id)).map((c,i)=>[c,i])
-    .sort((x,y)=>LEVELS.indexOf(x[0].deck)-LEVELS.indexOf(y[0].deck)||rank(x[0])-rank(y[0])||x[1]-y[1]).map(x=>x[0]).slice(0,room);
+    .sort((x,y)=>nb(x[0])-nb(y[0])||LEVELS.indexOf(x[0].deck)-LEVELS.indexOf(y[0].deck)||rank(x[0])-rank(y[0])||x[1]-y[1]).map(x=>x[0]);
+  fresh.splice(room+Math.min(8,fresh.filter(isBk).length)); // book words may use 8 extra new-word slots a day
   Q=rev.slice(0,300);
   fresh.forEach((c,i)=>Q.splice(Math.min(Q.length,Math.floor((i+1)*Q.length/(fresh.length+1))+i),0,c));
   lapsed=new Set();}
@@ -295,7 +301,7 @@ function rLangs(){
 let curQ=null,pending=null;
 function introHTML(c){return`<div class="intro">${ic("spark","s")}<span>${esc(enOf(c))}</span>${T(c.fa[0])}${c.tr?`<span class="muted">${esc(c.tr.split(" / ")[0])}</span>`:""}</div>`;}
 function rStudy(){
-  if(phase!=="shown"||!cur){cur=Q.shift()||null;phase="ask";hinted=false;curQ=cur?PK.askFor(cur.id,unlockedLv()):null;}
+  if(phase!=="shown"||!cur){cur=Q.shift()||null;phase="ask";hinted=false;curQ=cur&&cur.deck!=="Book"?PK.askFor(cur.id,unlockedLv()):null;}
   if(!cur){
     const c=counts();
     V.innerHTML=`<div class="done"><div class="ring">${ic("check")}</div>
@@ -372,11 +378,19 @@ function chooseSkill(lv,lastK){
   const ks=Object.keys(SKILLS).filter(k=>SK_LV(k)<=lv&&!(lastK.length>=2&&lastK.slice(-2).every(x=>x===k)));
   const w=ks.map(k=>{const s=gs(k),a=sAcc(k);let x=s.n<8?3:.6+2.5*(1-a);if(SK_LV(k)===lv&&lv>0)x*=1.5;const rk=skRank(k);x*=1+.6*(skRank(k,true)-rk);if(SK_LV(k)===lv&&rk<2)x*=1.4;if(rk>=4)x*=.6;return x;});
   let t=w.reduce((a,b)=>a+b,0)*Math.random();for(let i=0;i<ks.length;i++){t-=w[i];if(t<=0)return ks[i];}return ks[0];}
+function bookItem(lv){
+  const bs=CARDS.filter(c=>isBk(c)&&!SP.tw.has(c.id)&&(!st(c.id)||due(c.id)||st(c.id).l<3));if(!bs.length)return null;
+  for(const c of shuffle(bs).slice(0,6)){
+    if(c.deck==="Book"){if(SP.seen.has(c.en))continue;const seqs=[[c.fa]];SP.tw.add(c.id);SP.seen.add(c.en);
+      return{en:c.en,seqs,acc:accepts(seqs),canon:canon(seqs),words:[c.id],skills:[],target:c.id,newId:st(c.id)?null:c.id,retry:false,tr:c.tr};}
+    const q=PK.askFor(c.id,lv);if(q&&!SP.seen.has(q.en)&&q.skills.length){SP.tw.add(c.id);SP.seen.add(q.en);return{...q,newId:st(c.id)?null:c.id,retry:false};}}
+  return null;}
 function makeItem(){
   const lv=unlockedLv();
+  if(Math.random()<.3){const b=bookItem(lv);if(b)return b;}
   if(Math.random()<.5){
     const pool=Object.keys(P.p).filter(id=>BYID[id]&&LEVELS.includes(BYID[id].deck)&&!SP.tw.has(id));
-    pool.sort((a,b)=>(P.p[a].due-P.p[b].due)||(P.p[a].l-P.p[b].l));
+    pool.sort((a,b)=>(!!(P.bb&&P.bb[b])-!!(P.bb&&P.bb[a]))||(P.p[a].due-P.p[b].due)||(P.p[a].l-P.p[b].l));
     for(const id of shuffle(pool.slice(0,30)).slice(0,6)){
       const q=PK.askFor(id,lv);if(q&&!SP.seen.has(q.en)&&q.skills.length){SP.tw.add(id);SP.seen.add(q.en);return{...q,newId:null,retry:false};}}}
   for(let i=0;i<40;i++){
@@ -527,6 +541,7 @@ const PER=500,ZOOMS=[25,20,15,10,6,3];
 let mapPage=0,mapSel=-1;
 function band(c){const p=st(c.id);if(!p)return 0;if(p.l>=MASTER)return 3;if(p.l>=1)return 2;return 1;}
 const MCARDS=()=>CARDS.filter(c=>LEVELS.includes(c.deck));
+const WCARDS=()=>CARDS.filter(c=>LEVELS.includes(c.deck)||c.deck==="Book");
 function zoomIdx(){return Math.min(ZOOMS.length-1,Math.max(0,S.s.zoom|0));}
 function rMap(){
   const MC=MCARDS(),pages=Math.ceil(MC.length/PER);mapPage=Math.min(Math.max(0,mapPage),pages-1);
@@ -573,16 +588,20 @@ function openSheet(c){
 function closeSheet(){SHEET.hidden=true;SHEET.innerHTML="";}
 // ---------- words ----------
 function rDeck(){
-  let h=`<div class="eyebrow">${ic("stack","s")}Progress per level</div><div class="group">`;
-  LEVELS.forEach(d=>{const c=counts(d);if(!c.total)return;const w=x=>(100*x/c.total).toFixed(1)+"%";
+  if(typeof BK!=="undefined"&&BK.open)return bkRender();
+  let h=`<button class="scanbtn" id="bkgo">${ic("camera")}<span><b>Scan a book page</b><small>Photo in, unknown words out</small></span></button><input type="file" id="bkf" accept="image/*" hidden>`;
+  h+=`<div class="eyebrow">${ic("stack","s")}Progress per level</div><div class="group">`;
+  [...LEVELS,"Book"].forEach(d=>{const c=counts(d);if(!c.total)return;const w=x=>(100*x/c.total).toFixed(1)+"%";
     h+=`<div class="row deckrow"><b>${d}</b><div class="bar"><i style="width:${w(c.mast)};background:var(--ok)"></i><i style="width:${w(c.learn)};background:var(--mid)"></i></div><span class="num">${c.mast+c.learn}/${c.total}</span></div>`;});
   h+=`</div><div class="eyebrow">${ic("list","s")}All words</div><label class="search">${ic("search","s")}<input id="q" placeholder="…" aria-label="Search"></label><div class="group wl" id="list" style="margin-top:10px"></div>`;
   V.innerHTML=h;
   const q=document.getElementById("q"),L=document.getElementById("list");
   const draw=()=>{const s=q.value.trim().toLowerCase(),sn=q.value.trim()?norm(q.value):"";
-    const rows=MCARDS().filter(c=>!s||c.en.toLowerCase().includes(s)||(sn&&c.fa.some(f=>norm(f).includes(sn)))).slice(0,120);
-    L.innerHTML=rows.map(c=>{const p=st(c.id);return`<div class="row"><div><div class="e">${esc(c.en)}</div><div class="s"><span class="badge">${c.deck}</span>${p?meter(p.l):ic("spark","s")}</div></div><span class="f" data-say="${esc(c.fa[0])}">${esc(c.fa[0])}</span></div>`;}).join("")||`<div class="row muted">–</div>`;};
-  q.oninput=draw;draw();}
+    const rows=WCARDS().filter(c=>!s||c.en.toLowerCase().includes(s)||(sn&&c.fa.some(f=>norm(f).includes(sn)))).slice(0,120);
+    L.innerHTML=rows.map(c=>{const p=st(c.id);return`<div class="row"><div><div class="e">${esc(c.en)}</div><div class="s"><span class="badge">${c.deck}</span>${p?meter(p.l):ic("spark","s")}</div></div>${c.deck==="Book"?`<button class="ibtn sm" data-delbk="${esc(c.id)}" aria-label="Remove word">${ic("trash","s")}</button>`:""}<span class="f" data-say="${esc(c.fa[0])}">${esc(c.fa[0])}</span></div>`;}).join("")||`<div class="row muted">–</div>`;};
+  q.oninput=draw;draw();
+  L.onclick=e=>{const b=e.target.closest("[data-delbk]");if(!b)return;e.stopPropagation();const id=b.dataset.delbk;delete P.bk[id];delete P.p[id];refreshCards();save();draw();};
+  bkBind();}
 // ---------- grammar ----------
 function rGrammar(){
   const lv=unlockedLv();
@@ -755,6 +774,7 @@ function mergeStates(a,b){
     const L=mergeL(cl(x));
     for(const id in y.p||{}){const p=y.p[id],q=L.p[id];if(!q||(p.n||0)>(q.n||0))L.p[id]=p;}
     L.la=L.la||{};for(const k in y.la||{}){const m=L.la[k]=L.la[k]||{};for(const a in y.la[k])m[a]=Math.max(m[a]||0,y.la[k][a]);}
+    L.bk=Object.assign({},y.bk||{},L.bk||{});L.bb=Object.assign({},y.bb||{},L.bb||{});
     for(const s in y.g||{}){const p=y.g[s],q=L.g[s];if(!q||(p.n||0)>(q.n||0))L.g[s]=p;}
     const sp=L.sp,so=y.sp||{};sp.best=Math.max(sp.best||0,so.best||0);
     if((so.last||0)>(sp.last||0)){sp.last=so.last;sp.streak=so.streak;}
