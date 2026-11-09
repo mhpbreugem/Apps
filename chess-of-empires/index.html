@@ -504,7 +504,7 @@ h1{font-size:clamp(14px,4.4vw,18px)!important;line-height:1.2}
 .pleft .msg{color:#7a3b12;font-weight:600}
 .pright{min-height:0;display:flex;flex-direction:column}
 .pright .acts{margin:0!important;flex:1;display:flex;flex-direction:column;gap:5px;min-height:0}
-.pright .acts>div:not(.tiles){display:none}
+.pright .acts>div:not(.tiles):not(.tabbar){display:none}
 .pright .tiles.big{display:grid!important;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:5px;flex:2 1 0;min-height:0;margin:0!important}
 .pright .tiles.big.sub{flex:1 1 0}
 .pright .tiles.big.sub .aic{display:none}.pright .tiles.big.sub .tl{font-size:11px;line-height:1.05}
@@ -643,6 +643,35 @@ header #status{gap:7px!important;white-space:nowrap}
 .pleft{padding:7px!important}
 .sgrid{margin:0!important;height:100%}
 .phead .pdesc b.hurt{color:#b0392b}
+
+/* layout 5: stat list on top, actions as one tab bar below */
+.pgrid{display:flex!important;flex-direction:column!important;height:136px!important;gap:8px!important;grid-template-columns:none!important}
+.pleft{flex:none!important;background:none!important;border:0!important;padding:0 2px!important;overflow:visible!important}
+.sgrid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;grid-template-rows:auto auto!important;gap:0 14px!important;height:auto!important;margin:0!important}
+.sc{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;padding:4px 0!important;
+  background:none!important;border:0!important;border-bottom:1px solid #e0cba0!important;border-radius:0!important;box-shadow:none!important;min-height:0;overflow:visible}
+.sc .si{order:1}.sc .si svg{width:16px!important;height:16px!important}
+.sc small{order:2;font:600 11.5px Inter,system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#6d5a40!important;text-align:left;flex:1 1 auto!important;white-space:nowrap}
+.sc b{order:3;font:800 17px/1 Inter,system-ui,sans-serif!important;margin:0!important}
+.sc.off{background:none!important;border:0!important;border-bottom:1px solid #e0cba0!important;opacity:.45}
+.sc.off b{color:#6d5a40!important}.sc.off .si{opacity:1}.sc.off small{color:#6d5a40!important}
+.pright{flex:1 1 auto!important;min-height:0;display:flex!important}
+.pright .acts{flex:1;display:flex!important;margin:0!important}
+.tabbar{flex:1;display:flex;border:1.5px solid #c9a46a;border-radius:11px;overflow:hidden;background:#f3e6c8}
+.tabbar button.tile{flex:1 1 0!important;min-width:0;height:auto!important;min-height:0!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:4px 2px!important;border:0!important;border-right:1px solid #c9a46a!important;border-radius:0!important;background:transparent!important;color:#5a2e0e!important;box-shadow:none!important;opacity:1!important;filter:none!important}
+.tabbar button.tile:last-child{border-right:0!important}
+.tabbar button.tile .aic{display:flex!important;color:#8a5a22}.tabbar button.tile .aic svg{width:20px!important;height:20px!important}
+.tabbar button.tile .tl{font:700 11.5px Inter,system-ui,sans-serif!important;color:#5a2e0e!important;white-space:normal;line-height:1.1;text-align:center}
+.tabbar button.tile .tc{display:block!important;font:500 9px Inter,system-ui,sans-serif!important;color:#8a6e44!important;white-space:normal;line-height:1.1;text-align:center;max-height:2.2em;overflow:hidden}
+.tabbar button.tile:active{background:#ead8b0!important}
+.tabbar button.tile.off{color:#a8946e!important}.tabbar button.tile.off .tl{color:#a8946e!important}.tabbar button.tile.off .aic{opacity:.45}
+.tabbar.sub{background:#fbf3df}.tabbar.sub button.tile.tback{flex:0 0 52px!important;background:#ead8b0!important}
+.tabbar button.tile.cat.sel{background:#ead8b0!important}
+.tabbar button.tile .tl,.tabbar button.tile .tc{text-shadow:none!important}
+.tabbar button.tile .tl{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
+.tabbar button.tile .tc{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-height:none!important;font-size:8.5px!important}
+.sc small{text-transform:capitalize!important}
 </style><defs id="celticb-defs2202"><linearGradient xlink:href="#celticb-fillGradient" id="celticb-main-gradient" x1="824.6" x2="992.7" y1="119.5" y2="168.5" gradientTransform="translate(-3372 -24)scale(4.2241)" gradientUnits="userSpaceOnUse"/><linearGradient id="celticb-fillGradient"><stop id="celticb-stop0" offset="0" stop-color="#7f899b" stop-opacity="1"/><stop id="celticb-stop1" offset="1" stop-color="#1c1c2f" stop-opacity="1"/></linearGradient></defs><path id="celticb-boundary" fill="none" stroke-width="35" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color"/><path id="celticb-main" fill="url(#celticb-main-gradient)" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color stroke-medium"/><path id="celticb-eyebrow" fill="none" d="M336 282c-28 2-50 16-65 41" class="base stroke-color stroke-medium"/><path id="celticb-eye" fill="none" d="M310 316c12 8 25 5 22-12" class="base stroke-color stroke-medium"/><path id="celticb-nose" fill="none" d="M155 501c-13-5-23 17-15 17" class="base stroke-color stroke-medium"/><path id="celticb-cheek" fill="none" d="M508 405c10-13 9-19 11-27" class="base stroke-color stroke-medium"/><path id="celticb-deco-lines" fill="none" d="M644 699H370zm64 64H360z" class="base stroke-color stroke-medium" opacity=".5"/><path id="celticb-deco-side" fill="none" d="M723 876c63 0 78-76 36-92-39 0-58-60-25-88 3-74 3-143-13-213-2-7 2-23 11-24-7-24-31-36-41-60-5-12-18-17 20-19-12-21-61-57-77-77-5-7 25-13 19-20-34-36-84-49-109-68-8-6 23-14 15-20-33-22-81-55-124-72" class="base stroke-color stroke-medium" opacity=".5"/></svg></g></g></defs></svg>
 <div class="wrap">
   <header>
@@ -3286,7 +3315,7 @@ function fitBoard() {   // the board keeps its size; the panel's card is one fix
   p.classList.remove("tiny");
   const g = p.querySelector(".pgrid"); if (!g) return;
   g.style.zoom = ""; g.style.width = "";
-  const cs = getComputedStyle(p), H0 = 186, ZMIN = 0.4;
+  const cs = getComputedStyle(p), H0 = 136, ZMIN = 0.4;
   const aw = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   const hd = p.querySelector(".phead"), ah = p.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (hd ? hd.offsetHeight + 6 : 0);
   const info = p.querySelector(".pinfo"); if (info) info.style.display = "none";
@@ -3642,17 +3671,17 @@ function renderPanel() {
       const cnt = k => C[k].filter(a => a.ok).length;
       const cat = (k, ico, lab) => `<button class="tile cat${UI.cat === k ? " sel" : ""}" data-cat="${k}"><span class="aic">${ico}</span><span class="tl">${lab}</span><span class="tc">${cnt(k) ? cnt(k) + " ready" : "&nbsp;"}</span></button>`;
       const cur = C[UI.cat];
-      acts = `<div class="tiles big">${tile(C.act[0], 0)}${cat("res", ICONS.food, "Resources")}${cat("build", ICONS.building, "Build")}${cat("train", ICONS.unit, "Train")}</div>` +
-        (cur ? `<div class="tiles big sub${cur.length > 4 ? " five" : ""}" style="margin-top:5px">${cur.map(a => tile(a, all.indexOf(a))).join("")}</div>` : `<div style="margin-top:8px;font-size:13px;color:var(--dim)">Move / attack: tap a green square to move, a red piece to attack.</div>`);
+      acts = cur ? `<div class="tabbar sub"><button class="tile tback" data-catback="1"><span class="aic"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tl">Back</span><span class="tc">&nbsp;</span></button>${cur.map(a => tile(a, all.indexOf(a))).join("")}</div>`
+        : `<div class="tabbar">${tile(C.act[0], 0)}${cat("res", ICONS.food, "Resources")}${cat("build", ICONS.building, "Build")}${cat("train", ICONS.unit, "Train")}</div>`;
       dense = " big";
     } else if (isUnit(sp)) {
       const ma = moveAttack(sp, list), rest = list.filter(x => x.kind !== "move" && x.kind !== "attack" && x.kind !== "hint"), ul = [ma, ...rest, ...list.filter(x => x.kind === "hint")];
       UI.list = ul;
-      acts = `<div class="tiles big">${ul.filter(x => x.kind !== "hint").map(x => tile(x, ul.indexOf(x))).join("")}</div>`; dense = " big";
+      acts = `<div class="tabbar">${ul.filter(x => x.kind !== "hint").map(x => tile(x, ul.indexOf(x))).join("")}</div>`; dense = " big";
     }
     const hints = list.filter(a => a.kind === "hint").map(a => a.label);
-    if (hints.length && sp.k !== "V") acts += `<div style="width:100%;font-size:12.5px;color:var(--dim)">${hints.join(" · ")}</div>`;
-    if (sp.k !== "V" && !isUnit(sp)) { UI.list = list; acts = `<div class="tiles big">${list.filter(x => x.kind !== "hint").map(x => tile(x, list.indexOf(x))).join("")}</div>`; dense = " big"; }
+
+    if (sp.k !== "V" && !isUnit(sp)) { UI.list = list; acts = `<div class="tabbar">${list.filter(x => x.kind !== "hint").map(x => tile(x, list.indexOf(x))).join("")}</div>`; dense = " big"; }
   }
   const noAct = !acts;
   const gl = sp.k === "camp" ? (sp.cr ? GLY.S : "") : (CR() && sp.k === "B" && !sp.cr) ? "" : (GLY[sp.k] || "");
@@ -3801,6 +3830,7 @@ document.getElementById("panel").addEventListener("click", e => {
   if (b.id === "sendTurnBtn") return linkSend();
   if (b.id === "inviteBtn") return cloudInvite();
   if (b.dataset.cat) { UI.cat = b.dataset.cat; UI.msg = ""; return render(); }
+  if (b.dataset.catback) { UI.cat = null; UI.msg = ""; return render(); }
   if (b.dataset.group) { UI.sub = {id: UI.sel, g: b.dataset.group}; UI.msg = ""; return render(); }
   if (b.dataset.back !== undefined) { UI.sub = null; return render(); }
   if (b.dataset.tip !== undefined) { UI.msg = b.dataset.tip; return render(); }
