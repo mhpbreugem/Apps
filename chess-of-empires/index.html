@@ -672,6 +672,17 @@ header #status{gap:7px!important;white-space:nowrap}
 .tabbar button.tile .tl{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
 .tabbar button.tile .tc{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-height:none!important;font-size:8.5px!important}
 .sc small{text-transform:capitalize!important}
+
+/* player colour instead of civ blue; a chequered trim fills the space above the header */
+html::before{content:"";position:fixed;left:0;right:0;top:0;height:calc(env(safe-area-inset-top,0px) + 5px);z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(90deg,#f1e8d4 0 12px,#1d1813 12px 24px);box-shadow:0 1px 0 rgba(201,154,62,.6)}
+.wrap{padding-top:calc(env(safe-area-inset-top,0px) + 9px)!important;height:100vh!important;height:100dvh!important}
+#status{background:none!important}
+.boardbox{box-shadow:0 0 0 2px var(--civ),0 0 0 3px #c99a3e,0 4px 14px rgba(0,0,0,.5)!important}
+.panel{border-top-color:#c99a3e!important}
+#panel::before{height:3px!important;opacity:1!important;box-shadow:0 0 0 1px #c99a3e}
+header{border-bottom-color:#c99a3e!important}
+h1 .crest path:first-child{fill:#8e1f16!important}
 </style><defs id="celticb-defs2202"><linearGradient xlink:href="#celticb-fillGradient" id="celticb-main-gradient" x1="824.6" x2="992.7" y1="119.5" y2="168.5" gradientTransform="translate(-3372 -24)scale(4.2241)" gradientUnits="userSpaceOnUse"/><linearGradient id="celticb-fillGradient"><stop id="celticb-stop0" offset="0" stop-color="#7f899b" stop-opacity="1"/><stop id="celticb-stop1" offset="1" stop-color="#1c1c2f" stop-opacity="1"/></linearGradient></defs><path id="celticb-boundary" fill="none" stroke-width="35" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color"/><path id="celticb-main" fill="url(#celticb-main-gradient)" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color stroke-medium"/><path id="celticb-eyebrow" fill="none" d="M336 282c-28 2-50 16-65 41" class="base stroke-color stroke-medium"/><path id="celticb-eye" fill="none" d="M310 316c12 8 25 5 22-12" class="base stroke-color stroke-medium"/><path id="celticb-nose" fill="none" d="M155 501c-13-5-23 17-15 17" class="base stroke-color stroke-medium"/><path id="celticb-cheek" fill="none" d="M508 405c10-13 9-19 11-27" class="base stroke-color stroke-medium"/><path id="celticb-deco-lines" fill="none" d="M644 699H370zm64 64H360z" class="base stroke-color stroke-medium" opacity=".5"/><path id="celticb-deco-side" fill="none" d="M723 876c63 0 78-76 36-92-39 0-58-60-25-88 3-74 3-143-13-213-2-7 2-23 11-24-7-24-31-36-41-60-5-12-18-17 20-19-12-21-61-57-77-77-5-7 25-13 19-20-34-36-84-49-109-68-8-6 23-14 15-20-33-22-81-55-124-72" class="base stroke-color stroke-medium" opacity=".5"/></svg></g></g></defs></svg>
 <div class="wrap">
   <header>
@@ -839,6 +850,7 @@ header #status{gap:7px!important;white-space:nowrap}
       <li>The checkers give the level: one checker is the base unit; a second checker (Castle Age) makes it <b>heavy</b>, +1 hit point; a gold checker (Imperial Age) makes it <b>elite</b>, +1 attack, and your own checker goes back.</li>
       <li><b>One price per checker:</b> 1 food on a unit, 1 wood on a building or machine, 1 gold for a gold checker. <b>One price per piece:</b> pawn 1 food, bishop 1 food, knight 2 food, coin 3 wood, rook 3 wood, queen 4 wood. So an archer is bishop 1 food + checker 1 food; cavalry 3 food.</li>
       <li>At most two archers, two cavalry and one trebuchet.</li>
+      <li>The <b>trebuchet</b> is a unit (a machine), not a building: a steel coin whose checkers are its hit points. Moves 1 and fires exactly 3 away, no setting up. It ignores building defence.</li>
       <li><b>Civilizations</b>: each player picks one in the New game menu. A civ swaps one unit for a special one at the same age and price, with the same attack and hit points; only movement, range, defence and targets change. Franks have none. Teutons: teutonic knight. Aztecs: jaguar warrior (no cavalry). Huns: tarkan. Saracens: mameluke. Persians: war elephant. Britons: longbowman. Mongols: mangudai. Koreans: war wagon. Chinese: chu ko nu. Turks: bombard cannon. Defence has two tracks, melee and pierce (arrows from archers, towers, castle and Town Center). Breach damage (trebuchet, bombard, tarkan, war elephant against a building) ignores the building's defence. The Unit stats sheet draws each one's range.</li>
     </ul>
     <h3>Buildings</h3>
@@ -846,7 +858,6 @@ header #status{gap:7px!important;white-space:nowrap}
       <li><b>Barracks</b>: home only (White a1–c3, Black f6–h8), built two checkers high: 2 wood + 2 checkers. <b>Mill</b> and <b>lumber camp</b>: 1 wood + 1 checker, from the Dark Age; one of each at most.</li>
       <li>A <b>crown</b> is a chess piece set on a building. <b>Watch tower</b>: from the Feudal Age a rook on a mill or camp, 3 wood; shoots exactly 2, one action. It climbs like a unit: a second checker (1 wood) from the Castle Age, +1 hit point; a gold checker in the Imperial Age, +1 attack. <b>Castle</b>: from the Castle Age the queen on the barracks, 4 wood; shoots 1–2, one action.</li>
       <li>A crowned building shoots while the piece stands; hits take its checkers first. Shots deal 1, or 2 with gold. The Town Center shoots 1–2 away, like the castle, from the start, for one action.</li>
-      <li>The <b>trebuchet</b> is a coin, not a rook: its checkers are its hit points. Moves 1 in any direction and fires exactly 3 away in any direction, no setting up. It ignores building defence.</li>
     </ul>
     <h3>Combat</h3>
     <ul>
@@ -3160,7 +3171,7 @@ const civEmblem = (id, w) => { const t = THEME[id] || THEME.franks; const st = t
   return `<svg class="civem" viewBox="0 0 20 22" width="${w || 15}" height="${(w || 15) * 1.1}" aria-hidden="true"><path d="M10 1 L18 4 V11 C18 16 14 19 10 21 C6 19 2 16 2 11 V4 Z" fill="${t.c}" stroke="#2a1c0c" stroke-width="1.2"/><g transform="translate(3.5 3.5) scale(.65)"><path d="${t.g}" ${st}/></g></svg>`; };
 function civTheme() {
   const id = civ(G.turn).id, t = THEME[id] || THEME.franks, root = document.documentElement;
-  root.style.setProperty("--civ", t.c); root.dataset.civ = id;
+  root.style.setProperty("--civ", G.turn ? "#1d1813" : "#f1e8d4"); root.dataset.civ = id; root.dataset.turn = G.turn ? "b" : "w";   // accents follow the player's colour
 }
 function renderStatus() {
   civTheme();
