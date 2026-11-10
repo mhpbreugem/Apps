@@ -772,6 +772,11 @@ header button,header .btn{min-height:26.5px!important;height:26.5px!important}
     <button data-n="2">2 actions</button>
     <button data-n="3">3 actions</button>
   </div>
+  <div class="mlab">Board</div>
+  <div class="seg mpills" id="sizeSeg">
+    <button data-sz="8">8×8 chess board</button>
+    <button data-sz="10">10×10 draughts board</button>
+  </div>
   <div class="mlab">Home area</div>
   <div class="seg mpills" id="homeSeg">
     <button data-h="3">3×3 · no gathering</button>
@@ -852,6 +857,7 @@ header button,header .btn{min-height:26.5px!important;height:26.5px!important}
     <h3>Resources</h3>
     <ul>
       <li><b>Food buys people and horses:</b> every chess-piece unit and its checkers. <b>Wood buys the empire:</b> buildings, their checkers, the ages and machines (the trebuchet). Gold is the gold checker.</li>
+      <li><b>Board size:</b> the New game menu offers the 8×8 chess board or a 10×10 draughts board. On 10×10 the homes are 4×4, the fields and forest are 5×5 quadrants, and the gold mine is still the four centre squares; the pieces are the same.</li>
       <li><b>Everything gathers on 4+.</b> Your home (3×3: White a1–c3, Black f6–h8) gives nothing. A villager in the food field (a5–d8, plus a4–c4 and e6–e8) gathers food; in the wood field (e1–h4, plus d1–d3 and f5–h5) wood. Food and wood hold 0–6 each.</li>
       <li>One mill and one lumber camp, in the fields and the forest only: for one action every villager next to it, standing in the same field or forest, rolls. The Town Center is not a mill.</li>
       <li><b>No dice</b>: gathering and attacks always succeed. Nothing is rolled.</li>
@@ -908,6 +914,9 @@ const SIDE = ["White", "Black"];
 const AGES = ["Dark", "Feudal", "Castle", "Imperial"];
 const CORNERS = [[0, 7], [7, 0]];
 const AGECOST = {1: {f: 2, w: 1, g: 0}, 2: {f: 3, w: 1, g: 0}, 3: {f: 4, w: 0, g: 1}};
+const NB = () => (G && G.rules && G.rules.size === 10) ? 10 : 8;   // board size
+const NH = () => NB() / 2, HSZ = () => NB() === 10 ? 4 : 3, RO = () => (NB() - 8) / 2;   // half, home size, rock-map offset
+const LETTERS = "abcdefghij";
 const D8 = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]], DIAG = D8.slice(4), ORTH = D8.slice(0, 4);
 const UNITS = ["I", "A", "C", "S"];
 const CIVS = {
@@ -990,10 +999,10 @@ const LVL = {I: ["infantry", "heavy infantry", "elite infantry"], A: ["archer", 
 const VAL = {K: 9, B: 4.5, S: 4, C: 3.3, A: 3.2, I: 2.6, camp: 3, V: 2};
 const GLY = {V: "\u265F", I: "\u265F", A: "\u265D", C: "\u265E", S: "\u265C", K: "\u265A", B: "\u265B"};
 const CAMPT = {1: 5, 2: 6, 3: 6};
-const SQ = f => "abcdefgh"[f[0]] + (f[1] + 1);
+const SQ = f => LETTERS[f[0]] + (f[1] + 1);
 const cd = (a, b, c, d) => Math.max(Math.abs(a - c), Math.abs(b - d));
-const inb = (f, r) => f >= 0 && f < 8 && r >= 0 && r < 8;
-const isCorner = (f, r) => (f === 0 && r === 7) || (f === 7 && r === 0);
+const inb = (f, r) => f >= 0 && f < NB() && r >= 0 && r < NB();
+const isCorner = (f, r) => (f === 0 && r === NB() - 1) || (f === NB() - 1 && r === 0);
 // rock maps: square lists (file a = 0, rank 1 = 0); every map is the same seen from either side
 const ROCKMAPS = {   // every map is its own mirror image across the a8–h1 diagonal: same paths for both sides
   r2: "d4 e4 d5 e5",
@@ -1009,11 +1018,11 @@ const ROCKMAPS = {   // every map is its own mirror image across the a8–h1 dia
   labyrinth: "a6 b3 b4 b7 c6 c8 d4 d5 e2 e4 e5 e7 f3 f7 g2 g4",
   rim: "a5 a6 b3 c8 d1 d8 e1 f1 f7 g1 h2 h3 h4 h5"};
 const ROCKSET = {}; for (const k in ROCKMAPS) ROCKSET[k] = new Set(ROCKMAPS[k].split(" ").map(q => ("abcdefgh".indexOf(q[0])) + "," + (+q[1] - 1)));
-const isRock = (f, r) => { if (!(G && G.rules && G.rules.rocks)) return false;
+const isRock = (f, r) => { if (!(G && G.rules && G.rules.rocks)) return false; f -= RO(); r -= RO(); if (f < 0 || r < 0 || f > 7 || r > 7) return false;
   if (G.rules.rockMap && ROCKSET[G.rules.rockMap]) return ROCKSET[G.rules.rockMap].has(f + "," + r);
   if (G.rules.rockShape === "plus") return f >= 2 && f <= 5 && r >= 2 && r <= 5 && !((f === 2 || f === 5) && (r === 2 || r === 5));
   return f >= 3 && f <= 4 && r >= 3 && r <= 4; };
-const isGold = (f, r) => !(G && G.rules && G.rules.raidGold) && f >= 3 && f <= 4 && r >= 3 && r <= 4;
+const isGold = (f, r) => !(G && G.rules && G.rules.raidGold) && f >= NH() - 1 && f <= NH() && r >= NH() - 1 && r <= NH();
 const roll = () => 6;   // no dice: every roll succeeds
 
 /* ================= state ================= */
@@ -1033,9 +1042,9 @@ function newGame(mode, rules, diff) {
   if (rules.whiteFood) G.food[0] += rules.whiteFood;   // test: compensation for moving first
   if (rules.startWood) G.wood = [rules.startWood, rules.startWood];
   const sw = rules.swapCorners ? 1 : 0;   // test: White starts on h8, Black on a1
-  add(sw, "K", 0, 0); add(1 - sw, "K", 7, 7);
+  const N1 = NB() - 1; add(sw, "K", 0, 0); add(1 - sw, "K", N1, N1);
   (rules.start2 ? (rules.home3 ? [[0, 1], [1, 0]] : [[0, 2], [2, 0]]) : [[1, 0], [0, 1], [1, 1]]).forEach(([f, r]) => add(sw, "V", f, r));   // home3: next to the Town Center
-  (rules.start2 ? (rules.home3 ? [[7, 6], [6, 7]] : [[7, 5], [5, 7]]) : [[6, 7], [7, 6], [6, 6]]).forEach(([f, r]) => add(1 - sw, "V", f, r));
+  (rules.start2 ? (rules.home3 ? [[N1, N1 - 1], [N1 - 1, N1]] : [[N1, N1 - 2], [N1 - 2, N1]]) : [[N1 - 1, N1], [N1, N1 - 1], [N1 - 1, N1 - 1]]).forEach(([f, r]) => add(1 - sw, "V", f, r));
   if (rules.blackFirst) G.turn = 1;   // test: Black moves first
   startTurn();
   log(null, G.rules.noHandicap ? "New game. White moves first." : "New game. White moves first, with one action.");
@@ -1078,8 +1087,8 @@ const isUnit = p => UNITS.includes(p.k);
 const isBld = p => p.k === "K" || p.k === "B" || p.k === "camp";
 const CR = () => !!(G && G.rules && G.rules.crown);
 const stackB = p => p.k === "camp" || (CR() && p.k === "B" && !G.rules.qb);   // crown rules: buildings that are plain checker stacks
-const homeQ = (s, f, r) => { const T = tc(s); if (!T || isGold(f, r)) return false; if (G.rules.home3) return (T.f <= 3 ? f <= 2 : f >= 5) && (T.r <= 3 ? r <= 2 : r >= 5);   // home3: a 3 x 3 home
-  return (f <= 3) === (T.f <= 3) && (r <= 3) === (T.r <= 3); };
+const homeQ = (s, f, r) => { const T = tc(s); if (!T || isGold(f, r)) return false; if (G.rules.home3) return (T.f < NH() ? f <= HSZ() - 1 : f >= NB() - HSZ()) && (T.r < NH() ? r <= HSZ() - 1 : r >= NB() - HSZ());   // home3: a 3 x 3 home
+  return (f < NH()) === (T.f < NH()) && (r < NH()) === (T.r < NH()); };
 function fireAt(b, f, r) {   // can this building's arrows reach (f, r)?
   const d = cd(f, r, b.f, b.r);
   if (!CR() || b.k === "K") return d === 2 || (d === 1 && (hasMH(b.o) || (CR() && !!G.rules.tcNear)));
@@ -1094,14 +1103,15 @@ const geoRes = res => G.rules.swapFields ? (res === FOOD ? WOOD : FOOD) : res;  
 const inQuad = (f, r, res) => {
   if (isGold(f, r)) return false;
   const food = geoRes(res) === FOOD;
-  if (G.rules.home3) return food ? (f <= 3 && r >= 4) || (r === 3 && f <= 2) || (f === 4 && r >= 5) : (f >= 4 && r <= 3) || (f === 3 && r <= 2) || (r === 4 && f >= 5);   // the fields grow into the old homes
-  return food ? f <= 3 && r >= 4 : f >= 4 && r <= 3;
+  const H = NH(), S = HSZ();
+  if (G.rules.home3) return food ? (f <= H - 1 && r >= H) || (r === H - 1 && f <= S - 1) || (f === H && r >= H + 1) : (f >= H && r <= H - 1) || (f === H - 1 && r <= S - 1) || (r === H && f >= H + 1);   // the fields grow into the old homes
+  return food ? f <= H - 1 && r >= H : f >= H && r <= H - 1;
 };
 function quadDist(f, r, res) {   // effective distance for the quadrant rule (outside: 6 + steps to the quadrant)
-  const c = geoRes(res) === FOOD ? [0, 7] : [7, 0];
+  const c = geoRes(res) === FOOD ? [0, NB() - 1] : [NB() - 1, 0];
   if (f === c[0] && r === c[1] && !G.rules.trade) return 0;
   if (inQuad(f, r, res)) return G.rules.away3 ? 2 : G.rules.gatherHalf ? 3 : QD;   // 2: 3+ on a die   // 3 means 4+ on a die = 50%
-  const steps = geoRes(res) === FOOD ? Math.max(f - 3, 4 - r) : Math.max(4 - f, r - 3);
+  const steps = geoRes(res) === FOOD ? Math.max(f - (NH() - 1), NH() - r) : Math.max(NH() - f, r - (NH() - 1));
   return 6 + steps;
 }
 // where can a villager of side s gather, and how hard is it: the home quadrant gives food or wood on 5+
@@ -1116,7 +1126,7 @@ function nearCorner(f, r) {
     if (inQuad(f, r, WOOD)) return [[WOOD, quadDist(f, r, WOOD)]];
     return [[FOOD, 99]];
   }
-  const df = cd(f, r, 0, 7), dw = cd(f, r, 7, 0);
+  const df = cd(f, r, 0, NB() - 1), dw = cd(f, r, NB() - 1, 0);
   if (df < dw) return [[FOOD, df]]; if (dw < df) return [[WOOD, dw]]; return [[FOOD, df], [WOOD, dw]];
 }
 function campRes(c) { return nearCorner(c.f, c.r)[0]; }
@@ -1185,7 +1195,7 @@ function ageCost(n) {
 const traderAt = (s, f, r) => G.pcs.find(q => q.o === s && q.k === "V" && q.f === f && q.r === r);
 const postRes = p => p.f === 0 ? FOOD : WOOD;   // a8 is the food post, h1 the wood post
 function tradeStock(p) { const q = tradePartner(p), mix = !!q && !acted(q), o = p.o; return {q: mix ? q : null, n: mix ? G.food[o] + G.wood[o] : (postRes(p) === FOOD ? G.food[o] : G.wood[o])}; }
-function tradePartner(p) { if (!G.rules.trade || p.k !== "V" || !isCorner(p.f, p.r)) return null; return traderAt(p.o, 7 - p.f, 7 - p.r) || null; }
+function tradePartner(p) { if (!G.rules.trade || p.k !== "V" || !isCorner(p.f, p.r)) return null; return traderAt(p.o, NB() - 1 - p.f, NB() - 1 - p.r) || null; }
 function goldAvail(s) { const o = 1 - s; return GS()[o] > 0 || (!!G.rules.goldSupply && G.food[o] + G.wood[o] > 0); }
 const aiSide = o => G.mode === "ai" ? o === 1 : !(G.mode === "hot" || G.mode === "online");
 function goldFrom(s) {   // take one gold checker for s: from the opponent's reserve, else from their food or wood (their choice)
@@ -1329,7 +1339,7 @@ function pieceActions(p) {
          A < 2 ? "gold opens in the Castle Age" : !goldAvail(s) ? (G.rules.goldRes ? "their reserve is empty" : "mine is empty") : (G.rules.gold2 ? "hold 2 gold at most" : "hold 2 at most before the Imperial Age"), {res: "gold"});
     }
     if (G.rules.trade && isCorner(p.f, p.r)) {
-      const st = tradeStock(p), lim = goldLimit(s) - G.gold[s], other = SQ([7 - p.f, 7 - p.r]), nm = RES[postRes(p)];
+      const st = tradeStock(p), lim = goldLimit(s) - G.gold[s], other = SQ([NB() - 1 - p.f, NB() - 1 - p.r]), nm = RES[postRes(p)];
       mk("trade", "Buy gold", st.q ? "6 food/wood in any mix (villagers on both posts) · 1 action · no roll" : `pay 6 ${nm} (a villager on ${other} too allows a mix) · 1 action · always works`,
          A >= 2 && st.n >= 6 && goldAvail(s) && lim > 0,
          A < 2 ? "trade opens in the Castle Age" : st.n < 6 ? (st.q ? "needs 6 food and wood together" : `needs 6 ${nm}`) : !goldAvail(s) ? "their reserve is empty" : "hold 2 gold at most", {partner: st.q});
@@ -1777,7 +1787,7 @@ function squareEV(s, f, r, self) {
     const crew = G.pcs.filter(q => q !== self && q.o === s && q.k === "V" && cd(q.f, q.r, c.f, c.r) === 1 && inCrew(c, q.f, q.r)).length;
     if (crew < crewLimit(s)) best = Math.max(best, 1.15 + 0.12 * Math.min(crew, 4) + 0.5 * (6 - campRes(c)[1]) / 6 * need(s, campRes(c)[0]));
   }
-  for (const [res, cf, cr] of [[FOOD, 0, 7], [WOOD, 7, 0]]) {
+  for (const [res, cf, cr] of [[FOOD, 0, NB() - 1], [WOOD, NB() - 1, 0]]) {
     const d = isGold(f, r) ? 99 : G.rules.quadrant ? quadDist(f, r, res) : cd(f, r, cf, cr); let v = (d >= 1 && d <= 5 && autoRes(s, res) ? handYield(d) : cornerValue(d <= 5 ? effD(s, res, d) : d)) * need(s, res);
     const crowd = G.pcs.filter(q => q !== self && q.o === s && q.k === "V" && cd(q.f, q.r, cf, cr) <= 2).length;
     if (d <= 2 && crowd >= 3) v *= 0.5;
@@ -1788,7 +1798,7 @@ function squareEV(s, f, r, self) {
     const away = cornerValue(G.rules.away3 ? 2 : 3);
     for (const res of [FOOD, WOOD]) {
       let dq = 9, dc = 9;
-      for (let x = 0; x < 8; x++) for (let y = 0; y < 8; y++) if (inQuad(x, y, res) && !isGold(x, y)) {
+      for (let x = 0; x < NB(); x++) for (let y = 0; y < NB(); y++) if (inQuad(x, y, res) && !isGold(x, y)) {
         const d = cd(x, y, f, r); if (d < dq) dq = d;
         if (camps(s).some(c => campRes(c)[0] === res && cd(c.f, c.r, x, y) === 1) && d < dc) dc = d;
       }
@@ -1895,7 +1905,7 @@ function aiOptions(s) {
     }
   }
   // trade route: send the nearest free villager to each empty corner
-  if (G.rules.trade && goldWanted(s) && vc >= 3) for (const [cf, cr] of [[0, 7], [7, 0]]) {
+  if (G.rules.trade && goldWanted(s) && vc >= 3) for (const [cf, cr] of [[0, NB() - 1], [NB() - 1, 0]]) {
     const on = at(cf, cr); if (on && on.o === s && on.k === "V") continue; if (on) continue;
     const cand = vills.filter(v => !acted(v) && !isCorner(v.f, v.r)).sort((a, b) => cd(a.f, a.r, cf, cr) - cd(b.f, b.r, cf, cr))[0];
     if (!cand) continue;
@@ -1905,7 +1915,7 @@ function aiOptions(s) {
   }
   // mine route: send the nearest free villager to the centre squares
   if (!G.rules.raidGold && goldWanted(s) && vc >= 3 && !vills.some(v => isGold(v.f, v.r))) {
-    const sq = []; for (const f of [3, 4]) for (const rr of [3, 4]) if (free(f, rr)) sq.push([f, rr]);
+    const sq = []; for (const f of [NH() - 1, NH()]) for (const rr of [NH() - 1, NH()]) if (free(f, rr)) sq.push([f, rr]);
     const dd = (f, rr) => Math.min(...sq.map(q => cd(f, rr, q[0], q[1])));
     const cand = sq.length ? vills.filter(v => !acted(v)).sort((a, b) => dd(a.f, a.r) - dd(b.f, b.r))[0] : null;
     if (cand) {
@@ -2080,10 +2090,10 @@ function hitMap(s) {
   const dummy = {k: "V", o: s, st: [], f: 0, r: 0};
   for (const u of G.pcs) {
     if (u.o !== o) continue;
-    if (isBld(u) && shoots(u)) { for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) if (fireAt(u, f, r)) add(f, r, hasGold(u) ? 2 : 1); continue; }
+    if (isBld(u) && shoots(u)) { for (let f = 0; f < NB(); f++) for (let r = 0; r < NB(); r++) if (fireAt(u, f, r)) add(f, r, hasGold(u) ? 2 : 1); continue; }
     if (!isUnit(u) && !(u.k === "V" && vilFight(o))) continue;
     const seen = {};
-    for (const [pf, pr] of attackFrom(u)) for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) {
+    for (const [pf, pr] of attackFrom(u)) for (let f = 0; f < NB(); f++) for (let r = 0; r < NB(); r++) {
       dummy.f = f; dummy.r = r; const k = f + "," + r;
       if (!seen[k] && reaches(u, pf, pr, dummy)) { seen[k] = 1; add(f, r, atk(u, dummy)); }
     }
@@ -2453,7 +2463,7 @@ let AIPICK = (() => { try { return localStorage.getItem(AIPICK_STORE) || "built"
 function setAIPick(v) { AIPICK = v; try { localStorage.setItem(AIPICK_STORE, v); } catch (e) {} }
 function aiKey() { try { return localStorage.getItem(AIKEY_STORE) || ""; } catch (e) { return ""; } }
 function setAiKey(k) { try { if (k) localStorage.setItem(AIKEY_STORE, k); else localStorage.removeItem(AIKEY_STORE); } catch (e) {} }
-const sqName = (f, r) => "abcdefgh"[f] + (r + 1);
+const sqName = (f, r) => LETTERS[f] + (r + 1);
 function describeOpt(a, i) {   // short text for Haiku: one line per legal option
   let t = `${i}: ${a.kind}${a.p ? " " + (a.p.k || "") : ""}`;
   if (a.from) t += ` from ${sqName(a.from[0], a.from[1])}`;
@@ -2836,13 +2846,14 @@ function load() {
 }
 
 /* ================= rendering ================= */
-const HX = 22, HY = 16.3, CX = 180, BOT = 254;
+let HX = 22, HY = 16.3; const CX = 180, BOT = 254;
+const syncDims = () => { HX = 22 * 8 / NB(); HY = 16.3 * 8 / NB(); };
 const SQS = 40, SM = 0;           // square view: square size; coordinates sit inside the edge squares
 let VIEW = "square", TEX = true, CKV = "stack";
 try { const v = localStorage.getItem("eightranks-fan-ck"); CKV = v === "flag" || v === "dots" ? v : "stack"; } catch (e) { CKV = "stack"; }
 try { TEX = localStorage.getItem("eightranks-fan-tex") !== "off"; } catch (e) {}
 try { VIEW = localStorage.getItem("eightranks-fan-view") === "diamond" ? "diamond" : "square"; } catch (e) {}
-const pos = (f, r) => VIEW === "square" ? [SM + f * SQS + SQS / 2, SM + (7 - r) * SQS + SQS / 2] : [CX + (f - r) * HX, BOT - (f + r) * HY];
+const pos = (f, r) => VIEW === "square" ? [SM + f * SQS + SQS / 2, SM + (NB() - 1 - r) * SQS + SQS / 2] : [CX + (f - r) * HX, BOT - (f + r) * HY];
 function diamond(x, y) {
   if (VIEW === "square") { const h = SQS / 2; return `${x - h},${y - h} ${x + h},${y - h} ${x + h},${y + h} ${x - h},${y + h}`; }
   return `${x},${y - HY} ${x + HX},${y} ${x},${y + HY} ${x - HX},${y}`;
@@ -2853,7 +2864,7 @@ function setView(v) {
   document.getElementById("board").style.display = v === "3d" ? "none" : "";
   const c3 = document.getElementById("board3d"); if (c3) c3.style.display = v === "3d" ? "block" : "none";
   if (v === "3d") setTimeout(() => { if (typeof size3D === "function") size3D(); }, 0);
-  document.getElementById("board").setAttribute("viewBox", v === "square" ? `0 0 ${2 * SM + 8 * SQS} ${2 * SM + 8 * SQS}` : "0 0 360 272");
+  syncDims(); document.getElementById("board").setAttribute("viewBox", v === "square" ? `0 0 ${2 * SM + NB() * SQS} ${2 * SM + NB() * SQS}` : "0 0 360 272");
 }
 function hlSets() {
   const H = {move: new Set(), atk: new Set(), build: new Set(), sel: new Set(), last: new Set()};
@@ -2871,8 +2882,8 @@ function hlSets() {
   return H;
 }
 function renderBoard() {
-  const H = hlSets(), g = [];
-  for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) {
+  const H = hlSets(), g = []; if (typeof setView === "function" && document.getElementById("board").dataset.nb !== String(NB())) { document.getElementById("board").dataset.nb = NB(); setView(VIEW); } syncDims();
+  for (let f = 0; f < NB(); f++) for (let r = 0; r < NB(); r++) {
     const [x, y] = pos(f, r), key = f + "," + r, gold = isGold(f, r);
     const farmSq = G.rules.quadrant && TEX && !gold && inQuad(f, r, FOOD), woodSq = G.rules.quadrant && TEX && !gold && inQuad(f, r, WOOD), dk = (f + r) % 2 === 0;
     let fill = gold ? "url(#goldG)" : farmSq ? `url(#Tf${dk ? 0 : 1})` : woodSq ? `url(#Tw${dk ? 0 : 1})` : TEX ? `url(#Tg${dk ? 0 : 1})` : (dk ? "var(--dk)" : "var(--lt)");
@@ -2886,24 +2897,24 @@ function renderBoard() {
     if (H.sel.has(key)) g.push(`<polygon points="${diamond(x, y)}" fill="var(--selw)" stroke="var(--brass)" stroke-width="1.8" pointer-events="none"/>`);
     if (H.move.has(key)) g.push(`<circle cx="${x}" cy="${y}" r="4" fill="var(--movew)" pointer-events="none"/>`);
   }
-  if (!G.rules.raidGold && !isRock(3, 3)) g.push(goldMine());
+  if (!G.rules.raidGold && !isRock(NH() - 1, NH() - 1)) g.push(goldMine());
   if (G.rules.rocks) { const mp = G.rules.rockMap || (G.rules.rockShape === "plus" ? "plus" : "r2");
-    if (mp === "r2" || mp === "plus") { g.push(rockOutcrop()); if (mp === "plus") for (const [f, r] of [[3, 2], [4, 2], [2, 3], [5, 3], [2, 4], [5, 4], [3, 5], [4, 5]]) g.push(rockSmall(f, r)); }
-    else for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) if (isRock(f, r)) g.push(rockSmall(f, r)); }
+    if (mp === "r2" || mp === "plus") { g.push(rockOutcrop()); if (mp === "plus") for (const [f, r] of [[3, 2], [4, 2], [2, 3], [5, 3], [2, 4], [5, 4], [3, 5], [4, 5]]) g.push(rockSmall(f + RO(), r + RO())); }
+    else for (let f = 0; f < NB(); f++) for (let r = 0; r < NB(); r++) if (isRock(f, r)) g.push(rockSmall(f, r)); }
   // quadrant outlines
   if (G.rules.quadrant) for (const [shape, col] of [
-      [G.rules.home3 ? [[-0.5, 2.5], [2.5, 2.5], [2.5, 4.5], [4.5, 4.5], [4.5, 7.5], [-0.5, 7.5]] : G.rules.raidGold ? [[-0.5, 3.5], [3.5, 3.5], [3.5, 7.5], [-0.5, 7.5]] : [[-0.5, 3.5], [2.5, 3.5], [2.5, 4.5], [3.5, 4.5], [3.5, 7.5], [-0.5, 7.5]], "#4f8a1f"],
-      [G.rules.home3 ? [[7.5, 4.5], [4.5, 4.5], [4.5, 2.5], [2.5, 2.5], [2.5, -0.5], [7.5, -0.5]] : G.rules.raidGold ? [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [3.5, 3.5]] : [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [4.5, 3.5], [4.5, 2.5], [3.5, 2.5]], "#9a4f12"]]) {
+      [G.rules.home3 ? [[-0.5, HSZ() - .5], [HSZ() - .5, HSZ() - .5], [HSZ() - .5, NH() + .5], [NH() + .5, NH() + .5], [NH() + .5, NB() - .5], [-0.5, NB() - .5]] : G.rules.raidGold ? [[-0.5, 3.5], [3.5, 3.5], [3.5, 7.5], [-0.5, 7.5]] : [[-0.5, 3.5], [2.5, 3.5], [2.5, 4.5], [3.5, 4.5], [3.5, 7.5], [-0.5, 7.5]], "#4f8a1f"],
+      [G.rules.home3 ? [[NB() - .5, NH() + .5], [NH() + .5, NH() + .5], [NH() + .5, HSZ() - .5], [HSZ() - .5, HSZ() - .5], [HSZ() - .5, -0.5], [NB() - .5, -0.5]] : G.rules.raidGold ? [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [3.5, 3.5]] : [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [4.5, 3.5], [4.5, 2.5], [3.5, 2.5]], "#9a4f12"]]) {
     const pts = shape.map(([f, r]) => pos(f, r).join(",")).join(" ");
     g.push(`<polygon points="${pts}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" pointer-events="none"/>`);
   }
   // corners
-  const [fx, fy] = pos(0, 7), [wx, wy] = pos(7, 0);
+  const [fx, fy] = pos(0, NB() - 1), [wx, wy] = pos(NB() - 1, 0);
   if (!G.rules.trade) g.push(`<g pointer-events="none">
     <circle cx="${fx - 5}" cy="${fy + 2}" r="6" fill="#3f7d24" stroke="#1e4410"/><circle cx="${fx + 5}" cy="${fy + 2}" r="6" fill="#3f7d24" stroke="#1e4410"/><circle cx="${fx}" cy="${fy - 4}" r="6.5" fill="#4d9230" stroke="#1e4410"/>
     <circle cx="${fx - 4}" cy="${fy - 3}" r="1.7" fill="#d8283a"/><circle cx="${fx + 3}" cy="${fy - 5}" r="1.7" fill="#d8283a"/><circle cx="${fx + 5}" cy="${fy + 2}" r="1.7" fill="#d8283a"/><circle cx="${fx - 5}" cy="${fy + 3}" r="1.7" fill="#d8283a"/><circle cx="${fx}" cy="${fy}" r="1.7" fill="#d8283a"/>
     <rect x="${wx - 1.8}" y="${wy + 3}" width="3.6" height="6" fill="#5b3614"/><path d="M${wx},${wy - 13} L${wx + 8},${wy - 1} H${wx - 8} Z" fill="#2f6b2a" stroke="#163b14"/><path d="M${wx},${wy - 7} L${wx + 9},${wy + 5} H${wx - 9} Z" fill="#2f6b2a" stroke="#163b14"/></g>`);
-  if (G.rules.trade) for (const [f, r] of [[0, 7], [7, 0]]) {   // trade posts: gold ground, balance scales, a label
+  if (G.rules.trade) for (const [f, r] of [[0, NB() - 1], [NB() - 1, 0]]) {   // trade posts: gold ground, balance scales, a label
     const [x, y] = pos(f, r), k = VIEW === "square" ? 1 : 0.62, h = VIEW === "square" ? SQS / 2 - 1.5 : 0;
     if (VIEW === "square") g.push(`<rect x="${x - h}" y="${y - h}" width="${2 * h}" height="${2 * h}" rx="2" fill="#f3d98a" fill-opacity=".55" stroke="#b8892e" stroke-width="1.4" stroke-dasharray="3 2" pointer-events="none"/>`);
     else g.push(`<polygon points="${diamond(x, y)}" fill="#f3d98a" fill-opacity=".55" stroke="#b8892e" stroke-width="1.2" stroke-dasharray="3 2" pointer-events="none"/>`);
@@ -2915,14 +2926,14 @@ function renderBoard() {
     if (VIEW === "square") g.push(`<text x="${x}" y="${y + h - 2.5}" text-anchor="middle" font-size="6.6" font-weight="800" letter-spacing=".08em" fill="#6a4a0c" font-family="Alegreya Sans,sans-serif" pointer-events="none">TRADE</text>`);
   }
   // mine stock
-  const [mx, my] = pos(3.5, 3.5);
+  const [mx, my] = pos(NH() - .5, NH() - .5);
   for (const [s, dx] of [[0, -9], [1, 9]]) for (let i = 0; i < (G.rules.goldRes ? 0 : G.stock[s]); i++)
     g.push(`<circle cx="${mx + dx}" cy="${my + 6 - i * 4}" r="4.2" fill="${s ? "var(--ebony)" : "var(--ivory)"}" stroke="#6d6252" stroke-width="0.7" pointer-events="none"/>`);
   // coordinates (square view)
-  if (VIEW === "square") for (let i = 0; i < 8; i++) {
+  if (VIEW === "square") for (let i = 0; i < NB(); i++) {
     const [fx, fy] = pos(i, 0), [rx, ry] = pos(0, i);
     const ink = (f, r) => (f + r) % 2 === 0 ? "#f6e6c0" : "#7a4e22";   // light text on dark squares, dark on light
-    g.push(`<text x="${fx + SQS / 2 - 3}" y="${fy + SQS / 2 - 3}" text-anchor="end" font-size="8.5" font-weight="700" fill="${ink(i, 0)}" font-family="Alegreya Sans,sans-serif" pointer-events="none">${"abcdefgh"[i]}</text>`);
+    g.push(`<text x="${fx + SQS / 2 - 3}" y="${fy + SQS / 2 - 3}" text-anchor="end" font-size="8.5" font-weight="700" fill="${ink(i, 0)}" font-family="Alegreya Sans,sans-serif" pointer-events="none">${LETTERS[i]}</text>`);
     g.push(`<text x="${rx - SQS / 2 + 3}" y="${ry - SQS / 2 + 10}" text-anchor="start" font-size="8.5" font-weight="700" fill="${ink(0, i)}" font-family="Alegreya Sans,sans-serif" pointer-events="none">${i + 1}</text>`);
   }
   // pieces, back to front
@@ -2943,11 +2954,11 @@ function rockSmall(f, r) {   // a few stones on a single rock square
   return t + `</g>`;
 }
 function goldMine() {   // the gold mine: the four centre squares are gold, in a rounded gold frame with a nugget (flat, walkable)
-  const c = [[3, 3], [4, 3], [3, 4], [4, 4]].map(([f, r]) => pos(f, r));
+  const GC = [[NH() - 1, NH() - 1], [NH(), NH() - 1], [NH() - 1, NH()], [NH(), NH()]], c = GC.map(([f, r]) => pos(f, r));
   const cx = c.reduce((a, p) => a + p[0], 0) / 4, cy = c.reduce((a, p) => a + p[1], 0) / 4;
   const sq = VIEW === "square", u = sq ? SQS / 2 : HX * 0.95, k = sq ? 1 : HY / HX;
   let t = `<g pointer-events="none">`;
-  for (const [f, r] of [[3, 3], [4, 3], [3, 4], [4, 4]]) { const [x, y] = pos(f, r); t += `<polygon points="${diamond(x, y)}" fill="url(#goldG)" stroke="#8a6414" stroke-width=".6"/>`; }
+  for (const [f, r] of GC) { const [x, y] = pos(f, r); t += `<polygon points="${diamond(x, y)}" fill="url(#goldG)" stroke="#8a6414" stroke-width=".6"/>`; }
   if (sq) t += `<rect x="${cx - u * 2 + 2}" y="${cy - u * 2 + 2}" width="${u * 4 - 4}" height="${u * 4 - 4}" rx="6" fill="none" stroke="#e2b73f" stroke-width="3" opacity=".85"/><rect x="${cx - u * 2 + 7}" y="${cy - u * 2 + 7}" width="${u * 4 - 14}" height="${u * 4 - 14}" rx="4" fill="#e7bd52" fill-opacity=".2"/>`;
   else { const d = u * 2.05; t += `<polygon points="${cx},${cy - d * k} ${cx + d},${cy} ${cx},${cy + d * k} ${cx - d},${cy}" fill="#e7bd52" fill-opacity=".2" stroke="#e2b73f" stroke-width="3" stroke-linejoin="round" opacity=".9"/>`; }
   const z = u * .18;
@@ -2955,7 +2966,7 @@ function goldMine() {   // the gold mine: the four centre squares are gold, in a
   return t + `</g>`;
 }
 function rockOutcrop() {   // one outcrop over d4, e4, d5, e5
-  const c = [[3, 3], [4, 3], [3, 4], [4, 4]].map(([f, r]) => pos(f, r));
+  const GC = [[NH() - 1, NH() - 1], [NH(), NH() - 1], [NH() - 1, NH()], [NH(), NH()]], c = GC.map(([f, r]) => pos(f, r));
   const cx = c.reduce((a, p) => a + p[0], 0) / 4, cy = c.reduce((a, p) => a + p[1], 0) / 4;
   const sq = VIEW === "square", u = sq ? SQS / 2 : HX * 0.95, k = sq ? 1 : HY / HX;
   const blob = (x, y, rx, ry, seed) => { let d = "";
@@ -3333,7 +3344,7 @@ function renderStrips() {
   for (const s of [0, 1]) {
     const el = document.getElementById("strip" + s); if (!el) continue;
     if (bw) el.style.width = bw + "px";
-    el.setAttribute("viewBox", `0 0 ${2 * SMx + 8 * SQ} 26`);
+    el.setAttribute("viewBox", `0 0 ${2 * SMx + NB() * SQ} 26`);
     const w = s === 0, L = SMx + 4, Rr = SMx + 8 * SQ - 4;
     if (!STRIPFULL) { const cp = innerHeight < 760; el.innerHTML = trayJ(s, cp); el.setAttribute("viewBox", `0 0 382 ${trayDims(cp).HH}`); el.style.cursor = ""; continue; }
     if (!STRIPFULL) {   // short screens: four labelled numbers
@@ -3473,7 +3484,7 @@ function build3DAssets() {
   m.hl = {move: H(0x4caf50), atk: H(0xe53935), build: H(0x1e88e5), sel: H(0xffc107), last: H(0xfff3c4)};
   m.dim = {};
 }
-const P3 = (f, r) => [f - 3.5, 3.5 - r];
+const P3 = (f, r) => [f - (NB() - 1) / 2, (NB() - 1) / 2 - r];
 function mesh3(geo, mat, x, y, z, sx, sy, sz) {
   const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); if (sx !== undefined) o.scale.set(sx, sy === undefined ? sx : sy, sz === undefined ? sx : sz);
   o.castShadow = true; o.receiveShadow = true; return o;
@@ -3517,8 +3528,8 @@ function render3D() {
   while (root.children.length) root.remove(root.children[0]);
   T3.squares = [];
   const H = hlSets(), key = (f, r) => f + "," + r;
-  root.add(mesh3(g.frame, m.frame, 0, -0.16, 0));
-  for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) {
+  root.scale.setScalar(8 / NB()); root.add(mesh3(g.frame, m.frame, 0, -0.16, 0)); const FR = NB() + .7; root.children[0].scale.set(FR / 8.7, 1, FR / 8.7);
+  for (let f = 0; f < NB(); f++) for (let r = 0; r < NB(); r++) {
     const [x, z] = P3(f, r), lt = (f + r) % 2 === 1, rock = typeof isRock === "function" && isRock(f, r);
     const fld = !rock && G.rules.quadrant && inQuad(f, r, FOOD), fst = !rock && G.rules.quadrant && inQuad(f, r, WOOD);
     const mat = rock ? m.rockSq : fld ? (lt ? m.fieldL : m.fieldD) : fst ? (lt ? m.forestL : m.forestD) : (lt ? m.light : m.dark);
@@ -3658,7 +3669,7 @@ function renderPanel() {
   }
   if (!sp) {
     const s = G.turn;
-    const hint = age(s) === 0 ? (G.rules.quadrant ? `Walk villagers into the farmland (a5–d8) and the forest (e1–h4): food trains villagers, ${(c => [c.f ? c.f + " food" : "", c.w ? c.w + " wood" : "", c.g ? c.g + " gold" : ""].filter(Boolean).join(" + "))(ageCost(1))} buys the Feudal Age.` : `Walk villagers towards the berry bush and the forest corner and gather ${(c => [c.f ? c.f + " food" : "", c.w ? c.w + " wood" : "", c.g ? c.g + " gold" : ""].filter(Boolean).join(" + "))(ageCost(1))} for the Feudal Age.`) :
+    const hint = age(s) === 0 ? (G.rules.quadrant ? `Walk villagers into the farmland (a${NH() + 1}–${LETTERS[NH() - 1]}${NB()}) and the forest (${LETTERS[NH()]}1–${LETTERS[NB() - 1]}${NH()}): food trains villagers, ${(c => [c.f ? c.f + " food" : "", c.w ? c.w + " wood" : "", c.g ? c.g + " gold" : ""].filter(Boolean).join(" + "))(ageCost(1))} buys the Feudal Age.` : `Walk villagers towards the berry bush and the forest corner and gather ${(c => [c.f ? c.f + " food" : "", c.w ? c.w + " wood" : "", c.g ? c.g + " gold" : ""].filter(Boolean).join(" + "))(ageCost(1))} for the Feudal Age.`) :
       "Tap one of your pieces to see what it can do. Tap a mill or lumber camp to put its whole crew to work" + (G.rules.chk && !G.rules.pools ? " — free, once per turn." : " for one action.");
     el.innerHTML = `<div class="ptitle">${(G.mode === "ai" && s === 0) || (G.mode === "online" && s === NET.side) ? `Your move (${SIDE[s]})` : SIDE[s] + " to play"}</div><div class="pmeta">${hint}</div>${msg}`;
     return;
@@ -3924,13 +3935,13 @@ document.getElementById("endBtn").addEventListener("click", async () => {
 });
 const menu = document.getElementById("menu"), rulesDlg = document.getElementById("rulesDlg"), logDlg = document.getElementById("logDlg");
 let menuCiv = ["franks", "franks"];
-let menuActs = 3, menuHome3 = true, menuSure = false, menuMode = "ai", menuDiff = 10, menuCastle = "4,2", menuMap = "open";
+let menuSize = 8, menuActs = 3, menuHome3 = true, menuSure = false, menuMode = "ai", menuDiff = 10, menuCastle = "4,2", menuMap = "open";
 function openMenu() {
   menuMode = G ? (byLink() ? "link" : G.mode === "hot" || G.mode === "watch" || G.mode === "online" ? G.mode : "ai") : "ai";
   const r = G ? G.rules : {};
   menuMap = r.rocks ? (r.rockMap || (r.rockShape === "plus" ? "plus" : "r2")) : "open";
   menuDiff = G && G.level ? G.level[1] : 10;
-  menuSure = !!r.sure; menuHome3 = G ? !!r.home3 : true; menuActs = G && r.acts ? r.acts : 3;
+  menuSize = r.size === 10 ? 10 : 8; menuSure = !!r.sure; menuHome3 = G ? !!r.home3 : true; menuActs = G && r.acts ? r.acts : 3;
   menuCastle = G && G.rules.costs && G.rules.costs[2] ? G.rules.costs[2][0] + "," + G.rules.costs[2][1] : "4,2";
   menuCiv = G && G.civ ? G.civ.slice() : ["franks", "franks"];
   showTab("play"); segUpdate(); libList(); menu.showModal();
@@ -3976,6 +3987,7 @@ function segUpdate() {
   document.querySelectorAll("#ckSeg button").forEach(b => b.classList.toggle("on", b.dataset.c === CKV));
   document.querySelectorAll("#mapSeg button").forEach(b => b.classList.toggle("on", b.dataset.map === menuMap));
   document.querySelectorAll("#actSeg button").forEach(b => b.classList.toggle("on", +b.dataset.n === menuActs));
+  document.querySelectorAll("#sizeSeg button").forEach(b => b.classList.toggle("on", +b.dataset.sz === menuSize));
   document.querySelectorAll("#aiSeg button").forEach(b => b.classList.toggle("on", b.dataset.a === "off" ? menuMode === "hot" : menuMode === "ai" && b.dataset.a === AIPICK));
   document.getElementById("aiBox").style.display = menuMode === "ai" || menuMode === "hot" ? "" : "none";
   document.getElementById("keyBox").style.display = menuMode === "ai" && AIPICK !== "built" ? "" : "none";
@@ -3991,6 +4003,7 @@ document.getElementById("lookSeg").addEventListener("click", e => { const b = e.
 document.getElementById("viewSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setView(b.dataset.v); segUpdate(); render(); } });
 
 ["civ0", "civ1"].forEach((id, i) => document.getElementById(id).addEventListener("change", e => { menuCiv[i] = e.target.value; segUpdate(); }));
+document.getElementById("sizeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuSize = +b.dataset.sz; segUpdate(); } });
 document.getElementById("actSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuActs = +b.dataset.n; segUpdate(); } });
 document.getElementById("homeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuHome3 = b.dataset.h === "3"; segUpdate(); } });
 document.getElementById("diffSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { menuDiff = +b.dataset.d; segUpdate(); } });
@@ -4000,7 +4013,7 @@ document.getElementById("closeMenu").onclick = () => menu.close();
 document.getElementById("startBtn").onclick = () => {
   newGame(menuMode === "link" ? "online" : menuMode, {pools: false, garrison: false, 
     gatherHalf: true, goldHalf: true, vilHalf: false, vilAtk1: true, woundMark: true, prices2: true, milFlex: false, pawnOne: true, noHandicap: false, ecoTiers: false, bothLines: true, goldBack: true, chk: true, bTrain: false, tcDef1: true, needB: true, campTwo: false, quadrant: true, noCastle: true, noTech: true, freeVill: false, crown: true, tcEarly: true, cavWalk: true, noBeside: true, piles: false, towerFeudal: true, darkCamps: true, towerOnOne: true, rookW: 3, queenW: 4, needC: true, start2: true, darkWar: true, oneEach: true, tcSafeDark: false, tcNear: true, away3: false, crewInQuad: true, camp3: false, homeGather: !menuHome3, home3: !!menuHome3, trebCastle: true, tcMill: false, raidGold: false, trade: true, goldSupply: true, trebDiag: true, home4: true, rocks: menuMap !== "open", rockMap: menuMap === "open" ? null : menuMap, rockShape: menuMap === "plus" ? "plus" : "2x2", goldRes: true, gold2: true, needCamp: true, flex2: true, ageOne: true,
-    split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}, sure: true, acts: menuActs}, menuDiff);
+    split: true, costs: {1: [0, 3, 0], 2: [0, 5, 0], 3: [0, 4, 1]}, sure: true, acts: menuActs, size: menuSize}, menuDiff);
   G.civ = menuCiv.slice();
   UI = {sel: null, mode: null, msg: "", busy: false};
   document.getElementById("over").classList.remove("show");
