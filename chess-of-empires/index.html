@@ -702,6 +702,20 @@ header button,header .btn{min-height:26.5px!important;height:26.5px!important}
 .tabbar button.tile.off .tl,.tabbar button.tile.off .tc,.tabbar button.tile.off .aic{color:#e6d6b0!important}.tabbar button.tile.off .aic{opacity:.7}
 .tabbar.sub{background:none!important}.tabbar.sub button.tile.tback{background:linear-gradient(#7a5a2e,#4a3018)!important}
 .tabbar button.tile.cat.sel{background:linear-gradient(#34200f,#4a2e17)!important;box-shadow:inset 0 0 0 1.5px #f3dc9c,0 2px 0 #1a0e05!important}
+header #status .hciv{display:inline-flex;align-items:center;gap:3px;padding:1px 5px;border:1px solid rgba(240,198,91,.55);border-radius:8px;background:rgba(0,0,0,.25);cursor:pointer}
+header #status .hciv i{width:1px;height:13px;background:rgba(240,198,91,.5)}
+header #status .acts{display:inline-flex;align-items:center;gap:4px;padding:1px 6px 1px 4px;border:1px solid rgba(240,198,91,.55);border-radius:8px;background:rgba(0,0,0,.25);font:800 12px Inter,system-ui,sans-serif;color:#f3dc9c;white-space:nowrap}
+header #status .acts .pip{margin-left:1px;width:8px;height:8px}
+.civrow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.civrow:last-child{border-bottom:0}.civrow .em{flex:none;margin-top:2px}
+.civrow b{font-size:15px}.civrow small{display:block;font-size:12px;opacity:.75;margin:1px 0 4px}.civrow p{margin:0;font-size:13.5px;line-height:1.4}
+header #status{gap:5px!important}
+header #status .hciv>span{display:inline-flex;opacity:.4}header #status .hciv>span.cur{opacity:1}
+header #status>b{min-width:0;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto}
+header #status .pips{flex:none}
+@media (max-width:400px){header #status .hrnd{display:none}}
+@media (max-width:400px){header .tb h1{display:none!important}header #status .acts .pip{width:7px;height:7px}}
+@media (max-width:400px){header #status>b{font-size:13.5px!important}header #status .acts{padding:1px 5px 1px 3px;gap:3px}}
 </style><defs id="celticb-defs2202"><linearGradient xlink:href="#celticb-fillGradient" id="celticb-main-gradient" x1="824.6" x2="992.7" y1="119.5" y2="168.5" gradientTransform="translate(-3372 -24)scale(4.2241)" gradientUnits="userSpaceOnUse"/><linearGradient id="celticb-fillGradient"><stop id="celticb-stop0" offset="0" stop-color="#7f899b" stop-opacity="1"/><stop id="celticb-stop1" offset="1" stop-color="#1c1c2f" stop-opacity="1"/></linearGradient></defs><path id="celticb-boundary" fill="none" stroke-width="35" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color"/><path id="celticb-main" fill="url(#celticb-main-gradient)" d="m394 44-24 83-59-68-4 89c-91 91-38 111-172 316-9 13-25 24-29 42-15 80 88 60 106 69 71-57 100-58 137-98 42 15 108-3 147-45-26 77-136 132-169 267 39 37 0 74-47 71-52 12-34 109 19 109l452-3c63 0 72-92 30-108-40 0-58-41-26-69 4-74 3-143-12-214-2-7 2-22 10-24-6-23-30-45-40-69-5-11-18-17 19-18-11-22-61-58-76-78-6-7 25-13 19-19-35-37-85-50-109-68-8-6 23-15 14-21-33-21-102-48-145-65z" class="base stroke-color stroke-medium"/><path id="celticb-eyebrow" fill="none" d="M336 282c-28 2-50 16-65 41" class="base stroke-color stroke-medium"/><path id="celticb-eye" fill="none" d="M310 316c12 8 25 5 22-12" class="base stroke-color stroke-medium"/><path id="celticb-nose" fill="none" d="M155 501c-13-5-23 17-15 17" class="base stroke-color stroke-medium"/><path id="celticb-cheek" fill="none" d="M508 405c10-13 9-19 11-27" class="base stroke-color stroke-medium"/><path id="celticb-deco-lines" fill="none" d="M644 699H370zm64 64H360z" class="base stroke-color stroke-medium" opacity=".5"/><path id="celticb-deco-side" fill="none" d="M723 876c63 0 78-76 36-92-39 0-58-60-25-88 3-74 3-143-13-213-2-7 2-23 11-24-7-24-31-36-41-60-5-12-18-17 20-19-12-21-61-57-77-77-5-7 25-13 19-20-34-36-84-49-109-68-8-6 23-14 15-20-33-22-81-55-124-72" class="base stroke-color stroke-medium" opacity=".5"/></svg></g></g></defs></svg>
 <div class="wrap">
   <header>
@@ -901,6 +915,7 @@ header button,header .btn{min-height:26.5px!important;height:26.5px!important}
   <button class="primary full" id="ageOk">Got it</button><button class="full" id="ageOff" style="font-size:12.5px;min-height:32px">Don't show these tips</button></dialog>
 <dialog id="payDlg"><h2>Pay for the gold</h2><p id="payText" style="font-size:14px"></p>
   <button class="primary full" id="payFood">1 food</button><button class="primary full" id="payWood">1 wood</button></dialog>
+<dialog id="civDlg"><h2>Civilizations</h2><div id="civBody"></div><button class="full" id="closeCiv">Close</button></dialog>
 <dialog id="logDlg"><h2>Game log</h2><div class="fulllog" id="fullLog"></div><button class="full" id="closeLog">Close</button></dialog>
 
 <div class="over" id="over"><div class="card"><h2 id="overTitle"></h2><p id="overText" style="color:var(--dim)"></p><button class="iconbtn" id="overNew" style="margin-top:8px">New game</button></div></div>
@@ -3086,6 +3101,9 @@ const CPX = {r: 1.22, b: 1.18, q: 1.14, k: 1.14};                             //
 function cpUse(o, k, x, yb, h) { const c = CPK[k] || "p", sc = h * CPB[c] / CPH[c], sx = sc * (CPX[c] || 1); return `<use href="#cp-${o ? "b" : "w"}${c === "b" ? "Bb" : c}" transform="translate(${x},${yb}) scale(${sx.toFixed(3)} ${sc.toFixed(3)})"/>`; }
 // a square shows its stack as it stands: checker discs, the chess piece on top, a thin owner ring at the foot
 let NORING = true;
+const isSpecial = p => !!(p && isUnit(p) && uniOf(p));
+const civCol = p => (THEME[uid(p)] || THEME.franks).c;
+let civUnder = (p, g) => "", civOver = (p, g) => "";   // mark for special units: drawn under / over the piece (design to be picked)
 function pieceStack(p) {
   const [x, y] = pos(p.f, p.r), rim = p.o ? "#c23b2e" : "#2f6fd0", yb = y + 16.5, T = 4.6, W = 14.5, RY = 5;
   let s = `<g pointer-events="none">` + (NORING ? `<ellipse cx="${x}" cy="${yb + .8}" rx="${W + 1}" ry="${RY + .8}" fill="rgba(0,0,0,.18)"/>` : `<ellipse cx="${x}" cy="${yb + .6}" rx="${W + 3}" ry="${RY + 1.4}" fill="rgba(0,0,0,.16)" stroke="${rim}" stroke-width="2"/>`) + `<g>`;
@@ -3106,7 +3124,10 @@ function pieceStack(p) {
       + `<ellipse cx="${x}" cy="${cy - ct}" rx="${cw}" ry="${ry}" fill="url(#coinTop)" stroke="#2f353b" stroke-width=".9"/>`
       + `<ellipse cx="${x}" cy="${cy - ct}" rx="${cw * .78}" ry="${ry * .74}" fill="none" stroke="#5a6168" stroke-width=".6"/>`
       + `<text x="${x}" y="${cy - ct + 3.4}" text-anchor="middle" font-size="10" font-weight="800" font-family="Georgia,serif" fill="#2b3036" transform="translate(0 ${cy - ct}) scale(1 .62) translate(0 ${-(cy - ct)})">T</text>`; }
-  else s += cpUse(p.o, crowned ? (p.k === "B" ? "B" : "S") : p.k, x, top + 1.4, p.st.length >= 2 ? 26 : 28);
+  const MG = {x, top, yb, W, T, RY, h: p.st.length >= 2 ? 26 : 28, c: isSpecial(p) ? civCol(p) : null};
+  if (MG.c && !bare) s += civUnder(p, MG);
+  if (!bare && !(CR() && p.k === "S")) s += cpUse(p.o, crowned ? (p.k === "B" ? "B" : "S") : p.k, x, top + 1.4, MG.h);
+  if (MG.c && !bare) s += civOver(p, MG);
   const dmg = p.k === "K" ? (G.pile[p.o] || 0) : (+p.w || 0);
   for (let i = 0; i < dmg; i++) s += `<ellipse cx="${x + W + 4}" cy="${yb - 2 - i * 4.4}" rx="4.4" ry="1.9" fill="#fff" stroke="var(--danger)" stroke-width="1" stroke-dasharray="1.6 1.1"/>`;
   return s + "</g></g>";
@@ -3234,8 +3255,16 @@ function renderStatus() {
     ? `<span>Eco ${pipStr(G.acts.eco, 2)}</span><span>Mil ${pipStr(G.acts.mil, 2)}</span>`
     : `<span>Actions ${pipStr(G.acts.any, G.rules.flex2 ? (G.round === 1 && s === 0 && !G.rules.noHandicap ? 1 : (G.rules.acts || 3)) : 2)}</span>` + (G.rules.chk && G.acts.camp !== undefined && camps(G.turn).length ? `<span>Camps ${pipStr(G.acts.camp, camps(G.turn).length)}</span>` : "");
   document.getElementById("status").innerHTML =
-    `<span class="dot" style="background:${s ? "var(--ebony)" : "var(--ivory)"}"></span><span class="hciv" title="${civ(s).n}">${civEmblem(civ(s).id, 17)}</span><b>${who}</b><span class="hage" style="background:${["#3A322C", "#6A3F19", "#2B4258", "#8F6A14"][A]}" title="${AGES[A]} Age">${["I", "II", "III", "IV"][A]}</span><span class="hrnd" title="round ${G.round}">↻${G.round}</span><span class="pips" title="actions left">${pools.replace(/>Actions /, ">").replace(/>Eco /, ">E ").replace(/>Mil /, ">M ").replace(/>Camps /, ">⛺ ")}</span>`;
+    `<span class="hciv" role="button" tabindex="0" title="Civilizations: tap for details"><span class="${s ? "" : "cur"}">${civEmblem(civ(0).id, 16)}</span><i></i><span class="${s ? "cur" : ""}">${civEmblem(civ(1).id, 16)}</span></span><b>${who}</b><span class="hage" style="background:${["#3A322C", "#6A3F19", "#2B4258", "#8F6A14"][A]}" title="${AGES[A]} Age">${["I", "II", "III", "IV"][A]}</span><span class="hrnd" title="round ${G.round}">↻${G.round}</span><span class="pips" title="actions left">${G.rules.pools ? pools.replace(/>Eco /, ">E ").replace(/>Mil /, ">M ") : `<span class="acts">${pipStr(G.acts.any, ACTMAX())}${G.acts.any}/${ACTMAX()}</span>`}</span>`;
 }
+const ACTMAX = () => G.rules.flex2 ? (G.round === 1 && G.turn === 0 && !G.rules.noHandicap ? 1 : (G.rules.acts || 3)) : 2;
+function civInfo() {
+  const who = i => G.mode === "ai" ? (i ? "Computer" : "You") : i ? "Black" : "White";
+  document.getElementById("civBody").innerHTML = [0, 1].map(i => { const c = civ(i), slot = {I: "infantry", A: "archer", C: "cavalry", S: "trebuchet"}[c.k];
+    return `<div class="civrow"><span class="em">${civEmblem(c.id, 30)}</span><div><b>${c.n}</b><small>${who(i)}${c.u ? " · unique unit: " + c.u[0] + " (replaces the " + slot + ")" : ""}</small><p>${c.u ? (ONE[c.id] || c.d) : "No unique unit: plays with the standard units."}</p></div></div>`; }).join("");
+  document.getElementById("civDlg").showModal(); }
+document.getElementById("status").addEventListener("click", e => { if (e.target.closest(".hciv")) civInfo(); });
+document.getElementById("closeCiv").onclick = () => document.getElementById("civDlg").close();
 function pipStr(n, m) { let o = ""; for (let i = 0; i < m; i++) o += `<i class="pip${i < n ? " on" : ""}"></i>`; return o; }
 let STRIPFULL = false;
 // the carved tray is the only resource view
