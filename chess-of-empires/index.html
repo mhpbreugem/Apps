@@ -2917,11 +2917,15 @@ function renderBoard() {
     if (mp === "r2" || mp === "plus") { g.push(rockOutcrop()); if (mp === "plus") for (const [f, r] of [[3, 2], [4, 2], [2, 3], [5, 3], [2, 4], [5, 4], [3, 5], [4, 5]]) g.push(rockSmall(f + RO(), r + RO())); }
     else for (let f = 0; f < NB(); f++) for (let r = 0; r < NB(); r++) if (isRock(f, r)) g.push(rockSmall(f, r)); }
   // quadrant outlines
-  if (G.rules.quadrant) for (const [shape, col] of [
-      [G.rules.home3 ? [[-0.5, HSZ() - .5], [HSZ() - .5, HSZ() - .5], [HSZ() - .5, NH() + .5], [NH() + .5, NH() + .5], [NH() + .5, NB() - .5], [-0.5, NB() - .5]] : G.rules.raidGold ? [[-0.5, 3.5], [3.5, 3.5], [3.5, 7.5], [-0.5, 7.5]] : [[-0.5, 3.5], [2.5, 3.5], [2.5, 4.5], [3.5, 4.5], [3.5, 7.5], [-0.5, 7.5]], "#4f8a1f"],
-      [G.rules.home3 ? [[NB() - .5, NH() + .5], [NH() + .5, NH() + .5], [NH() + .5, HSZ() - .5], [HSZ() - .5, HSZ() - .5], [HSZ() - .5, -0.5], [NB() - .5, -0.5]] : G.rules.raidGold ? [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [3.5, 3.5]] : [[3.5, -0.5], [7.5, -0.5], [7.5, 3.5], [4.5, 3.5], [4.5, 2.5], [3.5, 2.5]], "#9a4f12"]]) {
-    const pts = shape.map(([f, r]) => pos(f, r).join(",")).join(" ");
-    g.push(`<polygon points="${pts}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" pointer-events="none"/>`);
+  if (G.rules.quadrant) for (const [res, col] of [[FOOD, "#4f8a1f"], [WOOD, "#9a4f12"]]) {   // trace the real edge of the field / forest, on any board size
+    const inR = (f, r) => inb(f, r) && inQuad(f, r, res) && !isGold(f, r); let d = "";
+    const seg = (a, b, c, e) => { const [x1, y1] = pos(a, b), [x2, y2] = pos(c, e); d += `M${x1.toFixed(1)},${y1.toFixed(1)}L${x2.toFixed(1)},${y2.toFixed(1)}`; };
+    for (let f = 0; f < NB(); f++) for (let r = 0; r < NB(); r++) if (inR(f, r)) {
+      if (!inR(f - 1, r)) seg(f - .5, r - .5, f - .5, r + .5);
+      if (!inR(f + 1, r)) seg(f + .5, r - .5, f + .5, r + .5);
+      if (!inR(f, r - 1)) seg(f - .5, r - .5, f + .5, r - .5);
+      if (!inR(f, r + 1)) seg(f - .5, r + .5, f + .5, r + .5); }
+    g.push(`<path d="${d}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linecap="round" pointer-events="none"/>`);
   }
   // corners
   const [fx, fy] = pos(0, NB() - 1), [wx, wy] = pos(NB() - 1, 0);
