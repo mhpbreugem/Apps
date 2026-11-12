@@ -3107,7 +3107,10 @@ function cpUse(o, k, x, yb, h) { const c = CPK[k] || "p", sc = h * CPB[c] / CPH[
 let NORING = true;
 const isSpecial = p => !!(p && isUnit(p) && uniOf(p));
 const civCol = p => (THEME[uid(p)] || THEME.franks).c;
-let civUnder = (p, g) => "", civOver = (p, g) => "";   // mark for special units: drawn under / over the piece (design to be picked)
+let civUnder = (p, g) => "";
+let civOver = (p, g) => {   // special units get a thin painted foot in their civ colour (lowest 12% of the piece)
+  const id = "pf" + p.id, cl = "pc" + p.id, y1 = g.top + 1.4 - g.h * .12, y2 = g.top + 4.4;
+  return `<filter id="${id}"><feFlood flood-color="${g.c}" flood-opacity=".8"/><feComposite in2="SourceAlpha" operator="in"/></filter><clipPath id="${cl}"><rect x="${g.x - 12}" y="${y1}" width="24" height="${y2 - y1}"/></clipPath><g clip-path="url(#${cl})" pointer-events="none"><g filter="url(#${id})">${cpUse(p.o, p.k, g.x, g.top + 1.4, g.h)}</g></g>`; };
 function pieceStack(p) {
   const [x, y] = pos(p.f, p.r), rim = p.o ? "#c23b2e" : "#2f6fd0", yb = y + 16.5, T = 4.6, W = 14.5, RY = 5;
   let s = `<g pointer-events="none">` + (NORING ? `<ellipse cx="${x}" cy="${yb + .8}" rx="${W + 1}" ry="${RY + .8}" fill="rgba(0,0,0,.18)"/>` : `<ellipse cx="${x}" cy="${yb + .6}" rx="${W + 3}" ry="${RY + 1.4}" fill="rgba(0,0,0,.16)" stroke="${rim}" stroke-width="2"/>`) + `<g>`;
