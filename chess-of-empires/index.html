@@ -1848,6 +1848,21 @@ function aiOptions(s) {
   const campAt = (x, y) => camps(s).find(c => cd(c.f, c.r, x, y) === 1 && (!G.rules.crewInQuad || inField(x, y, campRes(c)[0])));
   const crewN = c => vills.filter(q => cd(c.f, c.r, q.f, q.r) === 1 && (!G.rules.crewInQuad || inField(q.f, q.r, campRes(c)[0]))).length;
   const crewShort = camps(s).reduce((n, c) => n + Math.max(0, CREWT - crewN(c)), 0);
+  // unit choice: like the civ's unique unit and save food / wood for it and for one siege unit
+  const UNIT2 = !(G.__cfg && G.__cfg.noUnit2), eCnt = k => en.filter(q => q.k === k).length;
+  const eBld = en.filter(q => isBld(q) && shoots(q)).length, uSlot = civ(s).u ? civ(s).k : null;
+  const wantS = UNIT2 && A >= 2 && trebOk(s) && count(s, "S") === 0 && count(s, "S") < TMAX();
+  const saveFor = !UNIT2 || (G.__cfg && G.__cfg.noSave) ? null : wantS && !afford(s, UCOST("S", s)[0], UCOST("S", s)[1]) && G.wood[s] >= UCOST("S", s)[1] - 3 ? "S"
+    : uSlot && uSlot !== "I" && uSlot !== "S" && count(s, uSlot) < 2 && !afford(s, UCOST(uSlot, s)[0], UCOST(uSlot, s)[1]) && G.food[s] >= UCOST(uSlot, s)[0] - 2 && !threatHome ? uSlot : null;
+  const unitPref = (k, b0) => { if (!UNIT2) return b0; let b = b0;
+    if (G.__cfg && G.__cfg.counter) {   // counter-picking tested weaker; off by default
+    if (k === "A") b += 0.25 * Math.min(3, eCnt("I") + eCnt("V") / 2) + (count(s, "A") === 0 ? 0.5 : 0);
+    if (k === "C") b += 0.3 * Math.min(2, eCnt("A") + eCnt("S"));
+    if (k === "I") b += 0.25 * Math.min(2, eCnt("C"));
+    if (k === "S") b += 0.4 * Math.min(2, eBld); }
+    if (k === uSlot) b += 0.6;
+    if (saveFor && k !== saveFor && !threatHome) b -= 0.9;   // hold the food / wood for the unit we are saving for
+    return b; };
   // age up
   if (!acted(T) && A < 3) {
     const c = ageCost(A + 1);
@@ -1901,10 +1916,10 @@ function aiOptions(s) {
       const lineOk = k => true;
       let base = 4.4 + (army < 1 + A ? 1 : 0) + (threatHome ? 1 : 0) - (army >= (aggrOn(s) ? 2 + AGG.cap + (2 + AGG.cap) * A : 2 + 2 * A) ? 3 : 0) + (FX.spend && G.food[s] >= 5 ? 1.8 : 0);
       const cand = [];
-      if (A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S", s)[0], UCOST("S", s)[1])) cand.push(["S", count(s, "S") === 0 ? 1.8 : 0.3]);
-      if (!noUnit("C", s) && count(s, "C") < 2 && afford(s, UCOST("C", s)[0], UCOST("C", s)[1])) cand.push(["C", 0.5]);
-      if (lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A", s)[0], UCOST("A", s)[1])) cand.push(["A", 0.45]);
-      if (G.rules.prices2 && !G.rules.milFlex ? G.food[s] >= 1 : milPay(s)) cand.push(["I", 0.2 - (CREW2 && crewShort > 0 && !threatHome ? 1 : 0)]);
+      if (A >= 2 && count(s, "S") < TMAX() && trebOk(s) && afford(s, UCOST("S", s)[0], UCOST("S", s)[1]) && G.res[s] >= 2) cand.push(["S", unitPref("S", count(s, "S") === 0 ? 1.8 : 0.3)]);
+      if (!noUnit("C", s) && count(s, "C") < 2 && afford(s, UCOST("C", s)[0], UCOST("C", s)[1])) cand.push(["C", unitPref("C", 0.5)]);
+      if (lineOk("A") && count(s, "A") < 2 && afford(s, UCOST("A", s)[0], UCOST("A", s)[1])) cand.push(["A", unitPref("A", 0.45)]);
+      if (G.rules.prices2 && !G.rules.milFlex ? G.food[s] >= 1 : milPay(s)) cand.push(["I", unitPref("I", 0.2) - (CREW2 && crewShort > 0 && !threatHome ? 1 : 0)]);
       for (const [k, b] of cand) push(base + b, {kind: "recruit", cls: cls("recruit"), p: v, k});
     }
     if (G.rules.trade && goldWanted(s) && isCorner(v.f, v.r)) { const st = tradeStock(v); if (st.n >= 6) push(6.5 - dangerAt(s, v.f, v.r) * 0.6, {kind: "trade", cls: cls("trade", v), p: v, partner: st.q}); }
@@ -2002,7 +2017,7 @@ function aiOptions(s) {
         else if (b.k !== "K" && wd === 0 && b.st.length < 2 && A >= (b.k === "camp" && !G.rules.towerOnOne ? TOWER_AGE() : 2) && G.wood[s] >= 1 && resOk(s)) push((b.k === "camp" ? 2.6 : 2.4) + thr, {kind: "raise", cls: cls("raise", v), p: v, target: b});
         else if (b.k !== "K" && wd === 0 && A >= 3 && b.st.length >= 2 && !hasGold(b) && G.gold[s] >= 1) push(2.8 + thr, {kind: "gild", cls: cls("gild", v), p: v, target: b});
         if (CR() && (b.k === "camp" || b.k === "B") && !b.cr && wd === 0 && b.st.length >= (b.k === "camp" && G.rules.towerOnOne ? 1 : 2) && A >= (b.k === "camp" ? TOWER_AGE() : 2) && G.wood[s] >= CROWNW(b.k === "B") && G.gold[s] >= CROWNG(b.k === "B"))
-          push((b.k === "B" ? 3.6 + (G.rules.needC && A === 2 ? 4 : 0) : 3.0) + thr, {kind: "crown", cls: cls("crown", v), p: v, target: b});
+          push((b.k === "B" ? 3.6 + (G.rules.needC && A === 2 ? 4 : 0) : 3.0 - (saveFor === "S" && !thr ? 1.5 : 0)) + thr, {kind: "crown", cls: cls("crown", v), p: v, target: b});
       }
     }
     // the barracks trains units straight onto a free square next to it
@@ -2010,10 +2025,10 @@ function aiOptions(s) {
       const sq = adjFree(B).sort((a, b) => cd(a[0], a[1], tc(1 - s).f, tc(1 - s).r) - cd(b[0], b[1], tc(1 - s).f, tc(1 - s).r));
       if (sq.length) {
         const base = 4.4 + (army < 1 + A ? 1 : 0) + (threatHome ? 1 : 0) - (army >= (aggrOn(s) ? 2 + AGG.cap + (2 + AGG.cap) * A : 2 + 2 * A) ? 3 : 0), cand = [];
-        if (A >= 2 && count(s, "S") < TMAX() && trebOk(s)) cand.push(["S", count(s, "S") === 0 ? 1.8 : 0.3]);
-        if (count(s, "C") < 2) cand.push(["C", 0.5]);
-        if (count(s, "A") < 2) cand.push(["A", 0.45]);
-        if (pawns(s) < 8) cand.push(["I", 0.2]);
+        if (A >= 2 && count(s, "S") < TMAX() && trebOk(s)) cand.push(["S", unitPref("S", count(s, "S") === 0 ? 1.8 : 0.3)]);
+        if (count(s, "C") < 2) cand.push(["C", unitPref("C", 0.5)]);
+        if (count(s, "A") < 2) cand.push(["A", unitPref("A", 0.45)]);
+        if (pawns(s) < 8) cand.push(["I", unitPref("I", 0.2)]);
         for (const [k, b] of cand) { const c = DCOST(k, s); if (afford(s, c[0], c[1])) push(base + b, {kind: "recruit", cls: cls("recruit", B), p: B, k, to: sq[0]}); }
       }
     }
