@@ -1851,16 +1851,17 @@ function aiOptions(s) {
   // unit choice: like the civ's unique unit and save food / wood for it and for one siege unit
   const UNIT2 = !(G.__cfg && G.__cfg.noUnit2), eCnt = k => en.filter(q => q.k === k).length;
   const eBld = en.filter(q => isBld(q) && shoots(q)).length, uSlot = civ(s).u ? civ(s).k : null;
+  const LONGB = !(G.__cfg && G.__cfg.noLongb) && civ(s).id === "britons";   // range 3 is worth paying for
   const wantS = UNIT2 && A >= 2 && trebOk(s) && count(s, "S") === 0 && count(s, "S") < TMAX();
   const saveFor = !UNIT2 || (G.__cfg && G.__cfg.noSave) ? null : wantS && !afford(s, UCOST("S", s)[0], UCOST("S", s)[1]) && G.wood[s] >= UCOST("S", s)[1] - 3 ? "S"
-    : uSlot && uSlot !== "I" && uSlot !== "S" && count(s, uSlot) < 2 && !afford(s, UCOST(uSlot, s)[0], UCOST(uSlot, s)[1]) && G.food[s] >= UCOST(uSlot, s)[0] - 2 && !threatHome ? uSlot : null;
+    : uSlot && uSlot !== "I" && uSlot !== "S" && count(s, uSlot) < 2 && !afford(s, UCOST(uSlot, s)[0], UCOST(uSlot, s)[1]) && G.food[s] >= UCOST(uSlot, s)[0] - (LONGB ? 3 : 2) && !threatHome ? uSlot : null;
   const unitPref = (k, b0) => { if (!UNIT2) return b0; let b = b0;
     if (G.__cfg && G.__cfg.counter) {   // counter-picking tested weaker; off by default
     if (k === "A") b += 0.25 * Math.min(3, eCnt("I") + eCnt("V") / 2) + (count(s, "A") === 0 ? 0.5 : 0);
     if (k === "C") b += 0.3 * Math.min(2, eCnt("A") + eCnt("S"));
     if (k === "I") b += 0.25 * Math.min(2, eCnt("C"));
     if (k === "S") b += 0.4 * Math.min(2, eBld); }
-    if (k === uSlot) b += 0.6;
+    if (k === uSlot) b += LONGB ? 1.4 : 0.6;
     if (saveFor && k !== saveFor && !threatHome) b -= 0.9;   // hold the food / wood for the unit we are saving for
     return b; };
   // age up
