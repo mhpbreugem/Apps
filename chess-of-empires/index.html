@@ -943,7 +943,7 @@ const CIVS = {
   britons: {n: "Britons", k: "A", u: ["longbowman", "heavy longbowman", "elite longbowman"], rg: "exactly 3", d: "Longbowman (archer): shoots exactly 3 away in any direction, only from where it stands · moves 1 · costs 4 food."},
   koreans: {n: "Koreans", k: "A", u: ["war wagon", "heavy war wagon", "elite war wagon"], rg: "exactly 2", d: "War wagon (archer): defence 1 · shoots exactly 2 away · moves 1 · costs 4 food."},
   chinese: {n: "Chinese", hide: 1, k: "A", u: ["chu ko nu", "heavy chu ko nu", "elite chu ko nu"], rg: "exactly 2, two bolts", d: "Chu ko nu (archer): one action fires two bolts at two different targets, each exactly 2 away in any direction · moves 1 · costs 4 food."},
-  turks: {n: "Turks", k: "S", u: ["bombard cannon", "bombard cannon", "elite bombard cannon"], rg: "exactly 2", d: "Bombard cannon (siege): crush 1, ignores all defence · fires exactly 2 away in any direction, no setup · moves 1 · costs 6 wood."}};
+  turks: {n: "Turks", k: "S", u: ["bombard cannon", "bombard cannon", "elite bombard cannon"], rg: "exactly 2", d: "Bombard cannon (siege): crush 1, ignores all defence · fires exactly 2 away in any direction, no setup · defence 0 · moves 2 · costs 6 wood."}};
 Object.keys(CIVS).forEach(k => { CIVS[k].id = k; });
 // one line under the name: what the piece is for, in a few words
 function oneLine(p, rng) {
@@ -974,7 +974,7 @@ const ONE = {
   mongols: "Jumps up to 3 and shoots exactly 2 away in a line, only from where it stands.",
   koreans: "Defence 1: every hit on it loses 1. Shoots exactly 2 away, moves 1, costs 4 food.",
   chinese: "Fires two bolts at two different targets, each exactly 2 away. Moves 1, costs 4 food.",
-  turks: "Crush: ignores all defence. Fires exactly 2 away in any direction, no setup. Costs 6 wood.",
+  turks: "Crush: ignores all defence. Fires exactly 2 away in any direction, no setup. Defence 0, moves 2. Costs 6 wood.",
   V: "Gathers, builds and repairs.", I: "Walks up to 2, then hits the square next to it.", A: "Shoots exactly 2 away without moving first.",
   C: "Jumps up to 3, then hits the square next to it.", S: "Crush: fires exactly 3 away, in any direction, no setup, ignoring all defence. Needs a standing castle. Costs 6 wood."};
 const compass = (c, orth) => { let l = ""; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, dg = i % 2, on = !(orth && dg); l += `<line x1="8" y1="8" x2="${(8 + 6.5 * Math.cos(a)).toFixed(1)}" y2="${(8 + 6.5 * Math.sin(a)).toFixed(1)}" stroke="${on ? c : "#cbb98f"}" stroke-width="${on ? 1.6 : 1}" stroke-linecap="round"/>`; } return `<svg class="cmp" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">${l}<circle cx="8" cy="8" r="1.6" fill="${c}"/></svg>`; };
@@ -1487,7 +1487,7 @@ function pieceActions(p) {
 }
 // archers shoot only from where they stand; other units may move first
 // speed of a piece, and the squares it can reach in n steps (scout cavalry jumps)
-const speedOf = p => { const x = uid(p); return x === "saracens" ? 4 : x === "mongols" ? 3 : (x === "teutons" || x === "persians" || x === "koreans" || x === "chinese" || x === "britons") ? 1 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0; };
+const speedOf = p => { const x = uid(p); return x === "turks" ? 2 : x === "saracens" ? 4 : x === "mongols" ? 3 : (x === "teutons" || x === "persians" || x === "koreans" || x === "chinese" || x === "britons") ? 1 : p.k === "C" ? 3 : p.k === "S" ? (G.rules.siege2 ? 2 : 1) : (p.k === "V" || p.k === "I" || p.k === "A") ? 2 : 0; };
 function movesN(p, n) {
   if (n <= 0) return [];
   if (canJump(p)) {
@@ -4287,7 +4287,7 @@ const RANGE_SPEC = {
   mongols: {mv: d => d <= 3, st: (d, l) => d === 2 && l, jump: 1},
   koreans: {mv: d => d <= 1, st: d => d === 2},
   chinese: {mv: d => d <= 1, st: d => d === 2},
-  turks: {mv: d => d === 1, st: d => d === 2}};
+  turks: {mv: d => d <= 2, st: d => d === 2}};
 function rangePic(sp, moveOnly) {
   const N = 4, C = 9, z = 16, W = C * z;
   let g = "";
@@ -4330,7 +4330,7 @@ function unitSheet(s) {
     mongols: ["Mangudai", "2 · 3 · 3", "1", "0", "2", 3, "Jumps up to 3, shoots only where it stands."],
     koreans: ["War wagon", "2 · 3 · 3", "1", "1", "2", 1, "Defence 1: every hit on it loses 1. Moves 1."],
     chinese: ["Chu ko nu", "2 · 3 · 3", "1", "0", "2", 1, "One action fires at two different targets, exactly 2 away. 4 food."],
-    turks: ["Bombard cannon", "2 · 3 · 3", "1", "0", "2", 1, "Crush: ignores all defence. Fires exactly 2 away, no setup. Needs a castle. 6 wood."]};
+    turks: ["Bombard cannon", "2 · 3 · 3", "1", "0", "2", 2, "Crush: ignores all defence. Fires exactly 2 away, no setup. Defence 0, moves 2. Needs a castle. 6 wood."]};
   const slot = {teutons: "I", aztecs: "I", huns: "C", saracens: "C", persians: "C", britons: "A", mongols: "A", koreans: "A", chinese: "A", turks: "S"};
   for (const id of order) { const t = TX[id], c = CIVS[id]; if (!t) continue;
     h += row(`${t[0]} <em class="ucn">${c.n}</em>`, GLY[slot[id]], "", costStr(DCOST(slot[id], id)), t[1].split(" · ")[0] + " · 3 heavy", t[2] + " · 2 elite", t[3], t[4], t[5], t[6], RANGE_SPEC[id], id); }
