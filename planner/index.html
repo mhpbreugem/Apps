@@ -534,7 +534,7 @@ const f1=v=>v.toFixed(1),pie=(x,y,r,n)=>n>=4?'<circle cx="'+f1(x)+'" cy="'+f1(y)
 const qdot=(x,y,r,c,cap,dn,ovc)=>(ovc?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r-.6)+'" fill="none" stroke="'+ovc+'" stroke-width="1.2"/>':cap>0?pie(x,y,r,cap)+' fill="'+c+'" fill-opacity=".3"/>':'')+(dn>0?pie(x,y,r,Math.min(dn,4))+' fill="'+(ovc||c)+'"/>':'');
 function renderTd(){const el=$('td');if(!vis(el))return;const dt=D(TODAY),sl=slots(TODAY),wk=sl.filter(s=>s.k==='t'),dn=sum(wk,s=>s.qd)/4,nx=wk.find(s=>s.qd<4),cz=crazy(TODAY);
 let h='<div class="tdl"><b>'+WDL[dt.getDay()]+' '+dt.getDate()+' '+MON[dt.getMonth()]+'</b><small>'+(!isWd(TODAY)?'weekend':cz?'crazy day':wk.length?fh(dn)+' of '+wk.length+' h done':'nothing placed')+'</small></div><div class="tds">'+sl.map((s,i)=>slotBtn(s,TODAY,i)).join('')+'</div>';
-if(nx){const it=nx.it,st=it.t&&it.t.steps.find(x=>!x.d);h+='<button class="tdn" data-s="'+TODAY+':'+sl.indexOf(nx)+'"><small>Next</small><b>'+esc(it.name)+'</b>'+(st?'<small>'+esc(st.n)+'</small>':'')+'</button>'}
+if(false){const it=nx.it,st=it.t&&it.t.steps.find(x=>!x.d);h+='<button class="tdn" data-s="'+TODAY+':'+sl.indexOf(nx)+'"><small>Next</small><b>'+esc(it.name)+'</b>'+(st?'<small>'+esc(st.n)+'</small>':'')+'</button>'}
 else if(isWd(TODAY)&&!cz&&!wk.length)h+='<button class="btn pri" data-ac="auto">Fill for me</button>';el.innerHTML=h}
 if(!S.B.hobby)S.B.hobby=JSON.parse(JSON.stringify(BUD0.hobby));
 if(!S.B.ext)S.B.ext=JSON.parse(JSON.stringify(BUD0.ext));
