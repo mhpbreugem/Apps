@@ -203,8 +203,8 @@ const TEACH={};for(let d=0;d<DAYS;d++){const dt=D(d);if(dt.getDay()===2&&dt>=new
 [1,2,3,4,5,8,9,10,11].forEach(d=>TEACH['2027-02-'+String(d).padStart(2,'0')]=8);
 const KIND={focus:['Focused',40],regular:['Regular',60]},qmin=k=>KIND[k][1]/4,book=(real,k)=>Math.max(.25,Math.round(real*60/KIND[k][1]*4)/4),realH=t=>t.est*KIND[t.k][1]/60;
 const FR=['','¼','½','¾'],fh=h=>{const x=Math.round(h*4),w=Math.floor(x/4),f=FR[x%4];return(w||!f?w:'')+f+' h'},fm=m=>{m=Math.round(m);return m<60?m+' min':Math.floor(m/60)+' h'+(m%60?' '+m%60+' min':'')};
-const PAL=['#7DB8F7','#B3A6F5','#63D2DA','#F593AE'],TCH='#EDB55C',BUFC='#F5A65B';
-const BUD0={chair:{name:'Chair',h:4,c:'#D99BEF',k:'focus'},persian:{name:'Language',h:1,c:'#86DA84',k:'focus'},sport:{name:'Sport',h:1,c:'#CFDD63',k:'focus'},home:{name:'Home job',h:0,c:'#E8A0C0',k:'regular'},hobby:{name:'Hobbies',h:0,c:'#BA7517',k:'regular'},ext:{name:'External teaching',h:0,c:'#C4771F',k:'regular'}};
+const PAL=['#7DB8F7','#B3A6F5','#63D2DA','#F593AE'],TCH='#E8683C',BUFC='#F5A65B';
+const BUD0={chair:{name:'Chair',h:4,c:'#4A90E2',k:'focus'},persian:{name:'Language',h:1,c:'#9A6B3E',k:'focus'},sport:{name:'Sport',h:1,c:'#CFDD63',k:'focus'},home:{name:'Home job',h:0,c:'#E8A0C0',k:'regular'},hobby:{name:'Hobbies',h:0,c:'#BA7517',k:'regular'},ext:{name:'External teaching',h:0,c:'#B8431F',k:'regular'}};
 // sample plan. Stage: [name, planned, tasks 'name:real hours:f|r:steps' or rough booked hours]
 const SPEC=[
 ['Paper A revision','research','2026-10-19','2027-03-31',[
@@ -545,8 +545,8 @@ function renderTd(){const el=$('td');if(!vis(el))return;const mon=monday(TODAY);
 for(let d=mon;d<mon+5;d++){const dt=D(d),sl=slots(d),wk=sl.filter(x=>x.k==='t'),cz=crazy(d);if(wk.length)any=true;
 h+='<div class="tdd'+(d===TODAY?' tdnow':'')+'"><div class="tdl"><b>'+WD[dt.getDay()]+' '+dt.getDate()+'</b><small>'+(cz?'crazy day':wk.length?fh(sum(wk,x=>x.qd)/4)+' of '+wk.length+' h':'')+'</small></div><div class="tds">'+sl.map((x,i)=>slotBtn(x,d,i)).join('')+'</div></div>'}
 if(!any)h+='<button class="btn pri" data-ac="auto">Fill for me</button>';el.innerHTML=h}
-if(!S.B.ext)S.B.ext=JSON.parse(JSON.stringify(BUD0.ext));S.B.ext.c='#C4771F';
-const OBUF='#8F5BA8',FREE='#5F5E5A',RES='#7DB8F7';const XC={sport:'#D4537E',home:'#639922',over:'#BA7517'};
+if(!S.B.ext)S.B.ext=JSON.parse(JSON.stringify(BUD0.ext));S.B.ext.c='#B8431F';S.B.chair.c='#4A90E2';S.B.persian.c='#9A6B3E';
+const OBUF='#2B5FA8',FREE='#5F5E5A',RES='#5CB85C',PLN='#F2D04B';const XC={sport:'#D4537E',home:'#B58CD6',over:'#BA7517'};
 const dotOf=(x,y,r,c,ring,o)=>(o?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(Math.max(r*1.8,9))+'" fill="transparent" data-o="'+o+'"/>':'')+'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'"'+(ring?' fill="none" stroke="'+c+'" stroke-width="1.4"':' fill="'+c+'"')+'/>';
 const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 9px 2px 0"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;'+(ring?'border:1.5px solid '+c:'background:'+c)+'"></i>'+esc(n)+'</span>';
 // one column per week. Top 24 slots are planned hours in a fixed category order; the 6 extra slots below a divider hold sport, home, hobbies, then overwork rings.
@@ -554,7 +554,7 @@ function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 const flip=true;
 const pG=S.goals.filter(g=>!g.auto);
 const chip=(c,ab,nm,ring,c2)=>'<span title="'+esc(nm)+'" data-o="pl" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;flex:none;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+(c2?'linear-gradient(135deg,'+c+' 50%,'+c2+' 50%)':c)+';color:#111')+'">'+ab+'</span>';
-const legend=chip(RES,'Res','Research')+chip(TCH,'Tch','Teaching and external teaching',0,S.B.ext.c)+chip(S.B.chair.c,'Chr','Chair and service',0,OBUF)+chip(XC.over,'Xtr','Extra',1)+chip(XC.home,'Hom','Home')+chip(XC.sport,'Spt','Sport')+chip(S.B.persian.c,'Per','language');
+const legend=chip(RES,'Res','Research')+chip(PLN,'Pln','Planning')+chip(TCH,'Tch','Teaching and external teaching',0,S.B.ext.c)+chip(S.B.chair.c,'Chr','Chair, admin and meetings',0,OBUF)+chip(XC.over,'Xtr','Extra',1)+chip(XC.home,'Hom','Home')+chip(XC.sport,'Spt','Sport')+chip(S.B.persian.c,'Per','language');
 const LG='<div id="lgd" style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 6px">'+legend+'</div>';
 el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=20,X=5,R=P+X;
@@ -566,9 +566,9 @@ const catDots=(c,o,done,plan)=>{const n=Math.max(done,plan),a=[];for(let j=0;j<n
 const hrs=q=>Math.ceil(q/4-1e-9);
 const WK=weeks.map((w,i)=>{
  // research: completed = logged hours on its tasks; planned = hours booked in the schedule that week
- let rq=0,rp=0;pG.forEach(g=>g.tasks.forEach(t=>{rq+=wkQ(w,t.id)}));
- for(let d=w;d<w+7;d++)slots(d).forEach(x=>{if(x.k==='t'&&x.it&&!x.it.b)rp++});
- const pl=catDots(RES,'pl',hrs(rq),rp);
+ let rq=0,rp=0,gq=0,gp=0;pG.forEach(g=>g.tasks.forEach(t=>{if(t.gate)gq+=wkQ(w,t.id);else rq+=wkQ(w,t.id)}));
+ for(let d=w;d<w+7;d++)slots(d).forEach(x=>{if(x.k==='t'&&x.it&&!x.it.b){if(x.it.gate)gp++;else rp++}});
+ const pl=catDots(RES,'pl',hrs(rq),rp);pl.push(...catDots(PLN,'pl',hrs(gq),gp));
  // teaching: completed by default
  let th=0;for(let d=w;d<w+5;d++)th+=TEACH[fromIdx(d)]||0;
  pl.push(...catDots(TCH,'teach:'+w,th,th));
@@ -591,7 +591,7 @@ const ti=(monday(TODAY)-A0())/7;
 const MA='#1f2322',MB='#272b2a';const mshade=(w,x,y,wd,ht)=>'<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(wd)+'" height="'+f1(ht)+'" fill="'+(D(w).getMonth()%2?MA:MB)+'"/>';
 const place=(flip?(()=>{
   // weeks run down the page, 30 slots run across; extra band after a gap
-  const LB=40,PR=8,GAP=6,TOP=8,BOT=6,aw=(W-LB-PR-GAP)/(P+X),av=(Hh-TOP-BOT)/NW,rowH=Math.min(av,aw*1.6),cw=Math.min(aw,rowH*1.6),OX=(W-LB-PR-GAP-cw*(P+X))/2,r=Math.max(2,Math.min(cw,rowH)*.43);
+  const LB=40,PR=8,GAP=6,TOP=8,BOT=6,aw=(W-LB-PR-GAP)/(P+X),av=(Hh-TOP-BOT)/NW,rowH=Math.min(av,aw*1.6),cw=Math.min(aw,rowH*2.6),OX=(W-LB-PR-GAP-cw*(P+X))/2,r=Math.max(2,Math.min(cw,rowH)*.43);
   const px=k=>LB+OX+k*cw+cw/2+(k>=P?GAP:0),py=i=>TOP+i*rowH+rowH/2,gh=TOP+NW*rowH+BOT;
   return{px,py,r,gh,
    bg(){let o=weeks.map((w,i)=>mshade(w,LB,TOP+i*rowH,W-LB-PR,rowH)).join('');if(ti>=0&&ti<NW)o+='<rect x="'+LB+'" y="'+f1(TOP+ti*rowH)+'" width="'+f1(W-LB-PR)+'" height="'+f1(rowH)+'" fill="var(--acc)" fill-opacity=".08"/>';
