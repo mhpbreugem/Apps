@@ -183,6 +183,17 @@ h2,h3{font-family:var(--fd);font-weight:var(--fdw);letter-spacing:var(--fdl)}h3{
 .tdd .tdl{width:auto;flex-direction:row;gap:6px;align-items:baseline}.tds{gap:3px}
 @media (orientation:portrait){#td{grid-template-columns:1fr;--cs:30px;gap:2px}.tdd{flex-direction:row;align-items:center;gap:8px}.tdd .tdl{width:78px;flex:none;flex-direction:column;gap:0}}
 
+#td{grid-template-columns:1fr 1fr;gap:4px 12px;padding:2px 10px 4px;--cs:clamp(16px,calc((100vw - 20px - 12px - 2*34px)/12 - 3px),24px)}
+.tdw{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tdd{flex-direction:row;align-items:center;gap:6px;padding:1px 3px}
+.tdd .tdl{width:34px;flex:none;flex-direction:column;gap:0;line-height:1.05}.tdd .tdl small{display:none}
+.tds{gap:3px}
+@media (orientation:landscape){#td{grid-template-columns:1fr;--cs:clamp(12px,calc((100vw - 20px - 4*10px)/30 - 3px),22px)}
+.tdw{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px 10px}.tdd{flex-direction:column;align-items:flex-start;gap:2px}.tdd .tdl{width:auto;flex-direction:row;gap:6px;align-items:baseline}.tdd .tdl small{display:inline}}
+.tdd .tdl{width:36px}.tdd .tdl b{font-size:.8em;white-space:nowrap}
+#td{--cs:clamp(15px,calc((100vw - 20px - 12px - 2*36px)/12 - 3px),24px)}
+@media (orientation:landscape){.tdd .tdl{width:auto}.tdd .tdl b{font-size:1.05em}}
+
 </style></head><body><div id="ld" role="button" tabindex="0" aria-label="Tap to open"><span>tap to open</span></div><div id="app">
 <div id="top"><div class="nav"><button data-pg="dots" class="on">Dots</button><button data-pg="plan">Plan</button><button data-pg="week">Week</button><button data-pg="agent">Haiku</button></div><span id="sm"></span><span class="sp"></span><button class="mic" id="qmic" data-mic="ta" aria-label="Talk to Haiku"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div><div class="page on" id="p-dots"><div id="td"></div><div id="cv"></div></div><div class="page" id="p-plan"><div class="pl"><div id="tree" class="tree"></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div><div class="page" id="p-week"><div id="wk" class="wkp"></div></div><div class="page" id="p-agent"><div class="hk"><div class="chat"><div class="chh"><b>Haiku</b><span>Works only from your plan.</span><span class="sp"></span><button id="eff" class="btn">Depth: medium</button><button id="keyb" class="btn" style="display:none">API key</button></div><div id="keyrow" style="display:none"><input id="keyi" type="password" placeholder="Anthropic API key, kept in this browser" aria-label="API key"><button id="keys" class="btn">Save</button></div><div id="msgs"></div><div id="props"></div><div class="chips" id="chips"></div><div class="inp"><textarea id="ta" placeholder="Ask or tell Haiku" rows="1" aria-label="Message"></textarea><button class="mic" data-mic="ta" aria-label="Dictate"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn pri" id="send">Send</button></div></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div>
 </div>
@@ -542,8 +553,8 @@ let SPAN=182,cur='dots';const A0=()=>monday(TODAY)-14;
 const f1=v=>v.toFixed(1),pie=(x,y,r,n)=>n>=4?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'"':'<path d="M'+f1(x)+' '+f1(y)+'V'+f1(y-r)+'A'+f1(r)+' '+f1(r)+' 0 '+(n>2?1:0)+' 1 '+f1(x+r*Math.sin(n*Math.PI/2))+' '+f1(y-r*Math.cos(n*Math.PI/2))+'Z"';
 const qdot=(x,y,r,c,cap,dn,ovc)=>(ovc?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r-.6)+'" fill="none" stroke="'+ovc+'" stroke-width="1.2"/>':cap>0?pie(x,y,r,cap)+' fill="'+c+'" fill-opacity=".3"/>':'')+(dn>0?pie(x,y,r,Math.min(dn,4))+' fill="'+(ovc||c)+'"/>':'');
 function renderTd(){const el=$('td');if(!vis(el))return;const mon=monday(TODAY);let h='',any=false;
-for(let d=mon;d<mon+5;d++){const dt=D(d),sl=slots(d),wk=sl.filter(x=>x.k==='t'),cz=crazy(d);if(wk.length)any=true;
-h+='<div class="tdd'+(d===TODAY?' tdnow':'')+'"><div class="tdl"><b>'+WD[dt.getDay()]+' '+dt.getDate()+'</b><small>'+(cz?'crazy day':wk.length?fh(sum(wk,x=>x.qd)/4)+' of '+wk.length+' h':'')+'</small></div><div class="tds">'+sl.map((x,i)=>slotBtn(x,d,i)).join('')+'</div></div>'}
+for(let k=0;k<2;k++){h+='<div class="tdw">';for(let d=mon+7*k;d<mon+7*k+5;d++){const dt=D(d),sl=slots(d),wk=sl.filter(x=>x.k==='t'),cz=crazy(d);if(wk.length)any=true;
+h+='<div class="tdd'+(d===TODAY?' tdnow':'')+'"><div class="tdl"><b>'+WD[dt.getDay()]+' '+dt.getDate()+'</b><small>'+(cz?'crazy':wk.length?fh(sum(wk,x=>x.qd)/4)+' of '+wk.length+' h':'')+'</small></div><div class="tds">'+sl.map((x,i)=>slotBtn(x,d,i)).join('')+'</div></div>'}h+='</div>'}
 if(!any)h+='<button class="btn pri" data-ac="auto">Fill for me</button>';el.innerHTML=h}
 if(!S.B.ext)S.B.ext=JSON.parse(JSON.stringify(BUD0.ext));S.B.ext.c='#B8431F';S.B.chair.c='#4A90E2';S.B.persian.c='#9A6B3E';
 const OBUF='#2B5FA8',FREE='#5F5E5A',RES='#5CB85C',PLN='#F2D04B';const XC={sport:'#D4537E',home:'#B58CD6',over:'#BA7517'};
@@ -553,8 +564,8 @@ const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:4
 function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 const flip=true;
 const pG=S.goals.filter(g=>!g.auto);
-const chip=(c,ab,nm,ring,c2)=>'<span title="'+esc(nm)+'" data-o="pl" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;flex:none;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+(c2?'linear-gradient(135deg,'+c+' 50%,'+c2+' 50%)':c)+';color:#111')+'">'+ab+'</span>';
-const legend=chip(RES,'Res','Research')+chip(PLN,'Pln','Planning')+chip(TCH,'Tch','Teaching and external teaching',0,S.B.ext.c)+chip(S.B.chair.c,'Chr','Chair, admin and meetings',0,OBUF)+chip(XC.over,'Xtr','Extra',1)+chip(XC.home,'Hom','Home')+chip(XC.sport,'Spt','Sport')+chip(S.B.persian.c,'Per','language');
+const chip=(c,ab,nm,ring,c2,o,o2)=>'<span title="'+esc(nm)+'" data-o="'+(o||'pl')+'"'+(o2?' data-o2="'+o2+'"':'')+' style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;flex:none;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+(c2?'linear-gradient(135deg,'+c+' 50%,'+c2+' 50%)':c)+';color:#111')+'">'+ab+'</span>';
+const mw=monday(TODAY),legend=chip(RES,'Res','Research',0,0,'pl')+chip(PLN,'Pln','Planning',0,0,'pl')+chip(TCH,'Tch','Teaching and external teaching',0,S.B.ext.c,'teach:'+mw,'b:ext:'+mw)+chip(S.B.chair.c,'Chr','Chair, admin and meetings',0,OBUF,'b:chair:'+mw,'u:'+mw)+chip(XC.over,'Xtr','Extra',1,0,'u:'+mw)+chip(XC.home,'Hom','Home',0,0,'b:home:'+mw)+chip(XC.sport,'Spt','Sport',0,0,'b:sport:'+mw)+chip(S.B.persian.c,'Per','language',0,0,'b:persian:'+mw);
 const LG='<div id="lgd" style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 6px">'+legend+'</div>';
 el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=20,X=5,R=P+X;
@@ -617,7 +628,7 @@ WK.forEach(wk=>{
 });
 el.innerHTML=LG+'<svg width="'+W+'" height="'+Math.min(Hh,Math.ceil(place.gh||Hh))+'" role="img" aria-label="Week overview">'+s+'</svg>';}
 H.dots=()=>renderDots();
-on('cv','click',e=>{const a=e.target.closest('[data-o]');if(!a)return;const[k,x,y]=a.dataset.o.split(':');
+on('cv','click',e=>{const a=e.target.closest('[data-o]');if(!a)return;let od=a.dataset.o;if(a.dataset.o2){const r=a.getBoundingClientRect();if(e.clientX>r.left+r.width/2)od=a.dataset.o2}const[k,x,y]=od.split(':');
 if(k==='pl')page('plan');else if(k==='t')openCard({t:'item',id:x});else if(k==='gate')openCard({t:'gate',g:x,si:+y});else if(k==='b')openCard({t:'bud',b:x,w:y==null?monday(TODAY):+y});else if(k==='u')openCard({t:'buf',w:x==null?monday(TODAY):+x});else if(k==='teach')openCard({t:'teach',w:x==null?monday(TODAY):+x});else if(k==='g')H.openPlan(x)});
 on('td','click',e=>{const b=e.target.closest('[data-s],[data-ac]');if(!b)return;if(b.dataset.ac){autoPlace();refresh();return}const[d,i]=b.dataset.s.split(':').map(Number),s=slots(d)[i];if(s.k==='t')openCard({t:'item',id:s.id,s:s.key});else if(s.k==='f')openCard({t:'free',d,i});else openCard({t:'day',d})});
 // ---------- pages
