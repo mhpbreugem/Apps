@@ -226,6 +226,14 @@ h2,h3{font-family:var(--fd);font-weight:var(--fdw);letter-spacing:var(--fdl)}h3{
 .sl.xp{display:grid;place-items:center;background:transparent;border:1.5px dashed var(--mute);color:var(--mute);font-size:1.3em;width:var(--cs);height:var(--cs);border-radius:50%;padding:0}
 @media (orientation:landscape){#td{--cs:clamp(14px,calc((100vw - 20px - 4*10px)/35 - 4px),26px)}}
 
+#ovb{position:fixed;inset:0;z-index:38;display:none;background:rgba(0,0,0,.35)}#ovb.on{display:block}
+#p-agent.ov{display:flex;position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));max-height:64vh;z-index:40;background:var(--raise);border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.55);overflow:hidden;flex:none}
+#p-agent.ov .hk{display:flex;flex-direction:column;min-height:0;flex:1;padding:0;gap:0}#p-agent.ov aside,#p-agent.ov #eff,#p-agent.ov .chh span{display:none}
+#p-agent.ov .chat{min-height:0;flex:1;display:flex;flex-direction:column;padding:8px 10px 10px}
+#ovx{display:none}#p-agent.ov #ovx{display:inline-flex;margin-left:auto}
+
+#p-agent.ov .chips{display:none}#p-agent.ov #msgs{min-height:0}#p-agent.ov .msg{max-width:88%}#p-agent.ov .msg.u{align-self:flex-end}
+
 </style></head><body><div id="ld" role="button" tabindex="0" aria-label="Tap to open"><span>tap to open</span></div><div id="app">
 <div id="top"><button id="bk" class="btn" aria-label="Back to the main page">‹ Back</button><div class="nav"><button data-pg="plan">Plan</button><button data-pg="week">Week</button><button data-pg="agent">Haiku</button></div><span id="sm"></span><span class="sp"></span><button class="mic" id="qmic" data-mic="ta" aria-label="Talk to Haiku"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div><div class="page on" id="p-dots"><div id="td"></div><div id="cv"></div></div><div class="page" id="p-plan"><div class="pl"><div id="tree" class="tree"></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div><div class="page" id="p-week"><div id="wk" class="wkp"></div></div><div class="page" id="p-agent"><div class="hk"><div class="chat"><div class="chh"><b>Haiku</b><span>Works only from your plan.</span><span class="sp"></span><button id="eff" class="btn">Depth: medium</button><button id="keyb" class="btn" style="display:none">API key</button></div><div id="keyrow" style="display:none"><input id="keyi" type="password" placeholder="Anthropic API key, kept in this browser" aria-label="API key"><button id="keys" class="btn">Save</button></div><div id="msgs"></div><div id="props"></div><div class="chips" id="chips"></div><div class="inp"><textarea id="ta" placeholder="Ask or tell Haiku" rows="1" aria-label="Message"></textarea><button class="mic" data-mic="ta" aria-label="Dictate"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn pri" id="send">Send</button></div></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div>
 </div>
@@ -547,7 +555,7 @@ else if(w==='h')(H.goHaiku||ask)('Clear the gate of stage "'+s.name+'" (stage_in
 else refresh()}
 // ---------- chat
 const CH=['Plan my fortnight','Which gate is next?','Review my week','Will it fit?'];
-function renderChat(){const m=$('msgs');if(!m)return;if(!msgs.length)msgs=[{r:'a',t:"I work only from your plan and from what you tell me. I add no ideas of my own: I test your numbers, ask when something is missing and propose changes for you to approve.\n\nTo break a stage into pieces, tap its square and choose Plan now."}];m.innerHTML=msgs.map(x=>'<div class="msg '+(x.r==='u'?'u':'')+(x.pend?' pend':'')+'">'+md(x.t||'Thinking…')+'</div>').join('');m.scrollTop=m.scrollHeight;const e=$('eff');if(e)e.textContent='Depth: '+(S.eff||'medium')}
+function renderChat(){const m=$('msgs');if(!m)return;if(!msgs.length&&!$('p-agent').classList.contains('ov'))msgs=[{r:'a',w:1,t:"I work only from your plan and from what you tell me. I add no ideas of my own: I test your numbers, ask when something is missing and propose changes for you to approve.\n\nTo break a stage into pieces, tap its square and choose Plan now."}];const ov=$('p-agent').classList.contains('ov');m.innerHTML=msgs.filter(x=>!(ov&&x.w&&msgs.length>1)).map(x=>'<div class="msg '+(x.r==='u'?'u':'')+(x.pend?' pend':'')+'">'+md(x.t||'Thinking…')+'</div>').join('');m.scrollTop=m.scrollHeight;const e=$('eff');if(e)e.textContent='Depth: '+(S.eff||'medium')}
 function renderProps(){const el=$('props');if(!el)return;el.innerHTML=props.filter(p=>!p.done).map(p=>'<div class="pr"><div class="t">'+esc(describe(p))+'</div><div class="w">'+esc(p.reason||'')+'</div><div class="a"><button class="btn pri" data-ap="'+p.id+'">Apply</button><button class="btn" data-dm="'+p.id+'">Dismiss</button></div>'+detail(p)+'</div>').join('')}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-ap],[data-dm]');if(!a)return;const p=props.find(x=>x.id==(a.dataset.ap||a.dataset.dm));if(!p||p.done)return;
 if(a.dataset.ap){try{validate(p);const t=describe(p);applyP(p);p.done='ok';msgs.push({r:'a',t:'Applied: '+t+'.'})}catch(err){p.done='no';msgs.push({r:'a',t:'That no longer fits ('+err.message+'), so nothing changed.'})}}else p.done='no';renderChat();refresh()});
@@ -681,7 +689,7 @@ if(key){if(BNAME[key]){const nw=Date.now();if(key===lastK&&nw-lastT<420&&key!=='
 if(k==='wk'){PW=clamp(Math.round((+x-monday(TODAY))/7),PWMIN,PWMAX);renderTd();renderDots();return}if(k==='pl')page('plan');else if(k==='t')openCard({t:'item',id:x});else if(k==='gate')openCard({t:'gate',g:x,si:+y});else if(k==='b')openCard({t:'bud',b:x,w:y==null?monday(TODAY):+y});else if(k==='u')openCard({t:'buf',w:x==null?monday(TODAY):+x});else if(k==='teach')openCard({t:'teach',w:x==null?monday(TODAY):+x});else if(k==='g')H.openPlan(x)});
 on('td','click',e=>{const xp=e.target.closest('[data-xp],[data-xm]');if(xp){const d=+(xp.dataset.xp||xp.dataset.xm),k=fromIdx(d);S.xs=S.xs||{};if(xp.dataset.xp)S.xs[k]=Math.min(6,(S.xs[k]||0)+1);else{const n=S.xs[k]||0;if(n>0){const a=S.al[k];const i=LIM+n-1;if(a&&a[i]){const q=slotQ(k+'#'+i);if(q)unlogQ(a[i],q,k+'#'+i);a[i]=null}S.xs[k]=n-1}}dirty();refresh();return}const pw=e.target.closest('[data-pw]');if(pw){if(pw.disabled)return;PW=pw.dataset.pw==='0'?0:clamp(PW+ +pw.dataset.pw,PWMIN,PWMAX);renderTd();renderDots();return}const b=e.target.closest('[data-s],[data-ac]');if(!b)return;if(b.dataset.ac){autoPlace();refresh();return}const[d,i]=b.dataset.s.split(':').map(Number),s=slots(d)[i];if(BR==='erase'){if(s.k==='t'){const n=slotQ(s.key);if(n)unlogQ(s.id,n,s.key);setSlot(d,i,null);dirty();refresh()}return}if(BR&&s.k==='f'){const id=brushItem(BR);if(id){setSlot(d,i,id);dirty();refresh();return}}if(s.k==='t'&&d<=TODAY&&s.qd<4){logQ(s.id,1,s.key,d);refresh();return}if(s.k==='t')openCard({t:'item',id:s.id,s:s.key});else if(s.k==='f')openCard({t:'free',d,i});else openCard({t:'day',d})});
 // ---------- pages
-function page(n){cur=n;$('app').dataset.pg=n;document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+n));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.pg===n));refresh();if(n==='agent')renderChat()}
+function page(n){cur=n;ovOff();$('app').dataset.pg=n;document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+n));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.pg===n));refresh();if(n==='agent')renderChat()}
 document.querySelector('.nav').onclick=e=>{const b=e.target.closest('button');if(b)page(b.dataset.pg)};
 H.goHaiku=(t,e)=>{closeCard();page('agent');ask(t,e)};
 H.openPlan=(g,si,tid)=>{ST.open[g]=1;if(si!=null)ST.open[g+'/'+si]=1;if(tid)ST.sel=tid;page('plan');const el=$('tree'),x=el.querySelector(tid?'[data-tt="'+tid+'"]':si!=null?'[data-ts="'+g+'/'+si+'"]':'[data-tg="'+g+'"]');if(x)el.scrollTop=Math.max(0,x.offsetTop-el.offsetTop-40)};
@@ -692,7 +700,7 @@ if(S.fresh){delete S.fresh;autoPlace()}if(S.tm&&S.tm.end<=Date.now()&&!CD)CD={t:
 
 ;(function(){var l=document.getElementById('ld');if(!l)return;var open=function(){l.classList.add('gone');try{localStorage.setItem('planner-fs','1')}catch(e){}var r=document.documentElement;var rq=r.requestFullscreen||r.webkitRequestFullscreen;if(rq&&!(document.fullscreenElement||document.webkitFullscreenElement)){try{var p=rq.call(r);p&&p.catch&&p.catch(function(){})}catch(e){}}};l.addEventListener('click',open);l.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}})})();
 
-;(function(){var q=document.getElementById('qmic');if(!q)return;q.addEventListener('click',function(){if(cur!=='agent')page('agent')});
+;(function(){var q=document.getElementById('qmic');if(!q)return;q.addEventListener('click',function(){if(cur!=='agent')ovOn()});
 new MutationObserver(function(){if(!q.classList.contains('rec')&&q._was){q._was=0;var ta=$('ta');if(ta&&ta.value.trim())$('send').click()}else if(q.classList.contains('rec'))q._was=1}).observe(q,{attributes:true,attributeFilter:['class']})})();
 ;(function(){var c=document.getElementById('cv');if(!c||!window.ResizeObserver)return;var lw=0,lh=0;new ResizeObserver(function(){var w=c.clientWidth,h=c.clientHeight;if(w===lw&&h===lh)return;lw=w;lh=h;renderDots()}).observe(c)})();
 
@@ -717,6 +725,10 @@ t.addEventListener('click',function(e){if(lp){lp=false;e.stopImmediatePropagatio
 t.addEventListener('contextmenu',function(e){e.preventDefault()})})();
 
 ;(function(){var a=document.getElementById('app');a.dataset.pg=cur;var b=document.getElementById('bk');if(b)b.addEventListener('click',function(){page('dots')})})();
+
+function ovOn(){var a=$('p-agent');if(!a)return;a.classList.add('ov');var b=$('ovb');if(!b){b=document.createElement('div');b.id='ovb';b.addEventListener('click',ovOff);document.body.appendChild(b)}b.className='on';
+var h=a.querySelector('.chh');if(h&&!$('ovx')){var x=document.createElement('button');x.id='ovx';x.className='btn';x.textContent='Close';x.addEventListener('click',ovOff);h.appendChild(x)}renderChat();renderProps()}
+function ovOff(){var a=$('p-agent');if(a)a.classList.remove('ov');var b=$('ovb');if(b)b.className=''}
 
 })();
 </script></body></html>
