@@ -195,7 +195,7 @@ const TEACH={};for(let d=0;d<DAYS;d++){const dt=D(d);if(dt.getDay()===2&&dt>=new
 const KIND={focus:['Focused',40],regular:['Regular',60]},qmin=k=>KIND[k][1]/4,book=(real,k)=>Math.max(.25,Math.round(real*60/KIND[k][1]*4)/4),realH=t=>t.est*KIND[t.k][1]/60;
 const FR=['','¼','½','¾'],fh=h=>{const x=Math.round(h*4),w=Math.floor(x/4),f=FR[x%4];return(w||!f?w:'')+f+' h'},fm=m=>{m=Math.round(m);return m<60?m+' min':Math.floor(m/60)+' h'+(m%60?' '+m%60+' min':'')};
 const PAL=['#7DB8F7','#B3A6F5','#63D2DA','#F593AE'],TCH='#EDB55C',BUFC='#F5A65B';
-const BUD0={chair:{name:'Chair',h:4,c:'#D99BEF',k:'focus'},persian:{name:'Language',h:1,c:'#86DA84',k:'focus'},sport:{name:'Sport',h:1,c:'#CFDD63',k:'focus'},home:{name:'Home job',h:0,c:'#E8A0C0',k:'regular'},hobby:{name:'Hobbies',h:0,c:'#BA7517',k:'regular'}};
+const BUD0={chair:{name:'Chair',h:4,c:'#D99BEF',k:'focus'},persian:{name:'Language',h:1,c:'#86DA84',k:'focus'},sport:{name:'Sport',h:1,c:'#CFDD63',k:'focus'},home:{name:'Home job',h:0,c:'#E8A0C0',k:'regular'},hobby:{name:'Hobbies',h:0,c:'#BA7517',k:'regular'},ext:{name:'External teaching',h:0,c:'#5DCAA5',k:'regular'}};
 // sample plan. Stage: [name, planned, tasks 'name:real hours:f|r:steps' or rough booked hours]
 const SPEC=[
 ['Paper A revision','research','2026-10-19','2027-03-31',[
@@ -512,7 +512,7 @@ let wks=0,got=0,ov=0;for(let x=monday(0);x<=w;x+=7){wks++;got+=wkQ(x,'B:chair');
 h+='<section><h3>Chair since '+fd(monday(0))+'</h3><p class="cm">'+fh(got/4)+' logged in '+wks+' weeks against '+fh(wks*S.B.chair.h)+' budgeted. <b class="'+(ov?'amb':'good')+'">'+fh(ov/4)+' drawn from the buffer</b>'+(ov?': the number to bring to your dean.':'.')+'</p></section>';
 h+='<section><h3>Will it fit?</h3><div class="feas"></div></section>';
 const set=(k,name,v,unit)=>'<div class="wr st"><b>'+name+'</b><button class="btn" data-ws="'+k+':-1">−</button><em>'+v+'</em><button class="btn" data-ws="'+k+':1">+</button><small>'+unit+'</small></div>';
-h+='<section><h3>Settings</h3>'+set('chair','Chair',fh(S.B.chair.h),'a week')+set('persian','language',fh(S.B.persian.h),'a week')+set('sport','Sport',fh(S.B.sport.h),'a week')+set('hobby','Hobbies',fh(S.B.hobby.h),'a week')+set('buf','Buffer',fh(S.buf),'a day')+'<p class="note">A day holds '+LIM+' booked hours. A focused hour holds 40 minutes of real work, a regular hour 60.</p></section>';
+h+='<section><h3>Settings</h3>'+set('chair','Chair',fh(S.B.chair.h),'a week')+set('persian','language',fh(S.B.persian.h),'a week')+set('sport','Sport',fh(S.B.sport.h),'a week')+set('hobby','Hobbies',fh(S.B.hobby.h),'a week')+set('ext','External teaching',fh(S.B.ext.h),'a week')+set('buf','Buffer',fh(S.buf),'a day')+'<p class="note">A day holds '+LIM+' booked hours. A focused hour holds 40 minutes of real work, a regular hour 60.</p></section>';
 const y=el.scrollTop;el.innerHTML=h;el.scrollTop=y;renderFeas()}
 on('wk','click',e=>{const b=e.target.closest('[data-wa],[data-ws]');if(!b)return;if(b.dataset.wa==='review'){(H.goHaiku||ask)('Review my week: compare logged and estimated hours, the budgets and the buffer, and say what to change.','high');return}
 if(b.dataset.wa){const[,k,r]=b.dataset.wa.split(':');S.goals.forEach(g=>g.tasks.forEach(t=>{if(t.k===k&&!t.done&&!t.gate&&!dq(t))t.est=Math.max(.25,Math.round(t.est*+r*4)/4)}))}
@@ -537,6 +537,7 @@ let h='<div class="tdl"><b>'+WDL[dt.getDay()]+' '+dt.getDate()+' '+MON[dt.getMon
 if(nx){const it=nx.it,st=it.t&&it.t.steps.find(x=>!x.d);h+='<button class="tdn" data-s="'+TODAY+':'+sl.indexOf(nx)+'"><small>Next</small><b>'+esc(it.name)+'</b>'+(st?'<small>'+esc(st.n)+'</small>':'')+'</button>'}
 else if(isWd(TODAY)&&!cz&&!wk.length)h+='<button class="btn pri" data-ac="auto">Fill for me</button>';el.innerHTML=h}
 if(!S.B.hobby)S.B.hobby=JSON.parse(JSON.stringify(BUD0.hobby));
+if(!S.B.ext)S.B.ext=JSON.parse(JSON.stringify(BUD0.ext));
 const OBUF='#9E9E96',RES='#7DB8F7';const XC={sport:'#D4537E',home:'#639922',hobby:'#BA7517',over:'#BA7517'};
 const dotOf=(x,y,r,c,ring,o)=>(o?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r*1.7)+'" fill="transparent" data-o="'+o+'"/>':'')+'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'"'+(ring?' fill="none" stroke="'+c+'" stroke-width="1.4"':' fill="'+c+'"')+'/>';
 const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 9px 2px 0"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;'+(ring?'border:1.5px solid '+c:'background:'+c)+'"></i>'+esc(n)+'</span>';
@@ -545,7 +546,7 @@ function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 let flip=true;try{const o=localStorage.getItem('planner-orient');if(o)flip=o==='down'}catch(e){}
 const ob=$('ori');if(ob)ob.textContent=flip?'Weeks across':'Weeks down';
 const pG=S.goals.filter(g=>!g.auto);
-const legend=lgi(RES,'Research')+lgi(TCH,'Teaching')+lgi(S.B.chair.c,'Chair')+lgi(OBUF,'Service')+lgi(XC.over,'Extra',1)+lgi(XC.home,'Home')+lgi(XC.sport,'Sport')+lgi(S.B.persian.c,'language');
+const legend=lgi(RES,'Research')+lgi(TCH,'Teaching')+lgi(S.B.ext.c,'External teaching')+lgi(S.B.chair.c,'Chair')+lgi(OBUF,'Service')+lgi(XC.over,'Extra',1)+lgi(XC.home,'Home')+lgi(XC.sport,'Sport')+lgi(S.B.persian.c,'language');
 const LG='<div id="lgd" style="font-size:11px;color:var(--mute);padding:2px 2px 4px;white-space:nowrap;overflow-x:auto">'+legend+'</div>';
 el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=24,X=6,R=P+X;
@@ -557,6 +558,7 @@ const WK=weeks.map((w,i)=>{
  pG.forEach(g=>{let q=0;g.tasks.forEach(t=>{q+=wkQ(w,t.id)});for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([RES,'g:'+g.id])});
  let th=0,cz=false;for(let d=w;d<w+5;d++){th+=TEACH[fromIdx(d)]||0;if(crazy(d))cz=true}
  for(let j=0;j<th;j++)pl.push([TCH,'teach:'+w]);
+ {const b=S.B.ext,q=wkQ(w,'B:ext');for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([b.c,'b:ext:'+w])}
  {const b=S.B.chair,q=Math.min(wkQ(w,'B:chair'),b.h*4);for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([b.c,'b:chair:'+w])}
  const bb=ix().bf[w]||{chair:0,over:0,admin:0},u=w<=TODAY?bb.chair+bb.over+bb.admin:0,cap=bufCap(w)*4;
  for(let j=0;j<Math.ceil(Math.min(u,cap)/4-1e-9);j++)pl.push([OBUF,'u:'+w]);
