@@ -6,7 +6,7 @@ Personal web apps, served with GitHub Pages.
 - [MDR](mdr/) — flashcards on the EU Medical Device Regulation (EU) 2017/745, chapters and annexes switchable, optional answer check by Claude Haiku. Built from `mdr/src/` with `python3 mdr/build.py` (cards in `mdr/src/cards/*.txt`, one `question|answer|reference` per line)
 - [Chess of Empires](chess-of-empires/) — chess game, moved from mhpbreugem.github.io
 - [Literature tree](literature/) — map of the REE literature (copied automatically from the private research repo; no ratings, ideas or to-do list)
-- [Planner](planner/) — Gantt planner with goals, stages and subtasks, a 6 h/day load check and a planner chat. Sample data is generic. The planner chat needs the Claude artifact runtime; on Pages it shows a fallback message and the plan and feasibility views still work
+- [Planner](planner/) — Planner Dots: a quarter or half year as dots, one dot per booked hour in quarters; gates (squares) for stages still to plan; focused and regular work; weekly budgets, a daily buffer hour, a fortnight board, a 10/20 min focus timer and a weekly review of estimates. Sample data is generic. The Haiku planner and dictation need the Claude artifact runtime or your own API key; everything else works on Pages. Add it to your Home Screen to open it full screen.
 
 ## Kāshi speech sprint: third-party model
 
