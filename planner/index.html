@@ -538,7 +538,7 @@ if(nx){const it=nx.it,st=it.t&&it.t.steps.find(x=>!x.d);h+='<button class="tdn" 
 else if(isWd(TODAY)&&!cz&&!wk.length)h+='<button class="btn pri" data-ac="auto">Fill for me</button>';el.innerHTML=h}
 if(!S.B.hobby)S.B.hobby=JSON.parse(JSON.stringify(BUD0.hobby));
 if(!S.B.ext)S.B.ext=JSON.parse(JSON.stringify(BUD0.ext));
-const OBUF='#9E9E96',RES='#7DB8F7';const XC={sport:'#D4537E',home:'#639922',hobby:'#BA7517',over:'#BA7517'};
+const OBUF='#5F5E5A',FREE='#5F5E5A',RES='#7DB8F7';const XC={sport:'#D4537E',home:'#639922',hobby:'#BA7517',over:'#BA7517'};
 const dotOf=(x,y,r,c,ring,o)=>(o?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r*1.7)+'" fill="transparent" data-o="'+o+'"/>':'')+'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'"'+(ring?' fill="none" stroke="'+c+'" stroke-width="1.4"':' fill="'+c+'"')+'/>';
 const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 9px 2px 0"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;'+(ring?'border:1.5px solid '+c:'background:'+c)+'"></i>'+esc(n)+'</span>';
 // one column per week. Top 24 slots are planned hours in a fixed category order; the 6 extra slots below a divider hold sport, home, hobbies, then overwork rings.
@@ -546,8 +546,9 @@ function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 let flip=true;try{const o=localStorage.getItem('planner-orient');if(o)flip=o==='down'}catch(e){}
 const ob=$('ori');if(ob)ob.textContent=flip?'Weeks across':'Weeks down';
 const pG=S.goals.filter(g=>!g.auto);
-const legend=lgi(RES,'Research')+lgi(TCH,'Teaching')+lgi(S.B.ext.c,'External teaching')+lgi(S.B.chair.c,'Chair')+lgi(OBUF,'Service')+lgi(XC.over,'Extra',1)+lgi(XC.home,'Home')+lgi(XC.sport,'Sport')+lgi(S.B.persian.c,'language')+lgi(XC.hobby,'Hobbies');
-const LG='<div id="lgd" style="font-size:11px;color:var(--mute);padding:2px 2px 4px;white-space:nowrap;overflow-x:auto">'+legend+'</div>';
+const chip=(c,ab,nm,ring)=>'<span title="'+esc(nm)+'" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;flex:none;margin:2px 4px 2px 0;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+c+';color:#111')+'">'+ab+'</span>';
+const legend=chip(RES,'Res','Research')+chip(TCH,'Tch','Teaching')+chip(S.B.ext.c,'Ext','External teaching')+chip(S.B.chair.c,'Chr','Chair')+chip(OBUF,'Svc','Service',1)+chip(XC.over,'Xtr','Extra',1)+chip(XC.home,'Hom','Home')+chip(XC.sport,'Spt','Sport')+chip(S.B.persian.c,'Per','language')+chip(XC.hobby,'Hob','Hobbies')+chip(FREE,'Free','Unallocated',1);
+const LG='<div id="lgd" style="display:flex;flex-wrap:nowrap;overflow-x:auto;padding:2px 0 4px">'+legend+'</div>';
 el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=24,X=6,R=P+X;
 const weeks=[];for(let w=A0();w<A0()+SPAN;w+=7)weeks.push(w);
@@ -601,7 +602,7 @@ const place=(flip?(()=>{
 const slot=(i,k)=>flip?[place.px(k),place.py(i)]:[place.px(i),place.py(k)];
 s+=place.bg();
 const R0=place.r;
-weeks.forEach((w,i)=>{for(let k=0;k<R;k++){const[x,y]=slot(i,k);s+='<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(R0)+'" fill="none" stroke="var(--border-strong)" stroke-width=".8"/>'}});
+weeks.forEach((w,i)=>{for(let k=0;k<R;k++){const[x,y]=slot(i,k);s+='<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(R0)+'" fill="none" stroke="'+FREE+'" stroke-width="1"/>'}});
 WK.forEach(wk=>{
  wk.pl.forEach((d,k)=>{const[x,y]=slot(wk.i,k);s+=dotOf(x,y,R0,d[0],d[2],d[1])});
  wk.ex.forEach((d,k)=>{const[x,y]=slot(wk.i,P+k);s+=dotOf(x,y,R0,d[0],d[2],d[1])});
