@@ -184,7 +184,7 @@ h2,h3{font-family:var(--fd);font-weight:var(--fdw);letter-spacing:var(--fdl)}h3{
 @media (orientation:portrait){#td{grid-template-columns:1fr;--cs:30px;gap:2px}.tdd{flex-direction:row;align-items:center;gap:8px}.tdd .tdl{width:78px;flex:none;flex-direction:column;gap:0}}
 
 </style></head><body><div id="ld" role="button" tabindex="0" aria-label="Tap to open"><span>tap to open</span></div><div id="app">
-<div id="top"><div class="nav"><button data-pg="dots" class="on">Dots</button><button data-pg="plan">Plan</button><button data-pg="week">Week</button><button data-pg="agent">Haiku</button></div><span id="sm"></span></div><div class="page on" id="p-dots"><div id="td"></div><div id="cv"></div></div><div class="page" id="p-plan"><div class="pl"><div id="tree" class="tree"></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div><div class="page" id="p-week"><div id="wk" class="wkp"></div></div><div class="page" id="p-agent"><div class="hk"><div class="chat"><div class="chh"><b>Haiku</b><span>Works only from your plan.</span><span class="sp"></span><button id="eff" class="btn">Depth: medium</button><button id="keyb" class="btn" style="display:none">API key</button></div><div id="keyrow" style="display:none"><input id="keyi" type="password" placeholder="Anthropic API key, kept in this browser" aria-label="API key"><button id="keys" class="btn">Save</button></div><div id="msgs"></div><div id="props"></div><div class="chips" id="chips"></div><div class="inp"><textarea id="ta" placeholder="Ask or tell Haiku" rows="1" aria-label="Message"></textarea><button class="mic" data-mic="ta" aria-label="Dictate"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn pri" id="send">Send</button></div></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div>
+<div id="top"><div class="nav"><button data-pg="dots" class="on">Dots</button><button data-pg="plan">Plan</button><button data-pg="week">Week</button><button data-pg="agent">Haiku</button></div><span id="sm"></span><span class="sp"></span><button class="mic" id="qmic" data-mic="ta" aria-label="Talk to Haiku"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div><div class="page on" id="p-dots"><div id="td"></div><div id="cv"></div></div><div class="page" id="p-plan"><div class="pl"><div id="tree" class="tree"></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div><div class="page" id="p-week"><div id="wk" class="wkp"></div></div><div class="page" id="p-agent"><div class="hk"><div class="chat"><div class="chh"><b>Haiku</b><span>Works only from your plan.</span><span class="sp"></span><button id="eff" class="btn">Depth: medium</button><button id="keyb" class="btn" style="display:none">API key</button></div><div id="keyrow" style="display:none"><input id="keyi" type="password" placeholder="Anthropic API key, kept in this browser" aria-label="API key"><button id="keys" class="btn">Save</button></div><div id="msgs"></div><div id="props"></div><div class="chips" id="chips"></div><div class="inp"><textarea id="ta" placeholder="Ask or tell Haiku" rows="1" aria-label="Message"></textarea><button class="mic" data-mic="ta" aria-label="Dictate"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn pri" id="send">Send</button></div></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div>
 </div>
 <div id="wz"></div><div id="cd"><div class="cdi" id="cdi"></div></div><div id="tmr"></div>
 <script>
@@ -204,7 +204,7 @@ const TEACH={};for(let d=0;d<DAYS;d++){const dt=D(d);if(dt.getDay()===2&&dt>=new
 const KIND={focus:['Focused',40],regular:['Regular',60]},qmin=k=>KIND[k][1]/4,book=(real,k)=>Math.max(.25,Math.round(real*60/KIND[k][1]*4)/4),realH=t=>t.est*KIND[t.k][1]/60;
 const FR=['','¼','½','¾'],fh=h=>{const x=Math.round(h*4),w=Math.floor(x/4),f=FR[x%4];return(w||!f?w:'')+f+' h'},fm=m=>{m=Math.round(m);return m<60?m+' min':Math.floor(m/60)+' h'+(m%60?' '+m%60+' min':'')};
 const PAL=['#7DB8F7','#B3A6F5','#63D2DA','#F593AE'],TCH='#EDB55C',BUFC='#F5A65B';
-const BUD0={chair:{name:'Chair',h:4,c:'#D99BEF',k:'focus'},persian:{name:'Language',h:1,c:'#86DA84',k:'focus'},sport:{name:'Sport',h:1,c:'#CFDD63',k:'focus'},home:{name:'Home job',h:0,c:'#E8A0C0',k:'regular'},hobby:{name:'Hobbies',h:0,c:'#BA7517',k:'regular'},ext:{name:'External teaching',h:0,c:'#5DCAA5',k:'regular'}};
+const BUD0={chair:{name:'Chair',h:4,c:'#D99BEF',k:'focus'},persian:{name:'Language',h:1,c:'#86DA84',k:'focus'},sport:{name:'Sport',h:1,c:'#CFDD63',k:'focus'},home:{name:'Home job',h:0,c:'#E8A0C0',k:'regular'},hobby:{name:'Hobbies',h:0,c:'#BA7517',k:'regular'},ext:{name:'External teaching',h:0,c:'#C4771F',k:'regular'}};
 // sample plan. Stage: [name, planned, tasks 'name:real hours:f|r:steps' or rough booked hours]
 const SPEC=[
 ['Paper A revision','research','2026-10-19','2027-03-31',[
@@ -521,7 +521,7 @@ let wks=0,got=0,ov=0;for(let x=monday(0);x<=w;x+=7){wks++;got+=wkQ(x,'B:chair');
 h+='<section><h3>Chair since '+fd(monday(0))+'</h3><p class="cm">'+fh(got/4)+' logged in '+wks+' weeks against '+fh(wks*S.B.chair.h)+' budgeted. <b class="'+(ov?'amb':'good')+'">'+fh(ov/4)+' drawn from the buffer</b>'+(ov?': the number to bring to your dean.':'.')+'</p></section>';
 h+='<section><h3>Will it fit?</h3><div class="feas"></div></section>';
 const set=(k,name,v,unit)=>'<div class="wr st"><b>'+name+'</b><button class="btn" data-ws="'+k+':-1">−</button><em>'+v+'</em><button class="btn" data-ws="'+k+':1">+</button><small>'+unit+'</small></div>';
-h+='<section><h3>Settings</h3>'+set('chair','Chair',fh(S.B.chair.h),'a week')+set('persian','language',fh(S.B.persian.h),'a week')+set('sport','Sport',fh(S.B.sport.h),'a week')+set('hobby','Hobbies',fh(S.B.hobby.h),'a week')+set('ext','External teaching',fh(S.B.ext.h),'a week')+set('buf','Buffer',fh(S.buf),'a day')+'<p class="note">A day holds '+LIM+' booked hours. A focused hour holds 40 minutes of real work, a regular hour 60.</p></section>';
+h+='<section><h3>Settings</h3>'+set('chair','Chair',fh(S.B.chair.h),'a week')+set('persian','language',fh(S.B.persian.h),'a week')+set('sport','Sport',fh(S.B.sport.h),'a week')+set('ext','External teaching',fh(S.B.ext.h),'a week')+set('buf','Buffer',fh(S.buf),'a day')+'<p class="note">A day holds '+LIM+' booked hours. A focused hour holds 40 minutes of real work, a regular hour 60.</p></section>';
 const y=el.scrollTop;el.innerHTML=h;el.scrollTop=y;renderFeas()}
 on('wk','click',e=>{const b=e.target.closest('[data-wa],[data-ws]');if(!b)return;if(b.dataset.wa==='review'){(H.goHaiku||ask)('Review my week: compare logged and estimated hours, the budgets and the buffer, and say what to change.','high');return}
 if(b.dataset.wa){const[,k,r]=b.dataset.wa.split(':');S.goals.forEach(g=>g.tasks.forEach(t=>{if(t.k===k&&!t.done&&!t.gate&&!dq(t))t.est=Math.max(.25,Math.round(t.est*+r*4)/4)}))}
@@ -545,18 +545,17 @@ function renderTd(){const el=$('td');if(!vis(el))return;const mon=monday(TODAY);
 for(let d=mon;d<mon+5;d++){const dt=D(d),sl=slots(d),wk=sl.filter(x=>x.k==='t'),cz=crazy(d);if(wk.length)any=true;
 h+='<div class="tdd'+(d===TODAY?' tdnow':'')+'"><div class="tdl"><b>'+WD[dt.getDay()]+' '+dt.getDate()+'</b><small>'+(cz?'crazy day':wk.length?fh(sum(wk,x=>x.qd)/4)+' of '+wk.length+' h':'')+'</small></div><div class="tds">'+sl.map((x,i)=>slotBtn(x,d,i)).join('')+'</div></div>'}
 if(!any)h+='<button class="btn pri" data-ac="auto">Fill for me</button>';el.innerHTML=h}
-if(!S.B.hobby)S.B.hobby=JSON.parse(JSON.stringify(BUD0.hobby));
-if(!S.B.ext)S.B.ext=JSON.parse(JSON.stringify(BUD0.ext));
-const OBUF='#5F5E5A',FREE='#5F5E5A',RES='#7DB8F7';const XC={sport:'#D4537E',home:'#639922',hobby:'#BA7517',over:'#BA7517'};
+if(!S.B.ext)S.B.ext=JSON.parse(JSON.stringify(BUD0.ext));S.B.ext.c='#C4771F';
+const OBUF='#8F5BA8',FREE='#5F5E5A',RES='#7DB8F7';const XC={sport:'#D4537E',home:'#639922',over:'#BA7517'};
 const dotOf=(x,y,r,c,ring,o)=>(o?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(Math.max(r*1.8,9))+'" fill="transparent" data-o="'+o+'"/>':'')+'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'"'+(ring?' fill="none" stroke="'+c+'" stroke-width="1.4"':' fill="'+c+'"')+'/>';
 const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 9px 2px 0"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;'+(ring?'border:1.5px solid '+c:'background:'+c)+'"></i>'+esc(n)+'</span>';
 // one column per week. Top 24 slots are planned hours in a fixed category order; the 6 extra slots below a divider hold sport, home, hobbies, then overwork rings.
 function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 const flip=true;
 const pG=S.goals.filter(g=>!g.auto);
-const chip=(c,ab,nm,ring)=>'<span title="'+esc(nm)+'" data-o="pl" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;flex:none;margin:2px 4px 2px 0;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+c+';color:#111')+'">'+ab+'</span>';
-const legend=chip(RES,'Res','Research')+chip(TCH,'Tch','Teaching')+chip(S.B.ext.c,'Ext','External teaching')+chip(S.B.chair.c,'Chr','Chair')+chip(OBUF,'Svc','Service',1)+chip(XC.over,'Xtr','Extra',1)+chip(XC.home,'Hom','Home')+chip(XC.sport,'Spt','Sport')+chip(S.B.persian.c,'Per','language')+chip(XC.hobby,'Hob','Hobbies')+chip(FREE,'Free','Unallocated',1);
-const LG='<div id="lgd" style="display:flex;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding:2px 0 4px">'+legend+'</div>';
+const chip=(c,ab,nm,ring,c2)=>'<span title="'+esc(nm)+'" data-o="pl" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;flex:none;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+(c2?'linear-gradient(135deg,'+c+' 50%,'+c2+' 50%)':c)+';color:#111')+'">'+ab+'</span>';
+const legend=chip(RES,'Res','Research')+chip(TCH,'Tch','Teaching and external teaching',0,S.B.ext.c)+chip(S.B.chair.c,'Chr','Chair and service',0,OBUF)+chip(XC.over,'Xtr','Extra',1)+chip(XC.home,'Hom','Home')+chip(XC.sport,'Spt','Sport')+chip(S.B.persian.c,'Per','language');
+const LG='<div id="lgd" style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 6px">'+legend+'</div>';
 el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=20,X=5,R=P+X;
 const weeks=[];for(let w=A0();w<A0()+SPAN;w+=7)weeks.push(w);
@@ -584,7 +583,7 @@ const WK=weeks.map((w,i)=>{
  pl.splice(P).forEach(d=>rings.push([d[0],d[1],1]));
  // extra band: home, sport, language, Hobbies, then overwork rings
  const fixed=[];
- [['home',XC.home],['sport',XC.sport],['persian',S.B.persian.c],['hobby',XC.hobby]].forEach(a=>{const k=a[0],q=wkQ(w,'B:'+k);fixed.push(...catDots(a[1],'b:'+k+':'+w,hrs(q),Math.ceil(S.B[k].h)))});
+ [['home',XC.home],['sport',XC.sport],['persian',S.B.persian.c]].forEach(a=>{const k=a[0],q=wkQ(w,'B:'+k);fixed.push(...catDots(a[1],'b:'+k+':'+w,hrs(q),Math.ceil(S.B[k].h)))});
  return{i:i,w:w,pl:pl,ex:fixed.concat(rings).slice(0,X)};
 });
 let s='';
@@ -592,11 +591,11 @@ const ti=(monday(TODAY)-A0())/7;
 const MA='#1f2322',MB='#272b2a';const mshade=(w,x,y,wd,ht)=>'<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(wd)+'" height="'+f1(ht)+'" fill="'+(D(w).getMonth()%2?MA:MB)+'"/>';
 const place=(flip?(()=>{
   // weeks run down the page, 30 slots run across; extra band after a gap
-  const LB=30,PR=6,GAP=10,TOP=8,BOT=6,cw=Math.min((W-LB-PR-GAP)/(P+X),(Hh-TOP-BOT)/NW),rowH=cw,r=Math.max(2,cw*.38);
-  const px=k=>LB+k*cw+cw/2+(k>=P?GAP:0),py=i=>TOP+i*rowH+rowH/2,gh=TOP+NW*rowH+BOT;
+  const LB=40,PR=8,GAP=6,TOP=8,BOT=6,aw=(W-LB-PR-GAP)/(P+X),av=(Hh-TOP-BOT)/NW,rowH=Math.min(av,aw*1.6),cw=Math.min(aw,rowH*1.6),OX=(W-LB-PR-GAP-cw*(P+X))/2,r=Math.max(2,Math.min(cw,rowH)*.43);
+  const px=k=>LB+OX+k*cw+cw/2+(k>=P?GAP:0),py=i=>TOP+i*rowH+rowH/2,gh=TOP+NW*rowH+BOT;
   return{px,py,r,gh,
    bg(){let o=weeks.map((w,i)=>mshade(w,LB,TOP+i*rowH,W-LB-PR,rowH)).join('');if(ti>=0&&ti<NW)o+='<rect x="'+LB+'" y="'+f1(TOP+ti*rowH)+'" width="'+f1(W-LB-PR)+'" height="'+f1(rowH)+'" fill="var(--acc)" fill-opacity=".08"/>';
-     o+='<line x1="'+f1(LB+P*cw+GAP/2)+'" x2="'+f1(LB+P*cw+GAP/2)+'" y1="'+TOP+'" y2="'+f1(TOP+NW*rowH)+'" stroke="var(--border-strong)" stroke-width=".6" stroke-dasharray="3 3"/>';
+     o+='<line x1="'+f1(LB+OX+P*cw+GAP/2)+'" x2="'+f1(LB+OX+P*cw+GAP/2)+'" y1="'+TOP+'" y2="'+f1(TOP+NW*rowH)+'" stroke="var(--border-strong)" stroke-width=".6" stroke-dasharray="3 3"/>';
      
      weeks.forEach((w,i)=>{if(rowH>=12||i%2===0)o+='<text class="cs" x="2" y="'+f1(py(i)+4)+'">'+(D(w).getDate())+'/'+(D(w).getMonth()+1)+'</text>'});return o}};
 })():(()=>{
@@ -632,6 +631,10 @@ fullScreen($('top'));window.__page=page;
 if(S.fresh){delete S.fresh;autoPlace()}if(S.tm&&S.tm.end<=Date.now()&&!CD)CD={t:'done'};renderChat();refresh();
 
 ;(function(){var l=document.getElementById('ld');if(!l)return;var open=function(){l.classList.add('gone');try{localStorage.setItem('planner-fs','1')}catch(e){}var r=document.documentElement;var rq=r.requestFullscreen||r.webkitRequestFullscreen;if(rq&&!(document.fullscreenElement||document.webkitFullscreenElement)){try{var p=rq.call(r);p&&p.catch&&p.catch(function(){})}catch(e){}}};l.addEventListener('click',open);l.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}})})();
+
+;(function(){var q=document.getElementById('qmic');if(!q)return;q.addEventListener('click',function(){if(cur!=='agent')page('agent')});
+new MutationObserver(function(){if(!q.classList.contains('rec')&&q._was){q._was=0;var ta=$('ta');if(ta&&ta.value.trim())$('send').click()}else if(q.classList.contains('rec'))q._was=1}).observe(q,{attributes:true,attributeFilter:['class']})})();
+;(function(){var c=document.getElementById('cv');if(!c||!window.ResizeObserver)return;var lw=0,lh=0;new ResizeObserver(function(){var w=c.clientWidth,h=c.clientHeight;if(w===lw&&h===lh)return;lw=w;lh=h;renderDots()}).observe(c)})();
 
 })();
 </script></body></html>
