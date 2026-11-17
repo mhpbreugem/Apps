@@ -546,7 +546,7 @@ function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 let flip=true;try{const o=localStorage.getItem('planner-orient');if(o)flip=o==='down'}catch(e){}
 const ob=$('ori');if(ob)ob.textContent=flip?'Weeks across':'Weeks down';
 const pG=S.goals.filter(g=>!g.auto);
-const legend=lgi(RES,'Research')+lgi(TCH,'Teaching')+lgi(S.B.ext.c,'External teaching')+lgi(S.B.chair.c,'Chair')+lgi(OBUF,'Service')+lgi(XC.over,'Extra',1)+lgi(XC.home,'Home')+lgi(XC.sport,'Sport')+lgi(S.B.persian.c,'language');
+const legend=lgi(RES,'Research')+lgi(TCH,'Teaching')+lgi(S.B.ext.c,'External teaching')+lgi(S.B.chair.c,'Chair')+lgi(OBUF,'Service')+lgi(XC.over,'Extra',1)+lgi(XC.home,'Home')+lgi(XC.sport,'Sport')+lgi(S.B.persian.c,'language')+lgi(XC.hobby,'Hobbies');
 const LG='<div id="lgd" style="font-size:11px;color:var(--mute);padding:2px 2px 4px;white-space:nowrap;overflow-x:auto">'+legend+'</div>';
 el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=24,X=6,R=P+X;
@@ -566,7 +566,7 @@ const WK=weeks.map((w,i)=>{
  for(let j=0;j<Math.ceil(Math.max(0,u-cap)/4-1e-9);j++)rings.push([XC.over,'u:'+w,1]);
  pl.splice(P).forEach(d=>rings.push([d[0],d[1],1]));
  const fixed=[];
- [['home',XC.home],['sport',XC.sport],['persian',S.B.persian.c]].forEach(a=>{const k=a[0]==='persian'?'persian':a[0],q=wkQ(w,'B:'+k);for(let j=0;j<Math.ceil(q/4-1e-9);j++)fixed.push([a[1],'b:'+k+':'+w,0])});
+ [['home',XC.home],['sport',XC.sport],['persian',S.B.persian.c],['hobby',XC.hobby]].forEach(a=>{const k=a[0],q=wkQ(w,'B:'+k);for(let j=0;j<Math.ceil(q/4-1e-9);j++)fixed.push([a[1],'b:'+k+':'+w,0])});
  return{i:i,w:w,pl:pl,ex:fixed.concat(rings).slice(0,X)};
 });
 let s='';
