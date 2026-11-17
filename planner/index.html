@@ -204,6 +204,11 @@ h2,h3{font-family:var(--fd);font-weight:var(--fdw);letter-spacing:var(--fdl)}h3{
 #td.br .sl.k-f{outline:1.5px dashed var(--brc);outline-offset:-1.5px;background:transparent}
 @media (orientation:landscape){#td{--cs:clamp(14px,calc((100vw - 20px - 4*10px)/30 - 4px),26px)}.tdw{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px 10px}.tdd{flex-direction:column;align-items:flex-start;gap:2px}.tdd .tdl{width:auto;flex-direction:row;gap:6px;align-items:baseline}}
 
+#td{--cs:clamp(30px,calc((100vw - 134px)/6 - 4px),46px);padding:2px 8px 4px}
+.tdd .tdl{width:64px}.tds{gap:4px}
+@media (orientation:landscape){#td{--cs:clamp(16px,calc((100vw - 20px - 4*10px)/30 - 4px),30px)}}
+#lgd [data-k]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+
 </style></head><body><div id="ld" role="button" tabindex="0" aria-label="Tap to open"><span>tap to open</span></div><div id="app">
 <div id="top"><div class="nav"><button data-pg="dots" class="on">Dots</button><button data-pg="plan">Plan</button><button data-pg="week">Week</button><button data-pg="agent">Haiku</button></div><span id="sm"></span><span class="sp"></span><button class="mic" id="qmic" data-mic="ta" aria-label="Talk to Haiku"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div><div class="page on" id="p-dots"><div id="td"></div><div id="cv"></div></div><div class="page" id="p-plan"><div class="pl"><div id="tree" class="tree"></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div><div class="page" id="p-week"><div id="wk" class="wkp"></div></div><div class="page" id="p-agent"><div class="hk"><div class="chat"><div class="chh"><b>Haiku</b><span>Works only from your plan.</span><span class="sp"></span><button id="eff" class="btn">Depth: medium</button><button id="keyb" class="btn" style="display:none">API key</button></div><div id="keyrow" style="display:none"><input id="keyi" type="password" placeholder="Anthropic API key, kept in this browser" aria-label="API key"><button id="keys" class="btn">Save</button></div><div id="msgs"></div><div id="props"></div><div class="chips" id="chips"></div><div class="inp"><textarea id="ta" placeholder="Ask or tell Haiku" rows="1" aria-label="Message"></textarea><button class="mic" data-mic="ta" aria-label="Dictate"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn pri" id="send">Send</button></div></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div>
 </div>
@@ -581,8 +586,8 @@ function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 const flip=true;
 const pG=S.goals.filter(g=>!g.auto);
 const chip=(c,ab,nm,ring,c2,o,o2,k,k2)=>'<span title="'+esc(nm)+'" data-o="'+(o||'pl')+'"'+(o2?' data-o2="'+o2+'"':'')+(k?' data-k="'+k+'"':'')+(k2?' data-k2="'+k2+'"':'')+' style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;flex:none;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+(c2?'linear-gradient(135deg,'+c+' 50%,'+c2+' 50%)':c)+';color:#111')+(BR&&(BR===k||BR===k2)?';box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)':'')+'">'+ab+'</span>';
-const mw=monday(TODAY),legend=chip(RES,'Res','Research',0,0,'pl',0,'res')+chip(PLN,'Pln','Planning',0,0,'pl',0,'pln')+chip(TCH,'Tch','Teaching and external teaching',0,S.B.ext.c,'teach:'+mw,'b:ext:'+mw,'tch','ext')+chip(S.B.chair.c,'Chr','Chair, admin and meetings',0,OBUF,'b:chair:'+mw,'u:'+mw,'chair','svc')+chip(XC.over,'Xtr','Extra',1,0,'u:'+mw,0,'xtr')+chip(XC.home,'Hom','Home',0,0,'b:home:'+mw,0,'home')+chip(XC.sport,'Spt','Sport',0,0,'b:sport:'+mw,0,'sport')+chip(S.B.persian.c,'Per','language',0,0,'b:persian:'+mw,0,'persian');
-const LG='<div id="lgd" style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 2px">'+legend+'</div><div style="font-size:11px;color:var(--mute);padding:0 10px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(BR?'Tap a free hour above to place '+BNAME[BR]+'. Tap its circle again for full planning.':'Tap a circle to place it in the week. Tap a week below to plan it.')+'</div>';
+const mw=monday(TODAY),legend=chip(RES,'Res','Research',0,0,'pl',0,'res')+chip(PLN,'Pln','Planning',0,0,'pl',0,'pln')+chip(TCH,'Tch','Teaching and external teaching',0,S.B.ext.c,'teach:'+mw,'b:ext:'+mw,'tch','ext')+chip(S.B.chair.c,'Chr','Chair, admin and meetings',0,OBUF,'b:chair:'+mw,'u:'+mw,'chair','svc')+chip(XC.home,'Hom','Home',0,0,'b:home:'+mw,0,'home')+chip(XC.sport,'Spt','Sport',0,0,'b:sport:'+mw,0,'sport')+chip(S.B.persian.c,'Per','language',0,0,'b:persian:'+mw,0,'persian');
+const LG='<div id="lgd" style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 2px">'+legend+'</div><div style="font-size:11px;color:var(--mute);padding:0 10px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(BR?'Tap a free hour above to place '+BNAME[BR]+'. Tap again or hold for full planning.':'Tap a circle to place it in the week. Hold it for full planning.')+'</div>';
 el.innerHTML=LG;let lh=0;Array.from(el.children).forEach(c=>{lh+=c.offsetHeight});
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=20,X=5,R=P+X;
 const weeks=[];for(let w=A0();w<A0()+SPAN;w+=7)weeks.push(w);
@@ -606,8 +611,7 @@ const WK=weeks.map((w,i)=>{
  const bb=ix().bf[w]||{chair:0,over:0,admin:0},u=w<=TODAY?bb.chair+bb.over+bb.admin:0,cap=bufCap(w)*4;
  pl.push(...catDots(OBUF,'u:'+w,0,Math.max(Math.ceil(bufCap(w)),hrs(Math.min(u,cap)))));
  const rings=[];
- for(let j=0;j<hrs(Math.max(0,u-cap));j++)rings.push([XC.over,'u:'+w,1]);
- pl.splice(P).forEach(d=>rings.push([d[0],d[1],1]));
+ pl.splice(P);
  // extra band: home, sport, language, Hobbies, then overwork rings
  const fixed=[];
  [['home',XC.home],['sport',XC.sport],['persian',S.B.persian.c]].forEach(a=>{const k=a[0],q=wkQ(w,'B:'+k);fixed.push(...catDots(a[1],'b:'+k+':'+w,hrs(q),Math.ceil(S.B[k].h)))});
@@ -667,6 +671,12 @@ new MutationObserver(function(){if(!q.classList.contains('rec')&&q._was){q._was=
 ;(function(){var t=document.getElementById('td');if(!t)return;var x0=null,y0=0;t.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
 t.addEventListener('touchend',function(e){if(x0==null)return;var dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){PW=clamp(PW+(dx<0?1:-1),PWMIN,PWMAX);renderTd();renderDots()}},{passive:true});
 t.addEventListener('wheel',function(e){if(Math.abs(e.deltaX)>Math.abs(e.deltaY)&&Math.abs(e.deltaX)>30){PW=clamp(PW+(e.deltaX>0?1:-1),PWMIN,PWMAX);renderTd();renderDots()}},{passive:true})})();
+
+;(function(){var c=document.getElementById('cv');if(!c)return;var tm=null,lp=false;
+c.addEventListener('pointerdown',function(e){var a=e.target.closest('#lgd [data-k]');if(!a)return;lp=false;var k=a.dataset.k,k2=a.dataset.k2,r=a.getBoundingClientRect();if(k2&&e.clientX>r.left+r.width/2)k=k2;clearTimeout(tm);tm=setTimeout(function(){lp=true;BR=null;renderTd();renderDots();page('plan')},520)});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){c.addEventListener(n,function(){clearTimeout(tm)})});
+c.addEventListener('click',function(e){if(lp){lp=false;e.stopImmediatePropagation();e.preventDefault()}},true);
+c.addEventListener('contextmenu',function(e){if(e.target.closest('#lgd'))e.preventDefault()})})();
 
 })();
 </script></body></html>
