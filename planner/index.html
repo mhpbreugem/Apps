@@ -537,16 +537,16 @@ let h='<div class="tdl"><b>'+WDL[dt.getDay()]+' '+dt.getDate()+' '+MON[dt.getMon
 if(nx){const it=nx.it,st=it.t&&it.t.steps.find(x=>!x.d);h+='<button class="tdn" data-s="'+TODAY+':'+sl.indexOf(nx)+'"><small>Next</small><b>'+esc(it.name)+'</b>'+(st?'<small>'+esc(st.n)+'</small>':'')+'</button>'}
 else if(isWd(TODAY)&&!cz&&!wk.length)h+='<button class="btn pri" data-ac="auto">Fill for me</button>';el.innerHTML=h}
 if(!S.B.hobby)S.B.hobby=JSON.parse(JSON.stringify(BUD0.hobby));
-const OBUF='#9E9E96';const XC={sport:'#D4537E',home:'#639922',hobby:'#BA7517',over:'#BA7517'};
+const OBUF='#9E9E96',RES='#7DB8F7';const XC={sport:'#D4537E',home:'#639922',hobby:'#BA7517',over:'#BA7517'};
 const dotOf=(x,y,r,c,ring,o)=>(o?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r*1.7)+'" fill="transparent" data-o="'+o+'"/>':'')+'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'"'+(ring?' fill="none" stroke="'+c+'" stroke-width="1.4"':' fill="'+c+'"')+'/>';
-const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:5px;margin:2px 12px 2px 0"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;'+(ring?'border:1.5px solid '+c:'background:'+c)+'"></i>'+esc(n)+'</span>';
+const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 9px 2px 0"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;'+(ring?'border:1.5px solid '+c:'background:'+c)+'"></i>'+esc(n)+'</span>';
 // one column per week. Top 24 slots are planned hours in a fixed category order; the 6 extra slots below a divider hold sport, home, hobbies, then overwork rings.
 function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 let flip=true;try{const o=localStorage.getItem('planner-orient');if(o)flip=o==='down'}catch(e){}
 const ob=$('ori');if(ob)ob.textContent=flip?'Weeks across':'Weeks down';
 const pG=S.goals.filter(g=>!g.auto);
-const legend=pG.map(g=>lgi(col(g),g.name)).join('')+lgi(TCH,'Teaching')+lgi(S.B.chair.c,S.B.chair.name)+lgi(S.B.persian.c,S.B.persian.name)+lgi(OBUF,'Buffer')+lgi(XC.sport,'Sport')+lgi(XC.home,'Home')+lgi(XC.hobby,'Hobbies')+lgi(XC.over,'Extra',1);
-const LG='<div id="lgd" style="font-size:11px;color:var(--mute);padding:2px 2px 4px">'+legend+'</div>';
+const legend=lgi(RES,'Research')+lgi(TCH,'Teaching')+lgi(S.B.chair.c,'Chair')+lgi(OBUF,'Service')+lgi(XC.over,'Extra',1)+lgi(XC.home,'Home')+lgi(XC.sport,'Sport')+lgi(S.B.persian.c,'language');
+const LG='<div id="lgd" style="font-size:11px;color:var(--mute);padding:2px 2px 4px;white-space:nowrap;overflow-x:auto">'+legend+'</div>';
 el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=24,X=6,R=P+X;
 const weeks=[];for(let w=A0();w<A0()+SPAN;w+=7)weeks.push(w);
@@ -554,17 +554,17 @@ const NW=weeks.length;
 // collect each week's dots: pl = planned slots in fixed order, ex = extra band
 const WK=weeks.map((w,i)=>{
  const pl=[];
- pG.forEach(g=>{let q=0;g.tasks.forEach(t=>{q+=wkQ(w,t.id)});for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([col(g),'g:'+g.id])});
+ pG.forEach(g=>{let q=0;g.tasks.forEach(t=>{q+=wkQ(w,t.id)});for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([RES,'g:'+g.id])});
  let th=0,cz=false;for(let d=w;d<w+5;d++){th+=TEACH[fromIdx(d)]||0;if(crazy(d))cz=true}
  for(let j=0;j<th;j++)pl.push([TCH,'teach:'+w]);
- ['chair','persian'].forEach(k=>{const b=S.B[k],q=Math.min(wkQ(w,'B:'+k),b.h*4);for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([b.c,'b:'+k+':'+w])});
+ {const b=S.B.chair,q=Math.min(wkQ(w,'B:chair'),b.h*4);for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([b.c,'b:chair:'+w])}
  const bb=ix().bf[w]||{chair:0,over:0,admin:0},u=w<=TODAY?bb.chair+bb.over+bb.admin:0,cap=bufCap(w)*4;
  for(let j=0;j<Math.ceil(Math.min(u,cap)/4-1e-9);j++)pl.push([OBUF,'u:'+w]);
  const rings=[];
  for(let j=0;j<Math.ceil(Math.max(0,u-cap)/4-1e-9);j++)rings.push([XC.over,'u:'+w,1]);
  pl.splice(P).forEach(d=>rings.push([d[0],d[1],1]));
  const fixed=[];
- [['sport',XC.sport],['home',XC.home],['hobby',XC.hobby]].forEach(a=>{const q=wkQ(w,'B:'+a[0]);for(let j=0;j<Math.ceil(q/4-1e-9);j++)fixed.push([a[1],'b:'+a[0]+':'+w,0])});
+ [['home',XC.home],['sport',XC.sport],['persian',S.B.persian.c]].forEach(a=>{const k=a[0]==='persian'?'persian':a[0],q=wkQ(w,'B:'+k);for(let j=0;j<Math.ceil(q/4-1e-9);j++)fixed.push([a[1],'b:'+k+':'+w,0])});
  return{i:i,w:w,pl:pl,ex:fixed.concat(rings).slice(0,X)};
 });
 let s='';
