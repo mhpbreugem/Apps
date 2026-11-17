@@ -175,7 +175,7 @@ h2,h3{font-family:var(--fd);font-weight:var(--fdw);letter-spacing:var(--fdl)}h3{
 #ld.gone{display:none}
 
 </style></head><body><div id="ld" role="button" tabindex="0" aria-label="Tap to open"><span>tap to open</span></div><div id="app">
-<div id="top"><div class="nav"><button data-pg="dots" class="on">Dots</button><button data-pg="fn">Fortnight</button><button data-pg="plan">Plan</button><button data-pg="week">Week</button><button data-pg="agent">Haiku</button></div><span id="sm"></span><span class="sp"></span><div class="grp" id="qz"><button data-q="91">Quarter</button><button data-q="182" class="on">Half year</button></div><button id="ori" class="btn" style="margin-left:6px">Weeks across</button></div><div class="page on" id="p-dots"><div id="td"></div><div id="cv"></div></div><div class="page" id="p-fn"><div id="fn" class="fn"></div></div><div class="page" id="p-plan"><div class="pl"><div id="tree" class="tree"></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div><div class="page" id="p-week"><div id="wk" class="wkp"></div></div><div class="page" id="p-agent"><div class="hk"><div class="chat"><div class="chh"><b>Haiku</b><span>Works only from your plan.</span><span class="sp"></span><button id="eff" class="btn">Depth: medium</button><button id="keyb" class="btn" style="display:none">API key</button></div><div id="keyrow" style="display:none"><input id="keyi" type="password" placeholder="Anthropic API key, kept in this browser" aria-label="API key"><button id="keys" class="btn">Save</button></div><div id="msgs"></div><div id="props"></div><div class="chips" id="chips"></div><div class="inp"><textarea id="ta" placeholder="Ask or tell Haiku" rows="1" aria-label="Message"></textarea><button class="mic" data-mic="ta" aria-label="Dictate"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn pri" id="send">Send</button></div></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div>
+<div id="top"><div class="nav"><button data-pg="dots" class="on">Dots</button><button data-pg="fn">Fortnight</button><button data-pg="plan">Plan</button><button data-pg="week">Week</button><button data-pg="agent">Haiku</button></div><span id="sm"></span><span class="sp"></span><div class="grp" id="qz"><button data-q="91">Quarter</button><button data-q="182" class="on">Half year</button></div></div><div class="page on" id="p-dots"><div id="td"></div><div id="cv"></div></div><div class="page" id="p-fn"><div id="fn" class="fn"></div></div><div class="page" id="p-plan"><div class="pl"><div id="tree" class="tree"></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div><div class="page" id="p-week"><div id="wk" class="wkp"></div></div><div class="page" id="p-agent"><div class="hk"><div class="chat"><div class="chh"><b>Haiku</b><span>Works only from your plan.</span><span class="sp"></span><button id="eff" class="btn">Depth: medium</button><button id="keyb" class="btn" style="display:none">API key</button></div><div id="keyrow" style="display:none"><input id="keyi" type="password" placeholder="Anthropic API key, kept in this browser" aria-label="API key"><button id="keys" class="btn">Save</button></div><div id="msgs"></div><div id="props"></div><div class="chips" id="chips"></div><div class="inp"><textarea id="ta" placeholder="Ask or tell Haiku" rows="1" aria-label="Message"></textarea><button class="mic" data-mic="ta" aria-label="Dictate"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn pri" id="send">Send</button></div></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div>
 </div>
 <div id="wz"></div><div id="cd"><div class="cdi" id="cdi"></div></div><div id="tmr"></div>
 <script>
@@ -544,11 +544,10 @@ const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:4
 // one column per week. Top 24 slots are planned hours in a fixed category order; the 6 extra slots below a divider hold sport, home, hobbies, then overwork rings.
 function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
 let flip=true;try{const o=localStorage.getItem('planner-orient');if(o)flip=o==='down'}catch(e){}
-const ob=$('ori');if(ob)ob.textContent=flip?'Weeks across':'Weeks down';
 const pG=S.goals.filter(g=>!g.auto);
 const chip=(c,ab,nm,ring)=>'<span title="'+esc(nm)+'" data-o="pl" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;flex:none;margin:2px 4px 2px 0;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+c+';color:#111')+'">'+ab+'</span>';
 const legend=chip(RES,'Res','Research')+chip(TCH,'Tch','Teaching')+chip(S.B.ext.c,'Ext','External teaching')+chip(S.B.chair.c,'Chr','Chair')+chip(OBUF,'Svc','Service',1)+chip(XC.over,'Xtr','Extra',1)+chip(XC.home,'Hom','Home')+chip(XC.sport,'Spt','Sport')+chip(S.B.persian.c,'Per','language')+chip(XC.hobby,'Hob','Hobbies')+chip(FREE,'Free','Unallocated',1);
-const LG='<div id="lgd" style="display:flex;flex-wrap:nowrap;overflow-x:auto;padding:2px 0 4px">'+legend+'</div>';
+const LG='<div id="lgd" style="display:flex;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding:2px 0 4px"><button data-flip="1" class="btn" style="flex:none;margin-right:8px">'+(flip?'Weeks across':'Weeks down')+'</button>'+legend+'</div>';
 el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=20,X=5,R=P+X;
 const weeks=[];for(let w=A0();w<A0()+SPAN;w+=7)weeks.push(w);
@@ -581,12 +580,13 @@ const WK=weeks.map((w,i)=>{
 });
 let s='';
 const ti=(monday(TODAY)-A0())/7;
+const MA='#1f2322',MB='#272b2a';const mshade=(w,x,y,wd,ht)=>'<rect x="'+f1(x)+'" y="'+f1(y)+'" width="'+f1(wd)+'" height="'+f1(ht)+'" fill="'+(D(w).getMonth()%2?MA:MB)+'"/>';
 const place=(flip?(()=>{
   // weeks run down the page, 30 slots run across; extra band after a gap
   const LB=30,PR=6,GAP=10,TOP=16,BOT=10,cw=(W-LB-PR-GAP)/(P+X),rowH=(Hh-TOP-BOT)/NW,r=Math.max(2,Math.min(cw*.36,rowH*.36));
   const px=k=>LB+k*cw+cw/2+(k>=P?GAP:0),py=i=>TOP+i*rowH+rowH/2;
   return{px,py,r,
-   bg(){let o='';if(ti>=0&&ti<NW)o+='<rect x="'+LB+'" y="'+f1(TOP+ti*rowH)+'" width="'+f1(W-LB-PR)+'" height="'+f1(rowH)+'" fill="var(--acc)" fill-opacity=".08"/>';
+   bg(){let o=weeks.map((w,i)=>mshade(w,LB,TOP+i*rowH,W-LB-PR,rowH)).join('');if(ti>=0&&ti<NW)o+='<rect x="'+LB+'" y="'+f1(TOP+ti*rowH)+'" width="'+f1(W-LB-PR)+'" height="'+f1(rowH)+'" fill="var(--acc)" fill-opacity=".08"/>';
      o+='<line x1="'+f1(LB+P*cw+GAP/2)+'" x2="'+f1(LB+P*cw+GAP/2)+'" y1="'+TOP+'" y2="'+f1(TOP+NW*rowH)+'" stroke="var(--border-strong)" stroke-width=".6" stroke-dasharray="3 3"/>';
      o+='<text class="cs" x="'+f1(LB+P*cw+GAP/2+4)+'" y="'+(TOP-4)+'">extra</text>';
      weeks.forEach((w,i)=>{if(rowH>=12||i%2===0)o+='<text class="cs" x="2" y="'+f1(py(i)+4)+'">'+(D(w).getDate())+'/'+(D(w).getMonth()+1)+'</text>'});return o}};
@@ -594,7 +594,7 @@ const place=(flip?(()=>{
   const PL=4,PR=6,TOP=16,BOT=10,rh=(Hh-TOP-BOT)/R,pw=(W-PL-PR)/NW,r=Math.max(2.5,Math.min(pw*.36,rh*.36));
   const px=i=>PL+i*pw+pw/2,py=k=>TOP+k*rh+rh/2;
   return{px,py,r,
-   bg(){let o='';months().filter(m=>m.a>=A0()&&m.a<A0()+SPAN).forEach(m=>{o+='<text class="cs" x="'+f1(PL+(m.a-A0())/7*pw)+'" y="11">'+m.l+'</text>'});
+   bg(){let o=weeks.map((w,i)=>mshade(w,px(i)-pw/2,TOP,pw,R*rh)).join('');months().filter(m=>m.a>=A0()&&m.a<A0()+SPAN).forEach(m=>{o+='<text class="cs" x="'+f1(PL+(m.a-A0())/7*pw)+'" y="11">'+m.l+'</text>'});
      if(ti>=0&&ti<NW)o+='<rect x="'+f1(px(ti)-pw/2)+'" y="'+TOP+'" width="'+f1(pw)+'" height="'+f1(R*rh)+'" fill="var(--acc)" fill-opacity=".08"/>';
      const yD=TOP+P*rh;o+='<line x1="'+PL+'" x2="'+f1(W-PR)+'" y1="'+f1(yD)+'" y2="'+f1(yD)+'" stroke="var(--border-strong)" stroke-width=".6" stroke-dasharray="3 3"/>';return o}};
 })());
@@ -608,9 +608,8 @@ WK.forEach(wk=>{
  wk.ex.forEach((d,k)=>{const[x,y]=slot(wk.i,P+k);s+=dotOf(x,y,R0,d[0],d[2],d[1])});
 });
 el.innerHTML=LG+'<svg width="'+W+'" height="'+Hh+'" role="img" aria-label="Week overview">'+s+'</svg>';}
-on('ori','click',()=>{let cur=true;try{const o=localStorage.getItem('planner-orient');if(o)cur=o==='down'}catch(e){}try{localStorage.setItem('planner-orient',cur?'across':'down')}catch(e){}renderDots()});
 H.dots=()=>renderDots();
-on('cv','click',e=>{const a=e.target.closest('[data-o]');if(!a)return;const[k,x,y]=a.dataset.o.split(':');
+on('cv','click',e=>{if(e.target.closest('[data-flip]')){let cur=true;try{const o=localStorage.getItem('planner-orient');if(o)cur=o==='down'}catch(e){}try{localStorage.setItem('planner-orient',cur?'across':'down')}catch(e){}renderDots();return}const a=e.target.closest('[data-o]');if(!a)return;const[k,x,y]=a.dataset.o.split(':');
 if(k==='pl')page('plan');else if(k==='t')openCard({t:'item',id:x});else if(k==='gate')openCard({t:'gate',g:x,si:+y});else if(k==='b')openCard({t:'bud',b:x,w:y==null?monday(TODAY):+y});else if(k==='u')openCard({t:'buf',w:x==null?monday(TODAY):+x});else if(k==='teach')openCard({t:'teach',w:x==null?monday(TODAY):+x});else if(k==='g')H.openPlan(x)});
 on('td','click',e=>{const b=e.target.closest('[data-s],[data-ac]');if(!b)return;if(b.dataset.ac){autoPlace();refresh();return}const[d,i]=b.dataset.s.split(':').map(Number),s=slots(d)[i];if(s.k==='t')openCard({t:'item',id:s.id,s:s.key});else if(s.k==='f')openCard({t:'free',d,i});else openCard({t:'day',d})});
 // ---------- pages
