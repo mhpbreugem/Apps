@@ -553,20 +553,29 @@ const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=24,X=6,R=P+X;
 const weeks=[];for(let w=A0();w<A0()+SPAN;w+=7)weeks.push(w);
 const NW=weeks.length;
 // collect each week's dots: pl = planned slots in fixed order, ex = extra band
+// a run of dots for one category: the first `done` are solid (completed), the rest up to `plan` are empty (planned)
+const catDots=(c,o,done,plan)=>{const n=Math.max(done,plan),a=[];for(let j=0;j<n;j++)a.push([c,o,j>=done]);return a};
+const hrs=q=>Math.ceil(q/4-1e-9);
 const WK=weeks.map((w,i)=>{
- const pl=[];
- pG.forEach(g=>{let q=0;g.tasks.forEach(t=>{q+=wkQ(w,t.id)});for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([RES,'g:'+g.id])});
- let th=0,cz=false;for(let d=w;d<w+5;d++){th+=TEACH[fromIdx(d)]||0;if(crazy(d))cz=true}
- for(let j=0;j<th;j++)pl.push([TCH,'teach:'+w]);
- {const b=S.B.ext,q=wkQ(w,'B:ext');for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([b.c,'b:ext:'+w])}
- {const b=S.B.chair,q=Math.min(wkQ(w,'B:chair'),b.h*4);for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([b.c,'b:chair:'+w])}
+ // research: completed = logged hours on its tasks; planned = hours booked in the schedule that week
+ let rq=0,rp=0;pG.forEach(g=>g.tasks.forEach(t=>{rq+=wkQ(w,t.id)}));
+ for(let d=w;d<w+7;d++)slots(d).forEach(x=>{if(x.k==='t'&&x.it&&!x.it.b)rp++});
+ const pl=catDots(RES,'pl',hrs(rq),rp);
+ // teaching: completed by default
+ let th=0;for(let d=w;d<w+5;d++)th+=TEACH[fromIdx(d)]||0;
+ pl.push(...catDots(TCH,'teach:'+w,th,th));
+ // external teaching, chair: completed vs weekly budget
+ {const b=S.B.ext,q=wkQ(w,'B:ext');pl.push(...catDots(b.c,'b:ext:'+w,hrs(q),Math.ceil(b.h)))}
+ {const b=S.B.chair,q=Math.min(wkQ(w,'B:chair'),b.h*4);pl.push(...catDots(b.c,'b:chair:'+w,hrs(q),Math.ceil(b.h)))}
+ // service (buffer): always empty grey dots
  const bb=ix().bf[w]||{chair:0,over:0,admin:0},u=w<=TODAY?bb.chair+bb.over+bb.admin:0,cap=bufCap(w)*4;
- for(let j=0;j<Math.ceil(Math.min(u,cap)/4-1e-9);j++)pl.push([OBUF,'u:'+w]);
+ pl.push(...catDots(OBUF,'u:'+w,0,Math.max(Math.ceil(bufCap(w)),hrs(Math.min(u,cap)))));
  const rings=[];
- for(let j=0;j<Math.ceil(Math.max(0,u-cap)/4-1e-9);j++)rings.push([XC.over,'u:'+w,1]);
+ for(let j=0;j<hrs(Math.max(0,u-cap));j++)rings.push([XC.over,'u:'+w,1]);
  pl.splice(P).forEach(d=>rings.push([d[0],d[1],1]));
+ // extra band: home, sport, language, Hobbies, then overwork rings
  const fixed=[];
- [['home',XC.home],['sport',XC.sport],['persian',S.B.persian.c],['hobby',XC.hobby]].forEach(a=>{const k=a[0],q=wkQ(w,'B:'+k);for(let j=0;j<Math.ceil(q/4-1e-9);j++)fixed.push([a[1],'b:'+k+':'+w,0])});
+ [['home',XC.home],['sport',XC.sport],['persian',S.B.persian.c],['hobby',XC.hobby]].forEach(a=>{const k=a[0],q=wkQ(w,'B:'+k);fixed.push(...catDots(a[1],'b:'+k+':'+w,hrs(q),Math.ceil(S.B[k].h)))});
  return{i:i,w:w,pl:pl,ex:fixed.concat(rings).slice(0,X)};
 });
 let s='';
@@ -594,14 +603,14 @@ s+=place.bg();
 const R0=place.r;
 weeks.forEach((w,i)=>{for(let k=0;k<R;k++){const[x,y]=slot(i,k);s+='<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(R0)+'" fill="none" stroke="var(--border-strong)" stroke-width=".8"/>'}});
 WK.forEach(wk=>{
- wk.pl.forEach((d,k)=>{const[x,y]=slot(wk.i,k);s+=dotOf(x,y,R0,d[0],0,d[1])});
+ wk.pl.forEach((d,k)=>{const[x,y]=slot(wk.i,k);s+=dotOf(x,y,R0,d[0],d[2],d[1])});
  wk.ex.forEach((d,k)=>{const[x,y]=slot(wk.i,P+k);s+=dotOf(x,y,R0,d[0],d[2],d[1])});
 });
 el.innerHTML=LG+'<svg width="'+W+'" height="'+Hh+'" role="img" aria-label="Week overview">'+s+'</svg>';}
 on('ori','click',()=>{let cur=true;try{const o=localStorage.getItem('planner-orient');if(o)cur=o==='down'}catch(e){}try{localStorage.setItem('planner-orient',cur?'across':'down')}catch(e){}renderDots()});
 H.dots=()=>renderDots();
 on('cv','click',e=>{const a=e.target.closest('[data-o]');if(!a)return;const[k,x,y]=a.dataset.o.split(':');
-if(k==='t')openCard({t:'item',id:x});else if(k==='gate')openCard({t:'gate',g:x,si:+y});else if(k==='b')openCard({t:'bud',b:x,w:y==null?monday(TODAY):+y});else if(k==='u')openCard({t:'buf',w:x==null?monday(TODAY):+x});else if(k==='teach')openCard({t:'teach',w:x==null?monday(TODAY):+x});else if(k==='g')H.openPlan(x)});
+if(k==='pl')page('plan');else if(k==='t')openCard({t:'item',id:x});else if(k==='gate')openCard({t:'gate',g:x,si:+y});else if(k==='b')openCard({t:'bud',b:x,w:y==null?monday(TODAY):+y});else if(k==='u')openCard({t:'buf',w:x==null?monday(TODAY):+x});else if(k==='teach')openCard({t:'teach',w:x==null?monday(TODAY):+x});else if(k==='g')H.openPlan(x)});
 on('td','click',e=>{const b=e.target.closest('[data-s],[data-ac]');if(!b)return;if(b.dataset.ac){autoPlace();refresh();return}const[d,i]=b.dataset.s.split(':').map(Number),s=slots(d)[i];if(s.k==='t')openCard({t:'item',id:s.id,s:s.key});else if(s.k==='f')openCard({t:'free',d,i});else openCard({t:'day',d})});
 // ---------- pages
 function page(n){cur=n;document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+n));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.pg===n));$('qz').style.display=n==='dots'?'flex':'none';refresh();if(n==='agent')renderChat()}
