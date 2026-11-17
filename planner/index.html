@@ -209,6 +209,8 @@ h2,h3{font-family:var(--fd);font-weight:var(--fdw);letter-spacing:var(--fdl)}h3{
 @media (orientation:landscape){#td{--cs:clamp(16px,calc((100vw - 20px - 4*10px)/30 - 4px),30px)}}
 #lgd [data-k]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
 
+#td .sl{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+
 </style></head><body><div id="ld" role="button" tabindex="0" aria-label="Tap to open"><span>tap to open</span></div><div id="app">
 <div id="top"><div class="nav"><button data-pg="dots" class="on">Dots</button><button data-pg="plan">Plan</button><button data-pg="week">Week</button><button data-pg="agent">Haiku</button></div><span id="sm"></span><span class="sp"></span><button class="mic" id="qmic" data-mic="ta" aria-label="Talk to Haiku"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div><div class="page on" id="p-dots"><div id="td"></div><div id="cv"></div></div><div class="page" id="p-plan"><div class="pl"><div id="tree" class="tree"></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div><div class="page" id="p-week"><div id="wk" class="wkp"></div></div><div class="page" id="p-agent"><div class="hk"><div class="chat"><div class="chh"><b>Haiku</b><span>Works only from your plan.</span><span class="sp"></span><button id="eff" class="btn">Depth: medium</button><button id="keyb" class="btn" style="display:none">API key</button></div><div id="keyrow" style="display:none"><input id="keyi" type="password" placeholder="Anthropic API key, kept in this browser" aria-label="API key"><button id="keys" class="btn">Save</button></div><div id="msgs"></div><div id="props"></div><div class="chips" id="chips"></div><div class="inp"><textarea id="ta" placeholder="Ask or tell Haiku" rows="1" aria-label="Message"></textarea><button class="mic" data-mic="ta" aria-label="Dictate"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button class="btn pri" id="send">Send</button></div></div><aside><h3>Gates to clear</h3><div class="gq"></div></aside></div></div>
 </div>
@@ -587,7 +589,7 @@ const flip=true;
 const pG=S.goals.filter(g=>!g.auto);
 const chip=(c,ab,nm,ring,c2,o,o2,k,k2)=>'<span title="'+esc(nm)+'" data-o="'+(o||'pl')+'"'+(o2?' data-o2="'+o2+'"':'')+(k?' data-k="'+k+'"':'')+(k2?' data-k2="'+k2+'"':'')+' style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;flex:none;font-size:8px;letter-spacing:-.02em;'+(ring?'border:1.5px solid '+c+';color:var(--text-secondary)':'background:'+(c2?'linear-gradient(135deg,'+c+' 50%,'+c2+' 50%)':c)+';color:#111')+(BR&&(BR===k||BR===k2)?';box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)':'')+'">'+ab+'</span>';
 const mw=monday(TODAY),legend=chip(RES,'Res','Research',0,0,'pl',0,'res')+chip(PLN,'Pln','Planning',0,0,'pl',0,'pln')+chip(TCH,'Tch','Teaching and external teaching',0,S.B.ext.c,'teach:'+mw,'b:ext:'+mw,'tch','ext')+chip(S.B.chair.c,'Chr','Chair, admin and meetings',0,OBUF,'b:chair:'+mw,'u:'+mw,'chair','svc')+chip(XC.home,'Hom','Home',0,0,'b:home:'+mw,0,'home')+chip(XC.sport,'Spt','Sport',0,0,'b:sport:'+mw,0,'sport')+chip(S.B.persian.c,'Per','language',0,0,'b:persian:'+mw,0,'persian');
-const LG='<div id="lgd" style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 2px">'+legend+'</div><div style="font-size:11px;color:var(--mute);padding:0 10px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(BR?'Tap a free hour above to place '+BNAME[BR]+'. Tap again or hold for full planning.':'Tap a circle to place it in the week. Hold it for full planning.')+'</div>';
+const LG='<div id="lgd" style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px 2px">'+legend+'</div><div style="font-size:11px;color:var(--mute);padding:0 10px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(BR?'Tap a free hour above to place '+BNAME[BR]+'. Tap this circle again or hold it for full planning.':'Tap an hour above for ¼, hold it for the full hour. Tap a circle to place it.')+'</div>';
 el.innerHTML=LG;let lh=0;Array.from(el.children).forEach(c=>{lh+=c.offsetHeight});
 const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),P=20,X=5,R=P+X;
 const weeks=[];for(let w=A0();w<A0()+SPAN;w+=7)weeks.push(w);
@@ -651,7 +653,7 @@ H.dots=()=>renderDots();
 on('cv','click',e=>{const a=e.target.closest('[data-o]');if(!a)return;let od=a.dataset.o,key=a.dataset.k;if(a.dataset.o2){const r=a.getBoundingClientRect();if(e.clientX>r.left+r.width/2){od=a.dataset.o2;key=a.dataset.k2||key}}
 if(key){if(BNAME[key]){if(BR===key){BR=null;renderTd();renderDots();page('plan');return}BR=key;renderTd();renderDots();return}BR=null;renderTd()}const[k,x,y]=od.split(':');
 if(k==='wk'){PW=clamp(Math.round((+x-monday(TODAY))/7),PWMIN,PWMAX);renderTd();renderDots();return}if(k==='pl')page('plan');else if(k==='t')openCard({t:'item',id:x});else if(k==='gate')openCard({t:'gate',g:x,si:+y});else if(k==='b')openCard({t:'bud',b:x,w:y==null?monday(TODAY):+y});else if(k==='u')openCard({t:'buf',w:x==null?monday(TODAY):+x});else if(k==='teach')openCard({t:'teach',w:x==null?monday(TODAY):+x});else if(k==='g')H.openPlan(x)});
-on('td','click',e=>{const pw=e.target.closest('[data-pw]');if(pw){if(pw.disabled)return;PW=pw.dataset.pw==='0'?0:clamp(PW+ +pw.dataset.pw,PWMIN,PWMAX);renderTd();renderDots();return}const b=e.target.closest('[data-s],[data-ac]');if(!b)return;if(b.dataset.ac){autoPlace();refresh();return}const[d,i]=b.dataset.s.split(':').map(Number),s=slots(d)[i];if(BR&&s.k==='f'){const id=brushItem(BR);if(id){setSlot(d,i,id);dirty();refresh();return}}if(s.k==='t')openCard({t:'item',id:s.id,s:s.key});else if(s.k==='f')openCard({t:'free',d,i});else openCard({t:'day',d})});
+on('td','click',e=>{const pw=e.target.closest('[data-pw]');if(pw){if(pw.disabled)return;PW=pw.dataset.pw==='0'?0:clamp(PW+ +pw.dataset.pw,PWMIN,PWMAX);renderTd();renderDots();return}const b=e.target.closest('[data-s],[data-ac]');if(!b)return;if(b.dataset.ac){autoPlace();refresh();return}const[d,i]=b.dataset.s.split(':').map(Number),s=slots(d)[i];if(BR&&s.k==='f'){const id=brushItem(BR);if(id){setSlot(d,i,id);dirty();refresh();return}}if(s.k==='t'&&d<=TODAY&&s.qd<4){logQ(s.id,1,s.key,d);refresh();return}if(s.k==='t')openCard({t:'item',id:s.id,s:s.key});else if(s.k==='f')openCard({t:'free',d,i});else openCard({t:'day',d})});
 // ---------- pages
 function page(n){cur=n;document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+n));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.pg===n));refresh();if(n==='agent')renderChat()}
 document.querySelector('.nav').onclick=e=>{const b=e.target.closest('button');if(b)page(b.dataset.pg)};
@@ -677,6 +679,16 @@ c.addEventListener('pointerdown',function(e){var a=e.target.closest('#lgd [data-
 ['pointerup','pointerleave','pointercancel'].forEach(function(n){c.addEventListener(n,function(){clearTimeout(tm)})});
 c.addEventListener('click',function(e){if(lp){lp=false;e.stopImmediatePropagation();e.preventDefault()}},true);
 c.addEventListener('contextmenu',function(e){if(e.target.closest('#lgd'))e.preventDefault()})})();
+
+;(function(){var t=document.getElementById('td');if(!t)return;var tm=null,lp=false;
+function full(b){var p=b.dataset.s.split(':').map(Number),d=p[0],i=p[1],x=slots(d)[i];if(!x)return false;
+ if(BR&&x.k==='f'){var id=brushItem(BR);if(!id)return false;setSlot(d,i,id);dirty();x=slots(d)[i]}
+ if(x.k==='t'&&d<=TODAY){var n=4-x.qd;if(n>0)logQ(x.id,n,x.key,d);refresh();return true}
+ if(x.k==='t'||BR){refresh();return true}return false}
+t.addEventListener('pointerdown',function(e){var b=e.target.closest('.sl[data-s]');if(!b)return;lp=false;clearTimeout(tm);tm=setTimeout(function(){if(full(b)){lp=true;if(navigator.vibrate)try{navigator.vibrate(15)}catch(e){}}},480)});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){t.addEventListener(n,function(){clearTimeout(tm)})});
+t.addEventListener('click',function(e){if(lp){lp=false;e.stopImmediatePropagation();e.preventDefault()}},true);
+t.addEventListener('contextmenu',function(e){e.preventDefault()})})();
 
 })();
 </script></body></html>
