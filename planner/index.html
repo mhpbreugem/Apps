@@ -195,7 +195,7 @@ const TEACH={};for(let d=0;d<DAYS;d++){const dt=D(d);if(dt.getDay()===2&&dt>=new
 const KIND={focus:['Focused',40],regular:['Regular',60]},qmin=k=>KIND[k][1]/4,book=(real,k)=>Math.max(.25,Math.round(real*60/KIND[k][1]*4)/4),realH=t=>t.est*KIND[t.k][1]/60;
 const FR=['','¼','½','¾'],fh=h=>{const x=Math.round(h*4),w=Math.floor(x/4),f=FR[x%4];return(w||!f?w:'')+f+' h'},fm=m=>{m=Math.round(m);return m<60?m+' min':Math.floor(m/60)+' h'+(m%60?' '+m%60+' min':'')};
 const PAL=['#7DB8F7','#B3A6F5','#63D2DA','#F593AE'],TCH='#EDB55C',BUFC='#F5A65B';
-const BUD0={chair:{name:'Chair',h:4,c:'#D99BEF',k:'focus'},persian:{name:'Language',h:1,c:'#86DA84',k:'focus'},sport:{name:'Sport',h:1,c:'#CFDD63',k:'focus'},home:{name:'Home job',h:0,c:'#E8A0C0',k:'regular'}};
+const BUD0={chair:{name:'Chair',h:4,c:'#D99BEF',k:'focus'},persian:{name:'Language',h:1,c:'#86DA84',k:'focus'},sport:{name:'Sport',h:1,c:'#CFDD63',k:'focus'},home:{name:'Home job',h:0,c:'#E8A0C0',k:'regular'},hobby:{name:'Hobbies',h:0,c:'#BA7517',k:'regular'}};
 // sample plan. Stage: [name, planned, tasks 'name:real hours:f|r:steps' or rough booked hours]
 const SPEC=[
 ['Paper A revision','research','2026-10-19','2027-03-31',[
@@ -512,7 +512,7 @@ let wks=0,got=0,ov=0;for(let x=monday(0);x<=w;x+=7){wks++;got+=wkQ(x,'B:chair');
 h+='<section><h3>Chair since '+fd(monday(0))+'</h3><p class="cm">'+fh(got/4)+' logged in '+wks+' weeks against '+fh(wks*S.B.chair.h)+' budgeted. <b class="'+(ov?'amb':'good')+'">'+fh(ov/4)+' drawn from the buffer</b>'+(ov?': the number to bring to your dean.':'.')+'</p></section>';
 h+='<section><h3>Will it fit?</h3><div class="feas"></div></section>';
 const set=(k,name,v,unit)=>'<div class="wr st"><b>'+name+'</b><button class="btn" data-ws="'+k+':-1">−</button><em>'+v+'</em><button class="btn" data-ws="'+k+':1">+</button><small>'+unit+'</small></div>';
-h+='<section><h3>Settings</h3>'+set('chair','Chair',fh(S.B.chair.h),'a week')+set('persian','language',fh(S.B.persian.h),'a week')+set('sport','Sport',fh(S.B.sport.h),'a week')+set('buf','Buffer',fh(S.buf),'a day')+'<p class="note">A day holds '+LIM+' booked hours. A focused hour holds 40 minutes of real work, a regular hour 60.</p></section>';
+h+='<section><h3>Settings</h3>'+set('chair','Chair',fh(S.B.chair.h),'a week')+set('persian','language',fh(S.B.persian.h),'a week')+set('sport','Sport',fh(S.B.sport.h),'a week')+set('hobby','Hobbies',fh(S.B.hobby.h),'a week')+set('buf','Buffer',fh(S.buf),'a day')+'<p class="note">A day holds '+LIM+' booked hours. A focused hour holds 40 minutes of real work, a regular hour 60.</p></section>';
 const y=el.scrollTop;el.innerHTML=h;el.scrollTop=y;renderFeas()}
 on('wk','click',e=>{const b=e.target.closest('[data-wa],[data-ws]');if(!b)return;if(b.dataset.wa==='review'){(H.goHaiku||ask)('Review my week: compare logged and estimated hours, the budgets and the buffer, and say what to change.','high');return}
 if(b.dataset.wa){const[,k,r]=b.dataset.wa.split(':');S.goals.forEach(g=>g.tasks.forEach(t=>{if(t.k===k&&!t.done&&!t.gate&&!dq(t))t.est=Math.max(.25,Math.round(t.est*+r*4)/4)}))}
@@ -536,30 +536,45 @@ function renderTd(){const el=$('td');if(!vis(el))return;const dt=D(TODAY),sl=slo
 let h='<div class="tdl"><b>'+WDL[dt.getDay()]+' '+dt.getDate()+' '+MON[dt.getMonth()]+'</b><small>'+(!isWd(TODAY)?'weekend':cz?'crazy day':wk.length?fh(dn)+' of '+wk.length+' h done':'nothing placed')+'</small></div><div class="tds">'+sl.map((s,i)=>slotBtn(s,TODAY,i)).join('')+'</div>';
 if(nx){const it=nx.it,st=it.t&&it.t.steps.find(x=>!x.d);h+='<button class="tdn" data-s="'+TODAY+':'+sl.indexOf(nx)+'"><small>Next</small><b>'+esc(it.name)+'</b>'+(st?'<small>'+esc(st.n)+'</small>':'')+'</button>'}
 else if(isWd(TODAY)&&!cz&&!wk.length)h+='<button class="btn pri" data-ac="auto">Fill for me</button>';el.innerHTML=h}
-function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;const W=el.clientWidth,Hh=el.clientHeight,pt=W<Hh,L=pt?Math.min(104,W*.28):146,T0=16,X1=W-6,
-rows=S.goals.filter(g=>!g.auto).map(g=>({k:'g',g})).concat([{k:'T'},{k:'b',b:'chair'},{k:'b',b:'persian'},{k:'b',b:'sport'},{k:'u'}]),n=rows.length,rh=(Hh-T0)/n,sx=d=>L+(d-A0())/SPAN*(X1-L),wk=7/SPAN*(X1-L),
-p1=(rh-4)/3,p=clamp(Math.floor(5*Math.min(p1,wk*.95)<=rh-4?Math.min(p1,wk*.95):Math.min(p1,wk/2.1)),5,15),r=p*.42,K=Math.max(2,Math.floor((rh-4)/p)),lbl=rh-K*p>=15;let s='';
-months().filter(m=>m.a>=A0()&&m.a<A0()+SPAN).forEach(m=>{s+='<text class="cs" x="'+f1(sx(m.a))+'" y="11">'+m.l+'</text>'});
-for(let y=T0;y<Hh;y+=8)s+='<circle cx="'+f1(sx(TODAY))+'" cy="'+y+'" r="1.4" fill="var(--acc)"/>';
-const name=(y,c,a,b,o,sq)=>'<g data-o="'+o+'">'+(sq?'':'<circle cx="8" cy="'+f1(y-5)+'" r="4.5" fill="'+c+'"/>')+'<text class="cb" x="18" y="'+f1(y-1)+'">'+esc(cut(a,Math.floor((L-22)/7.2)))+'</text><text class="cs" x="18" y="'+f1(y+12)+'">'+b+'</text><rect x="0" y="'+f1(y-rh/2)+'" width="'+(L-6)+'" height="'+f1(rh)+'" fill="transparent"/></g>';
-// a column block of dots for one week: hour dots K high, squeezed to the week width when there are many
-const wcol=(x,y0,arr,o)=>{const cols=Math.ceil(arr.length/K),step=Math.min(p,(wk-2)/Math.max(1,cols));let h='';arr.forEach((a,j)=>{h+=qdot(x+r+Math.floor(j/K)*step,y0+(j%K)*p,r,a[0],a[1],a[2],a[3])});return'<g data-o="'+o+'"><rect x="'+f1(x)+'" y="'+f1(y0-p/2)+'" width="'+f1(Math.max(wk-2,p))+'" height="'+f1(K*p)+'" fill="transparent"/>'+h+'</g>'};
+if(!S.B.hobby)S.B.hobby=JSON.parse(JSON.stringify(BUD0.hobby));
+const OBUF='#9E9E96';const XC={sport:'#D4537E',home:'#639922',hobby:'#BA7517',over:'#BA7517'};
+const dotOf=(x,y,r,c,ring,o)=>(o?'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r*1.7)+'" fill="transparent" data-o="'+o+'"/>':'')+'<circle cx="'+f1(x)+'" cy="'+f1(y)+'" r="'+f1(r)+'"'+(ring?' fill="none" stroke="'+c+'" stroke-width="1.4"':' fill="'+c+'"')+'/>';
+const lgi=(c,n,ring)=>'<span style="display:inline-flex;align-items:center;gap:5px;margin:2px 12px 2px 0"><i style="display:inline-block;width:9px;height:9px;border-radius:50%;'+(ring?'border:1.5px solid '+c:'background:'+c)+'"></i>'+esc(n)+'</span>';
+// one column per week. Top 24 slots are planned hours in a fixed category order; the 6 extra slots below a divider hold sport, home, hobbies, then overwork rings.
+function renderDots(){renderTd();const el=$('cv');if(!vis(el))return;
+const pG=S.goals.filter(g=>!g.auto);
+const legend=pG.map(g=>lgi(col(g),g.name)).join('')+lgi(TCH,'Teaching')+lgi(S.B.chair.c,S.B.chair.name)+lgi(S.B.persian.c,S.B.persian.name)+lgi(OBUF,'Buffer')+lgi(XC.sport,'Sport')+lgi(XC.home,'Home')+lgi(XC.hobby,'Hobbies')+lgi(XC.over,'Extra',1);
+const LG='<div id="lgd" style="font-size:11px;color:var(--mute);padding:2px 2px 4px">'+legend+'</div>';
+el.innerHTML=LG;const lh=el.firstChild?el.firstChild.offsetHeight:0;
+const W=el.clientWidth,Hh=Math.max(120,el.clientHeight-lh),PL=4,PR=6,TOP=16,BOT=10,P=24,X=6,R=P+X;
+const NW=Math.round(SPAN/7),pw=(W-PL-PR)/NW,rh=(Hh-TOP-BOT)/R,r=Math.max(2.5,Math.min(pw*.36,rh*.36));
+const cx=i=>PL+i*pw+pw/2,cy=k=>TOP+k*rh+rh/2;
 const weeks=[];for(let w=A0();w<A0()+SPAN;w+=7)weeks.push(w);
-rows.forEach((R,ri)=>{const yt=T0+ri*rh,yc=yt+rh/2,y0=yt+(rh-K*p)/2+p/2+(lbl?5:0);
-if(R.k==='g'){const g=R.g,c=col(g),lg=Math.round(lag(g));s+=name(yc,c,g.name,lg>=2?'<tspan class="tw">'+fh(lg)+' behind</tspan>':'due '+fd(idx(g.due)),'g:'+g.id);let nx=-1e9;
-g.stages.forEach((st,si)=>{const x=stg(g,si);if(x.e<A0()||x.s>A0()+SPAN)return;let x0=Math.max(sx(Math.max(x.s,A0())),nx);if(x0>X1-p)return;const nxt=g.stages[si+1],lim=nxt?Math.max(sx(nxt.s),x0+40):X1;
-if(!x.planned){const z=p*1.1,dn=Math.min(1,dq(x.gate)/(x.gate.est*4));s+='<g data-o="gate:'+g.id+':'+si+'"><rect x="'+f1(x0-2)+'" y="'+f1(yc-z)+'" width="'+f1(Math.max(z+4,Math.min(lim-x0-4,z+8+st.name.length*6)))+'" height="'+f1(2*z)+'" fill="transparent"/><rect x="'+f1(x0)+'" y="'+f1(yc-z/2)+'" width="'+f1(z)+'" height="'+f1(z)+'" rx="1.5" fill="'+(dn?c:'none')+'" fill-opacity="'+(dn*.6).toFixed(2)+'" stroke="'+c+'" stroke-width="1.6"/>';
-const lw=Math.floor((lim-x0-z-10)/6);if(lw>=3)s+='<text class="cs" x="'+f1(x0+z+5)+'" y="'+f1(yc+4)+'">'+esc(cut(st.name,lw))+'</text>';s+='</g>';nx=x0+z+6;return}
-s+='<rect x="'+f1(x0)+'" y="'+f1(yc-p*.28)+'" width="'+f1(p*.56)+'" height="'+f1(p*.56)+'" rx="1" fill="'+c+'" fill-opacity=".55"/>';x0+=p*.85;let j=0;
-if(lbl)s+='<text class="cs" x="'+f1(x0)+'" y="'+f1(y0-p/2-3)+'">'+esc(cut(st.name,Math.floor((Math.min(lim,X1)-x0)/6)))+'</text>';
-x.work.forEach(t=>{const v=t.done?Math.max(dq(t),t.est*4):dq(t),cap=t.est*4,nd=Math.ceil(cap/4),no=Math.max(0,Math.ceil((v-cap)/4));let hh='',x00=1e9,x11=0;
-for(let q=0;q<nd+no;q++,j++){const X=x0+Math.floor(j/K)*p+r,Y=y0+(j%K)*p;if(X>X1)break;x00=Math.min(x00,X-r);x11=Math.max(x11,X+r);const o=q>=nd;hh+=o?qdot(X,Y,r,c,4,clamp(v-cap-4*(q-nd),0,4),BUFC):qdot(X,Y,r,c,Math.min(4,cap-4*q),clamp(v-4*q,0,Math.min(4,cap-4*q)))}
-if(hh)s+='<g data-o="t:'+t.id+'"><rect x="'+f1(x00)+'" y="'+f1(y0-p/2)+'" width="'+f1(Math.max(p,x11-x00))+'" height="'+f1(K*p)+'" fill="transparent"/>'+hh+'</g>'});nx=x0+Math.ceil(j/K)*p+p*.7})}
-else if(R.k==='T'){s+=name(yc,TCH,'Teaching','fixed, regular','teach');weeks.forEach(w=>{let a=[],cz=false;for(let d=w;d<w+5;d++){const h=TEACH[fromIdx(d)]||0;if(crazy(d))cz=true;for(let k=0;k<h;k++)a.push([cz?BUFC:TCH,4,d<TODAY?4:0])}if(a.length)s+=wcol(sx(w),y0,a,'teach:'+w)})}
-else if(R.k==='b'){const b=S.B[R.b],id='B:'+R.b;s+=name(yc,b.c,b.name,fh(b.h)+' a week','b:'+R.b);weeks.forEach(w=>{const got=w<=TODAY?wkQ(w,id):0,cap=b.h*4,nd=Math.ceil(cap/4),no=Math.max(0,Math.ceil((got-cap)/4)),a=[];for(let q=0;q<nd+no;q++)a.push(q<nd?[b.c,Math.min(4,cap-4*q),clamp(got-4*q,0,Math.min(4,cap-4*q))]:[b.c,4,clamp(got-cap-4*(q-nd),0,4),BUFC]);if(a.length)s+=wcol(sx(w),y0,a,'b:'+R.b+':'+w)})}
-else{s+=name(yc,BUFC,'Buffer',fh(S.buf)+' a day','u');weeks.forEach(w=>{const b=ix().bf[w]||{chair:0,over:0,admin:0},u=w<=TODAY?b.chair+b.over+b.admin:0,cap=bufCap(w)*4,nd=Math.ceil(cap/4),no=Math.max(0,Math.ceil((u-cap)/4)),a=[];for(let q=0;q<nd+no;q++)a.push(q<nd?[BUFC,Math.min(4,cap-4*q),clamp(u-4*q,0,4)]:[BUFC,4,clamp(u-cap-4*(q-nd),0,4),'var(--warn)']);if(a.length)s+=wcol(sx(w),y0,a,'u:'+w)})}});
-el.innerHTML='<svg width="'+W+'" height="'+Hh+'">'+s+'</svg>'}
-H.dots=()=>{renderDots();const el=$('cv'),sv=el&&el.querySelector('svg');if(sv&&+sv.getAttribute('height')!==el.clientHeight)renderDots()};
+let s='';
+months().filter(m=>m.a>=A0()&&m.a<A0()+SPAN).forEach(m=>{s+='<text class="cs" x="'+f1(PL+(m.a-A0())/7*pw)+'" y="11">'+m.l+'</text>'});
+const ti=(monday(TODAY)-A0())/7;
+if(ti>=0&&ti<NW)s+='<rect x="'+f1(cx(ti)-pw/2)+'" y="'+TOP+'" width="'+f1(pw)+'" height="'+f1(R*rh)+'" fill="var(--acc)" fill-opacity=".08"/>';
+const yD=TOP+P*rh;
+s+='<line x1="'+PL+'" x2="'+f1(W-PR)+'" y1="'+f1(yD)+'" y2="'+f1(yD)+'" stroke="var(--border-strong)" stroke-width=".6" stroke-dasharray="3 3"/>';
+weeks.forEach((w,i)=>{for(let k=0;k<R;k++)s+='<circle cx="'+f1(cx(i))+'" cy="'+f1(cy(k))+'" r="'+f1(r)+'" fill="none" stroke="var(--border-strong)" stroke-width=".8"/>'});
+weeks.forEach((w,i)=>{
+ const pl=[];
+ pG.forEach(g=>{let q=0;g.tasks.forEach(t=>{q+=wkQ(w,t.id)});for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([col(g),'g:'+g.id])});
+ let th=0,cz=false;for(let d=w;d<w+5;d++){th+=TEACH[fromIdx(d)]||0;if(crazy(d))cz=true}
+ for(let j=0;j<th;j++)pl.push([TCH,'teach:'+w]);
+ ['chair','persian'].forEach(k=>{const b=S.B[k],q=Math.min(wkQ(w,'B:'+k),b.h*4);for(let j=0;j<Math.ceil(q/4-1e-9);j++)pl.push([b.c,'b:'+k+':'+w])});
+ const bb=ix().bf[w]||{chair:0,over:0,admin:0},u=w<=TODAY?bb.chair+bb.over+bb.admin:0,cap=bufCap(w)*4;
+ for(let j=0;j<Math.ceil(Math.min(u,cap)/4-1e-9);j++)pl.push([OBUF,'u:'+w]);
+ const rings=[];
+ for(let j=0;j<Math.ceil(Math.max(0,u-cap)/4-1e-9);j++)rings.push([XC.over,'u:'+w,1]);
+ pl.splice(P).forEach(d=>rings.push([d[0],d[1],1]));
+ const fixed=[];
+ [['sport',XC.sport],['home',XC.home],['hobby',XC.hobby]].forEach(a=>{const q=wkQ(w,'B:'+a[0]);for(let j=0;j<Math.ceil(q/4-1e-9);j++)fixed.push([a[1],'b:'+a[0]+':'+w,0])});
+ pl.forEach((d,k)=>{s+=dotOf(cx(i),cy(k),r,d[0],0,d[1])});
+ fixed.concat(rings).slice(0,X).forEach((d,k)=>{s+=dotOf(cx(i),cy(P+k),r,d[0],d[2],d[1])});
+});
+el.innerHTML=LG+'<svg width="'+W+'" height="'+Hh+'" role="img" aria-label="Week overview">'+s+'</svg>';}
+H.dots=()=>renderDots();
 on('cv','click',e=>{const a=e.target.closest('[data-o]');if(!a)return;const[k,x,y]=a.dataset.o.split(':');
 if(k==='t')openCard({t:'item',id:x});else if(k==='gate')openCard({t:'gate',g:x,si:+y});else if(k==='b')openCard({t:'bud',b:x,w:y==null?monday(TODAY):+y});else if(k==='u')openCard({t:'buf',w:x==null?monday(TODAY):+x});else if(k==='teach')openCard({t:'teach',w:x==null?monday(TODAY):+x});else if(k==='g')H.openPlan(x)});
 on('td','click',e=>{const b=e.target.closest('[data-s],[data-ac]');if(!b)return;if(b.dataset.ac){autoPlace();refresh();return}const[d,i]=b.dataset.s.split(':').map(Number),s=slots(d)[i];if(s.k==='t')openCard({t:'item',id:s.id,s:s.key});else if(s.k==='f')openCard({t:'free',d,i});else openCard({t:'day',d})});
