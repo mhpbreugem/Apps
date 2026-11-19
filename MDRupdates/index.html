@@ -892,16 +892,22 @@ textarea{min-height:150px}
     var t = ymd(new Date()); return fmtRange(t, t);
   }
   function mailBody(items, level, omitted, title){
-    var out = [title, "Checked " + fmtDate(state.lastRun || new Date().toISOString()), ""];
-    items.forEach(function(i, n){
-      out.push((n+1) + ". " + (i.title || "(untitled)"));
-      var m = [i.category, i.source, i.date].filter(Boolean).join(" · "); if(m) out.push("   " + m);
+    var bar = "----------------------------------------";
+    function stars(n){ return "\u2605\u2605\u2605\u2605\u2605".slice(0, n) + "\u2606\u2606\u2606\u2606\u2606".slice(0, 5 - n); }
+    function lab(n){ return n >= 4 ? "HIGH" : n >= 2 ? "MEDIUM" : "LOW"; }
+    var sorted = items.map(function(x, k){ return {x:x, k:k, v:impOf(x)}; }).sort(function(p, q){
+      var a = p.v === null ? -1 : p.v, b = q.v === null ? -1 : q.v; return (b - a) || (p.k - q.k); }).map(function(o){ return o.x; });
+    var out = [title.toUpperCase(), "Checked " + fmtDate(state.lastRun || new Date().toISOString()) + " | " + items.length + " item" + (items.length === 1 ? "" : "s") + ", most important first", bar, ""];
+    sorted.forEach(function(i, n){
       var imp = impOf(i);
-      if(imp !== null && level < 2) out.push("   Importance for the reader: " + imp + "/5" + (i.importance_reason && level < 1 ? " (" + i.importance_reason + ")" : ""));
-      if(i.summary && level < 1) out.push("   " + i.summary);
+      out.push((n+1) + ". " + (i.title || "(untitled)"));
+      if(imp !== null && level < 2) out.push("   " + stars(imp) + "  " + lab(imp) + " importance (" + imp + "/5)");
+      var m = [i.category, i.source, i.date].filter(Boolean).join(" | "); if(m) out.push("   " + m);
+      if(i.importance_reason && level < 1) out.push("   Relevance: " + i.importance_reason);
+      if(i.summary && level < 1){ out.push(""); out.push("   Summary: " + i.summary); }
       if(i.why_it_matters && level < 1) out.push("   Why it matters: " + i.why_it_matters);
-      out.push("   " + i.url);
-      out.push("");
+      out.push(""); out.push("   Link: " + i.url);
+      out.push(""); out.push(bar); out.push("");
     });
     if(omitted > 0) out.push("(" + omitted + " more selected items did not fit in this email.)", "");
     out.push("AI-generated summaries. Verify against the official source before acting.");
