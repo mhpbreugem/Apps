@@ -43,6 +43,10 @@ body.has-sel main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .iconbtn{position:relative;flex:none;width:46px;border:0;border-radius:10px;display:grid;place-items:center;cursor:pointer}
 .iconbtn.mail{background:#ffd43b;color:#1b1b1b}
 .iconbtn.xls{background:#1d6f42;color:#fff}
+.iconbtn.upd{background:var(--brand);color:var(--brand-ink)}
+.iconbtn.upd.spin svg{animation:s 1s linear infinite}
+.iconbtn.upd.spin:disabled{opacity:1}
+.actions .btn{white-space:nowrap;padding-left:8px;padding-right:8px}
 .iconbtn:disabled{opacity:.45}
 .iconbtn .bdg{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#c62828;color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .iconbtn .bdg:empty{display:none}
@@ -146,8 +150,11 @@ textarea{min-height:150px}
 <main inert>
   <div id="view-main">
     <div class="actions">
-      <button class="btn" id="btnRun">Update week</button>
-      <button class="btn secondary" id="btnHist" type="button">Update history</button>
+      <button class="btn" id="btnWeek" type="button" aria-pressed="true">This week</button>
+      <button class="btn secondary" id="btnHist" type="button" aria-pressed="false">History</button>
+      <button class="iconbtn upd" id="btnUpd" type="button" aria-label="Update this week" title="Update">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
       <button class="iconbtn mail" id="btnMailFront" type="button" disabled aria-label="Email" title="Email">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
         <span class="bdg" id="mailBdg"></span>
@@ -167,7 +174,7 @@ textarea{min-height:150px}
     </div>
     <div id="paneHist" class="hidden">
       <div class="card" style="margin-top:12px">
-        <p class="muted" style="margin:0">Update history searches the period below, newest first. Items you already have are not added twice.</p>
+        <p class="muted" style="margin:0">In History, the update button searches the period below, newest first. Items you already have are not added twice.</p>
         <label for="hFrom">From</label>
         <input type="date" id="hFrom">
         <label for="hTo">To</label>
@@ -426,9 +433,17 @@ textarea{min-height:150px}
     tab = t;
     $("paneWeek").classList.toggle("hidden", t !== "week"); $("paneHist").classList.toggle("hidden", t !== "hist");
     // the active view is the filled button; the other is outlined
-    $("btnRun").classList.toggle("secondary", t !== "week"); $("btnHist").classList.toggle("secondary", t !== "hist");
-    $("btnRun").setAttribute("aria-pressed", String(t === "week")); $("btnHist").setAttribute("aria-pressed", String(t === "hist"));
+    $("btnWeek").classList.toggle("secondary", t !== "week"); $("btnHist").classList.toggle("secondary", t !== "hist");
+    $("btnWeek").setAttribute("aria-pressed", String(t === "week")); $("btnHist").setAttribute("aria-pressed", String(t === "hist"));
     if(t === "hist" && !$("hTo").value){ var n = new Date(); $("hTo").value = ymd(n); $("hTo").max = ymd(n); $("hFrom").value = "2017-05-25"; }
+    updBtn(); updateSelUI();
+  }
+  // one update runs at a time; the views can still be switched while it runs
+  var runKind = "";
+  function updBtn(){
+    var b = $("btnUpd"); if(!b) return;
+    b.disabled = running; b.classList.toggle("spin", running);
+    b.setAttribute("aria-label", running ? (runKind === "hist" ? "Updating history..." : runKind === "deep" ? "Deep search running..." : "Updating this week...") : (tab === "hist" ? "Update history for the period" : "Update this week"));
   }
   function inMain(){ return !$("view-main").classList.contains("hidden"); }
 
@@ -678,7 +693,7 @@ textarea{min-height:150px}
     return null;
   }
 
-  function busy(on){ running = on; ["btnRun","btnHist"].forEach(function(id){ var b = $(id); if(b) b.disabled = on; }); }
+  function busy(on, kind){ running = on; runKind = on ? (kind || "") : ""; updBtn(); }
   // turn the model answer into a digest body: drop invalid and already-seen items, sort, add notes
   function collect(res, parsed){
     var seen = seenUrls(), hidden = 0, items = [];
@@ -704,8 +719,7 @@ textarea{min-height:150px}
   function run(){
     if(running) return;
     if(!state.apiKey){ showView("settings"); return; }
-    setTab("week");
-    busy(true);
+    busy(true, "week");
     var now = new Date();
     var sinceStr = ymd(new Date(now.getTime() - 8*86400000)), todayStr = ymd(now);
     stats = {searches:0, errors:[]};
@@ -739,7 +753,6 @@ textarea{min-height:150px}
   function histSearch(proceed){
     if(running) return;
     if(!state.apiKey){ showView("settings"); return; }
-    setTab("hist");
     var from = $("hFrom").value, to = $("hTo").value, today = ymd(new Date());
     $("hExt").innerHTML = "";
     if(!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)){ setStatus("err","Pick a start and an end date."); return; }
@@ -748,8 +761,8 @@ textarea{min-height:150px}
     var chunks = yearChunks(from, to).filter(function(c){
       return !state.digests.some(function(g){ return g.kind === "range" && g.since === c.from && g.until === c.to && !g.incomplete; });
     });
-    if(!chunks.length){ setStatus("info","This period has already been searched. Pick other dates, or open the History tab to read it."); return; }
-    busy(true);
+    if(!chunks.length){ setStatus("info","This period has already been searched. Pick other dates to search more."); return; }
+    busy(true, "hist");
     var total = chunks.length, done = 0, added = 0, stopped = false;
     var opts = proceed ? {limit:Infinity, maxLoops:10} : {limit:HIST_LIMIT};
     function step(){
@@ -782,14 +795,14 @@ textarea{min-height:150px}
     step().then(function(){
       if(!stopped) setStatus("ok","History updated: " + added + " new item" + (added === 1 ? "" : "s") + " in " + done + " period" + (done === 1 ? "" : "s") + ".");
     }).catch(function(e){
-      save(); return explainAsync(e).then(function(m){ setStatus("err", m + (done ? " (" + done + " of " + total + " periods were saved. Tap Update history again to continue.)" : "")); });
+      save(); return explainAsync(e).then(function(m){ setStatus("err", m + (done ? " (" + done + " of " + total + " periods were saved. Tap update in History again to continue.)" : "")); });
     }).then(function(){ busy(false); });
   }
 
   // One-off deep search with Sonnet for a digest that came back incomplete. Later checks use Haiku again.
   function deepSearch(g){
     if(running) return;
-    busy(true);
+    busy(true, "deep");
     var todayStr = g.until || ymd(new Date());
     stats = {searches:0, errors:[]};
     setStatus("info","Deep search with Claude Sonnet 5.5. This is slower and can take a few minutes.", true);
@@ -973,7 +986,7 @@ textarea{min-height:150px}
     var nWeek = 0; shown.forEach(function(g){ nWeek += g.items.length; });
     $("lastRun").textContent = state.lastRun
       ? "Checked " + fmtDate(state.lastRun) + " · " + nWeek + " new this week"
-      : "Not checked yet. Tap Update week to check the past 7 days.";
+      : "Not checked yet. Tap the update button to check the past 7 days.";
     var wk2 = 0, hi2 = 0; state.digests.forEach(function(g){ if(wk[g.id]) wk2 += g.items.length; else hi2 += g.items.length; });
     $("histCount").textContent = hi2 ? " (" + hi2 + ")" : "";
     var root = $("digests"); root.innerHTML = "";
@@ -1121,7 +1134,9 @@ textarea{min-height:150px}
     var mn = $("mailNo"); if(mn) mn.value = state.mailNo;
   }
 
-  $("btnRun").addEventListener("click", run);
+  $("btnWeek").addEventListener("click", function(){ setTab("week"); });
+  $("btnHist").addEventListener("click", function(){ setTab("hist"); });
+  $("btnUpd").addEventListener("click", function(){ if(tab === "hist") histSearch(false); else run(); });
   $("btnSettings").addEventListener("click", function(){ showView("settings"); });
   $("btnBack").addEventListener("click", function(){ showView("main"); });
   $("selClear").addEventListener("click", function(){ sel = {}; render(); });
@@ -1129,7 +1144,6 @@ textarea{min-height:150px}
   $("selMail").addEventListener("click", function(){ sendMail(); });
   $("fab").addEventListener("click", function(){ sendMail(); });
   $("btnXlsx").addEventListener("click", exportXlsx);
-  $("btnHist").addEventListener("click", function(){ histSearch(false); });
   $("btnMailFront").addEventListener("click", function(){ sendMail(Object.keys(sel).length ? null : tabItems()); });
   $("fbReset").addEventListener("click", function(){
     if(!window.confirm("Forget all relevance marks? Future searches will no longer use them.")) return;
@@ -1181,7 +1195,7 @@ textarea{min-height:150px}
     state.digests = []; state.lastRun = null; state.clearedAt = Date.now(); sel = {}; exp = {}; save(); render(); showView("main");
   });
 
-  render();
+  render(); updBtn();
   if(!state.apiKey){ showView("settings"); }
   if(GH.tok) ghSync();
   document.addEventListener("visibilitychange", function(){ if(GH.tok && document.visibilityState === "visible") ghSync(); });
@@ -1193,7 +1207,7 @@ textarea{min-height:150px}
       gate.classList.add("hidden");
       var locked = document.querySelectorAll("[inert]");
       for(var i=0;i<locked.length;i++) locked[i].removeAttribute("inert");
-      var b = $("btnRun"); if(b && inMain()){ try{ b.focus(); }catch(e){} }
+      var b = $("btnUpd"); if(b && inMain()){ try{ b.focus(); }catch(e){} }
     }
     gate.addEventListener("click", function(){
       try{
