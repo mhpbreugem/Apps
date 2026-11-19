@@ -173,13 +173,7 @@ textarea{min-height:150px}
     <div id="digests"></div>
     </div>
     <div id="paneHist" class="hidden">
-      <div class="card" style="margin-top:12px">
-        <p class="muted" style="margin:0">In History, the update button searches the period below, newest first. Items you already have are not added twice.</p>
-        <label for="hFrom">From</label>
-        <input type="date" id="hFrom">
-        <label for="hTo">To</label>
-        <input type="date" id="hTo">
-      </div>
+      <p class="muted" style="margin:12px 2px 0">Tap update to load history from today back to May 2017, newest first, one year at a time. Years already loaded are skipped; items you already have are not added twice.</p>
       <h2 style="margin:18px 2px 6px;font-size:15px;color:var(--muted)">Earlier weeks and searches<span id="histCount"></span></h2>
       <div id="histList"></div>
     </div>
@@ -435,7 +429,6 @@ textarea{min-height:150px}
     // the active view is the filled button; the other is outlined
     $("btnWeek").classList.toggle("secondary", t !== "week"); $("btnHist").classList.toggle("secondary", t !== "hist");
     $("btnWeek").setAttribute("aria-pressed", String(t === "week")); $("btnHist").setAttribute("aria-pressed", String(t === "hist"));
-    if(t === "hist" && !$("hTo").value){ var n = new Date(); $("hTo").value = ymd(n); $("hTo").max = ymd(n); $("hFrom").value = "2017-05-25"; }
     updBtn(); updateSelUI();
   }
   // one update runs at a time; the views can still be switched while it runs
@@ -750,18 +743,29 @@ textarea{min-height:150px}
     }
     return out;
   }
+  var HIST_START = "2017-05-25";
   function histSearch(proceed){
     if(running) return;
     if(!state.apiKey){ showView("settings"); return; }
-    var from = $("hFrom").value, to = $("hTo").value, today = ymd(new Date());
+    var from = HIST_START, to = ymd(new Date());
     $("hExt").innerHTML = "";
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)){ setStatus("err","Pick a start and an end date."); return; }
-    if(from > to){ setStatus("err","The start date must be before the end date."); return; }
-    if(to > today) to = today;
-    var chunks = yearChunks(from, to).filter(function(c){
-      return !state.digests.some(function(g){ return g.kind === "range" && g.since === c.from && g.until === c.to && !g.incomplete; });
+    // per year, skip what complete earlier searches already cover; the current year only searches from where it was last loaded
+    var chunks = [];
+    yearChunks(from, to).forEach(function(c){
+      // extend the covered stretch from the start of the year as far as complete searches reach
+      var end = c.from, grew = true, any = false;
+      while(grew){
+        grew = false;
+        state.digests.forEach(function(g){
+          if(g.kind === "range" && !g.incomplete && g.since && g.until && g.since <= end && g.until > end && g.until <= c.to){ end = g.until; grew = any = true; }
+          else if(g.kind === "range" && !g.incomplete && g.since && g.until && g.since <= c.from && g.until >= c.to){ end = c.to; any = true; }
+        });
+      }
+      if(any && end >= c.to) return;
+      if(any) c.from = end;
+      chunks.push(c);
     });
-    if(!chunks.length){ setStatus("info","This period has already been searched. Pick other dates to search more."); return; }
+    if(!chunks.length){ setStatus("info","History is up to date."); return; }
     busy(true, "hist");
     var total = chunks.length, done = 0, added = 0, stopped = false;
     var opts = proceed ? {limit:Infinity, maxLoops:10} : {limit:HIST_LIMIT};
@@ -795,7 +799,7 @@ textarea{min-height:150px}
     step().then(function(){
       if(!stopped) setStatus("ok","History updated: " + added + " new item" + (added === 1 ? "" : "s") + " in " + done + " period" + (done === 1 ? "" : "s") + ".");
     }).catch(function(e){
-      save(); return explainAsync(e).then(function(m){ setStatus("err", m + (done ? " (" + done + " of " + total + " periods were saved. Tap update in History again to continue.)" : "")); });
+      save(); return explainAsync(e).then(function(m){ setStatus("err", m + (done ? " (" + done + " of " + total + " periods were saved. Tap update again to continue.)" : "")); });
     }).then(function(){ busy(false); });
   }
 
@@ -960,7 +964,7 @@ textarea{min-height:150px}
     head.appendChild(el("span","muted", g.items.length + " new" + (g.hidden ? " (" + g.hidden + " already seen)" : "")));
     return head;
   }
-  function appendDigest(root, g){
+  function appendDigest(root, g, order){
     root.appendChild(digestHead(g));
     if(!g.items.length){
       var c = el("div","card empty", g.kind === "range" ? "No new updates found for this period." : "No new updates found since " + g.since + ".");
@@ -970,7 +974,7 @@ textarea{min-height:150px}
       return;
     }
     var list = el("div","list");
-    g.items.forEach(function(i){ list.appendChild(buildRow(i)); });
+    (order || g.items).forEach(function(i){ list.appendChild(buildRow(i)); });
     root.appendChild(list);
     if(g.note){ root.appendChild(el("p","muted",g.note)); }
     if(g.incomplete && !g.deepDone && !g.deepDismissed) root.appendChild(deepCard(g));
@@ -978,8 +982,13 @@ textarea{min-height:150px}
   function renderHistory(){
     var root = $("histList"); if(!root) return; root.innerHTML = "";
     var wk = weekSet(), list = state.digests.filter(function(g){ return !wk[g.id]; });
+    // newest period first, and within each period the newest items first (undated items last)
+    function endOf(g){ return g.until || (g.runAt ? ymd(new Date(g.runAt)) : ""); }
+    list = list.slice().sort(function(a,b){ return endOf(b) < endOf(a) ? -1 : endOf(b) > endOf(a) ? 1 : (b.id - a.id); });
+    function dOf(i){ return /^\d{4}-\d{2}-\d{2}$/.test(i.date || "") ? i.date : ""; }
+    function byDate(items){ return (items || []).map(function(x,n){ return {x:x,n:n}; }).sort(function(p,q){ var a = dOf(p.x), b = dOf(q.x); return a === b ? p.n - q.n : (b < a ? -1 : 1); }).map(function(o){ return o.x; }); }
     if(!list.length){ root.appendChild(el("div","card empty","Nothing here yet. Weeks you checked earlier and the periods you search are stored here.")); return; }
-    list.forEach(function(g){ appendDigest(root, g); });
+    list.forEach(function(g){ appendDigest(root, g, byDate(g.items)); });
   }
   function render(){
     var wk = weekSet(), shown = state.digests.filter(function(g){ return wk[g.id]; });
