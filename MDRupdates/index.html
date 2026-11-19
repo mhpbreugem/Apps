@@ -62,6 +62,7 @@ textarea{min-height:150px}
 .bad{color:var(--err)}
 .status{padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:14px}
 .status.err{background:var(--err-bg);color:var(--err)}
+.status.ok{background:#e6f4ea;border:1px solid #b7dfc3;color:#14532d}
 .status.info{background:var(--card);border:1px solid var(--line);color:var(--muted)}
 .subrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 2px 0}
 .subrow .muted{font-size:13px}
@@ -79,9 +80,9 @@ textarea{min-height:150px}
 .sel .av{background:var(--accent2);color:#fff}
 .rowmain{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:72px;padding:8px 14px 8px 0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .rtext{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.rt{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt{font-weight:700;font-size:13.5px;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
 .rs{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row.open .rt{white-space:normal}
+.row.open .rt{display:block;-webkit-line-clamp:unset;line-clamp:unset}
 .row.open .rs{display:none}
 .row.open{border-bottom:0}
 .rside{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:12px;color:var(--muted)}
@@ -578,7 +579,7 @@ textarea{min-height:150px}
   }
   function callApi(messages, opts){
     opts = opts || {};
-    var ctl = new AbortController(), to = setTimeout(function(){ ctl.abort(); }, 170000);
+    var ctl = new AbortController(), to = setTimeout(function(){ ctl.abort(); }, 300000);
     return fetch("https://api.anthropic.com/v1/messages", {
       signal: ctl.signal,
       method:"POST",
@@ -713,8 +714,16 @@ textarea{min-height:150px}
     }).then(function(){ busy(false); });
   }
 
-  // Update history: searches the period set in the History tab. Quick search = Haiku, stops at 50,000 input tokens.
-  // If that is exceeded the person gets a warning and can proceed: Haiku again, without the limit, for that search only.
+  // Update history: the period set in the History tab is split into calendar years and searched one year at a time,
+  // newest first. Every year is saved as soon as it is done, so progress is never lost and tapping again continues.
+  // A year that goes over 50,000 input tokens stops with a warning; "Proceed anyway" runs Haiku without the limit.
+  function yearChunks(from, to){
+    var out = [], fy = +from.slice(0,4), ty = +to.slice(0,4);
+    for(var y = ty; y >= fy; y--){
+      out.push({from: y === fy ? from : y + "-01-01", to: y === ty ? to : y + "-12-31"});
+    }
+    return out;
+  }
   function histSearch(proceed){
     if(running) return;
     if(!state.apiKey){ showView("settings"); return; }
@@ -724,30 +733,44 @@ textarea{min-height:150px}
     if(!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)){ setStatus("err","Pick a start and an end date."); return; }
     if(from > to){ setStatus("err","The start date must be before the end date."); return; }
     if(to > today) to = today;
+    var chunks = yearChunks(from, to).filter(function(c){
+      return !state.digests.some(function(g){ return g.kind === "range" && g.since === c.from && g.until === c.to && !g.incomplete; });
+    });
+    if(!chunks.length){ setStatus("info","This period has already been searched. Pick other dates, or open the History tab to read it."); return; }
     busy(true);
-    var now = new Date();
-    stats = {searches:0, errors:[]};
-    setStatus("info", "Updating history for " + fmtRange(from, to) + (proceed ? " without the token limit" : "") + ". This can take a few minutes.", true);
+    var total = chunks.length, done = 0, added = 0, stopped = false;
     var opts = proceed ? {limit:Infinity, maxLoops:10} : {limit:HIST_LIMIT};
-    runLoop([{role:"user", content: buildPrompt(from, to, {max:30, long:((new Date(to) - new Date(from)) > 120*86400000)})}], 0, opts).then(function(res){
-      var parsed = parseDigest(textOf(res));
-      if(stats.capped && !proceed){
-        setStatus("err","Warning: this search is large and went over 50,000 tokens, so it was stopped and nothing was added. Proceed anyway, or pick a shorter period.");
-        var c = el("div","card"); c.style.cssText = "display:flex;gap:10px";
-        var go = el("button","btn","Proceed anyway"); go.type = "button";
-        go.addEventListener("click", function(){ histSearch(true); });
-        var no = el("button","btn secondary","Cancel"); no.type = "button";
-        no.addEventListener("click", function(){ $("hExt").innerHTML = ""; setStatus("",""); });
-        c.appendChild(go); c.appendChild(no); $("hExt").appendChild(c);
-        return;
-      }
-      if(!parsed) throw new Error("The model did not return a readable digest. Try again or pick a shorter period.");
-      var d = collect(res, parsed);
-      state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: from, until: to, kind:"range", items: d.items, hidden: d.hidden, note: d.note, searches: stats.searches, incomplete: d.why.length > 0, reason: d.why.join("; ")});
-      state.digests = trimDigests(state.digests);
-      save(); render(); setStatus("","");
+    function step(){
+      if(!chunks.length) return Promise.resolve();
+      var c = chunks.shift(), now = new Date();
+      stats = {searches:0, errors:[]};
+      setStatus("info", "Searching history, period " + (done + 1) + " of " + total + ": " + fmtRange(c.from, c.to) + (proceed ? " (no token limit)" : "") + ". Finished periods are saved.", true);
+      return runLoop([{role:"user", content: buildPrompt(c.from, c.to, {max:20, long:((new Date(c.to) - new Date(c.from)) > 120*86400000)})}], 0, opts).then(function(res){
+        if(stats.capped && !proceed){
+          stopped = true;
+          setStatus("err","Warning: " + fmtRange(c.from, c.to) + " went over 50,000 tokens, so this period was stopped and not added" + (done ? " (the " + done + " period" + (done === 1 ? "" : "s") + " before it " + (done === 1 ? "is" : "are") + " saved)" : "") + ". Proceed anyway, or pick a shorter period.");
+          var card = el("div","card"); card.style.cssText = "display:flex;gap:10px";
+          var go = el("button","btn","Proceed anyway"); go.type = "button";
+          go.addEventListener("click", function(){ histSearch(true); });
+          var no = el("button","btn secondary","Cancel"); no.type = "button";
+          no.addEventListener("click", function(){ $("hExt").innerHTML = ""; setStatus("",""); });
+          card.appendChild(go); card.appendChild(no); $("hExt").appendChild(card);
+          return;
+        }
+        var parsed = parseDigest(textOf(res));
+        if(!parsed) throw new Error("The model did not return a readable answer for " + fmtRange(c.from, c.to) + ".");
+        var d = collect(res, parsed);
+        state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: c.from, until: c.to, kind:"range", items: d.items, hidden: d.hidden, note: d.note, searches: stats.searches, incomplete: d.why.length > 0, reason: d.why.join("; ")});
+        state.digests = trimDigests(state.digests);
+        done++; added += d.items.length;
+        save(); render();
+        return step();
+      });
+    }
+    step().then(function(){
+      if(!stopped) setStatus("ok","History updated: " + added + " new item" + (added === 1 ? "" : "s") + " in " + done + " period" + (done === 1 ? "" : "s") + ".");
     }).catch(function(e){
-      save(); setStatus("err", explain(e));
+      save(); setStatus("err", explain(e) + (done ? " (" + done + " of " + total + " periods were saved. Tap Update history again to continue.)" : ""));
     }).then(function(){ busy(false); });
   }
 
