@@ -37,6 +37,8 @@ body.has-sel main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .btn{display:inline-block;background:var(--brand);color:var(--brand-ink);border:0;border-radius:10px;padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer;width:100%}
 .btn.secondary{background:transparent;color:var(--accent);border:1px solid var(--line)}
 .btn:disabled{opacity:.55}
+.actions{display:flex;gap:8px}
+.actions .btn{flex:1;width:auto;min-width:0;padding:12px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .btn.mail{background:#ffd43b;color:#1b1b1b;border:0}
 #selMail{background:#ffd43b;color:#1b1b1b}
 #selMail:active{background:#e6bd2e}
@@ -135,9 +137,11 @@ textarea{min-height:150px}
 
 <main inert>
   <div id="view-main">
-    <button class="btn" id="btnRun">Check for updates</button>
-    <button class="btn mail" id="btnMailFront" type="button" style="margin-top:8px" disabled>Email</button>
-    <button class="btn secondary" id="btnXlsx" type="button" style="margin-top:8px" disabled>Export to Excel</button>
+    <div class="actions">
+      <button class="btn" id="btnRun">Update</button>
+      <button class="btn mail" id="btnMailFront" type="button" disabled>Email</button>
+      <button class="btn secondary" id="btnXlsx" type="button" disabled>Excel</button>
+    </div>
     <div id="status" style="margin-top:12px"></div>
     <div class="seg tabs" role="tablist" aria-label="Updates" style="margin-top:12px;width:100%">
       <button type="button" id="tabWeek" role="tab" aria-selected="true" style="flex:1">This week</button>
@@ -724,8 +728,8 @@ textarea{min-height:150px}
     fb.disabled = !(n > 0 || li > 0);
     var xb = $("btnXlsx"), na = allItems().length;
     xb.disabled = !(n > 0 || na > 0);
-    xb.textContent = n > 0 ? "Export " + n + " selected to Excel" : "Export all " + na + " to Excel";
-    fb.textContent = n > 0 ? "Email " + n + " selected" : li > 0 ? "Email " + (li === 1 ? "the new item" : "all " + li + " new items") : "Email";
+    xb.textContent = n > 0 ? "Excel " + n : "Excel";
+    fb.textContent = n > 0 ? "Email " + n : "Email";
   }
 
   function buildRow(i){
