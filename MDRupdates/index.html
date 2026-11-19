@@ -45,7 +45,8 @@ body.has-sel main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .iconbtn.xls{background:#1d6f42;color:#fff}
 .prog{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:10px}
 .prog>div{height:100%;width:0;background:var(--accent);transition:width .3s}
-.iconbtn.upd{background:var(--brand);color:var(--brand-ink)}
+.iconbtn.upd{background:#c62828;color:#fff}
+.histinfo{font-size:12px;color:var(--muted);margin:10px 2px 0}
 .iconbtn.upd.spin svg{animation:s 1s linear infinite}
 .iconbtn.upd.spin:disabled{opacity:1}
 .actions .btn{white-space:nowrap;padding-left:4px;padding-right:4px;font-size:clamp(12px,3.9vw,16px);letter-spacing:-.1px}
@@ -175,6 +176,7 @@ textarea{min-height:150px}
     <div id="digests"></div>
     </div>
     <div id="paneHist" class="hidden">
+    <div id="histInfo" class="histinfo"></div>
     <div id="prog" class="prog hidden" role="progressbar" aria-label="History loaded" aria-valuemin="0"><div id="progFill"></div></div>
       <p class="muted" style="margin:12px 2px 0">Tap update to load history week by week, from today back to May 2017. Weeks already loaded are skipped; every item found is shown.</p>
       <h2 style="margin:18px 2px 6px;font-size:15px;color:var(--muted)">Earlier weeks and searches<span id="histCount"></span></h2>
@@ -1021,6 +1023,14 @@ textarea{min-height:150px}
       : "Not checked yet. Tap the update button to check the past 7 days.";
     var wk2 = 0, hi2 = 0; state.digests.forEach(function(g){ if(wk[g.id]) wk2 += g.items.length; else hi2 += g.items.length; });
     $("histCount").textContent = hi2 ? " (" + hi2 + ")" : "";
+    // what is downloaded so far, newest first
+    var all = weekChunks(HIST_START, ymd(new Date())), got = 0, oldest = "";
+    all.forEach(function(c){ if(covered(c)){ got++; oldest = c.from; } });
+    var back = oldest;
+    state.digests.forEach(function(g){ if(g.kind === "range" && !g.incomplete && g.since && (!back || g.since < back)) back = g.since; });
+    $("histInfo").textContent = got
+      ? "Downloaded: " + hi2 + " item" + (hi2 === 1 ? "" : "s") + " in " + got + " of " + all.length + " weeks, back to " + fmtRange(back, back)
+      : "Nothing downloaded yet.";
     var root = $("digests"); root.innerHTML = "";
     shown.forEach(function(g){ appendDigest(root, g); });
     renderHistory();
