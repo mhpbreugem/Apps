@@ -11,13 +11,13 @@
 <style>
 :root{
   --bg:#f4f6f8; --card:#fff; --ink:#15212b; --muted:#56626e; --line:#dde3e8;
-  --brand:#0f3d5e; --brand-ink:#fff; --accent:#1a6fa6; --accent2:#1f6fa5;
+  --brand:#0f3d5e; --brand-ink:#fff; --accent:#1a6fa6; --accent2:#1f6fa5; --star:#a85a00;
   --selbg:#e6f1fa; --avbg:#dce6ee; --avink:#0f3d5e;
   --warn:#9a5b00; --warn-bg:#fff4e0; --err:#a12626; --err-bg:#fdeaea;
   --hi-bg:#fde7e7; --hi-ink:#8a1f1f; --md-bg:#fff1d6; --md-ink:#7a4300; --lo-bg:#e8eef3; --lo-ink:#3d4c59;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#0e1419; --card:#16202a; --ink:#e8eef3; --muted:#9aa8b4; --line:#263340; --brand:#2a7db5; --accent:#6bb6e8;
+  :root{ --bg:#0e1419; --card:#16202a; --ink:#e8eef3; --muted:#9aa8b4; --line:#263340; --brand:#2a7db5; --accent:#6bb6e8; --star:#f0b45a;
     --selbg:#1b2d3d; --avbg:#263340; --avink:#c6d1da;
     --warn:#f0b45a; --warn-bg:#2b2112; --err:#f08a8a; --err-bg:#2b1717;
     --hi-bg:#3a1c1c; --hi-ink:#f5a5a5; --md-bg:#33260f; --md-ink:#f0b45a; --lo-bg:#26323d; --lo-ink:#b8c4ce; }
@@ -74,10 +74,15 @@ textarea{min-height:150px}
 .row.open .rs{display:none}
 .row.open{border-bottom:0}
 .rside{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:12px;color:var(--muted)}
-.imp{padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700}
-.imp.High{background:var(--hi-bg);color:var(--hi-ink)}
-.imp.Medium{background:var(--md-bg);color:var(--md-ink)}
-.imp.Low{background:var(--lo-bg);color:var(--lo-ink)}
+.stars{font-size:13px;letter-spacing:1px;color:var(--star);white-space:nowrap}
+.row.no{opacity:.6}
+.mk{display:inline-block;margin-right:6px;font-weight:800;font-size:13px}
+.mk.yes{color:var(--accent)}
+.mk.no{color:var(--err)}
+.fbbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.fb{min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer}
+.fb[aria-pressed=true].yes{background:var(--selbg);border-color:var(--accent);color:var(--accent)}
+.fb[aria-pressed=true].no{background:var(--err-bg);border-color:var(--err);color:var(--err)}
 .detail{padding:0 16px 14px 60px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px;font-size:14px}
 .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
 .chip{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:12px;color:var(--ink)}
@@ -128,6 +133,7 @@ textarea{min-height:150px}
 <main inert>
   <div id="view-main">
     <button class="btn" id="btnRun">Check for updates</button>
+    <button class="btn secondary" id="btnMailFront" type="button" style="margin-top:8px" disabled>Email</button>
     <div id="status" style="margin-top:12px"></div>
     <div class="subrow">
       <span class="muted" id="lastRun"></span>
@@ -164,10 +170,12 @@ textarea{min-height:150px}
 
     <div class="card">
       <label class="check" for="optSummary"><input type="checkbox" id="optSummary"><span>AI summary of each update<br><span class="muted" style="font-weight:400">A short summary and why it matters. Off: titles, dates and links only, which is cheaper.</span></span></label>
-      <label class="check" for="optImp"><input type="checkbox" id="optImp"><span>Rate importance for my role<br><span class="muted" style="font-weight:400">Each update gets High, Medium or Low, with a one-line reason, and the most important come first.</span></span></label>
+      <label class="check" for="optImp"><input type="checkbox" id="optImp"><span>Rate importance for my role<br><span class="muted" style="font-weight:400">Each update gets 0 to 5 stars for your role, with a one-line reason, and the highest come first.</span></span></label>
       <label for="role">My role and employer</label>
       <input type="text" id="role" placeholder="e.g. Senior regulatory affairs officer at [company]" autocomplete="off">
       <p class="muted">Used only to judge importance. Stored on this phone.</p>
+      <p class="muted" id="fbInfo" style="margin-bottom:8px"></p>
+      <button class="btn secondary" id="fbReset" type="button">Forget my relevance marks</button>
     </div>
 
     <div class="card">
@@ -230,7 +238,7 @@ textarea{min-height:150px}
 
   function load(){
     var s = {apiKey:"", model:"claude-haiku-5-5", toolVer:"web_search_20250305", focus:DEFAULT_FOCUS, days:30, lastRun:null, digests:[],
-             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE, t:0, clearedAt:0, ghLinked:false};
+             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE, t:0, clearedAt:0, ghLinked:false, feedback:{}};
     try{ var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); for(var k in o){ s[k]=o[k]; } } }catch(e){}
     s.model = "claude-haiku-5-5";
     // the other apps on this site keep the key in "mdr-ai" / "kashi-ai"; use it if present
@@ -270,7 +278,7 @@ textarea{min-height:150px}
   }
   function snapshot(){
     var settings = {}; SYNC_KEYS.forEach(function(k){ settings[k] = state[k]; });
-    return {v:1, t:state.t || Date.now(), clearedAt:state.clearedAt || 0, lastRun:state.lastRun, settings:settings, digests:state.digests};
+    return {v:1, t:state.t || Date.now(), clearedAt:state.clearedAt || 0, lastRun:state.lastRun, settings:settings, digests:state.digests, feedback:state.feedback || {}};
   }
   // merge a remote backup into local state; returns true if local state changed
   function applyRemote(r, force){
@@ -281,6 +289,9 @@ textarea{min-height:150px}
     var merged = Object.keys(byId).map(function(k){ return byId[k]; }).sort(function(a,b){ return b.id - a.id; }).slice(0,30);
     if(JSON.stringify(merged) !== JSON.stringify(state.digests)){ state.digests = merged; changed = true; }
     if(cleared !== (state.clearedAt || 0)){ state.clearedAt = cleared; changed = true; }
+    state.feedback = state.feedback || {};
+    var rf = r.feedback || {};
+    for(var u in rf){ var lf = state.feedback[u]; if(rf[u] && (!lf || (rf[u].at || 0) > (lf.at || 0))){ state.feedback[u] = rf[u]; changed = true; } }
     if(r.lastRun && new Date(r.lastRun).getTime() > cleared && (!state.lastRun || r.lastRun > state.lastRun)){ state.lastRun = r.lastRun; changed = true; }
     if(r.settings && (force || (r.t || 0) > (state.t || 0))){
       SYNC_KEYS.forEach(function(k){ if(r.settings[k] !== undefined && r.settings[k] !== state[k]){ state[k] = r.settings[k]; changed = true; } });
@@ -398,6 +409,7 @@ textarea{min-height:150px}
       $("role").value = state.role || "";
       $("focus").value = state.focus; $("days").value = state.days; $("usage").textContent = usageText();
       $("ghTok").value = GH.tok || ""; ghUi();
+      var fc = fbCounts(); $("fbInfo").textContent = "Marked relevant: " + fc.yes + " · not relevant: " + fc.no + ". Marks are used in future searches.";
     }
     updateSelUI();
     try{ window.scrollTo(0,0); }catch(e){}
@@ -422,9 +434,41 @@ textarea{min-height:150px}
   }
   function ymd(d){ return d.toISOString().slice(0,10); }
   function safeUrl(u){ return (typeof u==="string" && /^https?:\/\//i.test(u)) ? u : null; }
+  // importance is a whole number 0..5, or null when not rated (older High/Medium/Low values are mapped)
   function impOf(i){
-    var v = String(i && i.importance || "").toLowerCase();
-    return v==="high" ? "High" : v==="medium" ? "Medium" : v==="low" ? "Low" : "";
+    var v = i && i.importance;
+    if(typeof v === "string"){
+      var l = v.toLowerCase();
+      if(l === "high") return 5; if(l === "medium") return 3; if(l === "low") return 1;
+      v = parseFloat(v);
+    }
+    if(typeof v !== "number" || isNaN(v)) return null;
+    return Math.max(0, Math.min(5, Math.round(v)));
+  }
+  function impScore(i){ var v = impOf(i); return v === null ? -1 : v; }
+  function starsText(n){ var t = ""; for(var k=1;k<=5;k++) t += (k <= n ? "\u2605" : "\u2606"); return t; }
+  function fbOf(url){ var f = state.feedback && state.feedback[url]; return f && f.v ? f.v : ""; }
+  function fbLines(v){
+    var arr = [];
+    for(var u in (state.feedback || {})){ var f = state.feedback[u]; if(f && f.v === v) arr.push(f); }
+    arr.sort(function(a,b){ return (b.at||0) - (a.at||0); });
+    return arr.slice(0,20).map(function(f){ return "- " + String(f.title || "").slice(0,140) + (f.source ? " (" + f.source + (f.category ? ", " + f.category : "") + ")" : ""); });
+  }
+  function setFeedback(i, v){
+    state.feedback = state.feedback || {};
+    var cur = fbOf(i.url), nv = (cur === v) ? "" : v;
+    state.feedback[i.url] = {v:nv, at:Date.now(), title:i.title || "", source:i.source || "", category:i.category || ""};
+    var keys = Object.keys(state.feedback);
+    if(keys.length > 300){
+      keys.sort(function(a,b){ return state.feedback[a].at - state.feedback[b].at; });
+      keys.slice(0, keys.length - 300).forEach(function(k){ delete state.feedback[k]; });
+    }
+    save(); render();
+  }
+  function fbCounts(){
+    var y = 0, n = 0;
+    for(var u in (state.feedback || {})){ var f = state.feedback[u]; if(f && f.v === "yes") y++; else if(f && f.v === "no") n++; }
+    return {yes:y, no:n};
   }
   function initials(i){
     var s = String(i.source || i.category || "?").replace(/[^A-Za-z0-9 \-]/g," ").trim();
@@ -454,13 +498,19 @@ textarea{min-height:150px}
     if(state.aiSummary) rules.push("summary: 2-3 plain sentences stating what changed. why_it_matters: one sentence on the practical impact.");
     else rules.push("Do not write summaries. Return only the fields listed in the template.");
     if(state.rateImportance){
-      rules.push("The reader is: " + role + ". Rate each item's importance for that person: High (likely requires action or has a deadline, directly affects their obligations), Medium (relevant and worth knowing), Low (background or marginal). importance_reason: one short sentence on why, for that role. If you do not know the employer's exact business, judge for a typical medical device company in that role.");
-      rules.push("Order items by importance for that reader, High first.");
+      rules.push("The reader is: " + role + ". importance: a whole number from 0 to 5 for that person (5 = critical, likely requires action or has a deadline; 4 = important; 3 = relevant and worth knowing; 2 = minor; 1 = marginal; 0 = not relevant). importance_reason: one short sentence on why, for that role. If you do not know the employer's exact business, judge for a typical medical device company in that role.");
+      rules.push("Order items by importance for that reader, highest first.");
     } else rules.push("Order items by general importance, most important first.");
     rules.push("Maximum 15 items.");
-    var tpl = "{\"items\":[{" + fields.map(function(f){ return "\"" + f + "\":\"\""; }).join(",") + "}],\"note\":\"optional short remark, e.g. which areas had nothing new\"}";
+    var tpl = "{\"items\":[{" + fields.map(function(f){ return f === "importance" ? "\"importance\":0" : "\"" + f + "\":\"\""; }).join(",") + "}],\"note\":\"optional short remark, e.g. which areas had nothing new\"}";
+    var yes = fbLines("yes"), no = fbLines("no"), learned = "";
+    if(yes.length || no.length){
+      learned = "READER FEEDBACK on earlier results. Infer which topics, source types and categories this reader cares about or does not care about, and use that to decide what to include and how to rate importance. Look harder for items like the relevant ones, include fewer like the not relevant ones, and do not return these exact items again.\n" +
+        (yes.length ? "Marked relevant:\n" + yes.join("\n") + "\n" : "") +
+        (no.length ? "Marked not relevant:\n" + no.join("\n") + "\n" : "") + "\n";
+    }
     return "Today is " + todayStr + ". Find updates published or announced between " + sinceStr + " and " + todayStr + " (inclusive) that are relevant to the following brief.\n\n" +
-      "BRIEF:\n" + state.focus + "\n\nRules:\n- " + rules.join("\n- ") + "\n\n" +
+      "BRIEF:\n" + state.focus + "\n\n" + learned + "Rules:\n- " + rules.join("\n- ") + "\n\n" +
       "Output ONLY a JSON object wrapped in <digest></digest> tags, no other text:\n<digest>" + tpl + "</digest>";
   }
 
@@ -581,8 +631,7 @@ textarea{min-height:150px}
         i.url = u; items.push(i);
       });
       if(state.rateImportance){
-        var rank = {High:0, Medium:1, Low:2, "":3};
-        items = items.map(function(x,n){ return {x:x, n:n}; }).sort(function(a,b){ return (rank[impOf(a.x)]-rank[impOf(b.x)]) || (a.n-b.n); }).map(function(o){ return o.x; });
+        items = items.map(function(x,n){ return {x:x, n:n}; }).sort(function(a,b){ return (impScore(b.x)-impScore(a.x)) || (a.n-b.n); }).map(function(o){ return o.x; });
       }
       var note = parsed.note || "";
       if(stats.searches === 0) note = (note ? note + " " : "") + "No web searches were performed, so this list may be incomplete.";
@@ -616,13 +665,17 @@ textarea{min-height:150px}
     $("selCount").textContent = n + " selected";
     $("fabText").textContent = "Email " + n;
     $("fab").setAttribute("aria-label", "Email " + n + " selected " + (n===1?"item":"items"));
+    var li = latestItems().length, fb = $("btnMailFront");
+    fb.disabled = !(n > 0 || li > 0);
+    fb.textContent = n > 0 ? "Email " + n + " selected" : li > 0 ? "Email " + (li === 1 ? "the new item" : "all " + li + " new items") : "Email";
   }
 
   function buildRow(i){
     var detailed = state.view === "detailed";
     var picked = !!sel[i.url], open = detailed || !!exp[i.url];
     var wrap = document.createDocumentFragment();
-    var row = el("div", "row" + (picked ? " sel" : "") + (open ? " open" : ""));
+    var fb = fbOf(i.url);
+    var row = el("div", "row" + (picked ? " sel" : "") + (open ? " open" : "") + (fb === "no" ? " no" : ""));
 
     var pick = el("button","pick"); pick.type = "button";
     pick.setAttribute("aria-pressed", String(picked));
@@ -635,11 +688,23 @@ textarea{min-height:150px}
     var main = el("button","rowmain"); main.type = "button";
     main.setAttribute("aria-expanded", String(open));
     var tx = el("span","rtext");
-    tx.appendChild(el("span","rt", i.title || "(untitled)"));
+    var rt = el("span","rt");
+    if(fb){
+      var mk = el("span","mk " + fb, fb === "yes" ? "!" : "\u2715");
+      mk.setAttribute("role","img"); mk.setAttribute("aria-label", fb === "yes" ? "Marked relevant" : "Marked not relevant");
+      rt.appendChild(mk);
+    }
+    rt.appendChild(document.createTextNode(i.title || "(untitled)"));
+    tx.appendChild(rt);
     tx.appendChild(el("span","rs", i.summary ? i.summary : [i.source, i.category].filter(Boolean).join(" · ")));
     var side = el("span","rside");
     var sd = shortDate(i.date); if(sd) side.appendChild(el("span",null,sd));
-    var imp = impOf(i); if(imp) side.appendChild(el("span","imp " + imp, imp));
+    var imp = impOf(i);
+    if(imp !== null){
+      var st = el("span","stars", starsText(imp));
+      st.setAttribute("role","img"); st.setAttribute("aria-label", imp + " out of 5 stars for your role");
+      side.appendChild(st);
+    }
     main.appendChild(tx); main.appendChild(side);
     main.addEventListener("click", function(){
       if(detailed) return;
@@ -658,9 +723,20 @@ textarea{min-height:150px}
       d.appendChild(meta);
       if(i.summary) d.appendChild(el("div",null,i.summary));
       if(i.why_it_matters) d.appendChild(el("div","why","Why it matters: " + i.why_it_matters));
-      if(i.importance_reason) d.appendChild(el("div","why","For your role: " + i.importance_reason));
+      if(imp !== null) d.appendChild(el("div","why","For your role: " + imp + " out of 5" + (i.importance_reason ? ". " + i.importance_reason : "")));
       var a = el("a","open","Open source"); a.href = i.url; a.target = "_blank"; a.rel = "noopener noreferrer";
       d.appendChild(a);
+      var bar = el("div","fbbar");
+      var bNo = el("button","fb no"); bNo.type = "button"; bNo.setAttribute("aria-pressed", String(fb === "no"));
+      bNo.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      bNo.appendChild(document.createTextNode("Not relevant"));
+      bNo.addEventListener("click", function(){ setFeedback(i, "no"); });
+      var bYes = el("button","fb yes"); bYes.type = "button"; bYes.setAttribute("aria-pressed", String(fb === "yes"));
+      bYes.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v10"/><circle cx="12" cy="19.5" r="0.6" fill="currentColor"/></svg>';
+      bYes.appendChild(document.createTextNode("Relevant"));
+      bYes.addEventListener("click", function(){ setFeedback(i, "yes"); });
+      bar.appendChild(bNo); bar.appendChild(bYes);
+      d.appendChild(bar);
       wrap.appendChild(d);
     }
     return wrap;
@@ -701,7 +777,7 @@ textarea{min-height:150px}
       out.push((n+1) + ". " + (i.title || "(untitled)"));
       var m = [i.category, i.source, i.date].filter(Boolean).join(" · "); if(m) out.push("   " + m);
       var imp = impOf(i);
-      if(imp && level < 2) out.push("   Importance: " + imp + (i.importance_reason && level < 1 ? " (" + i.importance_reason + ")" : ""));
+      if(imp !== null && level < 2) out.push("   Importance for the reader: " + imp + "/5" + (i.importance_reason && level < 1 ? " (" + i.importance_reason + ")" : ""));
       if(i.summary && level < 1) out.push("   " + i.summary);
       if(i.why_it_matters && level < 1) out.push("   Why it matters: " + i.why_it_matters);
       out.push("   " + i.url);
@@ -711,8 +787,12 @@ textarea{min-height:150px}
     out.push("AI-generated summaries. Verify against the official source before acting.");
     return out.join("\r\n");
   }
-  function sendMail(){
-    var items = selectedItems();
+  function latestItems(){
+    for(var k=0;k<state.digests.length;k++){ if(state.digests[k].items && state.digests[k].items.length) return state.digests[k].items; }
+    return [];
+  }
+  function sendMail(list){
+    var items = (list && list.length) ? list : selectedItems();
     if(!items.length) return;
     if(!state.email){
       showView("settings");
@@ -743,8 +823,15 @@ textarea{min-height:150px}
   $("vDetailed").addEventListener("click", function(){ state.view = "detailed"; save(); render(); });
   $("selClear").addEventListener("click", function(){ sel = {}; render(); });
   $("selAll").addEventListener("click", function(){ allItems().forEach(function(i){ sel[i.url] = 1; }); render(); });
-  $("selMail").addEventListener("click", sendMail);
-  $("fab").addEventListener("click", sendMail);
+  $("selMail").addEventListener("click", function(){ sendMail(); });
+  $("fab").addEventListener("click", function(){ sendMail(); });
+  $("btnMailFront").addEventListener("click", function(){ sendMail(Object.keys(sel).length ? null : latestItems()); });
+  $("fbReset").addEventListener("click", function(){
+    if(!window.confirm("Forget all relevance marks? Future searches will no longer use them.")) return;
+    var now = Date.now();
+    Object.keys(state.feedback || {}).forEach(function(u){ var f = state.feedback[u]; state.feedback[u] = {v:"", at:now, title:f.title, source:f.source, category:f.category}; });
+    save(); render(); $("fbInfo").textContent = "Marked relevant: 0 · not relevant: 0.";
+  });
   $("btnSave").addEventListener("click", function(){
     var email = $("email").value.trim();
     if(email && !/^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/.test(email)){
