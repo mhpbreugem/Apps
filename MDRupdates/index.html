@@ -456,6 +456,16 @@ textarea{min-height:150px}
     try{ window.scrollTo(0,0); }catch(e){}
   }
 
+  // When the browser reports a network error, find out whether api.anthropic.com is reachable at all.
+  function explainAsync(e){
+    var base = explain(e);
+    if(!(e instanceof TypeError) || e.keyChars) return Promise.resolve(base);
+    return fetch("https://api.anthropic.com/", {mode:"no-cors", cache:"no-store"}).then(function(){
+      return "The phone can reach Anthropic, but the browser blocked the request (" + (e.message || "network error") + "). Use Chrome, not an in-app browser, and turn off any ad blocker or privacy extension for this page.";
+    }, function(){
+      return "This phone cannot reach api.anthropic.com. Check the internet connection and turn off any VPN, ad blocker, private DNS or work network filter, then try again.";
+    });
+  }
   function setStatus(kind, text, spinner){
     var el = $("status"); el.innerHTML = "";
     if(!text) return;
@@ -579,6 +589,7 @@ textarea{min-height:150px}
   }
   function callApi(messages, opts){
     opts = opts || {};
+    if(!/^[\x21-\x7E]+$/.test(state.apiKey || "")){ var ke = new Error("key-chars"); ke.keyChars = true; return Promise.reject(ke); }
     var ctl = new AbortController(), to = setTimeout(function(){ ctl.abort(); }, 300000);
     return fetch("https://api.anthropic.com/v1/messages", {
       signal: ctl.signal,
@@ -635,6 +646,7 @@ textarea{min-height:150px}
     if(e.status===429) return "Rate limit reached. Wait a minute and try again.";
     if(e.status===400 && /credit|billing/i.test(m)) return "The account has no credit left. Add credit in the Claude Console.";
     if(/web.?search/i.test(m) && /(not|disabled)/i.test(m)) return "Web search is switched off for this API key's organization. Turn it on in the Claude Console under Settings, Capabilities. (" + m + ")";
+    if(e.keyChars) return "The API key has a space, line break or hidden character in it. Open Settings, clear the key field and paste the key again.";
     if(e instanceof TypeError) return "Could not reach the API. Check the connection.";
     return "API error" + (e.status ? " " + e.status : "") + ": " + m;
   }
@@ -710,7 +722,7 @@ textarea{min-height:150px}
       setStatus("", "");
     }).catch(function(e){
       save();
-      setStatus("err", explain(e));
+      return explainAsync(e).then(function(m){ setStatus("err", m); });
     }).then(function(){ busy(false); });
   }
 
@@ -770,7 +782,7 @@ textarea{min-height:150px}
     step().then(function(){
       if(!stopped) setStatus("ok","History updated: " + added + " new item" + (added === 1 ? "" : "s") + " in " + done + " period" + (done === 1 ? "" : "s") + ".");
     }).catch(function(e){
-      save(); setStatus("err", explain(e) + (done ? " (" + done + " of " + total + " periods were saved. Tap Update history again to continue.)" : ""));
+      save(); return explainAsync(e).then(function(m){ setStatus("err", m + (done ? " (" + done + " of " + total + " periods were saved. Tap Update history again to continue.)" : "")); });
     }).then(function(){ busy(false); });
   }
 
@@ -798,7 +810,7 @@ textarea{min-height:150px}
       g.deepDone = true; g.incomplete = false;
       save(); render(); setStatus("","");
     }).catch(function(e){
-      save(); setStatus("err", explain(e));
+      save(); return explainAsync(e).then(function(m){ setStatus("err", m); });
     }).then(function(){ busy(false); });
   }
   function deepCard(g){
@@ -1165,7 +1177,7 @@ textarea{min-height:150px}
         else if(stats.errors.length) out.textContent = "Key works, but the search failed: " + stats.errors.join(", ") + ".";
         else out.textContent = "Key works, but the model did not run a web search. Try again; if it keeps happening, check web search is enabled in the Claude Console (Settings, Capabilities).";
       });
-    }).catch(function(e){ saveLocal(); out.textContent = explain(e); }).then(function(){ btn.disabled = false; });
+    }).catch(function(e){ saveLocal(); return explainAsync(e).then(function(m){ out.textContent = m; }); }).then(function(){ btn.disabled = false; });
   });
   $("btnClear").addEventListener("click", function(){
     if(!window.confirm("Delete all saved digests and reset the last-checked date?")) return;
