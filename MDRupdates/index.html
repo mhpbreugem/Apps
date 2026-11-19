@@ -43,6 +43,8 @@ body.has-sel main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .iconbtn{position:relative;flex:none;width:46px;border:0;border-radius:10px;display:grid;place-items:center;cursor:pointer}
 .iconbtn.mail{background:#ffd43b;color:#1b1b1b}
 .iconbtn.xls{background:#1d6f42;color:#fff}
+.prog{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin-top:10px}
+.prog>div{height:100%;width:0;background:var(--accent);transition:width .3s}
 .iconbtn.upd{background:var(--brand);color:var(--brand-ink)}
 .iconbtn.upd.spin svg{animation:s 1s linear infinite}
 .iconbtn.upd.spin:disabled{opacity:1}
@@ -173,7 +175,8 @@ textarea{min-height:150px}
     <div id="digests"></div>
     </div>
     <div id="paneHist" class="hidden">
-      <p class="muted" style="margin:12px 2px 0">Tap update to load history from today back to May 2017, newest first, one year at a time. Years already loaded are skipped; items you already have are not added twice.</p>
+    <div id="prog" class="prog hidden" role="progressbar" aria-label="History loaded" aria-valuemin="0"><div id="progFill"></div></div>
+      <p class="muted" style="margin:12px 2px 0">Tap update to load history week by week, from today back to May 2017. Weeks already loaded are skipped; every item found is shown.</p>
       <h2 style="margin:18px 2px 6px;font-size:15px;color:var(--muted)">Earlier weeks and searches<span id="histCount"></span></h2>
       <div id="histList"></div>
     </div>
@@ -689,7 +692,7 @@ textarea{min-height:150px}
   function busy(on, kind){ running = on; runKind = on ? (kind || "") : ""; updBtn(); }
   // turn the model answer into a digest body: drop invalid and already-seen items, sort, add notes
   function collect(res, parsed){
-    var seen = seenUrls(), hidden = 0, items = [];
+    var seen = {}, hidden = 0, items = [];   // only repeats inside this one answer are dropped
     parsed.items.forEach(function(i){
       var u = safeUrl(i.url);
       if(!u) return;
@@ -708,7 +711,7 @@ textarea{min-height:150px}
     return {items:items, hidden:hidden, note:note, why:why};
   }
 
-  // Update week: always checks the past 7 days (plus one day of margin). Items found in earlier checks are skipped.
+  // Update week: always checks the past 7 days (plus one day of margin). Every item found is shown; only repeats within one list are dropped.
   function run(){
     if(running) return;
     if(!state.apiKey){ showView("settings"); return; }
@@ -736,12 +739,29 @@ textarea{min-height:150px}
   // Update history: the period set in the History tab is split into calendar years and searched one year at a time,
   // newest first. Every year is saved as soon as it is done, so progress is never lost and tapping again continues.
   // A year that goes over 50,000 input tokens stops with a warning; "Proceed anyway" runs Haiku without the limit.
-  function yearChunks(from, to){
-    var out = [], fy = +from.slice(0,4), ty = +to.slice(0,4);
-    for(var y = ty; y >= fy; y--){
-      out.push({from: y === fy ? from : y + "-01-01", to: y === ty ? to : y + "-12-31"});
+  // calendar weeks (Monday to Sunday), newest first; the current week runs from Monday to today
+  function weekChunks(from, to){
+    var out = [], d = new Date(to + "T12:00:00");
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));            // Monday of the week that contains "to"
+    var end = to;
+    for(;;){
+      var mon = ymd(new Date(d.getTime() - d.getTimezoneOffset()*60000));
+      var start = mon < from ? from : mon;
+      out.push({from: start, to: end});
+      if(start <= from) break;
+      d.setDate(d.getDate() - 1); end = ymd(new Date(d.getTime() - d.getTimezoneOffset()*60000));
+      d.setDate(d.getDate() - 6);
     }
     return out;
+  }
+  function covered(c){
+    return state.digests.some(function(g){ return g.kind === "range" && !g.incomplete && g.since && g.until && g.since <= c.from && g.until >= c.to; });
+  }
+  function setProg(done, total){
+    var bar = $("prog"); if(!bar) return;
+    bar.classList.toggle("hidden", !total);
+    $("progFill").style.width = (total ? Math.round(100 * done / total) : 0) + "%";
+    bar.setAttribute("aria-valuenow", String(done)); bar.setAttribute("aria-valuemax", String(total));
   }
   var HIST_START = "2017-05-25";
   function histSearch(proceed){
@@ -749,22 +769,10 @@ textarea{min-height:150px}
     if(!state.apiKey){ showView("settings"); return; }
     var from = HIST_START, to = ymd(new Date());
     $("hExt").innerHTML = "";
-    // per year, skip what complete earlier searches already cover; the current year only searches from where it was last loaded
-    var chunks = [];
-    yearChunks(from, to).forEach(function(c){
-      // extend the covered stretch from the start of the year as far as complete searches reach
-      var end = c.from, grew = true, any = false;
-      while(grew){
-        grew = false;
-        state.digests.forEach(function(g){
-          if(g.kind === "range" && !g.incomplete && g.since && g.until && g.since <= end && g.until > end && g.until <= c.to){ end = g.until; grew = any = true; }
-          else if(g.kind === "range" && !g.incomplete && g.since && g.until && g.since <= c.from && g.until >= c.to){ end = c.to; any = true; }
-        });
-      }
-      if(any && end >= c.to) return;
-      if(any) c.from = end;
-      chunks.push(c);
-    });
+    var all = weekChunks(from, to);
+    var chunks = all.filter(function(c){ return !covered(c); });
+    var already = all.length - chunks.length;
+    setProg(already, all.length);
     if(!chunks.length){ setStatus("info","History is up to date."); return; }
     busy(true, "hist");
     var total = chunks.length, done = 0, added = 0, stopped = false;
@@ -773,11 +781,11 @@ textarea{min-height:150px}
       if(!chunks.length) return Promise.resolve();
       var c = chunks.shift(), now = new Date();
       stats = {searches:0, errors:[]};
-      setStatus("info", "Searching history, period " + (done + 1) + " of " + total + ": " + fmtRange(c.from, c.to) + (proceed ? " (no token limit)" : "") + ". Finished periods are saved.", true);
-      return runLoop([{role:"user", content: buildPrompt(c.from, c.to, {max:20, long:((new Date(c.to) - new Date(c.from)) > 120*86400000)})}], 0, opts).then(function(res){
+      setStatus("info", "Searching history, week " + (already + done + 1) + " of " + all.length + ": " + fmtRange(c.from, c.to) + (proceed ? " (no token limit)" : "") + ". Finished weeks are saved.", true);
+      return runLoop([{role:"user", content: buildPrompt(c.from, c.to, {max:15})}], 0, opts).then(function(res){
         if(stats.capped && !proceed){
           stopped = true;
-          setStatus("err","Warning: " + fmtRange(c.from, c.to) + " went over 50,000 tokens, so this period was stopped and not added" + (done ? " (the " + done + " period" + (done === 1 ? "" : "s") + " before it " + (done === 1 ? "is" : "are") + " saved)" : "") + ". Proceed anyway, or pick a shorter period.");
+          setStatus("err","Warning: " + fmtRange(c.from, c.to) + " went over 50,000 tokens, so this week was stopped and not added" + (done ? " (the " + done + " week" + (done === 1 ? "" : "s") + " before it " + (done === 1 ? "is" : "are") + " saved)" : "") + ". Proceed anyway or cancel.");
           var card = el("div","card"); card.style.cssText = "display:flex;gap:10px";
           var go = el("button","btn","Proceed anyway"); go.type = "button";
           go.addEventListener("click", function(){ histSearch(true); });
@@ -791,15 +799,15 @@ textarea{min-height:150px}
         var d = collect(res, parsed);
         state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: c.from, until: c.to, kind:"range", items: d.items, hidden: d.hidden, note: d.note, searches: stats.searches, incomplete: d.why.length > 0, reason: d.why.join("; ")});
         state.digests = trimDigests(state.digests);
-        done++; added += d.items.length;
+        done++; added += d.items.length; setProg(already + done, all.length);
         save(); render();
         return step();
       });
     }
     step().then(function(){
-      if(!stopped) setStatus("ok","History updated: " + added + " new item" + (added === 1 ? "" : "s") + " in " + done + " period" + (done === 1 ? "" : "s") + ".");
+      if(!stopped) setStatus("ok","History updated: " + added + " new item" + (added === 1 ? "" : "s") + " in " + done + " week" + (done === 1 ? "" : "s") + ".");
     }).catch(function(e){
-      save(); return explainAsync(e).then(function(m){ setStatus("err", m + (done ? " (" + done + " of " + total + " periods were saved. Tap update again to continue.)" : "")); });
+      save(); return explainAsync(e).then(function(m){ setStatus("err", m + (done ? " (" + done + " of " + total + " weeks were saved. Tap update again to continue.)" : "")); });
     }).then(function(){ busy(false); });
   }
 
@@ -813,7 +821,7 @@ textarea{min-height:150px}
     runLoop([{role:"user", content: buildPrompt(g.since, todayStr, {deep:true, known:g.items})}], 0, {model:DEEP_MODEL, maxUses:15}).then(function(res){
       var parsed = parseDigest(textOf(res));
       if(!parsed) throw new Error("The deep search did not return a readable digest. You can try again.");
-      var seen = seenUrls(), added = 0;
+      var seen = {}, added = 0; g.items.forEach(function(x){ seen[x.url] = 1; });
       parsed.items.forEach(function(i){
         var u = safeUrl(i.url); if(!u || seen[u]) return;
         i.url = u; seen[u] = 1; g.items.push(i); added++;
@@ -845,13 +853,14 @@ textarea{min-height:150px}
   function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text!=null) e.textContent = text; return e; }
 
   function allItems(){
-    var a = [];
-    state.digests.forEach(function(g){ (g.items||[]).forEach(function(i){ a.push(i); }); });
+    var a = [], seen = {};
+    state.digests.forEach(function(g){ (g.items||[]).forEach(function(i){ if(!seen[i.url]){ seen[i.url] = 1; a.push(i); } }); });
     return a;
   }
   function tabItems(){
     var wk = weekSet(), a = [];
-    state.digests.forEach(function(g){ if((tab === "week") === !!wk[g.id]) (g.items||[]).forEach(function(i){ a.push(i); }); });
+    var seen = {};
+    state.digests.forEach(function(g){ if((tab === "week") === !!wk[g.id]) (g.items||[]).forEach(function(i){ if(!seen[i.url]){ seen[i.url] = 1; a.push(i); } }); });
     return a;
   }
   function selectedItems(){ return allItems().filter(function(i){ return sel[i.url]; }); }
@@ -961,7 +970,7 @@ textarea{min-height:150px}
     var head = el("div","digest-head");
     var title = g.kind === "range" ? fmtRange(g.since, g.until || g.since) : fmtDate(g.runAt);
     head.appendChild(el("h2",null, title));
-    head.appendChild(el("span","muted", g.items.length + " new" + (g.hidden ? " (" + g.hidden + " already seen)" : "")));
+    head.appendChild(el("span","muted", g.items.length + " found" + (g.hidden ? " (" + g.hidden + " repeat removed)" : "")));
     return head;
   }
   function appendDigest(root, g, order){
@@ -984,6 +993,7 @@ textarea{min-height:150px}
     var wk = weekSet(), list = state.digests.filter(function(g){ return !wk[g.id]; });
     // newest period first, and within each period the newest items first (undated items last)
     function endOf(g){ return g.until || (g.runAt ? ymd(new Date(g.runAt)) : ""); }
+    list = list.filter(function(g){ return g.kind !== "range" || (g.items && g.items.length) || g.incomplete; });
     list = list.slice().sort(function(a,b){ return endOf(b) < endOf(a) ? -1 : endOf(b) > endOf(a) ? 1 : (b.id - a.id); });
     function dOf(i){ return /^\d{4}-\d{2}-\d{2}$/.test(i.date || "") ? i.date : ""; }
     function byDate(items){ return (items || []).map(function(x,n){ return {x:x,n:n}; }).sort(function(p,q){ var a = dOf(p.x), b = dOf(q.x); return a === b ? p.n - q.n : (b < a ? -1 : 1); }).map(function(o){ return o.x; }); }
@@ -994,7 +1004,7 @@ textarea{min-height:150px}
     var wk = weekSet(), shown = state.digests.filter(function(g){ return wk[g.id]; });
     var nWeek = 0; shown.forEach(function(g){ nWeek += g.items.length; });
     $("lastRun").textContent = state.lastRun
-      ? "Checked " + fmtDate(state.lastRun) + " · " + nWeek + " new this week"
+      ? "Checked " + fmtDate(state.lastRun) + " · " + nWeek + " found this week"
       : "Not checked yet. Tap the update button to check the past 7 days.";
     var wk2 = 0, hi2 = 0; state.digests.forEach(function(g){ if(wk[g.id]) wk2 += g.items.length; else hi2 += g.items.length; });
     $("histCount").textContent = hi2 ? " (" + hi2 + ")" : "";
