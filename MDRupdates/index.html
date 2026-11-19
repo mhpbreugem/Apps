@@ -171,6 +171,17 @@ textarea{min-height:150px}
     </div>
 
     <div class="card">
+      <label for="ghTok" style="margin-top:0">Back up to GitHub</label>
+      <input type="password" id="ghTok" placeholder="GitHub token (ghp_...)" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <p class="muted" id="ghStatus">Not connected.</p>
+      <p class="muted">Saves your updates and settings in a secret gist on the GitHub account the token belongs to, so reinstalling the app brings them back: paste the same token and tap Back up now. The API key is never saved. Anyone with the gist link could read it, and it includes your email address and role. <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=MDRupdates" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Create a token</a> and tick only "gist".</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn secondary" id="ghNow" type="button">Back up now</button>
+        <button class="btn secondary" id="ghOff" type="button">Disconnect</button>
+      </div>
+    </div>
+
+    <div class="card">
       <label for="focus" style="margin-top:0">What to look for</label>
       <textarea id="focus"></textarea>
       <p class="muted">Edit this to add or remove sources and topics.</p>
@@ -219,19 +230,135 @@ textarea{min-height:150px}
 
   function load(){
     var s = {apiKey:"", model:"claude-haiku-5-5", toolVer:"web_search_20250305", focus:DEFAULT_FOCUS, days:30, lastRun:null, digests:[],
-             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE};
+             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE, t:0, clearedAt:0, ghLinked:false};
     try{ var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); for(var k in o){ s[k]=o[k]; } } }catch(e){}
     s.model = "claude-haiku-5-5";
     // the other apps on this site keep the key in "mdr-ai" / "kashi-ai"; use it if present
     try{ var shared = localStorage.getItem("mdr-ai") || localStorage.getItem("kashi-ai"); if(shared) s.apiKey = shared; }catch(e){}
     return s;
   }
-  function save(){
+  function saveLocal(){
     try{
       var copy = {}; for(var k in state){ if(k!=="apiKey") copy[k]=state[k]; }
       localStorage.setItem(KEY, JSON.stringify(copy));
       if(state.apiKey) localStorage.setItem("mdr-ai", state.apiKey); else localStorage.removeItem("mdr-ai");
     }catch(e){}
+  }
+  function save(){ state.t = Date.now(); saveLocal(); ghSchedule(); }
+
+  // ---- backup to a secret GitHub gist (the API key is never included) ----
+  var GIST_FILE = "mdr-updates.json", GIST_DESC = "MDRupdates data";
+  var GH = {tok:null, id:null, state:"off", err:"", at:0, busy:false, again:false, timer:null};
+  try{
+    GH.tok = localStorage.getItem("mdrupd-gh") || (localStorage.getItem("mdrupd-gh-off") ? null : (localStorage.getItem("mdr-gh") || localStorage.getItem("kashi-gh")));
+    GH.id = localStorage.getItem("mdrupd-gist");
+  }catch(e){}
+  if(GH.tok) GH.state = "ok";
+  var SYNC_KEYS = ["email","view","aiSummary","rateImportance","role","focus","days","toolVer"];
+
+  function gh(path, opts){
+    opts = opts || {};
+    var headers = {"Accept":"application/vnd.github+json", "Authorization":"Bearer " + GH.tok, "X-GitHub-Api-Version":"2022-11-28"};
+    if(opts.body) headers["Content-Type"] = "application/json";
+    return fetch("https://api.github.com" + path, {method: opts.method || "GET", headers: headers, body: opts.body, cache:"no-store"}).then(function(r){
+      if(r.status === 204) return null;
+      return r.json().then(function(j){
+        if(!r.ok){ var e = new Error((j && j.message) || ("HTTP " + r.status)); e.status = r.status; throw e; }
+        return j;
+      });
+    });
+  }
+  function snapshot(){
+    var settings = {}; SYNC_KEYS.forEach(function(k){ settings[k] = state[k]; });
+    return {v:1, t:state.t || Date.now(), clearedAt:state.clearedAt || 0, lastRun:state.lastRun, settings:settings, digests:state.digests};
+  }
+  // merge a remote backup into local state; returns true if local state changed
+  function applyRemote(r, force){
+    if(!r || r.v !== 1) return false;
+    var changed = false, cleared = Math.max(state.clearedAt || 0, r.clearedAt || 0);
+    var byId = {};
+    state.digests.concat(r.digests || []).forEach(function(g){ if(g && g.id && g.id > cleared) byId[g.id] = g; });
+    var merged = Object.keys(byId).map(function(k){ return byId[k]; }).sort(function(a,b){ return b.id - a.id; }).slice(0,30);
+    if(JSON.stringify(merged) !== JSON.stringify(state.digests)){ state.digests = merged; changed = true; }
+    if(cleared !== (state.clearedAt || 0)){ state.clearedAt = cleared; changed = true; }
+    if(r.lastRun && new Date(r.lastRun).getTime() > cleared && (!state.lastRun || r.lastRun > state.lastRun)){ state.lastRun = r.lastRun; changed = true; }
+    if(r.settings && (force || (r.t || 0) > (state.t || 0))){
+      SYNC_KEYS.forEach(function(k){ if(r.settings[k] !== undefined && r.settings[k] !== state[k]){ state[k] = r.settings[k]; changed = true; } });
+      if(force || (r.t || 0) > (state.t || 0)) state.t = r.t || state.t;
+    }
+    return changed;
+  }
+  function findGist(page){
+    page = page || 1;
+    return gh("/gists?per_page=100&page=" + page).then(function(list){
+      for(var i=0;i<list.length;i++){ if(list[i].files && list[i].files[GIST_FILE]) return list[i].id; }
+      if(list.length === 100 && page < 5) return findGist(page+1);
+      return null;
+    });
+  }
+  function readGist(id){
+    return gh("/gists/" + id).then(function(g){
+      var f = g.files && g.files[GIST_FILE];
+      if(!f) return undefined;
+      var txt = f.truncated ? fetch(f.raw_url, {cache:"no-store"}).then(function(r){ return r.text(); }) : Promise.resolve(f.content);
+      return txt.then(function(t){
+        try{ return JSON.parse(t); }catch(e){ throw new Error("The backup in GitHub could not be read, so nothing was overwritten."); }
+      });
+    });
+  }
+  function writeGist(){
+    var body = {files:{}};
+    body.files[GIST_FILE] = {content: JSON.stringify(snapshot())};
+    if(GH.id) return gh("/gists/" + GH.id, {method:"PATCH", body: JSON.stringify(body)});
+    body.description = GIST_DESC; body.public = false;
+    return gh("/gists", {method:"POST", body: JSON.stringify(body)}).then(function(g){
+      GH.id = g.id; try{ localStorage.setItem("mdrupd-gist", g.id); }catch(e){}
+    });
+  }
+  function ghUi(){
+    var el = document.getElementById("ghStatus"); if(!el) return;
+    var t = !GH.tok ? "Not connected." : GH.state==="sync" ? "Backing up..." : GH.state==="err" ? "Backup problem: " + GH.err :
+      GH.at ? "Backed up " + new Date(GH.at).toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}) + "." : "Connected.";
+    el.textContent = t; el.className = "muted" + (GH.state==="err" && GH.tok ? " bad" : "");
+  }
+  function ghSync(){
+    if(!GH.tok) return Promise.resolve();
+    if(GH.busy){ GH.again = true; return Promise.resolve(); }
+    GH.busy = true; GH.state = "sync"; ghUi();
+    var findId = GH.id ? Promise.resolve(GH.id) : findGist();
+    return findId.then(function(id){
+      if(!id) return undefined;
+      GH.id = id; try{ localStorage.setItem("mdrupd-gist", id); }catch(e){}
+      return readGist(id);
+    }).then(function(remote){
+      if(remote && applyRemote(remote, !state.ghLinked)){ saveLocal(); render(); }
+      return writeGist();
+    }).then(function(){
+      state.ghLinked = true; saveLocal();
+      GH.state = "ok"; GH.err = ""; GH.at = Date.now();
+    }).catch(function(e){
+      if(e.status === 404 && GH.id){ GH.id = null; try{ localStorage.removeItem("mdrupd-gist"); }catch(x){} }
+      GH.state = "err";
+      GH.err = e.status === 401 ? "GitHub rejected the token. Check it in settings." :
+               e.status === 403 || e.status === 429 ? "GitHub refused the request (" + e.message + ")." :
+               (e instanceof TypeError ? "Could not reach GitHub." : e.message);
+    }).then(function(){
+      GH.busy = false; ghUi();
+      if(GH.again){ GH.again = false; return ghSync(); }
+    });
+  }
+  function ghSchedule(){ if(!GH.tok) return; clearTimeout(GH.timer); GH.timer = setTimeout(ghSync, 3000); }
+  function setGhToken(tok){
+    if(tok === (GH.tok || "")) return;
+    clearTimeout(GH.timer);
+    try{
+      if(tok){ localStorage.setItem("mdrupd-gh", tok); localStorage.removeItem("mdrupd-gh-off"); }
+      else { localStorage.removeItem("mdrupd-gh"); localStorage.setItem("mdrupd-gh-off","1"); }
+      localStorage.removeItem("mdrupd-gist");
+    }catch(e){}
+    GH.tok = tok || null; GH.id = null; GH.state = tok ? "ok" : "off"; GH.err = ""; GH.at = 0;
+    state.ghLinked = false; saveLocal(); ghUi();
+    if(tok) ghSync();
   }
 
   // rough monthly spend: Haiku 5.5 $0.10 / $0.50 per million input / output tokens, web search $10 per 1000 searches
@@ -270,6 +397,7 @@ textarea{min-height:150px}
       $("optImp").checked = !!state.rateImportance;
       $("role").value = state.role || "";
       $("focus").value = state.focus; $("days").value = state.days; $("usage").textContent = usageText();
+      $("ghTok").value = GH.tok || ""; ghUi();
     }
     updateSelUI();
     try{ window.scrollTo(0,0); }catch(e){}
@@ -631,8 +759,14 @@ textarea{min-height:150px}
     state.role = $("role").value.trim() || DEFAULT_ROLE;
     state.focus = $("focus").value.trim() || DEFAULT_FOCUS;
     state.days = Math.max(1, Math.min(365, parseInt($("days").value,10) || 30));
-    save(); showView("main"); render(); setStatus("","");
+    save(); setGhToken($("ghTok").value.trim()); showView("main"); render(); setStatus("","");
   });
+  $("ghNow").addEventListener("click", function(){
+    var t = $("ghTok").value.trim();
+    if(!t){ var el = $("ghStatus"); el.textContent = "Paste a GitHub token first."; el.className = "muted bad"; return; }
+    if(t !== (GH.tok || "")) setGhToken(t); else ghSync();
+  });
+  $("ghOff").addEventListener("click", function(){ $("ghTok").value = ""; setGhToken(""); });
   $("btnTest").addEventListener("click", function(){
     var out = $("testOut"), key = $("apiKey").value.trim();
     if(!key){ out.textContent = "Enter the API key first."; return; }
@@ -652,11 +786,13 @@ textarea{min-height:150px}
   });
   $("btnClear").addEventListener("click", function(){
     if(!window.confirm("Delete all saved digests and reset the last-checked date?")) return;
-    state.digests = []; state.lastRun = null; sel = {}; exp = {}; save(); render(); showView("main");
+    state.digests = []; state.lastRun = null; state.clearedAt = Date.now(); sel = {}; exp = {}; save(); render(); showView("main");
   });
 
   render();
   if(!state.apiKey){ showView("settings"); }
+  if(GH.tok) ghSync();
+  document.addEventListener("visibilitychange", function(){ if(GH.tok && document.visibilityState === "visible") ghSync(); });
 
   // Start gate: the app stays locked until the first tap, and that tap asks the browser for full screen.
   (function(){
