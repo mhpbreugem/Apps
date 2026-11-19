@@ -280,6 +280,17 @@ textarea{min-height:150px}
     try{ var shared = localStorage.getItem("mdr-ai") || localStorage.getItem("kashi-ai"); if(shared) s.apiKey = shared; }catch(e){}
     return s;
   }
+  // Keep the newest checks until about 4,000 items are stored (a few MB; the browser allows roughly 5 MB). Nothing else is dropped.
+  var MAX_ITEMS = 4000;
+  function trimDigests(list){
+    var n = 0, out = [];
+    for(var k = 0; k < list.length; k++){
+      n += (list[k].items || []).length;
+      if(n > MAX_ITEMS && out.length) break;
+      out.push(list[k]);
+    }
+    return out;
+  }
   function saveLocal(){
     try{
       var copy = {}; for(var k in state){ if(k!=="apiKey") copy[k]=state[k]; }
@@ -321,7 +332,8 @@ textarea{min-height:150px}
     var changed = false, cleared = Math.max(state.clearedAt || 0, r.clearedAt || 0);
     var byId = {};
     state.digests.concat(r.digests || []).forEach(function(g){ if(g && g.id && g.id > cleared) byId[g.id] = g; });
-    var merged = Object.keys(byId).map(function(k){ return byId[k]; }).sort(function(a,b){ return b.id - a.id; }).slice(0,30);
+    var merged = Object.keys(byId).map(function(k){ return byId[k]; }).sort(function(a,b){ return b.id - a.id; });
+    merged = trimDigests(merged);
     if(JSON.stringify(merged) !== JSON.stringify(state.digests)){ state.digests = merged; changed = true; }
     if(cleared !== (state.clearedAt || 0)){ state.clearedAt = cleared; changed = true; }
     state.feedback = state.feedback || {};
@@ -691,7 +703,7 @@ textarea{min-height:150px}
       if(!parsed){ throw new Error("The model did not return a readable digest. Try again."); }
       var c = collect(res, parsed);
       state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: sinceStr, until: todayStr, kind:"week", items: c.items, hidden: c.hidden, note: c.note, searches: stats.searches, incomplete: c.why.length > 0, reason: c.why.join("; ")});
-      state.digests = state.digests.slice(0,120);
+      state.digests = trimDigests(state.digests);
       state.lastRun = now.toISOString();
       save(); render();
       setStatus("", "");
@@ -732,7 +744,7 @@ textarea{min-height:150px}
       if(!parsed) throw new Error("The model did not return a readable digest. Try again or pick a shorter period.");
       var d = collect(res, parsed);
       state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: from, until: to, kind:"range", items: d.items, hidden: d.hidden, note: d.note, searches: stats.searches, incomplete: d.why.length > 0, reason: d.why.join("; ")});
-      state.digests = state.digests.slice(0,120);
+      state.digests = trimDigests(state.digests);
       save(); render(); setStatus("","");
     }).catch(function(e){
       save(); setStatus("err", explain(e));
