@@ -380,7 +380,8 @@ textarea{min-height:150px}
   function addUsage(res){
     try{
       var u = res.usage || {}, m = new Date().toISOString().slice(0,7);
-      var x = state.usage; if(!x || x.m!==m) x = {m:m, usd:0, n:0};
+      var x = state.usage; if(!x || x.m!==m) x = {m:m, usd:0, n:0, peak:0};
+      x.peak = Math.max(x.peak || 0, u.input_tokens || 0);
       var p = PRICE[state.model] || PRICE["claude-haiku-5-5"];
       var searches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
       x.usd += (u.input_tokens||0)*p[0] + (u.output_tokens||0)*p[1] + searches*0.01; x.n++;
@@ -390,7 +391,7 @@ textarea{min-height:150px}
   function usageText(){
     var x = state.usage, m = new Date().toISOString().slice(0,7);
     if(!x || x.m!==m) return "This month: no checks yet.";
-    return "This month: about $" + x.usd.toFixed(2) + " over " + x.n + " check" + (x.n===1?"":"s") + " (rough estimate).";
+    return "This month: about $" + x.usd.toFixed(2) + " over " + x.n + " check" + (x.n===1?"":"s") + " (rough estimate). Largest single request: " + (x.peak || 0).toLocaleString("en-US") + " input tokens.";
   }
 
   var $ = function(id){ return document.getElementById(id); };
@@ -518,6 +519,8 @@ textarea{min-height:150px}
       "Output ONLY a JSON object wrapped in <digest></digest> tags, no other text:\n<digest>" + tpl + "</digest>";
   }
 
+  // Each continuation resends everything so far, so input grows. Stop well before any long-context price tier.
+  var INPUT_LIMIT = 80000;
   var TOOL_VERSIONS = ["web_search_20250305","web_search_20260209"];
   var stats = {searches:0, errors:[]};
   function searchTool(maxUses){
@@ -597,6 +600,8 @@ textarea{min-height:150px}
   function runLoop(messages, n){
     return callApiWithFallback(messages, {effort:"high", maxTokens:12000}).then(function(res){
       addUsage(res); scan(res);
+      var inTok = (res.usage && res.usage.input_tokens) || 0;
+      if(res.stop_reason === "pause_turn" && inTok > INPUT_LIMIT){ stats.capped = true; return res; }
       if(res.stop_reason === "pause_turn" && n < 5){
         messages = messages.concat([{role:"assistant", content:res.content}]);
         return runLoop(messages, n+1);
@@ -644,6 +649,7 @@ textarea{min-height:150px}
         items = items.map(function(x,n){ return {x:x, n:n}; }).sort(function(a,b){ return (impScore(b.x)-impScore(a.x)) || (a.n-b.n); }).map(function(o){ return o.x; });
       }
       var note = parsed.note || "";
+      if(stats.capped) note = (note ? note + " " : "") + "The search was stopped early to keep the cost low, so this list may be incomplete.";
       if(stats.searches === 0) note = (note ? note + " " : "") + "No web searches were performed, so this list may be incomplete.";
       else if(stats.errors.length) note = (note ? note + " " : "") + "Some searches failed (" + stats.errors.join(", ") + "), so this list may be incomplete.";
       state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: sinceStr, items: items, hidden: hidden, note: note, searches: stats.searches});
