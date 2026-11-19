@@ -37,6 +37,9 @@ body.has-sel main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .btn{display:inline-block;background:var(--brand);color:var(--brand-ink);border:0;border-radius:10px;padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer;width:100%}
 .btn.secondary{background:transparent;color:var(--accent);border:1px solid var(--line)}
 .btn:disabled{opacity:.55}
+.btn.mail{background:#ffd43b;color:#1b1b1b;border:0}
+#selMail{background:#ffd43b;color:#1b1b1b}
+#selMail:active{background:#e6bd2e}
 label{display:block;font-weight:600;margin:12px 0 4px}
 label.check{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px}
 label.check input{width:22px;height:22px;margin:1px 0 0;flex:none}
@@ -74,7 +77,7 @@ textarea{min-height:150px}
 .row.open .rs{display:none}
 .row.open{border-bottom:0}
 .rside{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:12px;color:var(--muted)}
-.stars{font-size:13px;letter-spacing:1px;color:var(--star);white-space:nowrap}
+.stars{display:block;font-size:16px;line-height:1.2;letter-spacing:2px;color:var(--star);white-space:nowrap;margin:2px 0 1px}
 .row.no{opacity:.6}
 .mk{display:inline-block;margin-right:6px;font-weight:800;font-size:13px}
 .mk.yes{color:var(--accent)}
@@ -133,7 +136,7 @@ textarea{min-height:150px}
 <main inert>
   <div id="view-main">
     <button class="btn" id="btnRun">Check for updates</button>
-    <button class="btn secondary" id="btnMailFront" type="button" style="margin-top:8px" disabled>Email</button>
+    <button class="btn mail" id="btnMailFront" type="button" style="margin-top:8px" disabled>Email</button>
     <div id="status" style="margin-top:12px"></div>
     <div id="creditWarn" style="margin-top:12px"></div>
     <div class="subrow">
@@ -798,15 +801,15 @@ textarea{min-height:150px}
     }
     rt.appendChild(document.createTextNode(i.title || "(untitled)"));
     tx.appendChild(rt);
-    tx.appendChild(el("span","rs", i.summary ? i.summary : [i.source, i.category].filter(Boolean).join(" · ")));
-    var side = el("span","rside");
-    var sd = shortDate(i.date); if(sd) side.appendChild(el("span",null,sd));
     var imp = impOf(i);
     if(imp !== null){
       var st = el("span","stars", starsText(imp));
       st.setAttribute("role","img"); st.setAttribute("aria-label", imp + " out of 5 stars for your role");
-      side.appendChild(st);
+      tx.appendChild(st);
     }
+    tx.appendChild(el("span","rs", i.summary ? i.summary : [i.source, i.category].filter(Boolean).join(" · ")));
+    var side = el("span","rside");
+    var sd = shortDate(i.date); if(sd) side.appendChild(el("span",null,sd));
     main.appendChild(tx); main.appendChild(side);
     main.addEventListener("click", function(){
       if(detailed) return;
