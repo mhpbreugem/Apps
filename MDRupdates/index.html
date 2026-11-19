@@ -137,6 +137,7 @@ textarea{min-height:150px}
   <div id="view-main">
     <button class="btn" id="btnRun">Check for updates</button>
     <button class="btn mail" id="btnMailFront" type="button" style="margin-top:8px" disabled>Email</button>
+    <button class="btn secondary" id="btnXlsx" type="button" style="margin-top:8px" disabled>Export to Excel</button>
     <div id="status" style="margin-top:12px"></div>
     <div class="subrow">
       <span class="muted" id="lastRun"></span>
@@ -717,6 +718,9 @@ textarea{min-height:150px}
     $("fab").setAttribute("aria-label", "Email " + n + " selected " + (n===1?"item":"items"));
     var li = latestItems().length, fb = $("btnMailFront");
     fb.disabled = !(n > 0 || li > 0);
+    var xb = $("btnXlsx"), na = allItems().length;
+    xb.disabled = !(n > 0 || na > 0);
+    xb.textContent = n > 0 ? "Export " + n + " selected to Excel" : "Export all " + na + " to Excel";
     fb.textContent = n > 0 ? "Email " + n + " selected" : li > 0 ? "Email " + (li === 1 ? "the new item" : "all " + li + " new items") : "Email";
   }
 
@@ -864,6 +868,74 @@ textarea{min-height:150px}
     for(var k=0;k<state.digests.length;k++){ if(state.digests[k].items && state.digests[k].items.length) return state.digests[k].items; }
     return [];
   }
+  // ---- Excel export: builds a real .xlsx (zip, stored without compression) in the browser, no library.
+  var CRC_T = (function(){ var t = [], c, n, k; for(n=0;n<256;n++){ c = n; for(k=0;k<8;k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(b){ var c = 0xFFFFFFFF; for(var i=0;i<b.length;i++) c = CRC_T[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function zipStore(files){
+    var enc = new TextEncoder(), parts = [], central = [], off = 0;
+    function u16(v){ return [v & 255, (v >>> 8) & 255]; }
+    function u32(v){ return [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]; }
+    files.forEach(function(f){
+      var name = enc.encode(f.name), data = enc.encode(f.data), crc = crc32(data);
+      var head = [].concat(u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0));
+      parts.push(new Uint8Array(head), name, data);
+      central.push({name:name, crc:crc, len:data.length, off:off});
+      off += head.length + name.length + data.length;
+    });
+    var cstart = off, csize = 0;
+    central.forEach(function(c){
+      var h = [].concat(u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(0), u16(0x21), u32(c.crc), u32(c.len), u32(c.len), u16(c.name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.off));
+      parts.push(new Uint8Array(h), c.name); csize += h.length + c.name.length;
+    });
+    parts.push(new Uint8Array([].concat(u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(csize), u32(cstart), u16(0))));
+    return new Blob(parts, {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  }
+  function xmlEsc(v){ return String(v == null ? "" : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function colName(n){ var s = ""; n++; while(n > 0){ var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; }
+  function buildXlsx(items){
+    var head = ["Date","Title","Category","Source","Importance (0-5)","Stars","Relevance for role","Summary","Why it matters","Link","Marked"];
+    var sorted = items.map(function(x,k){ return {x:x,k:k,v:impOf(x)}; }).sort(function(p,q){
+      var a = p.v === null ? -1 : p.v, b = q.v === null ? -1 : q.v; return (b - a) || (p.k - q.k); }).map(function(o){ return o.x; });
+    var rows = [head].concat(sorted.map(function(i){
+      var imp = impOf(i), fb = fbOf(i.url);
+      return [i.date || "", i.title || "", i.category || "", i.source || "", imp === null ? "" : imp, imp === null ? "" : starsText(imp),
+        i.importance_reason || "", i.summary || "", i.why_it_matters || "", i.url || "", fb === "yes" ? "Relevant" : fb === "no" ? "Not relevant" : ""];
+    }));
+    var xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+      '<cols><col min="1" max="1" width="12" customWidth="1"/><col min="2" max="2" width="48" customWidth="1"/><col min="3" max="4" width="20" customWidth="1"/><col min="5" max="6" width="12" customWidth="1"/><col min="7" max="9" width="55" customWidth="1"/><col min="10" max="10" width="45" customWidth="1"/><col min="11" max="11" width="14" customWidth="1"/></cols><sheetData>';
+    rows.forEach(function(r, ri){
+      xml += '<row r="' + (ri + 1) + '">';
+      r.forEach(function(v, ci){
+        var ref = colName(ci) + (ri + 1), st = ri === 0 ? ' s="1"' : (ci >= 6 && ci <= 8 ? ' s="2"' : "");
+        if(typeof v === "number") xml += '<c r="' + ref + '"' + st + '><v>' + v + '</v></c>';
+        else xml += '<c r="' + ref + '" t="inlineStr"' + st + '><is><t xml:space="preserve">' + xmlEsc(v) + '</t></is></c>';
+      });
+      xml += '</row>';
+    });
+    xml += '</sheetData><autoFilter ref="A1:' + colName(head.length - 1) + rows.length + '"/></worksheet>';
+    var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFE066"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    return zipStore([
+      {name:"[Content_Types].xml", data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'},
+      {name:"_rels/.rels", data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+      {name:"xl/workbook.xml", data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="MDR updates" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+      {name:"xl/_rels/workbook.xml.rels", data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+      {name:"xl/styles.xml", data:styles},
+      {name:"xl/worksheets/sheet1.xml", data:xml}
+    ]);
+  }
+  function exportXlsx(){
+    var items = Object.keys(sel).length ? selectedItems() : allItems();
+    if(!items.length) return;
+    var blob = buildXlsx(items), d = new Date();
+    var name = "MDR-updates-" + d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + ".xlsx";
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name; a.style.display = "none";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ try{ URL.revokeObjectURL(a.href); }catch(e){} }, 10000);
+    setStatus("ok", "Excel file saved: " + name + " (" + items.length + " item" + (items.length === 1 ? "" : "s") + "). Find it in your Downloads.");
+  }
+
   function sendMail(list){
     var items = (list && list.length) ? list : selectedItems();
     if(!items.length) return;
@@ -902,6 +974,7 @@ textarea{min-height:150px}
   $("selAll").addEventListener("click", function(){ allItems().forEach(function(i){ sel[i.url] = 1; }); render(); });
   $("selMail").addEventListener("click", function(){ sendMail(); });
   $("fab").addEventListener("click", function(){ sendMail(); });
+  $("btnXlsx").addEventListener("click", exportXlsx);
   $("btnMailFront").addEventListener("click", function(){ sendMail(Object.keys(sel).length ? null : latestItems()); });
   $("fbReset").addEventListener("click", function(){
     if(!window.confirm("Forget all relevance marks? Future searches will no longer use them.")) return;
