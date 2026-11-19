@@ -70,11 +70,7 @@ textarea{min-height:150px}
 
       <p class="muted" id="usage"></p>
 
-      <label for="model">Model</label>
-      <select id="model">
-        <option value="claude-haiku-5-5">Claude Haiku 5.5 (cheapest, default)</option>
-        <option value="claude-sonnet-5-5">Claude Sonnet 5.5 (more thorough)</option>
-      </select>
+      <p class="muted">Model: Claude Haiku 5.5 with web search.</p>
 
       <label for="focus">What to look for</label>
       <textarea id="focus"></textarea>
@@ -83,12 +79,16 @@ textarea{min-height:150px}
       <label for="days">First check looks back this many days</label>
       <input type="text" id="days" inputmode="numeric" value="30">
 
+      <button class="btn secondary" id="btnTest" style="margin-top:14px">Test connection and web search</button>
+      <div id="testOut" class="muted" style="margin-top:8px"></div>
+
       <div style="display:flex;gap:10px;margin-top:16px">
         <button class="btn" id="btnSave">Save</button>
         <button class="btn secondary" id="btnBack">Back</button>
       </div>
     </div>
     <div class="card">
+      <p class="muted" style="margin-top:0">This app is served from GitHub: <a href="https://github.com/mhpbreugem/Apps/tree/main/MDRupdates" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">github.com/mhpbreugem/Apps</a> (folder MDRupdates).</p>
       <button class="btn secondary" id="btnClear">Clear history and reset "last checked"</button>
     </div>
   </div>
@@ -111,8 +111,9 @@ textarea{min-height:150px}
   var state = load();
 
   function load(){
-    var s = {apiKey:"", model:"claude-haiku-5-5", focus:DEFAULT_FOCUS, days:30, lastRun:null, digests:[]};
+    var s = {apiKey:"", model:"claude-haiku-5-5", toolVer:"web_search_20250305", focus:DEFAULT_FOCUS, days:30, lastRun:null, digests:[]};
     try{ var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); for(var k in o){ s[k]=o[k]; } } }catch(e){}
+    s.model = "claude-haiku-5-5";
     // the other apps on this site keep the key in "mdr-ai" / "kashi-ai"; use it if present
     try{ var shared = localStorage.getItem("mdr-ai") || localStorage.getItem("kashi-ai"); if(shared) s.apiKey = shared; }catch(e){}
     return s;
@@ -126,7 +127,7 @@ textarea{min-height:150px}
   }
 
   // rough monthly spend: Haiku 5.5 $0.10 / $0.50 per million input / output tokens, web search $10 per 1000 searches
-  var PRICE = {"claude-haiku-5-5":[0.10e-6,0.50e-6], "claude-sonnet-5-5":[3e-6,15e-6]};
+  var PRICE = {"claude-haiku-5-5":[0.10e-6,0.50e-6]};
   function addUsage(res){
     try{
       var u = res.usage || {}, m = new Date().toISOString().slice(0,7);
@@ -150,7 +151,7 @@ textarea{min-height:150px}
     $("view-main").classList.toggle("hidden", name!=="main");
     $("view-settings").classList.toggle("hidden", name!=="settings");
     if(name==="settings"){
-      $("apiKey").value = state.apiKey; $("model").value = state.model;
+      $("apiKey").value = state.apiKey;
       $("focus").value = state.focus; $("days").value = state.days; $("usage").textContent = usageText();
     }
   }
@@ -190,8 +191,25 @@ textarea{min-height:150px}
       "<digest>{\"items\":[{\"title\":\"\",\"date\":\"YYYY-MM-DD or unknown\",\"source\":\"\",\"category\":\"\",\"url\":\"\",\"summary\":\"\",\"why_it_matters\":\"\"}],\"note\":\"optional short remark, e.g. which areas had nothing new\"}</digest>";
   }
 
-  function callApi(messages){
+  var TOOL_VERSIONS = ["web_search_20250305","web_search_20260209"];
+  var stats = {searches:0, errors:[]};
+  function searchTool(maxUses){
+    var t = {type: state.toolVer || TOOL_VERSIONS[0], name:"web_search", max_uses:maxUses};
+    if(t.type !== "web_search_20250305") t.allowed_callers = ["direct"];
+    return t;
+  }
+  function scan(res){
+    (res.content||[]).forEach(function(b){
+      if(b.type==="server_tool_use" && b.name==="web_search") stats.searches++;
+      if(b.type==="web_search_tool_result" && b.content && !Array.isArray(b.content) && b.content.error_code) stats.errors.push(b.content.error_code);
+      if(b.type==="web_search_tool_result" && b.content && !Array.isArray(b.content) && b.content.type==="web_search_tool_result_error" && !b.content.error_code) stats.errors.push("error");
+    });
+  }
+  function callApi(messages, opts){
+    opts = opts || {};
+    var ctl = new AbortController(), to = setTimeout(function(){ ctl.abort(); }, 170000);
     return fetch("https://api.anthropic.com/v1/messages", {
+      signal: ctl.signal,
       method:"POST",
       headers:{
         "content-type":"application/json",
@@ -201,12 +219,13 @@ textarea{min-height:150px}
       },
       body: JSON.stringify({
         model: state.model,
-        max_tokens: 6000,
+        max_tokens: opts.maxTokens || 6000,
         system: "You are a careful regulatory intelligence assistant for EU medical device regulation (MDR 2017/745, IVDR 2017/746). You are accurate, concise and never fabricate sources.",
-        tools: [{type:"web_search_20250305", name:"web_search", max_uses:10}],
+        tools: opts.noTools ? undefined : [searchTool(opts.maxUses || 10)],
         messages: messages
       })
     }).then(function(r){
+      clearTimeout(to);
       return r.json().then(function(j){
         if(!r.ok){
           var msg = (j && j.error && j.error.message) ? j.error.message : ("HTTP " + r.status);
@@ -214,12 +233,37 @@ textarea{min-height:150px}
         }
         return j;
       });
+    }, function(err){ clearTimeout(to); throw err; });
+  }
+
+  // try the other search tool version once if the API rejects the tool itself (not when search is disabled)
+  function callApiWithFallback(messages, opts){
+    return callApi(messages, opts).catch(function(e){
+      var notEnabled = /not (been )?enabled|disabled/i.test(e.message||"");
+      if(e.status===400 && !notEnabled && !(opts && opts.noTools)){
+        var cur = state.toolVer || TOOL_VERSIONS[0];
+        var next = TOOL_VERSIONS[(TOOL_VERSIONS.indexOf(cur)+1) % TOOL_VERSIONS.length];
+        state.toolVer = next;
+        return callApi(messages, opts).then(function(r){ save(); return r; }, function(e2){ state.toolVer = cur; throw e2; });
+      }
+      throw e;
     });
   }
 
+  function explain(e){
+    var m = e.message || String(e);
+    if(e.name==="AbortError") return "The check took too long and was stopped. Try again.";
+    if(e.status===401) return "The API key was rejected. Check it in settings.";
+    if(e.status===429) return "Rate limit reached. Wait a minute and try again.";
+    if(e.status===400 && /credit|billing/i.test(m)) return "The account has no credit left. Add credit in the Claude Console.";
+    if(/web.?search/i.test(m) && /(not|disabled)/i.test(m)) return "Web search is switched off for this API key's organization. Turn it on in the Claude Console under Settings, Capabilities. (" + m + ")";
+    if(e instanceof TypeError) return "Could not reach the API. Check the connection.";
+    return "API error" + (e.status ? " " + e.status : "") + ": " + m;
+  }
+
   function runLoop(messages, n){
-    return callApi(messages).then(function(res){
-      addUsage(res);
+    return callApiWithFallback(messages).then(function(res){
+      addUsage(res); scan(res);
       if(res.stop_reason === "pause_turn" && n < 5){
         messages = messages.concat([{role:"assistant", content:res.content}]);
         return runLoop(messages, n+1);
@@ -249,6 +293,7 @@ textarea{min-height:150px}
     var since = state.lastRun ? new Date(state.lastRun) : new Date(now.getTime() - (parseInt(state.days,10)||30)*86400000);
     // go back one extra day so nothing slips through between runs
     var sinceStr = ymd(new Date(since.getTime() - 86400000)), todayStr = ymd(now);
+    stats = {searches:0, errors:[]};
     setStatus("info","Searching official sources since " + sinceStr + ". This can take up to a minute.", true);
 
     runLoop([{role:"user", content: buildPrompt(sinceStr, todayStr)}], 0).then(function(res){
@@ -262,18 +307,17 @@ textarea{min-height:150px}
         if(seen[u]){ hidden++; return; }
         i.url = u; items.push(i);
       });
-      state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: sinceStr, items: items, hidden: hidden, note: parsed.note||""});
+      var note = parsed.note || "";
+      if(stats.searches === 0) note = (note ? note + " " : "") + "No web searches were performed, so this list may be incomplete.";
+      else if(stats.errors.length) note = (note ? note + " " : "") + "Some searches failed (" + stats.errors.join(", ") + "), so this list may be incomplete.";
+      state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: sinceStr, items: items, hidden: hidden, note: note, searches: stats.searches});
       state.digests = state.digests.slice(0,30);
       state.lastRun = now.toISOString();
       save(); render();
       setStatus("", "");
     }).catch(function(e){
-      var m = e.message || String(e);
-      if(e.status===401) m = "The API key was rejected. Check it in settings.";
-      else if(e.status===429) m = "Rate limit reached. Wait a minute and try again.";
-      else if(e.status===400 && /credit|billing/i.test(m)) m = "The account has no credit left. Add credit in the Claude Console.";
-      else if(e instanceof TypeError) m = "Could not reach the API. Check your connection.";
-      setStatus("err", m);
+      save();
+      setStatus("err", explain(e));
     }).then(function(){ running = false; $("btnRun").disabled = false; });
   }
 
@@ -316,10 +360,26 @@ textarea{min-height:150px}
   $("btnBack").addEventListener("click", function(){ showView("main"); });
   $("btnSave").addEventListener("click", function(){
     state.apiKey = $("apiKey").value.trim();
-    state.model = $("model").value;
     state.focus = $("focus").value.trim() || DEFAULT_FOCUS;
     state.days = Math.max(1, Math.min(365, parseInt($("days").value,10) || 30));
     save(); showView("main"); render(); setStatus("","");
+  });
+  $("btnTest").addEventListener("click", function(){
+    var out = $("testOut"), key = $("apiKey").value.trim();
+    if(!key){ out.textContent = "Enter the API key first."; return; }
+    state.apiKey = key; save();
+    var btn = $("btnTest"); btn.disabled = true; stats = {searches:0, errors:[]};
+    out.innerHTML = ""; var sp = document.createElement("span"); sp.className = "spinner"; out.appendChild(sp); out.appendChild(document.createTextNode("Testing key..."));
+    var step1 = callApi([{role:"user", content:"Reply with the single word: ok"}], {noTools:true, maxTokens:20});
+    step1.then(function(){
+      out.textContent = "Key works. Testing web search...";
+      return callApiWithFallback([{role:"user", content:"Use web search once: what is the most recent MDCG guidance document on the EU MDR? Answer in one sentence."}], {maxUses:1, maxTokens:400}).then(function(res){
+        scan(res); addUsage(res); save();
+        if(stats.searches > 0 && !stats.errors.length) out.textContent = "Key works and web search works (" + stats.searches + " search, tool " + (state.toolVer||TOOL_VERSIONS[0]) + ").";
+        else if(stats.errors.length) out.textContent = "Key works, but the search failed: " + stats.errors.join(", ") + ".";
+        else out.textContent = "Key works, but the model did not run a web search. Try again; if it keeps happening, check web search is enabled in the Claude Console (Settings, Capabilities).";
+      });
+    }).catch(function(e){ out.textContent = explain(e); }).then(function(){ btn.disabled = false; });
   });
   $("btnClear").addEventListener("click", function(){
     if(!window.confirm("Delete all saved digests and reset the last-checked date?")) return;
