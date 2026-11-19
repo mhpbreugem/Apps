@@ -157,6 +157,8 @@ document.getElementById('fi').onchange=e=>{const f=e.target.files[0];if(!f)retur
 document.getElementById('ct').addEventListener('click',e=>{const cb=e.target.closest('[data-c]');if(cb){S.cat=cb.dataset.c;save();sc.scrollLeft=0;draw(true)}});
 sc.addEventListener('click',e=>{const oc=e.target.closest('.oc[data-c]');if(oc){S.cat=oc.dataset.c;save();draw(true);return}const t=e.target.closest('[data-t]');if(t)return open({k:'t',id:t.dataset.t});const s=e.target.closest('[data-s]');if(s){const[g,i]=s.dataset.s.split('|');return open({k:'s',g,i:+i})}const g=e.target.closest('[data-g]');if(g)return open({k:'g',id:g.dataset.g});const l=e.target.closest('#ld');if(l){const r=l.getBoundingClientRect(),d=A+Math.floor((e.clientY-r.top)/S.ppd);if(wd(d))open({k:'d',d})}});
 let DL=null;try{window.claude&&window.claude.use&&window.claude.use('downloads').then(x=>{DL=x}).catch(()=>{})}catch(e){}
+function mig(){if(S.mig1)return;S.mig1=1;[['Chair','New master','Partner talks','Torino MSc'],['Chair','Recruitment','Fly-outs','Hiring second candidate']].forEach(a=>{const g=S.goals.find(x=>x.cat===a[0]&&x.name===a[1]);if(!g||g.tasks.some(t=>t.name===a[3]))return;let i=g.stages.findIndex(s=>s.name===a[2]);if(i<0)i=Math.max(0,curSt(g));const x=stg(g,i),st=x?x.s:TODAY;g.tasks.push({id:uid(),name:a[3],st:i,est:4,p:0,s:st,e:st+(x?Math.max(2,Math.min(7,x.e-x.s)):7)})});save()}
+mig();
 draw();today();
 })();
 </script></body></html>
