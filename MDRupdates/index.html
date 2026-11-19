@@ -158,6 +158,9 @@ textarea{min-height:150px}
     <div class="card">
       <label for="email" style="margin-top:0">Send selected items to</label>
       <input type="email" id="email" placeholder="name@example.com" autocomplete="email" autocapitalize="off" spellcheck="false">
+      <label for="mailNo">Number of the next email</label>
+      <input type="text" id="mailNo" inputmode="numeric" value="1">
+      <p class="muted">Emails are titled "MDR Updates - number - date range". The number goes up each time you tap Email; change it here if one was not sent.</p>
       <p class="muted" id="emailHint">Tapping Email opens your email app with the selected items ready to send to this address. You still press Send there.</p>
       <fieldset>
         <legend>Default view</legend>
@@ -238,7 +241,7 @@ textarea{min-height:150px}
 
   function load(){
     var s = {apiKey:"", model:"claude-haiku-5-5", toolVer:"web_search_20250305", focus:DEFAULT_FOCUS, days:30, lastRun:null, digests:[],
-             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE, t:0, clearedAt:0, ghLinked:false, feedback:{}};
+             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE, t:0, clearedAt:0, ghLinked:false, feedback:{}, mailNo:1};
     try{ var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); for(var k in o){ s[k]=o[k]; } } }catch(e){}
     s.model = "claude-haiku-5-5";
     // the other apps on this site keep the key in "mdr-ai" / "kashi-ai"; use it if present
@@ -262,7 +265,7 @@ textarea{min-height:150px}
     GH.id = localStorage.getItem("mdrupd-gist");
   }catch(e){}
   if(GH.tok) GH.state = "ok";
-  var SYNC_KEYS = ["email","view","aiSummary","rateImportance","role","focus","days","toolVer"];
+  var SYNC_KEYS = ["email","view","aiSummary","rateImportance","role","focus","days","toolVer","mailNo"];
 
   function gh(path, opts){
     opts = opts || {};
@@ -400,6 +403,7 @@ textarea{min-height:150px}
     if(name==="settings"){
       $("apiKey").value = state.apiKey;
       $("email").value = state.email || "";
+      $("mailNo").value = Math.max(1, parseInt(state.mailNo, 10) || 1);
       $("emailHint").className = "muted";
       $("emailHint").textContent = "Tapping Email opens your email app with the selected items ready to send to this address. You still press Send there.";
       var radios = document.getElementsByName("view");
@@ -543,6 +547,7 @@ textarea{min-height:150px}
       body: JSON.stringify({
         model: state.model,
         max_tokens: opts.maxTokens || 6000,
+        output_config: opts.effort ? {effort: opts.effort} : undefined,
         system: "You are a careful regulatory intelligence assistant for EU medical device regulation (MDR 2017/745, IVDR 2017/746). You are accurate, concise and never fabricate sources.",
         tools: opts.noTools ? undefined : [searchTool(opts.maxUses || 10)],
         messages: messages
@@ -561,7 +566,12 @@ textarea{min-height:150px}
 
   // try the other search tool version once if the API rejects the tool itself (not when search is disabled)
   function callApiWithFallback(messages, opts){
+    opts = opts || {};
     return callApi(messages, opts).catch(function(e){
+      if(e.status===400 && opts.effort && /effort|output_config/i.test(e.message||"")){
+        var o2 = {}; for(var k in opts) o2[k] = opts[k]; delete o2.effort;
+        return callApiWithFallback(messages, o2);
+      }
       var notEnabled = /not (been )?enabled|disabled/i.test(e.message||"");
       if(e.status===400 && !notEnabled && !(opts && opts.noTools)){
         var cur = state.toolVer || TOOL_VERSIONS[0];
@@ -585,7 +595,7 @@ textarea{min-height:150px}
   }
 
   function runLoop(messages, n){
-    return callApiWithFallback(messages).then(function(res){
+    return callApiWithFallback(messages, {effort:"high", maxTokens:12000}).then(function(res){
       addUsage(res); scan(res);
       if(res.stop_reason === "pause_turn" && n < 5){
         messages = messages.concat([{role:"assistant", content:res.content}]);
@@ -771,8 +781,23 @@ textarea{min-height:150px}
   }
 
   // ---- email the selected items (opens the email app; she presses Send there) ----
-  function mailBody(items, level, omitted){
-    var out = ["MDR updates, checked " + fmtDate(state.lastRun || new Date().toISOString()), ""];
+  function fmtRange(a, b){
+    function p(x){ return new Date(x + "T00:00:00"); }
+    var A = p(a), B = p(b), o = {day:"numeric", month:"short"};
+    var sa = A.toLocaleDateString("en-GB", o), sb = B.toLocaleDateString("en-GB", o);
+    if(a === b) return sb + " " + B.getFullYear();
+    return (A.getFullYear() === B.getFullYear() ? sa : sa + " " + A.getFullYear()) + " to " + sb + " " + B.getFullYear();
+  }
+  // date range of the items in the email; falls back to the search period when no item has a date
+  function itemRange(items){
+    var ds = items.map(function(i){ return /^\d{4}-\d{2}-\d{2}$/.test(i.date || "") ? i.date : null; }).filter(Boolean).sort();
+    if(ds.length) return fmtRange(ds[0], ds[ds.length-1]);
+    var g = state.digests[0];
+    if(g && /^\d{4}-\d{2}-\d{2}$/.test(g.since || "")) return fmtRange(g.since, ymd(new Date(g.runAt)));
+    var t = ymd(new Date()); return fmtRange(t, t);
+  }
+  function mailBody(items, level, omitted, title){
+    var out = [title, "Checked " + fmtDate(state.lastRun || new Date().toISOString()), ""];
     items.forEach(function(i, n){
       out.push((n+1) + ". " + (i.title || "(untitled)"));
       var m = [i.category, i.source, i.date].filter(Boolean).join(" · "); if(m) out.push("   " + m);
@@ -801,11 +826,13 @@ textarea{min-height:150px}
       try{ $("email").focus(); }catch(e){}
       return;
     }
+    var nr = Math.max(1, parseInt(state.mailNo, 10) || 1);
+    var title = "MDR Updates - " + nr + " - " + itemRange(items);
     var base = "mailto:" + encodeURIComponent(state.email).replace(/%40/g,"@").replace(/%2C/g,",") +
-      "?subject=" + encodeURIComponent("MDR updates (" + items.length + (items.length===1 ? " item" : " items") + ")") + "&body=";
+      "?subject=" + encodeURIComponent(title) + "&body=";
     var level = 0, use = items, url;
     for(;;){
-      url = base + encodeURIComponent(mailBody(use, level, items.length - use.length));
+      url = base + encodeURIComponent(mailBody(use, level, items.length - use.length, title));
       if(url.length <= 7000) break;
       if(level < 2){ level++; continue; }
       if(use.length > 1){ use = use.slice(0, use.length - 1); continue; }
@@ -814,6 +841,8 @@ textarea{min-height:150px}
     var a = document.createElement("a");
     a.href = url; a.style.display = "none";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    state.mailNo = nr + 1; save();
+    var mn = $("mailNo"); if(mn) mn.value = state.mailNo;
   }
 
   $("btnRun").addEventListener("click", run);
@@ -839,6 +868,7 @@ textarea{min-height:150px}
     }
     state.apiKey = $("apiKey").value.trim();
     state.email = email;
+    state.mailNo = Math.max(1, parseInt($("mailNo").value, 10) || 1);
     var radios = document.getElementsByName("view");
     for(var i=0;i<radios.length;i++) if(radios[i].checked) state.view = radios[i].value;
     state.aiSummary = $("optSummary").checked;
