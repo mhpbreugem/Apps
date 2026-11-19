@@ -59,7 +59,7 @@ textarea{min-height:150px}
 .subrow .muted{font-size:13px}
 .seg{flex:none;display:flex;border:1px solid var(--line);border-radius:18px;overflow:hidden}
 .seg button{height:34px;padding:0 14px;border:0;background:var(--card);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer}
-.seg button[aria-pressed=true]{background:var(--brand);color:var(--brand-ink)}
+.seg button[aria-pressed=true],.seg button[aria-selected=true]{background:var(--brand);color:var(--brand-ink)}
 .digest-head{display:flex;justify-content:space-between;align-items:baseline;margin:16px 2px 8px}
 .digest-head h2{font-size:16px;margin:0}
 .list{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
@@ -139,6 +139,10 @@ textarea{min-height:150px}
     <button class="btn mail" id="btnMailFront" type="button" style="margin-top:8px" disabled>Email</button>
     <button class="btn secondary" id="btnXlsx" type="button" style="margin-top:8px" disabled>Export to Excel</button>
     <div id="status" style="margin-top:12px"></div>
+    <div class="seg tabs" role="tablist" aria-label="Updates" style="margin-top:12px;width:100%">
+      <button type="button" id="tabWeek" role="tab" aria-selected="true" style="flex:1">This week</button>
+      <button type="button" id="tabHist" role="tab" aria-selected="false" style="flex:1">History</button>
+    </div>
     <div class="subrow">
       <span class="muted" id="lastRun"></span>
       <div class="seg" role="group" aria-label="View">
@@ -796,6 +800,7 @@ textarea{min-height:150px}
     return wrap;
   }
 
+  var tab = "week";
   function render(){
     var latest = state.digests[0];
     $("lastRun").textContent = state.lastRun
@@ -805,7 +810,18 @@ textarea{min-height:150px}
     $("vCompact").setAttribute("aria-pressed", String(!detailed));
     $("vDetailed").setAttribute("aria-pressed", String(detailed));
     var root = $("digests"); root.innerHTML = "";
-    state.digests.forEach(function(g){
+    // This week: checks from the last 7 days (always the latest check). History: everything older.
+    var cut = Date.now() - 7*86400000;
+    function inWeek(g, k){ return k === 0 || new Date(g.runAt).getTime() >= cut; }
+    var nWeek = 0, nHist = 0;
+    state.digests.forEach(function(g, k){ if(inWeek(g, k)) nWeek += g.items.length; else nHist += g.items.length; });
+    $("tabWeek").textContent = "This week" + (nWeek ? " (" + nWeek + ")" : "");
+    $("tabHist").textContent = "History" + (nHist ? " (" + nHist + ")" : "");
+    $("tabWeek").setAttribute("aria-selected", String(tab === "week"));
+    $("tabHist").setAttribute("aria-selected", String(tab === "hist"));
+    var shown = state.digests.filter(function(g, k){ return (tab === "week") === inWeek(g, k); });
+    if(tab === "hist" && !shown.length) root.appendChild(el("div","card empty","No older updates yet. Updates from earlier weeks collect here."));
+    shown.forEach(function(g){
       var head = el("div","digest-head");
       head.appendChild(el("h2",null, fmtDate(g.runAt)));
       head.appendChild(el("span","muted", g.items.length + " new" + (g.hidden ? " (" + g.hidden + " already seen)" : "")));
@@ -975,6 +991,8 @@ textarea{min-height:150px}
   $("selMail").addEventListener("click", function(){ sendMail(); });
   $("fab").addEventListener("click", function(){ sendMail(); });
   $("btnXlsx").addEventListener("click", exportXlsx);
+  $("tabWeek").addEventListener("click", function(){ tab = "week"; render(); });
+  $("tabHist").addEventListener("click", function(){ tab = "hist"; render(); });
   $("btnMailFront").addEventListener("click", function(){ sendMail(Object.keys(sel).length ? null : latestItems()); });
   $("fbReset").addEventListener("click", function(){
     if(!window.confirm("Forget all relevance marks? Future searches will no longer use them.")) return;
