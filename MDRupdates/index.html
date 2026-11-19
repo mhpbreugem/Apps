@@ -376,13 +376,14 @@ textarea{min-height:150px}
   }
 
   // rough monthly spend: Haiku 5.5 $0.10 / $0.50 per million input / output tokens, web search $10 per 1000 searches
-  var PRICE = {"claude-haiku-5-5":[0.10e-6,0.50e-6]};
+  var DEEP_MODEL = "claude-sonnet-5-5";
+  var PRICE = {"claude-haiku-5-5":[0.10e-6,0.50e-6], "claude-sonnet-5-5":[3e-6,15e-6]};
   function addUsage(res){
     try{
       var u = res.usage || {}, m = new Date().toISOString().slice(0,7);
       var x = state.usage; if(!x || x.m!==m) x = {m:m, usd:0, n:0, peak:0};
       x.peak = Math.max(x.peak || 0, u.input_tokens || 0);
-      var p = PRICE[state.model] || PRICE["claude-haiku-5-5"];
+      var p = PRICE[res.model] || PRICE[state.model] || PRICE["claude-haiku-5-5"];
       var searches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
       x.usd += (u.input_tokens||0)*p[0] + (u.output_tokens||0)*p[1] + searches*0.01; x.n++;
       state.usage = x;
@@ -488,7 +489,8 @@ textarea{min-height:150px}
     return m;
   }
 
-  function buildPrompt(sinceStr, todayStr){
+  function buildPrompt(sinceStr, todayStr, extra){
+    extra = extra || {};
     var role = (state.role || DEFAULT_ROLE).trim();
     var fields = ["title","date","source","category","url"];
     if(state.aiSummary) fields.push("summary","why_it_matters");
@@ -506,6 +508,7 @@ textarea{min-height:150px}
       rules.push("The reader is: " + role + ". importance: a whole number from 0 to 5 for that person (5 = critical, likely requires action or has a deadline; 4 = important; 3 = relevant and worth knowing; 2 = minor; 1 = marginal; 0 = not relevant). importance_reason: one short sentence on why, for that role. If you do not know the employer's exact business, judge for a typical medical device company in that role.");
       rules.push("Order items by importance for that reader, highest first.");
     } else rules.push("Order items by general importance, most important first.");
+    if(extra.deep) rules.push("This is a second, deeper pass because a quick pass was incomplete. Search each source area and each national authority separately and thoroughly, use many different queries, and follow links through to primary sources.");
     rules.push("Maximum 15 items.");
     var tpl = "{\"items\":[{" + fields.map(function(f){ return f === "importance" ? "\"importance\":0" : "\"" + f + "\":\"\""; }).join(",") + "}],\"note\":\"optional short remark, e.g. which areas had nothing new\"}";
     var yes = fbLines("yes"), no = fbLines("no"), learned = "";
@@ -513,6 +516,9 @@ textarea{min-height:150px}
       learned = "READER FEEDBACK on earlier results. Infer which topics, source types and categories this reader cares about or does not care about, and use that to decide what to include and how to rate importance. Look harder for items like the relevant ones, include fewer like the not relevant ones, and do not return these exact items again.\n" +
         (yes.length ? "Marked relevant:\n" + yes.join("\n") + "\n" : "") +
         (no.length ? "Marked not relevant:\n" + no.join("\n") + "\n" : "") + "\n";
+    }
+    if(extra.known && extra.known.length){
+      learned += "ALREADY FOUND in the quick pass (do not repeat these):\n" + extra.known.slice(0,25).map(function(k){ return "- " + String(k.title || "").slice(0,140); }).join("\n") + "\n\n";
     }
     return "Today is " + todayStr + ". Find updates published or announced between " + sinceStr + " and " + todayStr + " (inclusive) that are relevant to the following brief.\n\n" +
       "BRIEF:\n" + state.focus + "\n\n" + learned + "Rules:\n- " + rules.join("\n- ") + "\n\n" +
@@ -548,7 +554,7 @@ textarea{min-height:150px}
         "anthropic-dangerous-direct-browser-access":"true"
       },
       body: JSON.stringify({
-        model: state.model,
+        model: opts.model || state.model,
         max_tokens: opts.maxTokens || 6000,
         output_config: opts.effort ? {effort: opts.effort} : undefined,
         system: "You are a careful regulatory intelligence assistant for EU medical device regulation (MDR 2017/745, IVDR 2017/746). You are accurate, concise and never fabricate sources.",
@@ -597,14 +603,16 @@ textarea{min-height:150px}
     return "API error" + (e.status ? " " + e.status : "") + ": " + m;
   }
 
-  function runLoop(messages, n){
-    return callApiWithFallback(messages, {effort:"high", maxTokens:12000}).then(function(res){
+  function runLoop(messages, n, extra){
+    var o = {effort:"high", maxTokens:12000};
+    if(extra){ for(var k in extra) o[k] = extra[k]; }
+    return callApiWithFallback(messages, o).then(function(res){
       addUsage(res); scan(res);
       var inTok = (res.usage && res.usage.input_tokens) || 0;
       if(res.stop_reason === "pause_turn" && inTok > INPUT_LIMIT){ stats.capped = true; return res; }
       if(res.stop_reason === "pause_turn" && n < 5){
         messages = messages.concat([{role:"assistant", content:res.content}]);
-        return runLoop(messages, n+1);
+        return runLoop(messages, n+1, extra);
       }
       return res;
     });
@@ -649,10 +657,13 @@ textarea{min-height:150px}
         items = items.map(function(x,n){ return {x:x, n:n}; }).sort(function(a,b){ return (impScore(b.x)-impScore(a.x)) || (a.n-b.n); }).map(function(o){ return o.x; });
       }
       var note = parsed.note || "";
-      if(stats.capped) note = (note ? note + " " : "") + "The search was stopped early to keep the cost low, so this list may be incomplete.";
-      if(stats.searches === 0) note = (note ? note + " " : "") + "No web searches were performed, so this list may be incomplete.";
-      else if(stats.errors.length) note = (note ? note + " " : "") + "Some searches failed (" + stats.errors.join(", ") + "), so this list may be incomplete.";
-      state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: sinceStr, items: items, hidden: hidden, note: note, searches: stats.searches});
+      var why = [];
+      if(stats.capped) why.push("the search was stopped early to keep the cost low");
+      if(stats.searches === 0) why.push("no web searches were performed");
+      else if(stats.errors.length) why.push("some searches failed (" + stats.errors.join(", ") + ")");
+      if(res.stop_reason === "max_tokens") why.push("the answer was cut off");
+      if(why.length) note = (note ? note + " " : "") + "This list may be incomplete: " + why.join("; ") + ".";
+      state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: sinceStr, items: items, hidden: hidden, note: note, searches: stats.searches, incomplete: why.length > 0, reason: why.join("; ")});
       state.digests = state.digests.slice(0,30);
       state.lastRun = now.toISOString();
       save(); render();
@@ -663,6 +674,45 @@ textarea{min-height:150px}
     }).then(function(){ running = false; $("btnRun").disabled = false; });
   }
 
+  // One-off deep search with Sonnet for a digest that came back incomplete. Later checks use Haiku again.
+  function deepSearch(g){
+    if(running) return;
+    running = true; $("btnRun").disabled = true;
+    var todayStr = ymd(new Date());
+    stats = {searches:0, errors:[]};
+    setStatus("info","Deep search with Claude Sonnet 5.5. This is slower and can take a few minutes.", true);
+    runLoop([{role:"user", content: buildPrompt(g.since, todayStr, {deep:true, known:g.items})}], 0, {model:DEEP_MODEL, maxUses:15}).then(function(res){
+      var parsed = parseDigest(textOf(res));
+      if(!parsed) throw new Error("The deep search did not return a readable digest. You can try again.");
+      var seen = seenUrls(), added = 0;
+      parsed.items.forEach(function(i){
+        var u = safeUrl(i.url); if(!u || seen[u]) return;
+        i.url = u; seen[u] = 1; g.items.push(i); added++;
+      });
+      if(state.rateImportance){
+        g.items = g.items.map(function(x,n){ return {x:x, n:n}; }).sort(function(a,b){ return (impScore(b.x)-impScore(a.x)) || (a.n-b.n); }).map(function(o){ return o.x; });
+      }
+      var extra = "Deep search with Sonnet added " + added + " item" + (added===1 ? "" : "s") + ".";
+      if(stats.searches === 0 || stats.errors.length || stats.capped) extra += " It was also incomplete.";
+      g.note = (g.note ? g.note + " " : "") + extra;
+      g.deepDone = true; g.incomplete = false;
+      save(); render(); setStatus("","");
+    }).catch(function(e){
+      save(); setStatus("err", explain(e));
+    }).then(function(){ running = false; $("btnRun").disabled = false; });
+  }
+  function deepCard(g){
+    var c = el("div","card");
+    c.appendChild(el("p",null,"This list may be incomplete" + (g.reason ? " (" + g.reason + ")" : "") + ". Run one deep search with Claude Sonnet 5.5?"));
+    c.appendChild(el("p","muted","It is slower and costs more than Haiku. It runs once, for this check only. Later checks use Haiku again."));
+    var row = el("div"); row.style.cssText = "display:flex;gap:10px;margin-top:10px";
+    var go = el("button","btn","Run deep search (once)"); go.type = "button";
+    go.addEventListener("click", function(){ deepSearch(g); });
+    var no = el("button","btn secondary","No thanks"); no.type = "button";
+    no.addEventListener("click", function(){ g.deepDismissed = true; save(); render(); });
+    row.appendChild(go); row.appendChild(no); c.appendChild(row);
+    return c;
+  }
   function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text!=null) e.textContent = text; return e; }
 
   function allItems(){
@@ -776,12 +826,14 @@ textarea{min-height:150px}
         var c = el("div","card empty","No new updates found since " + g.since + ".");
         if(g.note){ c.appendChild(document.createElement("br")); c.appendChild(el("span","muted",g.note)); }
         root.appendChild(c);
+        if(g.incomplete && !g.deepDone && !g.deepDismissed) root.appendChild(deepCard(g));
         return;
       }
       var list = el("div","list");
       g.items.forEach(function(i){ list.appendChild(buildRow(i)); });
       root.appendChild(list);
       if(g.note){ root.appendChild(el("p","muted",g.note)); }
+      if(g.incomplete && !g.deepDone && !g.deepDismissed) root.appendChild(deepCard(g));
     });
     updateSelUI();
   }
