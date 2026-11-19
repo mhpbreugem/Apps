@@ -138,7 +138,6 @@ textarea{min-height:150px}
     <button class="btn" id="btnRun">Check for updates</button>
     <button class="btn mail" id="btnMailFront" type="button" style="margin-top:8px" disabled>Email</button>
     <div id="status" style="margin-top:12px"></div>
-    <div id="creditWarn" style="margin-top:12px"></div>
     <div class="subrow">
       <span class="muted" id="lastRun"></span>
       <div class="seg" role="group" aria-label="View">
@@ -154,14 +153,7 @@ textarea{min-height:150px}
     <div class="card">
       <label for="apiKey" style="margin-top:0">Anthropic API key</label>
       <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" autocapitalize="off" spellcheck="false">
-      <p class="muted">Stored only in this browser on this device (shared with the other apps on this site). It is sent only to api.anthropic.com. Set a monthly spend limit on the key in the Claude Console.</p>
-      <p class="muted" id="usage"></p>
-      <label for="creditLeft">Credit left in the Claude Console (USD)</label>
-      <input type="text" id="creditLeft" inputmode="decimal" placeholder="e.g. 5.00">
-      <p class="muted" id="creditInfo">Type the balance shown under Billing in the Console. The app then subtracts its own estimated spend and warns you when the estimate drops below the level below. Re-enter the balance now and then, because other apps using the same key also spend credit.</p>
-      <label for="creditWarn2">Warn when credit is below (USD)</label>
-      <input type="text" id="creditWarn2" inputmode="decimal" value="1.20">
-      <p class="muted">About 1 euro is roughly 1.20 US dollars.</p>
+      <p class="muted">Stored only in this browser on this device (shared with the other apps on this site). It is sent only to api.anthropic.com.</p>
       <p class="muted">Model: Claude Haiku 5.5 with web search.</p>
     </div>
 
@@ -251,7 +243,7 @@ textarea{min-height:150px}
 
   function load(){
     var s = {apiKey:"", model:"claude-haiku-5-5", toolVer:"web_search_20250305", focus:DEFAULT_FOCUS, days:30, lastRun:null, digests:[],
-             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE, t:0, clearedAt:0, ghLinked:false, feedback:{}, mailNo:1, credit:null, creditWarn:1.2, creditEmpty:false, spendTotal:0};
+             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE, t:0, clearedAt:0, ghLinked:false, feedback:{}, mailNo:1};
     try{ var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); for(var k in o){ s[k]=o[k]; } } }catch(e){}
     s.model = "claude-haiku-5-5";
     // the other apps on this site keep the key in "mdr-ai" / "kashi-ai"; use it if present
@@ -385,54 +377,10 @@ textarea{min-height:150px}
     if(tok) ghSync();
   }
 
-  // rough monthly spend: Haiku 5.5 $0.10 / $0.50 per million input / output tokens, web search $10 per 1000 searches
   var DEEP_MODEL = "claude-sonnet-5-5";
-  var PRICE = {"claude-haiku-5-5":[0.10e-6,0.50e-6], "claude-sonnet-5-5":[3e-6,15e-6]};
-  function addUsage(res){
-    try{
-      var u = res.usage || {}, m = new Date().toISOString().slice(0,7);
-      var x = state.usage; if(!x || x.m!==m) x = {m:m, usd:0, n:0, peak:0};
-      x.peak = Math.max(x.peak || 0, u.input_tokens || 0);
-      var p = PRICE[res.model] || PRICE[state.model] || PRICE["claude-haiku-5-5"];
-      var searches = (u.server_tool_use && u.server_tool_use.web_search_requests) || 0;
-      var cost = (u.input_tokens||0)*p[0] + (u.output_tokens||0)*p[1] + searches*0.01;
-      x.usd += cost; x.n++;
-      state.usage = x;
-      state.spendTotal = (state.spendTotal || 0) + cost;
-      state.creditEmpty = false;
-    }catch(e){}
-  }
-  function usageText(){
-    var x = state.usage, m = new Date().toISOString().slice(0,7);
-    if(!x || x.m!==m) return "This month: no checks yet.";
-    return "This month: about $" + x.usd.toFixed(2) + " over " + x.n + " check" + (x.n===1?"":"s") + " (rough estimate). Largest single request: " + (x.peak || 0).toLocaleString("en-US") + " input tokens.";
-  }
-
   var $ = function(id){ return document.getElementById(id); };
   var running = false;
 
-  // ---- API credit warning. The API has no balance endpoint, so: (1) a real "credit balance is too low" error
-  // from the API, and (2) an estimate = balance you typed in Settings minus this app's estimated spend since.
-  function creditLeft(){
-    var c = state.credit;
-    if(!c || typeof c.amt !== "number") return null;
-    return c.amt - ((state.spendTotal || 0) - (c.at || 0));
-  }
-  function noteCredit(e){
-    if(e && e.status === 400 && /credit balance/i.test(e.message || "")) state.creditEmpty = true;
-  }
-  function updateCreditUI(){
-    var el = $("creditWarn"); if(!el) return;
-    el.innerHTML = "";
-    var left = creditLeft(), warn = parseFloat(state.creditWarn);
-    if(isNaN(warn)) warn = 1.2;
-    var text = "";
-    if(state.creditEmpty) text = "The API says your credit is used up. Top up in the Claude Console (Billing) before the next check.";
-    else if(left !== null && left < warn) text = "Low API credit: about $" + Math.max(0, left).toFixed(2) + " left (estimate), below your warning level of $" + warn.toFixed(2) + " (about \u20ac1). Top up in the Claude Console (Billing).";
-    if(!text) return;
-    var d = document.createElement("div"); d.className = "status err"; d.setAttribute("role","alert"); d.textContent = text;
-    el.appendChild(d);
-  }
   function inMain(){ return !$("view-main").classList.contains("hidden"); }
 
   function showView(name){
@@ -449,11 +397,8 @@ textarea{min-height:150px}
       $("optSummary").checked = !!state.aiSummary;
       $("optImp").checked = !!state.rateImportance;
       $("role").value = state.role || "";
-      $("focus").value = state.focus; $("days").value = state.days; $("usage").textContent = usageText();
+      $("focus").value = state.focus; $("days").value = state.days;
       $("ghTok").value = GH.tok || ""; ghUi();
-      var cl = creditLeft();
-      $("creditLeft").value = cl === null ? "" : Math.max(0, cl).toFixed(2);
-      $("creditWarn2").value = (isNaN(parseFloat(state.creditWarn)) ? 1.2 : parseFloat(state.creditWarn)).toFixed(2);
       var fc = fbCounts(); $("fbInfo").textContent = "Marked relevant: " + fc.yes + " · not relevant: " + fc.no + ". Marks are used in future searches.";
     }
     updateSelUI();
@@ -646,7 +591,7 @@ textarea{min-height:150px}
     var o = {effort:"high", maxTokens:12000};
     if(extra){ for(var k in extra) o[k] = extra[k]; }
     return callApiWithFallback(messages, o).then(function(res){
-      addUsage(res); scan(res);
+      scan(res);
       var inTok = (res.usage && res.usage.input_tokens) || 0;
       if(res.stop_reason === "pause_turn" && inTok > INPUT_LIMIT){ stats.capped = true; return res; }
       if(res.stop_reason === "pause_turn" && n < 5){
@@ -708,7 +653,7 @@ textarea{min-height:150px}
       save(); render();
       setStatus("", "");
     }).catch(function(e){
-      noteCredit(e); save(); updateCreditUI();
+      save();
       setStatus("err", explain(e));
     }).then(function(){ running = false; $("btnRun").disabled = false; });
   }
@@ -737,7 +682,7 @@ textarea{min-height:150px}
       g.deepDone = true; g.incomplete = false;
       save(); render(); setStatus("","");
     }).catch(function(e){
-      noteCredit(e); save(); updateCreditUI(); setStatus("err", explain(e));
+      save(); setStatus("err", explain(e));
     }).then(function(){ running = false; $("btnRun").disabled = false; });
   }
   function deepCard(g){
@@ -875,7 +820,6 @@ textarea{min-height:150px}
       if(g.incomplete && !g.deepDone && !g.deepDismissed) root.appendChild(deepCard(g));
     });
     updateSelUI();
-    updateCreditUI();
   }
 
   // ---- email the selected items (opens the email app; she presses Send there) ----
@@ -973,14 +917,6 @@ textarea{min-height:150px}
     state.apiKey = $("apiKey").value.trim();
     state.email = email;
     state.mailNo = Math.max(1, parseInt($("mailNo").value, 10) || 1);
-    var cw = parseFloat(String($("creditWarn2").value).replace(",", "."));
-    state.creditWarn = isNaN(cw) || cw < 0 ? 1.2 : cw;
-    var cvRaw = String($("creditLeft").value).trim().replace(",", "."), cv = parseFloat(cvRaw), cur = creditLeft();
-    if(cvRaw === "") state.credit = null;
-    else if(!isNaN(cv) && cv >= 0 && (cur === null || Math.abs(cv - Math.max(0, cur)) > 0.005)){
-      state.credit = {amt: cv, at: state.spendTotal || 0, setAt: new Date().toISOString()};
-      state.creditEmpty = false;
-    }
     var radios = document.getElementsByName("view");
     for(var i=0;i<radios.length;i++) if(radios[i].checked) state.view = radios[i].value;
     state.aiSummary = $("optSummary").checked;
@@ -1006,12 +942,12 @@ textarea{min-height:150px}
     step1.then(function(){
       out.textContent = "Key works. Testing web search...";
       return callApiWithFallback([{role:"user", content:"Use web search once: what is the most recent MDCG guidance document on the EU MDR? Answer in one sentence."}], {maxUses:1, maxTokens:400}).then(function(res){
-        scan(res); addUsage(res); save();
+        scan(res); save();
         if(stats.searches > 0 && !stats.errors.length) out.textContent = "Key works and web search works (" + stats.searches + " search, tool " + (state.toolVer||TOOL_VERSIONS[0]) + ").";
         else if(stats.errors.length) out.textContent = "Key works, but the search failed: " + stats.errors.join(", ") + ".";
         else out.textContent = "Key works, but the model did not run a web search. Try again; if it keeps happening, check web search is enabled in the Claude Console (Settings, Capabilities).";
       });
-    }).catch(function(e){ noteCredit(e); saveLocal(); updateCreditUI(); out.textContent = explain(e); }).then(function(){ btn.disabled = false; updateCreditUI(); });
+    }).catch(function(e){ saveLocal(); out.textContent = explain(e); }).then(function(){ btn.disabled = false; });
   });
   $("btnClear").addEventListener("click", function(){
     if(!window.confirm("Delete all saved digests and reset the last-checked date?")) return;
