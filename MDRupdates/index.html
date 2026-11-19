@@ -288,7 +288,11 @@ textarea{min-height:150px}
     var n = 0, out = [];
     for(var k = 0; k < list.length; k++){
       n += (list[k].items || []).length;
-      if(n > MAX_ITEMS && out.length) break;
+      if(n > MAX_ITEMS && out.length){
+        // dropped from this phone only; the gist backup keeps them
+        if(GH.tok && GH.archive){ var have = {}; GH.archive.forEach(function(g){ have[g.id] = 1; }); list.slice(k).forEach(function(g){ if(!have[g.id]) GH.archive.push(g); }); }
+        break;
+      }
       out.push(list[k]);
     }
     return out;
@@ -304,7 +308,7 @@ textarea{min-height:150px}
 
   // ---- backup to a secret GitHub gist (the API key is never included) ----
   var GIST_FILE = "mdr-updates.json", GIST_DESC = "MDRupdates data";
-  var GH = {tok:null, id:null, state:"off", err:"", at:0, busy:false, again:false, timer:null};
+  var GH = {archive:null, tok:null, id:null, state:"off", err:"", at:0, busy:false, again:false, timer:null};
   try{
     GH.tok = localStorage.getItem("mdrupd-gh") || (localStorage.getItem("mdrupd-gh-off") ? null : (localStorage.getItem("mdr-gh") || localStorage.getItem("kashi-gh")));
     GH.id = localStorage.getItem("mdrupd-gist");
@@ -324,9 +328,15 @@ textarea{min-height:150px}
       });
     });
   }
+  // The gist keeps every result ever found: what is already in the backup plus what is on this phone (this phone's copy wins).
+  function fullDigests(){
+    var cleared = state.clearedAt || 0, byId = {};
+    (GH.archive || []).concat(state.digests).forEach(function(g){ if(g && g.id && g.id > cleared) byId[g.id] = g; });
+    return Object.keys(byId).map(function(k){ return byId[k]; }).sort(function(a,b){ return b.id - a.id; });
+  }
   function snapshot(){
     var settings = {}; SYNC_KEYS.forEach(function(k){ settings[k] = state[k]; });
-    return {v:1, t:state.t || Date.now(), clearedAt:state.clearedAt || 0, lastRun:state.lastRun, settings:settings, digests:state.digests, feedback:state.feedback || {}};
+    return {v:1, t:state.t || Date.now(), clearedAt:state.clearedAt || 0, lastRun:state.lastRun, settings:settings, digests:fullDigests(), feedback:state.feedback || {}};
   }
   // merge a remote backup into local state; returns true if local state changed
   function applyRemote(r, force){
@@ -391,9 +401,11 @@ textarea{min-height:150px}
       GH.id = id; try{ localStorage.setItem("mdrupd-gist", id); }catch(e){}
       return readGist(id);
     }).then(function(remote){
+      if(remote && remote.digests) GH.archive = remote.digests;
       if(remote && applyRemote(remote, !state.ghLinked)){ saveLocal(); render(); }
       return writeGist();
     }).then(function(){
+      GH.archive = fullDigests();
       state.ghLinked = true; saveLocal();
       GH.state = "ok"; GH.err = ""; GH.at = Date.now();
     }).catch(function(e){
@@ -407,6 +419,7 @@ textarea{min-height:150px}
       if(GH.again){ GH.again = false; return ghSync(); }
     });
   }
+  function ghNow(){ if(!GH.tok) return; clearTimeout(GH.timer); ghSync(); }
   function ghSchedule(){ if(!GH.tok) return; clearTimeout(GH.timer); GH.timer = setTimeout(ghSync, 3000); }
   function setGhToken(tok){
     if(tok === (GH.tok || "")) return;
@@ -728,7 +741,7 @@ textarea{min-height:150px}
       state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: sinceStr, until: todayStr, kind:"week", items: c.items, hidden: c.hidden, note: c.note, searches: stats.searches, incomplete: c.why.length > 0, reason: c.why.join("; ")});
       state.digests = trimDigests(state.digests);
       state.lastRun = now.toISOString();
-      save(); render();
+      save(); render(); ghNow();
       setStatus("", "");
     }).catch(function(e){
       save();
@@ -800,7 +813,7 @@ textarea{min-height:150px}
         state.digests.unshift({id: now.getTime(), runAt: now.toISOString(), since: c.from, until: c.to, kind:"range", items: d.items, hidden: d.hidden, note: d.note, searches: stats.searches, incomplete: d.why.length > 0, reason: d.why.join("; ")});
         state.digests = trimDigests(state.digests);
         done++; added += d.items.length; setProg(already + done, all.length);
-        save(); render();
+        save(); render(); ghNow();
         return step();
       });
     }
@@ -833,7 +846,7 @@ textarea{min-height:150px}
       if(stats.searches === 0 || stats.errors.length || stats.capped) extra += " It was also incomplete.";
       g.note = (g.note ? g.note + " " : "") + extra;
       g.deepDone = true; g.incomplete = false;
-      save(); render(); setStatus("","");
+      save(); render(); ghNow(); setStatus("","");
     }).catch(function(e){
       save(); return explainAsync(e).then(function(m){ setStatus("err", m); });
     }).then(function(){ busy(false); });
