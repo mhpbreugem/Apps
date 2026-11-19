@@ -3,90 +3,188 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="MDR Updates">
 <meta name="theme-color" content="#0f3d5e">
+<link rel="manifest" href="manifest.webmanifest">
 <title>MDR Updates</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230f3d5e'/%3E%3Ctext x='50' y='64' font-size='42' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'%3EMDR%3C/text%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#f5f7f9; --card:#fff; --ink:#15212b; --muted:#5d6b78; --line:#dde3e8;
-  --brand:#0f3d5e; --brand-ink:#fff; --accent:#1c7ab8; --warn:#9a5b00; --warn-bg:#fff4e0; --err:#a12626; --err-bg:#fdeaea;
+  --bg:#f4f6f8; --card:#fff; --ink:#15212b; --muted:#56626e; --line:#dde3e8;
+  --brand:#0f3d5e; --brand-ink:#fff; --accent:#1a6fa6; --accent2:#1f6fa5;
+  --selbg:#e6f1fa; --avbg:#dce6ee; --avink:#0f3d5e;
+  --warn:#9a5b00; --warn-bg:#fff4e0; --err:#a12626; --err-bg:#fdeaea;
+  --hi-bg:#fde7e7; --hi-ink:#8a1f1f; --md-bg:#fff1d6; --md-ink:#7a4300; --lo-bg:#e8eef3; --lo-ink:#3d4c59;
 }
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#0e1419; --card:#18212a; --ink:#e8eef3; --muted:#93a1ad; --line:#2a3743; --brand:#2a7db5; --accent:#6bb6e8; --warn:#f0b45a; --warn-bg:#2b2112; --err:#f08a8a; --err-bg:#2b1717; }
+  :root{ --bg:#0e1419; --card:#16202a; --ink:#e8eef3; --muted:#9aa8b4; --line:#263340; --brand:#2a7db5; --accent:#6bb6e8;
+    --selbg:#1b2d3d; --avbg:#263340; --avink:#c6d1da;
+    --warn:#f0b45a; --warn-bg:#2b2112; --err:#f08a8a; --err-bg:#2b1717;
+    --hi-bg:#3a1c1c; --hi-ink:#f5a5a5; --md-bg:#33260f; --md-ink:#f0b45a; --lo-bg:#26323d; --lo-ink:#b8c4ce; }
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-header{position:sticky;top:0;z-index:5;background:var(--brand);color:var(--brand-ink);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
-header h1{font-size:18px;margin:0;flex:1}
-header button{background:transparent;border:0;color:inherit;font-size:22px;padding:4px 8px;cursor:pointer}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Roboto,"Segoe UI",system-ui,Helvetica,Arial,sans-serif}
+button{font-family:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--brand);color:var(--brand-ink);padding:env(safe-area-inset-top) calc(8px + env(safe-area-inset-right)) 0 calc(4px + env(safe-area-inset-left))}
+.hbar{display:flex;align-items:center;gap:4px;height:60px}
+.hbar h1,.hbar .cnt{font-size:20px;margin:0;flex:1;font-weight:600;padding-left:12px}
+.hbar .cnt{padding-left:0}
+.ib{flex:none;width:48px;height:48px;border:0;border-radius:24px;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer}
+.ib:active{background:rgba(255,255,255,.15)}
 main{max-width:720px;margin:0 auto;padding:14px 14px calc(30px + env(safe-area-inset-bottom))}
+body.has-sel main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
 .btn{display:inline-block;background:var(--brand);color:var(--brand-ink);border:0;border-radius:10px;padding:12px 16px;font-size:16px;font-weight:600;cursor:pointer;width:100%}
 .btn.secondary{background:transparent;color:var(--accent);border:1px solid var(--line)}
 .btn:disabled{opacity:.55}
 label{display:block;font-weight:600;margin:12px 0 4px}
-input[type=password],input[type=text],textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+label.check{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px}
+label.check input{width:22px;height:22px;margin:1px 0 0;flex:none}
+fieldset{border:0;padding:0;margin:12px 0 0}
+legend{font-weight:600;padding:0;margin-bottom:6px}
+.radios{display:flex;gap:18px}
+.radios label{display:flex;gap:8px;align-items:center;margin:0;font-weight:500}
+.radios input{width:20px;height:20px;margin:0}
+input[type=password],input[type=text],input[type=email],textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
 textarea{min-height:150px}
 .muted{color:var(--muted);font-size:14px}
+.bad{color:var(--err)}
 .status{padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:14px}
 .status.err{background:var(--err-bg);color:var(--err)}
 .status.info{background:var(--card);border:1px solid var(--line);color:var(--muted)}
-.digest-head{display:flex;justify-content:space-between;align-items:baseline;margin:18px 2px 8px}
+.subrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 2px 0}
+.subrow .muted{font-size:13px}
+.seg{flex:none;display:flex;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.seg button{height:34px;padding:0 14px;border:0;background:var(--card);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--brand);color:var(--brand-ink)}
+.digest-head{display:flex;justify-content:space-between;align-items:baseline;margin:16px 2px 8px}
 .digest-head h2{font-size:16px;margin:0}
-.item h3{font-size:16px;margin:6px 0 4px}
+.list{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.row{display:flex;align-items:center;border-bottom:1px solid var(--line)}
+.row.sel,.detail.sel{background:var(--selbg)}
+.list > :last-child{border-bottom:0}
+.pick{flex:none;width:60px;min-height:72px;align-self:stretch;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;color:inherit}
+.av{width:40px;height:40px;border-radius:50%;background:var(--avbg);color:var(--avink);display:grid;place-items:center;font-size:12px;font-weight:700}
+.sel .av{background:var(--accent2);color:#fff}
+.rowmain{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:72px;padding:8px 14px 8px 0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.rtext{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rt{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row.open .rt{white-space:normal}
+.row.open .rs{display:none}
+.row.open{border-bottom:0}
+.rside{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:12px;color:var(--muted)}
+.imp{padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.imp.High{background:var(--hi-bg);color:var(--hi-ink)}
+.imp.Medium{background:var(--md-bg);color:var(--md-ink)}
+.imp.Low{background:var(--lo-bg);color:var(--lo-ink)}
+.detail{padding:0 16px 14px 60px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px;font-size:14px}
 .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
 .chip{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:12px;color:var(--ink)}
-.why{margin-top:6px;font-size:14px;color:var(--muted)}
-.item a.open{display:inline-block;margin-top:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all}
+.why{font-size:14px;color:var(--muted)}
+.detail a.open{align-self:flex-start;min-height:36px;display:flex;align-items:center;color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all}
 .empty{text-align:center;color:var(--muted);padding:18px 10px}
 .warn{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:10px 12px;font-size:13px;margin-top:14px}
+.fab{position:fixed;right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));z-index:6;height:56px;padding:0 22px 0 18px;border:0;border-radius:28px;background:var(--brand);color:var(--brand-ink);display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.3);cursor:pointer}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .8s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes s{to{transform:rotate(360deg)}}
-.hidden{display:none}
+.hidden{display:none !important}
+#gate{position:fixed;inset:0;z-index:100;background:var(--brand);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px calc(24px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left));text-align:center;border:0;width:100%;cursor:pointer;font:inherit}
+#gate .mark{width:84px;height:84px;border-radius:20px;background:#fff;color:#0f3d5e;display:grid;place-items:center;font-weight:800;font-size:26px;letter-spacing:.5px}
+#gate h2{margin:6px 0 0;font-size:26px}
+#gate p{margin:0;max-width:300px;opacity:.9}
+#gate .go{margin-top:18px;background:#fff;color:#0f3d5e;border-radius:999px;padding:16px 38px;font-size:19px;font-weight:700}
 </style>
 </head>
 <body>
-<header>
-  <h1>MDR Updates</h1>
-  <button id="btnSettings" aria-label="Settings" title="Settings">&#9881;</button>
+<button id="gate" type="button" aria-label="Tap to open MDR Updates in full screen">
+  <span class="mark" aria-hidden="true">MDR</span>
+  <h2>MDR Updates</h2>
+  <p>Daily EU MDR and IVDR updates, summarized.</p>
+  <span class="go">Tap to open</span>
+</button>
+
+<header inert>
+  <div class="hbar" id="hNormal">
+    <h1>MDR Updates</h1>
+    <button class="ib" id="btnSettings" aria-label="Settings" title="Settings">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+    </button>
+  </div>
+  <div class="hbar hidden" id="hSel">
+    <button class="ib" id="selClear" aria-label="Clear selection">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="cnt" id="selCount" aria-live="polite">0 selected</div>
+    <button class="ib" id="selAll" aria-label="Select all" title="Select all">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12.5l4 4L15 8M10 16.5l1 1L21 8"/></svg>
+    </button>
+    <button class="ib" id="selMail" aria-label="Email selected items" title="Email selected items">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+    </button>
+  </div>
 </header>
-<main>
+
+<main inert>
   <div id="view-main">
     <button class="btn" id="btnRun">Check for updates</button>
-    <p class="muted" id="lastRun" style="margin:8px 2px 0"></p>
     <div id="status" style="margin-top:12px"></div>
+    <div class="subrow">
+      <span class="muted" id="lastRun"></span>
+      <div class="seg" role="group" aria-label="View">
+        <button type="button" id="vCompact" aria-pressed="true">Compact</button>
+        <button type="button" id="vDetailed" aria-pressed="false">Detailed</button>
+      </div>
+    </div>
     <div id="digests"></div>
     <div class="warn">Summaries are generated by an AI model with web search. Treat them as pointers and always verify against the official source before acting on them.</div>
   </div>
 
   <div id="view-settings" class="hidden">
     <div class="card">
-      <label for="apiKey">Anthropic API key</label>
+      <label for="apiKey" style="margin-top:0">Anthropic API key</label>
       <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" autocapitalize="off" spellcheck="false">
       <p class="muted">Stored only in this browser on this device (shared with the other apps on this site). It is sent only to api.anthropic.com. Set a monthly spend limit on the key in the Claude Console.</p>
-
       <p class="muted" id="usage"></p>
-
       <p class="muted">Model: Claude Haiku 5.5 with web search.</p>
+    </div>
 
-      <label for="focus">What to look for</label>
+    <div class="card">
+      <label for="email" style="margin-top:0">Send selected items to</label>
+      <input type="email" id="email" placeholder="name@example.com" autocomplete="email" autocapitalize="off" spellcheck="false">
+      <p class="muted" id="emailHint">Tapping Email opens your email app with the selected items ready to send to this address. You still press Send there.</p>
+      <fieldset>
+        <legend>Default view</legend>
+        <div class="radios">
+          <label><input type="radio" name="view" value="compact"> Compact</label>
+          <label><input type="radio" name="view" value="detailed"> Detailed</label>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="card">
+      <label class="check" for="optSummary"><input type="checkbox" id="optSummary"><span>AI summary of each update<br><span class="muted" style="font-weight:400">A short summary and why it matters. Off: titles, dates and links only, which is cheaper.</span></span></label>
+      <label class="check" for="optImp"><input type="checkbox" id="optImp"><span>Rate importance for my role<br><span class="muted" style="font-weight:400">Each update gets High, Medium or Low, with a one-line reason, and the most important come first.</span></span></label>
+      <label for="role">My role and employer</label>
+      <input type="text" id="role" placeholder="e.g. Senior regulatory affairs officer at [company]" autocomplete="off">
+      <p class="muted">Used only to judge importance. Stored on this phone.</p>
+    </div>
+
+    <div class="card">
+      <label for="focus" style="margin-top:0">What to look for</label>
       <textarea id="focus"></textarea>
       <p class="muted">Edit this to add or remove sources and topics.</p>
-
       <label for="days">First check looks back this many days</label>
       <input type="text" id="days" inputmode="numeric" value="30">
-
       <button class="btn secondary" id="btnTest" style="margin-top:14px">Test connection and web search</button>
       <div id="testOut" class="muted" style="margin-top:8px"></div>
-
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button class="btn" id="btnSave">Save</button>
-        <button class="btn secondary" id="btnBack">Back</button>
-      </div>
     </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <button class="btn" id="btnSave">Save</button>
+      <button class="btn secondary" id="btnBack">Back</button>
+    </div>
+
     <div class="card">
       <p class="muted" style="margin-top:0">This app is served from GitHub: <a href="https://github.com/mhpbreugem/Apps/tree/main/MDRupdates" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">github.com/mhpbreugem/Apps</a> (folder MDRupdates).</p>
       <button class="btn secondary" id="btnClear">Clear history and reset "last checked"</button>
@@ -94,10 +192,16 @@ textarea{min-height:150px}
   </div>
 </main>
 
+<button class="fab hidden" id="fab" inert aria-label="Email selected items">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+  <span id="fabText">Email</span>
+</button>
+
 <script>
 (function(){
   "use strict";
   var KEY = "mdr_updates_v1";
+  var DEFAULT_ROLE = "Senior regulatory affairs officer";
   var DEFAULT_FOCUS =
 "Updates on EU medical device regulation for a senior regulatory affairs officer:\n" +
 "- Regulation (EU) 2017/745 (MDR) and 2017/746 (IVDR): amendments, corrigenda, implementing and delegated acts, transition timelines\n" +
@@ -108,10 +212,14 @@ textarea{min-height:150px}
 "- National competent authorities: IGJ and CIBG (Netherlands), BfArM (Germany), ANSM (France), and notable announcements elsewhere in the EU\n" +
 "- Relevant European Court of Justice rulings";
 
+  var ICON_CHECK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
   var state = load();
+  var sel = {}, exp = {};   // selected items and expanded rows, by URL (not saved)
 
   function load(){
-    var s = {apiKey:"", model:"claude-haiku-5-5", toolVer:"web_search_20250305", focus:DEFAULT_FOCUS, days:30, lastRun:null, digests:[]};
+    var s = {apiKey:"", model:"claude-haiku-5-5", toolVer:"web_search_20250305", focus:DEFAULT_FOCUS, days:30, lastRun:null, digests:[],
+             email:"", view:"compact", aiSummary:true, rateImportance:true, role:DEFAULT_ROLE};
     try{ var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); for(var k in o){ s[k]=o[k]; } } }catch(e){}
     s.model = "claude-haiku-5-5";
     // the other apps on this site keep the key in "mdr-ai" / "kashi-ai"; use it if present
@@ -146,14 +254,25 @@ textarea{min-height:150px}
 
   var $ = function(id){ return document.getElementById(id); };
   var running = false;
+  function inMain(){ return !$("view-main").classList.contains("hidden"); }
 
   function showView(name){
     $("view-main").classList.toggle("hidden", name!=="main");
     $("view-settings").classList.toggle("hidden", name!=="settings");
     if(name==="settings"){
       $("apiKey").value = state.apiKey;
+      $("email").value = state.email || "";
+      $("emailHint").className = "muted";
+      $("emailHint").textContent = "Tapping Email opens your email app with the selected items ready to send to this address. You still press Send there.";
+      var radios = document.getElementsByName("view");
+      for(var i=0;i<radios.length;i++) radios[i].checked = (radios[i].value === (state.view==="detailed" ? "detailed" : "compact"));
+      $("optSummary").checked = !!state.aiSummary;
+      $("optImp").checked = !!state.rateImportance;
+      $("role").value = state.role || "";
       $("focus").value = state.focus; $("days").value = state.days; $("usage").textContent = usageText();
     }
+    updateSelUI();
+    try{ window.scrollTo(0,0); }catch(e){}
   }
 
   function setStatus(kind, text, spinner){
@@ -167,8 +286,24 @@ textarea{min-height:150px}
   function fmtDate(iso){
     try{ return new Date(iso).toLocaleString(undefined,{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}); }catch(e){ return iso; }
   }
+  function shortDate(d){
+    if(typeof d==="string" && /^\d{4}-\d{2}-\d{2}$/.test(d)){
+      try{ return new Date(d+"T00:00:00").toLocaleDateString(undefined,{day:"numeric",month:"short"}); }catch(e){}
+    }
+    return "";
+  }
   function ymd(d){ return d.toISOString().slice(0,10); }
   function safeUrl(u){ return (typeof u==="string" && /^https?:\/\//i.test(u)) ? u : null; }
+  function impOf(i){
+    var v = String(i && i.importance || "").toLowerCase();
+    return v==="high" ? "High" : v==="medium" ? "Medium" : v==="low" ? "Low" : "";
+  }
+  function initials(i){
+    var s = String(i.source || i.category || "?").replace(/[^A-Za-z0-9 \-]/g," ").trim();
+    var w = s.split(/[ \-]+/).filter(Boolean);
+    if(w.length>=2) return w.slice(0,3).map(function(x){ return x.charAt(0); }).join("").toUpperCase();
+    return (w[0]||"?").slice(0,3).toUpperCase();
+  }
 
   function seenUrls(){
     var m = {};
@@ -177,18 +312,28 @@ textarea{min-height:150px}
   }
 
   function buildPrompt(sinceStr, todayStr){
+    var role = (state.role || DEFAULT_ROLE).trim();
+    var fields = ["title","date","source","category","url"];
+    if(state.aiSummary) fields.push("summary","why_it_matters");
+    if(state.rateImportance) fields.push("importance","importance_reason");
+    var rules = [
+      "Use web search. Search each source area separately; do several searches.",
+      "Only include genuinely new publications or announcements in the date range. Do not include older background material.",
+      "Every item must have a URL you actually found in search results. Never invent items, dates or URLs. If the publication date is uncertain, say \"unknown\".",
+      "Prefer primary sources (EUR-Lex, ec.europa.eu, official authority sites) over commentary.",
+      "category must be one of: Legislation, Guidance, Standards, EUDAMED, Notified bodies, National authority, Court, Other."
+    ];
+    if(state.aiSummary) rules.push("summary: 2-3 plain sentences stating what changed. why_it_matters: one sentence on the practical impact.");
+    else rules.push("Do not write summaries. Return only the fields listed in the template.");
+    if(state.rateImportance){
+      rules.push("The reader is: " + role + ". Rate each item's importance for that person: High (likely requires action or has a deadline, directly affects their obligations), Medium (relevant and worth knowing), Low (background or marginal). importance_reason: one short sentence on why, for that role. If you do not know the employer's exact business, judge for a typical medical device company in that role.");
+      rules.push("Order items by importance for that reader, High first.");
+    } else rules.push("Order items by general importance, most important first.");
+    rules.push("Maximum 15 items.");
+    var tpl = "{\"items\":[{" + fields.map(function(f){ return "\"" + f + "\":\"\""; }).join(",") + "}],\"note\":\"optional short remark, e.g. which areas had nothing new\"}";
     return "Today is " + todayStr + ". Find updates published or announced between " + sinceStr + " and " + todayStr + " (inclusive) that are relevant to the following brief.\n\n" +
-      "BRIEF:\n" + state.focus + "\n\n" +
-      "Rules:\n" +
-      "- Use web search. Search each source area separately; do several searches.\n" +
-      "- Only include genuinely new publications or announcements in the date range. Do not include older background material.\n" +
-      "- Every item must have a URL you actually found in search results. Never invent items, dates or URLs. If the publication date is uncertain, say \"unknown\".\n" +
-      "- Prefer primary sources (EUR-Lex, ec.europa.eu, official authority sites) over commentary.\n" +
-      "- Summary: 2-3 plain sentences stating what changed. why_it_matters: one sentence on the practical impact for a regulatory affairs officer.\n" +
-      "- category must be one of: Legislation, Guidance, Standards, EUDAMED, Notified bodies, National authority, Court, Other.\n" +
-      "- Order items by importance, most important first. Maximum 15 items.\n\n" +
-      "Output ONLY a JSON object wrapped in <digest></digest> tags, no other text:\n" +
-      "<digest>{\"items\":[{\"title\":\"\",\"date\":\"YYYY-MM-DD or unknown\",\"source\":\"\",\"category\":\"\",\"url\":\"\",\"summary\":\"\",\"why_it_matters\":\"\"}],\"note\":\"optional short remark, e.g. which areas had nothing new\"}</digest>";
+      "BRIEF:\n" + state.focus + "\n\nRules:\n- " + rules.join("\n- ") + "\n\n" +
+      "Output ONLY a JSON object wrapped in <digest></digest> tags, no other text:\n<digest>" + tpl + "</digest>";
   }
 
   var TOOL_VERSIONS = ["web_search_20250305","web_search_20260209"];
@@ -287,7 +432,7 @@ textarea{min-height:150px}
 
   function run(){
     if(running) return;
-    if(!state.apiKey){ showView("settings"); setStatus("err","Add your API key first."); return; }
+    if(!state.apiKey){ showView("settings"); return; }
     running = true; $("btnRun").disabled = true;
     var now = new Date();
     var since = state.lastRun ? new Date(state.lastRun) : new Date(now.getTime() - (parseInt(state.days,10)||30)*86400000);
@@ -307,6 +452,10 @@ textarea{min-height:150px}
         if(seen[u]){ hidden++; return; }
         i.url = u; items.push(i);
       });
+      if(state.rateImportance){
+        var rank = {High:0, Medium:1, Low:2, "":3};
+        items = items.map(function(x,n){ return {x:x, n:n}; }).sort(function(a,b){ return (rank[impOf(a.x)]-rank[impOf(b.x)]) || (a.n-b.n); }).map(function(o){ return o.x; });
+      }
       var note = parsed.note || "";
       if(stats.searches === 0) note = (note ? note + " " : "") + "No web searches were performed, so this list may be incomplete.";
       else if(stats.errors.length) note = (note ? note + " " : "") + "Some searches failed (" + stats.errors.join(", ") + "), so this list may be incomplete.";
@@ -323,10 +472,82 @@ textarea{min-height:150px}
 
   function el(tag, cls, text){ var e = document.createElement(tag); if(cls) e.className = cls; if(text!=null) e.textContent = text; return e; }
 
+  function allItems(){
+    var a = [];
+    state.digests.forEach(function(g){ (g.items||[]).forEach(function(i){ a.push(i); }); });
+    return a;
+  }
+  function selectedItems(){ return allItems().filter(function(i){ return sel[i.url]; }); }
+
+  function updateSelUI(){
+    var n = Object.keys(sel).length, on = n > 0 && inMain();
+    $("hSel").classList.toggle("hidden", !on);
+    $("hNormal").classList.toggle("hidden", on);
+    $("fab").classList.toggle("hidden", !on);
+    document.body.classList.toggle("has-sel", on);
+    $("selCount").textContent = n + " selected";
+    $("fabText").textContent = "Email " + n;
+    $("fab").setAttribute("aria-label", "Email " + n + " selected " + (n===1?"item":"items"));
+  }
+
+  function buildRow(i){
+    var detailed = state.view === "detailed";
+    var picked = !!sel[i.url], open = detailed || !!exp[i.url];
+    var wrap = document.createDocumentFragment();
+    var row = el("div", "row" + (picked ? " sel" : "") + (open ? " open" : ""));
+
+    var pick = el("button","pick"); pick.type = "button";
+    pick.setAttribute("aria-pressed", String(picked));
+    pick.setAttribute("aria-label", "Select: " + (i.title || "item"));
+    var av = el("span","av");
+    if(picked) av.innerHTML = ICON_CHECK; else av.textContent = initials(i);
+    pick.appendChild(av);
+    pick.addEventListener("click", function(){ if(sel[i.url]) delete sel[i.url]; else sel[i.url] = 1; render(); });
+
+    var main = el("button","rowmain"); main.type = "button";
+    main.setAttribute("aria-expanded", String(open));
+    var tx = el("span","rtext");
+    tx.appendChild(el("span","rt", i.title || "(untitled)"));
+    tx.appendChild(el("span","rs", i.summary ? i.summary : [i.source, i.category].filter(Boolean).join(" · ")));
+    var side = el("span","rside");
+    var sd = shortDate(i.date); if(sd) side.appendChild(el("span",null,sd));
+    var imp = impOf(i); if(imp) side.appendChild(el("span","imp " + imp, imp));
+    main.appendChild(tx); main.appendChild(side);
+    main.addEventListener("click", function(){
+      if(detailed) return;
+      if(exp[i.url]) delete exp[i.url]; else exp[i.url] = 1;
+      render();
+    });
+    row.appendChild(pick); row.appendChild(main);
+    wrap.appendChild(row);
+
+    if(open){
+      var d = el("div","detail" + (picked ? " sel" : ""));
+      var meta = el("div","meta");
+      if(i.category) meta.appendChild(el("span","chip",i.category));
+      if(i.source) meta.appendChild(el("span",null,i.source));
+      if(i.date) meta.appendChild(el("span",null,"· " + i.date));
+      d.appendChild(meta);
+      if(i.summary) d.appendChild(el("div",null,i.summary));
+      if(i.why_it_matters) d.appendChild(el("div","why","Why it matters: " + i.why_it_matters));
+      if(i.importance_reason) d.appendChild(el("div","why","For your role: " + i.importance_reason));
+      var a = el("a","open","Open source"); a.href = i.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+      d.appendChild(a);
+      wrap.appendChild(d);
+    }
+    return wrap;
+  }
+
   function render(){
-    $("lastRun").textContent = state.lastRun ? "Last checked: " + fmtDate(state.lastRun) : "Not checked yet. The first check looks back " + (parseInt(state.days,10)||30) + " days.";
+    var latest = state.digests[0];
+    $("lastRun").textContent = state.lastRun
+      ? "Checked " + fmtDate(state.lastRun) + (latest ? " · " + latest.items.length + " new" : "")
+      : "Not checked yet. The first check looks back " + (parseInt(state.days,10)||30) + " days.";
+    var detailed = state.view === "detailed";
+    $("vCompact").setAttribute("aria-pressed", String(!detailed));
+    $("vDetailed").setAttribute("aria-pressed", String(detailed));
     var root = $("digests"); root.innerHTML = "";
-    state.digests.forEach(function(g, idx){
+    state.digests.forEach(function(g){
       var head = el("div","digest-head");
       head.appendChild(el("h2",null, fmtDate(g.runAt)));
       head.appendChild(el("span","muted", g.items.length + " new" + (g.hidden ? " (" + g.hidden + " already seen)" : "")));
@@ -337,29 +558,77 @@ textarea{min-height:150px}
         root.appendChild(c);
         return;
       }
-      g.items.forEach(function(i){
-        var c = el("div","card item");
-        var meta = el("div","meta");
-        if(i.category) meta.appendChild(el("span","chip",i.category));
-        if(i.date) meta.appendChild(el("span",null,i.date));
-        if(i.source) meta.appendChild(el("span",null,"· " + i.source));
-        c.appendChild(meta);
-        c.appendChild(el("h3",null,i.title||"(untitled)"));
-        if(i.summary) c.appendChild(el("div",null,i.summary));
-        if(i.why_it_matters) c.appendChild(el("div","why","Why it matters: " + i.why_it_matters));
-        var a = el("a","open","Open source"); a.href = i.url; a.target = "_blank"; a.rel = "noopener noreferrer";
-        c.appendChild(a);
-        root.appendChild(c);
-      });
+      var list = el("div","list");
+      g.items.forEach(function(i){ list.appendChild(buildRow(i)); });
+      root.appendChild(list);
       if(g.note){ root.appendChild(el("p","muted",g.note)); }
     });
+    updateSelUI();
+  }
+
+  // ---- email the selected items (opens the email app; she presses Send there) ----
+  function mailBody(items, level, omitted){
+    var out = ["MDR updates, checked " + fmtDate(state.lastRun || new Date().toISOString()), ""];
+    items.forEach(function(i, n){
+      out.push((n+1) + ". " + (i.title || "(untitled)"));
+      var m = [i.category, i.source, i.date].filter(Boolean).join(" · "); if(m) out.push("   " + m);
+      var imp = impOf(i);
+      if(imp && level < 2) out.push("   Importance: " + imp + (i.importance_reason && level < 1 ? " (" + i.importance_reason + ")" : ""));
+      if(i.summary && level < 1) out.push("   " + i.summary);
+      if(i.why_it_matters && level < 1) out.push("   Why it matters: " + i.why_it_matters);
+      out.push("   " + i.url);
+      out.push("");
+    });
+    if(omitted > 0) out.push("(" + omitted + " more selected items did not fit in this email.)", "");
+    out.push("AI-generated summaries. Verify against the official source before acting.");
+    return out.join("\r\n");
+  }
+  function sendMail(){
+    var items = selectedItems();
+    if(!items.length) return;
+    if(!state.email){
+      showView("settings");
+      var h = $("emailHint"); h.className = "muted bad";
+      h.textContent = "Add the email address here first, then go back and tap Email again.";
+      try{ $("email").focus(); }catch(e){}
+      return;
+    }
+    var base = "mailto:" + encodeURIComponent(state.email).replace(/%40/g,"@").replace(/%2C/g,",") +
+      "?subject=" + encodeURIComponent("MDR updates (" + items.length + (items.length===1 ? " item" : " items") + ")") + "&body=";
+    var level = 0, use = items, url;
+    for(;;){
+      url = base + encodeURIComponent(mailBody(use, level, items.length - use.length));
+      if(url.length <= 7000) break;
+      if(level < 2){ level++; continue; }
+      if(use.length > 1){ use = use.slice(0, use.length - 1); continue; }
+      break;
+    }
+    var a = document.createElement("a");
+    a.href = url; a.style.display = "none";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
 
   $("btnRun").addEventListener("click", run);
   $("btnSettings").addEventListener("click", function(){ showView("settings"); });
   $("btnBack").addEventListener("click", function(){ showView("main"); });
+  $("vCompact").addEventListener("click", function(){ state.view = "compact"; save(); render(); });
+  $("vDetailed").addEventListener("click", function(){ state.view = "detailed"; save(); render(); });
+  $("selClear").addEventListener("click", function(){ sel = {}; render(); });
+  $("selAll").addEventListener("click", function(){ allItems().forEach(function(i){ sel[i.url] = 1; }); render(); });
+  $("selMail").addEventListener("click", sendMail);
+  $("fab").addEventListener("click", sendMail);
   $("btnSave").addEventListener("click", function(){
+    var email = $("email").value.trim();
+    if(email && !/^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/.test(email)){
+      var h = $("emailHint"); h.className = "muted bad"; h.textContent = "That does not look like an email address."; $("email").focus(); return;
+    }
     state.apiKey = $("apiKey").value.trim();
+    state.email = email;
+    var radios = document.getElementsByName("view");
+    for(var i=0;i<radios.length;i++) if(radios[i].checked) state.view = radios[i].value;
+    state.aiSummary = $("optSummary").checked;
+    state.rateImportance = $("optImp").checked;
+    state.role = $("role").value.trim() || DEFAULT_ROLE;
     state.focus = $("focus").value.trim() || DEFAULT_FOCUS;
     state.days = Math.max(1, Math.min(365, parseInt($("days").value,10) || 30));
     save(); showView("main"); render(); setStatus("","");
@@ -383,11 +652,29 @@ textarea{min-height:150px}
   });
   $("btnClear").addEventListener("click", function(){
     if(!window.confirm("Delete all saved digests and reset the last-checked date?")) return;
-    state.digests = []; state.lastRun = null; save(); render(); showView("main");
+    state.digests = []; state.lastRun = null; sel = {}; exp = {}; save(); render(); showView("main");
   });
 
   render();
   if(!state.apiKey){ showView("settings"); }
+
+  // Start gate: the app stays locked until the first tap, and that tap asks the browser for full screen.
+  (function(){
+    var gate = $("gate"), de = document.documentElement;
+    function unlock(){
+      gate.classList.add("hidden");
+      var locked = document.querySelectorAll("[inert]");
+      for(var i=0;i<locked.length;i++) locked[i].removeAttribute("inert");
+      var b = $("btnRun"); if(b && inMain()){ try{ b.focus(); }catch(e){} }
+    }
+    gate.addEventListener("click", function(){
+      try{
+        var p = de.requestFullscreen ? de.requestFullscreen({navigationUI:"hide"}) : (de.webkitRequestFullscreen ? de.webkitRequestFullscreen() : null);
+        if(p && p.catch) p.catch(function(){});
+      }catch(e){}
+      unlock();
+    });
+  })();
   if("serviceWorker" in navigator){ try{ navigator.serviceWorker.register("sw.js").catch(function(){}); }catch(e){} }
 })();
 </script>
