@@ -74,6 +74,7 @@ body[data-v="3"] .pt{background:none;border-radius:0;border-top:1px solid var(--
 body[data-pv="3"] .sc{background:var(--sf);border-radius:16px;margin:8px 4px;padding:2px 6px 8px}body[data-pv="3"] .stx{padding-top:10px}body[data-pv="3"] .ln.act{background:var(--act)}
 .ln.l4{padding:10px 10px 8px}.ln.l4 .dg{margin:6px 0 0}.ln.l4 .lt{gap:10px}
 .ln.l5{padding:8px 8px}.ln.l5 .lt .m{font-size:12px}
+#fshint{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);z-index:7;border:0;border-radius:18px;background:var(--ink);color:var(--bg);font:700 12.5px Inter,system-ui;padding:9px 16px;opacity:.92;box-shadow:0 2px 12px #0003}
 body[data-v="1"] header,body[data-v="1"] nav,body[data-v="1"] .tabs{background:var(--bg);border-color:transparent}body[data-v="1"] header b{font-size:20px}
 body[data-v="2"] header,body[data-v="2"] .tabs{background:var(--bg);border-color:transparent}body[data-v="2"] header b{font-size:22px;letter-spacing:-.01em}body[data-v="2"] nav{box-shadow:0 -2px 14px #0000000d;border-color:transparent}
 body[data-v="2"] .pr,body[data-v="2"] .bm,body[data-v="2"] .now{box-shadow:0 1px 10px #00000014;border-radius:22px}body[data-v="2"] .pr{padding:11px 14px;margin:6px 12px}body[data-v="2"] .bar{height:8px;border-radius:4px}body[data-v="2"] .bar i{border-radius:4px}
@@ -175,7 +176,7 @@ h+='<div class="card"><b>Weeks off</b><div class="m" style="margin:4px 0 6px">Ho
 h+='<div class="card"><b>Data</b><div class="m" style="margin:4px 0 8px">Saved on this phone. Export a copy or import one.</div><div class="row"><button class="big g" data-a="exp">Export</button><button class="big g" data-a="imp">Import</button></div><button class="link" data-a="reset" style="margin-top:8px">'+(U.rs?'Tap again to reset every project to the starting plan':'Reset to the starting plan')+'</button></div>';
 return h}
 function pList(){const ed=U.ed,ap=actP();head('Planner',sum(S.p,dn)+' of '+sum(S.p,tot)+' h done · '+sum(CATS,c=>S.bud[c])+' h per week');
-let h='<div class="pl">'+(ap?'<div class="now" data-a="nowopen"><small>Working on</small><i class="pd" style="background:'+ap.c+'"></i><b>'+esc(ap.name)+'</b><span class="sp"></span><button class="chip" data-a="nowchg">Change</button></div>':'');
+let h='<div class="pl">'+'';
 CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="pgrp" style="flex:'+Math.ceil(ps.length/5)+'"><div class="ph"><i class="pd" style="background:'+CC[c]+'"></i><b>'+c+'</b><span class="m">'+sum(ps,dn)+' of '+sum(ps,tot)+' h · '+S.bud[c]+' h per week</span></div><div class="pg4">';
 ps.forEach(p=>{const T=tot(p),D=dn(p),pc=T?Math.round(100*D/T):0;const fn_=getSim().fin[p.id],late=!p.dt&&p.hard!==undefined&&p.aim&&p.hard&&fn_!=null&&pd(fri(getSim(),fn_))>pd(p.aim);h+='<div class="pt'+(ap&&ap.id===p.id?' act':'')+'" data-a="open" data-p="'+p.id+'">'+(late?'<i class="late" title="Plan misses the deadline"></i>':'')+'<div class="pw"><div class="pie" style="--c:'+p.c+';--p:'+pc+'"></div><span>'+pc+'%</span></div><b>'+esc(p.name)+'</b><small>'+D+' / '+T+' h</small>'+(ed&&S.mode[c]==='focus'?'<button class="pill s up" data-a="up" data-p="'+p.id+'">▲</button>':'')+'</div>'});
 h+='</div></div>'});
@@ -317,6 +318,11 @@ reset(){if(!U.rs){U.rs=1;return draw()}try{localStorage.setItem(KEY,JSON.stringi
 document.addEventListener('click',e=>{if(e.target===bg)return close();const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a]){e.stopPropagation();A[el.dataset.a](el);return}const nb=e.target.closest('nav button');if(nb){U.pg=+nb.dataset.pg;draw()}});
 document.getElementById('bk').onclick=()=>{U.proj=null;U.task=null;draw()};
 document.getElementById('fi').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(o.v===3){localStorage.setItem(KEY,JSON.stringify(o));location.reload()}}catch(x){}};r.readAsText(f)};
-window.addEventListener('resize',()=>{if(U.pg===3)fitOv();if(U.pg===4)fnSize();if(U.pg===1&&!U.proj)fitPl()});draw();window.H={S,draw,U,getSim,rem,tot,dn};
+window.addEventListener('resize',()=>{if(U.pg===3)fitOv();if(U.pg===4)fnSize();if(U.pg===1&&!U.proj)fitPl()});
+(function(){const ok=document.documentElement.requestFullscreen&&!matchMedia('(display-mode: standalone)').matches&&!matchMedia('(display-mode: fullscreen)').matches&&!document.fullscreenElement;if(!ok)return;
+const h=document.createElement('button');h.id='fshint';h.textContent='Tap to use full screen';document.getElementById('app').appendChild(h);
+const go=()=>{h.remove();document.removeEventListener('pointerup',go,true);try{document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}catch(e){}};
+document.addEventListener('pointerup',go,true);document.addEventListener('fullscreenchange',()=>{if(document.fullscreenElement)h.remove()})})();
+draw();window.H={S,draw,U,getSim,rem,tot,dn};
 })();
 </script></body></html>
