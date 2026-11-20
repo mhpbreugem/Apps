@@ -151,9 +151,9 @@ return o}
 function fnDone(){const o={},F=S.fn;if(!F)return o;const T=td(),pj=id=>S.p.find(p=>p.id===id);
 const a=(id,h)=>{const p=pj(id);if(p&&!p.dt)o[id]=(o[id]||0)+h};
 Object.keys(F.ov).forEach(d=>F.ov[d].forEach(x=>{if(x[1]===2||x[1]===3)return;if(x[3]&&x[3].length)x[3].forEach(q=>a(q,.25));else a(x[0],x[2])}));
-(S.bk||[]).forEach(b=>{if(b.d<=T)a(b.p,b.h)});return o}
-function fnSync(){const F=S.fn;if(!F)return;F.ap=F.ap||{};const D=fnDone();
-S.p.forEach(p=>{if(p.dt)return;const target=Math.floor((D[p.id]||0)+1e-9);let delta=target-(F.ap[p.id]||0);const ts=tasks(p);
+fnDone.cl={};(S.bk||[]).forEach(b=>{if(b.d<=T){a(b.p,b.h);fnDone.cl[b.p]=(fnDone.cl[b.p]||0)+b.h}});return o}
+function fnSync(){const F=S.fn;if(!F)return;F.ap=F.ap||{};if(F.cv!==2){S.p.forEach(p=>{if(p.dt)return;let k=F.ap[p.id]||0;const ts=tasks(p);for(let i=ts.length-1;i>=0&&k>0;i--){const x=Math.min(k,ts[i].d);ts[i].d-=x;k-=x}F.ap[p.id]=0});F.cv=2}const D=fnDone();
+S.p.forEach(p=>{if(p.dt)return;const target=Math.floor((D[p.id]||0)+1e-9);let delta=target-(F.ap[p.id]||0);const ts0=tasks(p),ts=(fnDone.cl[p.id]>0)?[...ts0.filter(t=>isCl(p,t)),...ts0.filter(t=>!isCl(p,t))]:ts0;
 if(delta>0){for(const t of ts){if(delta<=0)break;const k=Math.min(delta,t.h-t.d);if(k>0){t.d+=k;delta-=k;F.ap[p.id]=(F.ap[p.id]||0)+k}}}
 else if(delta<0){for(let i=ts.length-1;i>=0&&delta<0;i--){const t=ts[i],k=Math.min(-delta,t.d);if(k>0){t.d-=k;delta+=k;F.ap[p.id]=(F.ap[p.id]||0)-k}}}})}
 function getSim(){if(SIM)return SIM;const t=pd(td()),w0=mon(t),N=156,weeks=[];for(let i=0;i<N;i++)weeks.push(iso(addD(w0,7*i)));
@@ -231,6 +231,7 @@ function setActP(id){if(!proj(id))return;S.act={p:id}}
 const fnS=()=>{if(!S.fn){S.fn={ov:{},off:0};if(!S.bk){const f=S.p.find(p=>p.name==='FMA');S.bk=f?[{id:uid(),d:td(),h:6,p:f.id,n:'FMA class'}]:[]}}const F=S.fn;if(!S.bk)S.bk=[];if(F.cl){Object.keys(F.cl).forEach(d=>Object.keys(F.cl[d]).forEach(id=>S.bk.push({id:uid(),d,h:F.cl[d][id],p:id,n:'Class'})));delete F.cl}
 if(S.act&&S.act.t&&proj(S.act.p)&&!proj(S.act.p).cur){proj(S.act.p).cur=S.act.t;delete S.act.t}if(!S.act||!proj(S.act.p)){const f=S.p.find(p=>!p.dt&&rem(p)>0)||S.p[0];if(f)setActP(f.id)}return F};
 const fnSel=()=>{fnS();return actP()||S.p[0]};
+function clP(id){const p=proj(id);if(!p||p.dt)return false;const t=curT(p);return !!(t&&isCl(p,t))}
 function fnSugg(m){const sim=getSim(),out={},t=pd(td()),wi=Math.round((m-pd(sim.weeks[0]))/6048e5);for(let j=0;j<7;j++)out[iso(addD(m,j))]=[];
 if(wi>=0&&wi<sim.N){const days=[];for(let j=0;j<5;j++)if((wi>0||addD(m,j)>=t)&&fnS().ov[iso(addD(m,j))]===undefined)days.push(j);const n=days.length;let o=0;
 const cmm=fnCommit();S.p.forEach(p=>{if(p.dt)return;const a=Math.max(0,((sim.alloc[p.id]||[])[wi]||0)-Math.ceil((((cmm.pl[p.id]||{})[wi])||0)-1e-9));if(!a||!n)return;const base=Math.floor(a/n),r=a%n;days.forEach((j,q)=>{const k=base+(((q-o)%n+n)%n<r?1:0);for(let i=0;i<k;i++)out[iso(addD(m,j))].push([p.id,0,0])});o+=r})}
@@ -249,7 +250,7 @@ L.forEach(x=>{if(x[1]===3)return;cnt[x[0]]=(cnt[x[0]]||0)+1;if(x[1]!==2&&x[3]&&x
 h+='<div class="fr'+(we?' we':'')+(!we&&+dd===+t?' td':'')+((we?addD(dd,1):dd)<t?' pa':'')+'"><div class="flb">'+(we?'<b>S/S</b>':'<b>'+DL[j]+'</b>'+dd.getUTCDate())+'</div>';
 const n=L.length;for(let k=0;k<6;k++){if(n>6&&k===5)h+='<button class="fdot ovf" data-d="'+d+'" data-ov="1">+'+(n-5)+'</button>';
 else if(k<n&&L[k][1]===3)h+='<button class="fdot free" data-d="'+d+'" data-k="'+k+'"></button>';
-else if(k<n){const x=L[k];h+='<button class="fdot f'+(x[1]===2?' sq':x[2]>=1?'':' ring')+'" data-d="'+d+'" data-k="'+k+'" style="--c:'+proj(x[0]).c+';--f:'+x[2]+fnBg(x)+'"></button>'}
+else if(k<n){const x=L[k];h+='<button class="fdot f'+(x[1]===2?' sq':x[2]>=1?'':' ring')+(x[1]===0&&clP(x[0])?' sq':'')+'" data-d="'+d+'" data-k="'+k+'" style="--c:'+proj(x[0]).c+';--f:'+x[2]+fnBg(x)+'"></button>'}
 else h+='<button class="fdot" data-d="'+d+'" data-k="'+k+'"></button>'}h+='</div>'}if(w===0)h+='<div></div>'}
 FN={cnt,dn};return h+'</div></div>'}
 function fnSize(){const g=pg.querySelector('.fgrid');if(!g)return;const H=(g.clientHeight-7)/12,W=(g.clientWidth-8-24)/6;pg.style.setProperty('--d',Math.max(20,Math.floor(Math.min(H-4,W-4)*.92))+'px')}
