@@ -138,6 +138,7 @@ function stepper(a,v,extra){return '<button class="pill" data-a="'+a+'m"'+(extra
 let SIM=null;
 const iso=d=>d.toISOString().slice(0,10),addD=(d,n)=>new Date(+d+n*864e5),mon=d=>addD(d,-((d.getUTCDay()+6)%7));
 const fdy=s=>{const d=pd(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]+(d.getUTCFullYear()!==pd(td()).getUTCFullYear()?' '+d.getUTCFullYear():'')};
+function sqAuto(){const T=td();S.p.forEach(p=>{if(!p.dt)return;const t0=tot(p);if(!t0)return;const a=pd(p.dt.a),b=pd(p.dt.b),days=[];for(let d=a;d<=b;d=addD(d,1))if(d.getUTCDay()!==0)days.push(d);if(!days.length)return;const pt=split(t0,days.map(()=>1));let want=0;days.forEach((d,i)=>{if(iso(d)<=T)want+=pt[i]});tasks(p).forEach(t=>{const x=Math.min(t.h,want);t.d=x;want-=x})})}
 function sqDays(p){const a=pd(p.dt.a),b=pd(p.dt.b),days=[];for(let d=a;d<=b;d=addD(d,1))if(d.getUTCDay()!==0)days.push(d);const T=tot(p),D=dn(p);if(!days.length||!T)return[];const pt=split(T,days.map(()=>1));let c=0;return days.map((d,i)=>{const k=pt[i],dd=Math.max(0,Math.min(k,D-c));c+=k;return{d:iso(d),k,open:k-dd}})}
 function fnCommit(){const o={pl:{},dn:{}},F=S.fn;if(!F)return o;const t=pd(td()),T=iso(t),w0=mon(t);
 const wk=d=>Math.round((mon(pd(d))-w0)/6048e5),pj=id=>S.p.find(p=>p.id===id);
@@ -269,7 +270,7 @@ pg.addEventListener('pointerdown',e=>{const b=e.target.closest('.fdot');fired=fa
 pg.addEventListener('pointerup',e=>{clearTimeout(lp);const b=e.target.closest('.fdot');if(!b||fired||U.pg!==4)return;fnTap(b)});
 pg.addEventListener('pointercancel',()=>clearTimeout(lp));pg.addEventListener('pointermove',e=>{if(Math.abs(e.movementX)+Math.abs(e.movementY)>6)clearTimeout(lp)});pg.addEventListener('contextmenu',e=>{if(U.pg===4)e.preventDefault()})})();
 function fnSheet(){let h='<b style="font-size:16px">Pick a project</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>'<button class="fit" data-a="fnsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.name)+'<span>'+(Math.round((FN.dn[p.id]||0)*100)/100)+' of '+(FN.cnt[p.id]||0)+' h done</span></button>').join('')+'</div></div>'});open(h)}
-function draw(){fnS();fnSync();SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3||U.pg===4||(U.pg===1&&!m)?'ov':'';
+function draw(){fnS();sqAuto();fnSync();SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3||U.pg===4||(U.pg===1&&!m)?'ov':'';
 pg.innerHTML=U.pg===0?pSettings():U.pg===2?pBooked():U.pg===3?pOver():U.pg===4?pDays():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===4)fnSize();if(U.pg===1&&!m)fitPl();{const eb=document.getElementById('ed');eb.hidden=!(U.pg===1||U.pg===2);eb.classList.toggle('on',!!U.ed);eb.setAttribute('aria-pressed',!!U.ed)}if(U.pg===0)head('Settings','Weekly hours per category');save()}
 /* sheets */
 const open=h=>{sheet.innerHTML=h;bg.classList.add('on')},close=()=>bg.classList.remove('on'),val=id=>document.getElementById(id).value;
