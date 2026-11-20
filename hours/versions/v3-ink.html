@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Hours ink</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Hours</title>
 <style>
 :root{--bg:#F7F6F2;--ink:#17181C;--mu:#5C5D63;--ln:#E4E2DC;--sf:#fff;--ch:#F2F1ED;--pg:#d9d8d3;--act:#FFF6CC;color-scheme:light dark}
 @media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--sf:#1B1C20;--ch:#26272D;--pg:#0A0A0C;--act:#3A3414}.bs i{filter:brightness(1.3)}.fg{--we:#1E1F24;--td:#2B2814;--fl:#3A3B41}.fdot.f{filter:brightness(1.25)}.fdot.ovf{filter:none!important}.d,.sw,.ybar i,.pbar div{filter:brightness(1.3)}.lgn{filter:brightness(1.2)}.d.e{opacity:.5}}
@@ -62,9 +62,9 @@ nav button.on{color:var(--ink)}nav svg{width:22px;height:22px;stroke:currentColo
 .fit .fn{margin-left:0;color:var(--ink);font-size:14px}.fit .fn+span{max-width:48%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bkp{padding:6px 12px 14px}.bm{background:var(--sf);border-radius:16px;padding:12px 14px;margin:8px 0}.bm.em{background:none;padding:6px 14px}.bh{display:flex;align-items:baseline;gap:8px}.bh b{font-size:15px}.bn{margin-left:auto;font:700 13px Inter,system-ui}.bm.em .bn{color:var(--mu);font-weight:600}.bm.em .bh b{color:var(--mu);font-weight:600}
 .bs{display:flex;flex-wrap:wrap;gap:3px;margin:10px 0 8px}.bs i{width:var(--s);height:var(--s);border-radius:24%;background:var(--c)}.bs i.past{opacity:.5}.bl{display:flex;flex-wrap:wrap;gap:4px 12px;font:600 11.5px Inter,system-ui;color:var(--mu)}.bc i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:5px}.bd{font-size:12px;padding:5px 0;border-top:1px solid var(--ln);margin-top:5px}
-.pl{padding:2px 10px 8px}.ph{display:flex;align-items:center;gap:7px;padding:10px 4px 5px}.ph b{font-size:13px}.ph .m{margin-left:auto;font-size:11px}.pg4{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.pt{position:relative;background:var(--sf);border-radius:14px;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-width:0}.pt.act{background:var(--act)}.pt b{font-size:11.5px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pt small{font-size:10px;color:var(--mu)}.pt .up{position:absolute;top:2px;right:2px;min-width:22px;height:22px;font-size:10px;padding:0}
-.pw{position:relative;width:42px;height:42px}.pw span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 10px Inter,system-ui}.pie{width:42px;height:42px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--ch) 0);-webkit-mask:radial-gradient(circle 14px at center,transparent 97%,#000 100%);mask:radial-gradient(circle 14px at center,transparent 97%,#000 100%)}
+.pl{padding:2px 10px 8px;height:100%;display:flex;flex-direction:column}.pgrp{display:flex;flex-direction:column;min-height:0}.pnew{flex:none;padding:6px 0 0}.pnew .big{margin:0;padding:10px}.now small{margin-right:2px}.now{padding:8px 12px;margin:8px 0 0;gap:8px}.ph{display:flex;align-items:center;gap:7px;padding:10px 4px 5px}.ph b{font-size:13px}.ph .m{margin-left:auto;font-size:11px}.pg4{display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:1fr;flex:1;min-height:0;gap:5px}
+.pt{position:relative;background:var(--sf);border-radius:14px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;min-width:0}.pt.act{background:var(--act)}.pt b{font-size:12px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pt small{font-size:10px;color:var(--mu)}.pt .up{position:absolute;top:2px;right:2px;min-width:22px;height:22px;font-size:10px;padding:0}
+.pw{position:relative;width:var(--pz,42px);height:var(--pz,42px)}.pw span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 calc(var(--pz,42px)*.23) Inter,system-ui}.pie{width:var(--pz,42px);height:var(--pz,42px);border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--ch) 0);-webkit-mask:radial-gradient(circle calc(var(--pz,42px)*.34) at center,transparent 97%,#000 100%);mask:radial-gradient(circle calc(var(--pz,42px)*.34) at center,transparent 97%,#000 100%)}
 body[data-v="2"] .pt{box-shadow:0 1px 10px #00000014;border-radius:18px}body[data-v="2"] .pt.act{box-shadow:0 1px 10px #00000014}
 body[data-v="3"] .pt{background:none;border-radius:0;border-top:1px solid var(--ln)}body[data-v="3"] .pt.act{background:var(--act)}
 body[data-v="1"] header,body[data-v="1"] nav,body[data-v="1"] .tabs{background:var(--bg);border-color:transparent}body[data-v="1"] header b{font-size:20px}
@@ -72,7 +72,7 @@ body[data-v="2"] header,body[data-v="2"] .tabs{background:var(--bg);border-color
 body[data-v="2"] .pr,body[data-v="2"] .bm,body[data-v="2"] .now{box-shadow:0 1px 10px #00000014;border-radius:22px}body[data-v="2"] .pr{padding:11px 14px;margin:6px 12px}body[data-v="2"] .bar{height:8px;border-radius:4px}body[data-v="2"] .bar i{border-radius:4px}
 body[data-v="2"] .bkp{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}body[data-v="2"] .bkp .pad{grid-column:1/-1}body[data-v="2"] .bm{margin:0;padding:14px}body[data-v="2"] .bm.em{box-shadow:none;border:1.5px dashed var(--ln);background:none}
 body[data-v="3"] header{background:var(--ink);color:var(--bg);border:0}body[data-v="3"] header small{color:var(--bg);opacity:.65}body[data-v="3"] .edb{border-color:var(--bg);color:var(--bg)}body[data-v="3"] .edb.on{background:var(--bg);color:var(--ink)}body[data-v="3"] #bk{background:#ffffff26;color:var(--bg)}
-body[data-v="3"] .pr{background:none;border-radius:0;margin:0 14px;padding:9px 0;border-bottom:1px solid var(--ln)}body[data-v="3"] .pr.act{background:var(--act);margin:0;padding:9px 14px}body[data-v="3"] .now{border-radius:0;margin:0;padding:11px 14px}
+body[data-v="3"] .pr{background:none;border-radius:0;margin:0 14px;padding:9px 0;border-bottom:1px solid var(--ln)}body[data-v="3"] .pr.act{background:var(--act);margin:0;padding:9px 14px}body[data-v="3"] .now{border-radius:0;margin:0 -10px;padding:9px 14px}
 body[data-v="3"] .bm{background:none;border-radius:0;border-bottom:1px solid var(--ln);display:grid;grid-template-columns:84px 1fr;gap:0 10px;padding:13px 2px;margin:0}body[data-v="3"] .bm .bh{grid-row:1/4;display:block}body[data-v="3"] .bm .bn{display:block;margin:2px 0 0;font:600 12px Inter,system-ui;color:var(--mu)}body[data-v="3"] .bs{margin:0 0 7px}body[data-v="3"] .bm.em{padding:9px 2px}body[data-v="3"] .bd{grid-column:2}
 .ovl{padding:6px 12px}.ovl .row{margin-top:4px}.sync{font-size:11px;color:var(--mu)}
 </style></head><body><div id="app"><header><button id="bk" aria-label="Back">‹</button><div><b id="ttl">Planner</b><small id="sm"></small></div><button id="ed" class="edb" data-a="ed" hidden><span class="ck"></span>Edit</button></header><main id="pg"></main>
@@ -167,20 +167,19 @@ h+='';h+='<div class="m" style="margin-top:6px">Total '+sum(CATS,c=>S.bud[c])+' 
 h+='<div class="card"><b>Weeks off</b><div class="m" style="margin:4px 0 6px">Holiday weeks get no hours in the plan.</div>'+S.off.map((m,i)=>'<div class="row" style="padding:4px 0;border-top:1px solid var(--ln)"><span style="flex:1">Week of '+fdy(m)+'</span><button class="link" data-a="offdel" data-i="'+i+'">Remove</button></div>').join('')+'<button class="big g" data-a="offadd">＋ Week off</button></div>';
 h+='<div class="card"><b>Data</b><div class="m" style="margin:4px 0 8px">Saved on this phone. Export a copy or import one.</div><div class="row"><button class="big g" data-a="exp">Export</button><button class="big g" data-a="imp">Import</button></div><button class="link" data-a="reset" style="margin-top:8px">'+(U.rs?'Tap again to reset every project to the starting plan':'Reset to the starting plan')+'</button></div>';
 return h}
-function pList(){const ed=U.ed,ap=actP(),at=actT();head('Planner',sum(S.p,dn)+' of '+sum(S.p,tot)+' h done · '+sum(CATS,c=>S.bud[c])+' h per week');
-let h=ap?'<div class="now" data-a="nowopen"><div class="nt"><small>Working on</small><b>'+esc(ap.name)+'</b>'+(at?'<span>'+esc(at.t.n)+'</span>':'')+'</div><button class="chip" data-a="nowchg">Change</button></div>':'';
-h+='<div class="pl">';
-CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="ph"><i class="pd" style="background:'+CC[c]+'"></i><b>'+c+'</b><span class="m">'+sum(ps,dn)+' of '+sum(ps,tot)+' h · '+S.bud[c]+' h per week</span></div><div class="pg4">';
+function pList(){const ed=U.ed,ap=actP();head('Planner',sum(S.p,dn)+' of '+sum(S.p,tot)+' h done · '+sum(CATS,c=>S.bud[c])+' h per week');
+let h='<div class="pl">'+(ap?'<div class="now" data-a="nowopen"><small>Working on</small><i class="pd" style="background:'+ap.c+'"></i><b>'+esc(ap.name)+'</b><span class="sp"></span><button class="chip" data-a="nowchg">Change</button></div>':'');
+CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="pgrp" style="flex:'+Math.ceil(ps.length/5)+'"><div class="ph"><i class="pd" style="background:'+CC[c]+'"></i><b>'+c+'</b><span class="m">'+sum(ps,dn)+' of '+sum(ps,tot)+' h · '+S.bud[c]+' h per week</span></div><div class="pg4">';
 ps.forEach(p=>{const T=tot(p),D=dn(p),pc=T?Math.round(100*D/T):0;h+='<div class="pt'+(ap&&ap.id===p.id?' act':'')+'" data-a="open" data-p="'+p.id+'"><div class="pw"><div class="pie" style="--c:'+p.c+';--p:'+pc+'"></div><span>'+pc+'%</span></div><b>'+esc(p.name)+'</b><small>'+D+' / '+T+' h</small>'+(ed&&S.mode[c]==='focus'?'<button class="pill s up" data-a="up" data-p="'+p.id+'">▲</button>':'')+'</div>'});
-h+='</div>'});
-if(ed)h+='<div class="pad"><button class="big g" data-a="newp">＋ New project</button></div>';return h+'</div>'}
+h+='</div></div>'});
+if(ed)h+='<div class="pnew"><button class="big g" data-a="newp">＋ New project</button></div>';return h+'</div>'}
 function pProj(p){const T=tot(p),D=dn(p),sh=shares(p.cat)[p.id]||0,ed=U.ed;
 head(p.name,p.cat+(p.sub?' · sub-top':'')+' · '+(sh?sh+' of '+S.bud[p.cat]+' h per week':'under 1 h per week')+' · '+D+' of '+T+' dots'+(!p.dt&&getSim().fin[p.id]!=null?' · likely done '+fdy(fri(getSim(),getSim().fin[p.id])):''),1);
 let h='<div class="pj">';
 p.st.forEach((s,i)=>{const H=sum(s.t,t=>t.h),Dn=sum(s.t,t=>t.d);
 h+='<div class="stx"><button class="tkb'+(s.g==='passed'?' p':s.g==='recheck'?' rc':'')+'" data-a="gate" data-i="'+i+'" aria-label="Gate">'+(s.g==='passed'?'✓':'')+'</button><b>'+esc(s.n)+'</b><span class="m">'+Dn+'/'+H+(s.g==='recheck'?' · re-check':'')+'</span><span class="sp"></span>'+(ed&&p.cat==='Research'?'<button class="link" data-a="gap" data-i="'+i+'">Gap</button>':'')+(ed?'<button class="link" data-a="addt" data-i="'+i+'">＋ Task</button>':'')+'</div>';
 if(!p.dt&&s.g!=='passed'&&sum(s.t,t=>t.h-t.d)>0)h+='<div class="aimr">'+(ed?'<button class="link" data-a="aims" data-i="'+i+'">'+aimTxt(p,i)+'</button>':'<span class="m">'+aimTxt(p,i)+'</span>')+'</div>';
-s.t.forEach(t=>{const act=t.id===(S.act&&S.act.t),sq=!!p.dt||isCl(p,t);h+='<div class="ln'+(act?' act':'')+'" data-a="sel" data-t="'+t.id+'"><div class="lt"><span>'+esc(t.n)+(t.rp?' <span class="m">(repair)</span>':'')+'</span><span class="m">'+t.d+'/'+t.h+'</span></div><div class="dg" style="--s:16px;--g:1.5px">'+dots(t.h,t.d,p.c,{r:t.rp,sq})+'</div></div>'})});
+const ct=curT(p);s.t.forEach(t=>{const act=ct&&t.id===ct.id,sq=!!p.dt||isCl(p,t);h+='<div class="ln'+(act?' act':'')+'" data-a="sel" data-t="'+t.id+'"><div class="lt"><span>'+esc(t.n)+(t.rp?' <span class="m">(repair)</span>':'')+'</span><span class="m">'+t.d+'/'+t.h+'</span></div><div class="dg" style="--s:16px;--g:1.5px">'+dots(t.h,t.d,p.c,{r:t.rp,sq})+'</div></div>'})});
 if(!p.dt)h+='<div class="aimr" style="margin-top:8px">'+(ed?'<button class="link" data-a="aimp">◇ Project: '+aimTxt(p,null)+'</button>':'<span class="m">◇ Project: '+aimTxt(p,null)+'</span>')+'</div>';
 else h+='<div class="aimr m">Fixed dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b)+'</div>';
 if(ed)h+='<div class="pad row" style="margin-top:2px"><button class="link" data-a="dates">'+(p.dt?'Fixed dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b):'Fixed dates (shown as squares)')+'</button><span class="sp"></span><button class="link" data-a="delp">'+(U.dp===p.id?'Tap again to delete project':'Delete project')+'</button></div>';
@@ -200,17 +199,17 @@ if(ed)h+=it.filter(x=>x.id).map(x=>'<div class="bd row"><span>'+fdt(x.d)+' · '+
 h+='</div>'}
 return h+'</div>'}
 function pOver(){head('Overview','All dots · '+sum(S.p,tot)+' in total · '+sum(S.p,dn)+' done');return'<div class="ovl" id="ov"></div>'}
-function fitPl(){let lo=3,hi=18;for(let z=hi;z>=lo;z--){pg.style.setProperty('--ps',z+'px');if(pg.scrollHeight<=pg.clientHeight+1)return}pg.style.setProperty('--ps',lo+'px')}
+function fitPl(){const t=pg.querySelector('.pt');if(!t)return;const W=t.clientWidth,H=t.clientHeight;pg.style.setProperty('--pz',Math.max(30,Math.min(70,W-14,H-36))+'px')}
 function fitOv(){const el=document.getElementById('ov');if(!el)return;const W=pg.clientWidth-24,H=pg.clientHeight-12;let best=3;
 const N=CATS.map(c=>sum(S.p.filter(p=>p.cat===c),tot));for(let s=16;s>=3;s--){const g=s+2,cols=Math.floor(W/g),rows=sum(N,n=>Math.ceil(n/cols)),lab=CATS.length*(20+8);if(rows*g+lab<=H){best=s;break}}
 let h='';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);h+='<div class="row m" style="margin-top:6px"><b style="color:'+CC[c]+'">'+c+'</b><span class="sp"></span>'+sum(ps,dn)+' / '+sum(ps,tot)+'</div><div class="dg" style="--s:'+best+'px;--g:1px">'+ps.map(p=>dots(tot(p),dn(p),p.c,{sq:!!p.dt})).join('')+'</div>'});el.innerHTML=h}
 /* fortnight (Days) */
 const isCl=(p,t)=>t.cl!==undefined?t.cl:(p.cat==='Teaching'&&/lecture|in class|classroom/i.test(t.n));
 const firstOpen=p=>{for(const st of p.st)for(const t of st.t)if(t.d<t.h)return t;return tasks(p)[0]||null};
-const actP=()=>S.act&&proj(S.act.p),actT=()=>{const p=actP();if(!p||!S.act.t)return null;const[t,i]=findT(p,S.act.t);return t?{p,t,i}:null};
-function setActP(id){const p=proj(id);if(!p)return;if(S.act&&S.act.p===id&&actT())return;const t=firstOpen(p);S.act={p:id,t:t?t.id:null}}
+const actP=()=>S.act&&proj(S.act.p),curT=p=>{if(p.cur){const[t]=findT(p,p.cur);if(t)return t}return firstOpen(p)};
+function setActP(id){if(!proj(id))return;S.act={p:id}}
 const fnS=()=>{if(!S.fn){S.fn={ov:{},off:0};if(!S.bk){const f=S.p.find(p=>p.name==='FMA');S.bk=f?[{id:uid(),d:td(),h:6,p:f.id,n:'FMA class'}]:[]}}const F=S.fn;if(!S.bk)S.bk=[];if(F.cl){Object.keys(F.cl).forEach(d=>Object.keys(F.cl[d]).forEach(id=>S.bk.push({id:uid(),d,h:F.cl[d][id],p:id,n:'Class'})));delete F.cl}
-if(!S.act||!proj(S.act.p)){const f=S.p.find(p=>!p.dt&&rem(p)>0)||S.p[0];if(f)setActP(f.id)}return F};
+if(S.act&&S.act.t&&proj(S.act.p)&&!proj(S.act.p).cur){proj(S.act.p).cur=S.act.t;delete S.act.t}if(!S.act||!proj(S.act.p)){const f=S.p.find(p=>!p.dt&&rem(p)>0)||S.p[0];if(f)setActP(f.id)}return F};
 const fnSel=()=>{fnS();return actP()||S.p[0]};
 function fnSugg(m){const sim=getSim(),out={},t=pd(td()),wi=Math.round((m-pd(sim.weeks[0]))/6048e5);for(let j=0;j<7;j++)out[iso(addD(m,j))]=[];
 if(wi>=0&&wi<sim.N){const days=[];for(let j=0;j<5;j++)if((wi>0||addD(m,j)>=t)&&fnS().ov[iso(addD(m,j))]===undefined)days.push(j);const n=days.length;let o=0;
@@ -247,7 +246,7 @@ pg.addEventListener('pointerdown',e=>{const b=e.target.closest('.fdot');fired=fa
 pg.addEventListener('pointerup',e=>{clearTimeout(lp);const b=e.target.closest('.fdot');if(!b||fired||U.pg!==4)return;fnTap(b)});
 pg.addEventListener('pointercancel',()=>clearTimeout(lp));pg.addEventListener('pointermove',e=>{if(Math.abs(e.movementX)+Math.abs(e.movementY)>6)clearTimeout(lp)});pg.addEventListener('contextmenu',e=>{if(U.pg===4)e.preventDefault()})})();
 function fnSheet(){let h='<b style="font-size:16px">Pick a project</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>'<button class="fit" data-a="fnsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.name)+'<span>'+(Math.round((FN.dn[p.id]||0)*100)/100)+' of '+(FN.cnt[p.id]||0)+' h done</span></button>').join('')+'</div></div>'});open(h)}
-function draw(){fnS();fnSync();SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3||U.pg===4?'ov':'';
+function draw(){fnS();fnSync();SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3||U.pg===4||(U.pg===1&&!m)?'ov':'';
 pg.innerHTML=U.pg===0?pSettings():U.pg===2?pBooked():U.pg===3?pOver():U.pg===4?pDays():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===4)fnSize();if(U.pg===1&&!m)fitPl();{const eb=document.getElementById('ed');eb.hidden=!(U.pg===1||U.pg===2);eb.classList.toggle('on',!!U.ed);eb.setAttribute('aria-pressed',!!U.ed)}if(U.pg===0)head('Settings','Weekly hours per category');save()}
 /* sheets */
 const open=h=>{sheet.innerHTML=h;bg.classList.add('on')},close=()=>bg.classList.remove('on'),val=id=>document.getElementById(id).value;
@@ -258,8 +257,8 @@ h+='<button class="big" data-a="dok">Start detour</button>';open(h)}
 /* actions */
 const A={
 ed(){U.ed=!U.ed;draw()},
-nowopen(){const p=actP();if(!p)return;U.cat=p.cat;U.proj=p.id;U.task=S.act.t;U.pg=1;draw()},
-nowchg(){let h='<b style="font-size:16px">Work on</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>{const t=firstOpen(p);return'<button class="fit'+(S.act&&S.act.p===p.id?' act':'')+'" data-a="nowsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i><span class="fn">'+esc(p.name)+'</span><span>'+(t?esc(t.n):'')+'</span></button>'}).join('')+'</div></div>'});open(h)},
+nowopen(){const p=actP();if(!p)return;U.cat=p.cat;U.proj=p.id;const t=curT(p);U.task=t?t.id:null;U.pg=1;draw()},
+nowchg(){let h='<b style="font-size:16px">Work on</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>{return'<button class="fit'+(S.act&&S.act.p===p.id?' act':'')+'" data-a="nowsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i><span class="fn">'+esc(p.name)+'</span></button>'}).join('')+'</div></div>'});open(h)},
 nowsel(e){setActP(e.dataset.id);close();draw()},
 clt(){const p=cur(),[t]=findT(p,U.task);t.cl=!isCl(p,t);A.edit();draw()},
 bkadd(){open('<b style="font-size:16px">Book hours</b><div class="m" style="margin:6px 0 0">What</div><input type="text" id="v1" placeholder="Meeting, class, defence"><div class="m">Project</div><select id="v2">'+S.p.map(p=>'<option value="'+p.id+'">'+esc(p.cat+' · '+p.name)+'</option>').join('')+'</select><div class="m">Date</div><input type="date" id="v3" value="'+td()+'"><div class="m">Hours</div><input type="number" id="v4" value="1" min="1"><button class="big" data-a="bkok">Add</button>')},
@@ -273,8 +272,8 @@ offok(){const v=val('v1');if(v){const m=iso(mon(pd(v)));if(!S.off.includes(m)){S
 aimp(){U.at={j:null};A.aimsheet()},aims(e){U.at={j:+e.dataset.i};A.aimsheet()},
 aimsheet(){const p=cur(),j=U.at.j,cur_=j==null?p.aim:p.st[j].aim;open('<b>Aim before</b><div class="m" style="margin:4px 0 6px">'+esc(p.name)+(j==null?' · whole project':' · '+esc(p.st[j].n))+'. A target to plan against, not a deadline.</div><input type="date" id="v1" value="'+(cur_||'')+'"><button class="big" data-a="aimok">Save</button>'+(cur_?'<button class="big g" data-a="aimno">Remove aim</button>':''))},
 aimok(){const v=val('v1'),p=cur(),j=U.at.j;if(v){if(j==null)p.aim=v;else p.st[j].aim=v}close();draw()},aimno(){const p=cur(),j=U.at.j;if(j==null)delete p.aim;else delete p.st[j].aim;close();draw()},
-cat(e){U.cat=e.dataset.c;U.proj=null;draw()},open(e){U.proj=e.dataset.p;U.cat=(proj(e.dataset.p)||{}).cat||U.cat;U.task=S.act&&S.act.p===e.dataset.p?S.act.t:null;U.dl=U.dp=null;draw()},
-sel(e){if(U.task===e.dataset.t)return;U.task=e.dataset.t;S.act={p:U.proj,t:e.dataset.t};U.dl=null;draw()},
+cat(e){U.cat=e.dataset.c;U.proj=null;draw()},open(e){U.proj=e.dataset.p;U.cat=(proj(e.dataset.p)||{}).cat||U.cat;{const pp=proj(e.dataset.p),t=pp&&curT(pp);U.task=t?t.id:null}U.dl=U.dp=null;draw()},
+sel(e){if(U.task===e.dataset.t)return;U.task=e.dataset.t;cur().cur=e.dataset.t;S.act={p:U.proj};U.dl=null;draw()},
 dot(e){const[t]=findT(cur(),U.task),k=+e.dataset.k;t.d=t.d===k+1?k:k+1;draw()},
 thm(){const[t]=findT(cur(),U.task);t.h=Math.max(Math.max(t.d,0),t.h-1);draw()},thp(){const[t]=findT(cur(),U.task);t.h++;draw()},
 logp(){const[t]=findT(cur(),U.task);t.d=Math.min(t.h,t.d+1);draw()},logm(){const[t]=findT(cur(),U.task);t.d=Math.max(0,t.d-1);draw()},
