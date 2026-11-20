@@ -67,6 +67,13 @@ nav button.on{color:var(--ink)}nav svg{width:22px;height:22px;stroke:currentColo
 .pw{position:relative;width:var(--pz,42px);height:var(--pz,42px)}.pw span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 calc(var(--pz,42px)*.23) Inter,system-ui}.pie{width:var(--pz,42px);height:var(--pz,42px);border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--ch) 0);-webkit-mask:radial-gradient(circle calc(var(--pz,42px)*.34) at center,transparent 97%,#000 100%);mask:radial-gradient(circle calc(var(--pz,42px)*.34) at center,transparent 97%,#000 100%)}
 body[data-v="2"] .pt{box-shadow:0 1px 10px #00000014;border-radius:18px}body[data-v="2"] .pt.act{box-shadow:0 1px 10px #00000014}
 body[data-v="3"] .pt{background:none;border-radius:0;border-top:1px solid var(--ln)}body[data-v="3"] .pt.act{background:var(--act)}
+.tck{width:22px;height:22px;border-radius:7px;border:1.8px solid var(--ink);opacity:.8;background:none;flex:none;color:#fff;font:700 13px/18px Inter,system-ui;padding:0;text-align:center}.tck.on{background:var(--c);border-color:var(--c);opacity:1}.tck.on:after{content:'✓'}
+.tck.r5{border-radius:50%;border:0;background:conic-gradient(var(--c) calc(var(--p)*1%),color-mix(in srgb,var(--ink) 22%,var(--bg)) 0);position:relative;color:var(--c);opacity:1;width:26px;height:26px;line-height:26px}.tck.r5:before{content:'';position:absolute;inset:3.5px;border-radius:50%;background:var(--bg)}.tck.r5{overflow:hidden}
+.ln .lt{display:flex;align-items:center;gap:9px}.ln .lt .nm{flex:1;min-width:0;font:600 13.5px Inter,system-ui}.ln .dg{margin:4px 0 0 31px}.ln.dn .nm{opacity:.55;text-decoration:line-through;text-decoration-thickness:1px}
+.ln.l1{padding:7px 8px}.ln.l2{padding:9px 8px}.mb{display:block;width:58px;height:5px;border-radius:3px;background:var(--ch);overflow:hidden;flex:none}.mb i{display:block;height:100%}.ln.l2 .lt .m{width:30px;text-align:right}
+body[data-pv="3"] .sc{background:var(--sf);border-radius:16px;margin:8px 4px;padding:2px 6px 8px}body[data-pv="3"] .stx{padding-top:10px}body[data-pv="3"] .ln.act{background:var(--act)}
+.ln.l4{padding:10px 10px 8px}.ln.l4 .dg{margin:6px 0 0}.ln.l4 .lt{gap:10px}
+.ln.l5{padding:8px 8px}.ln.l5 .lt .m{font-size:12px}
 body[data-v="1"] header,body[data-v="1"] nav,body[data-v="1"] .tabs{background:var(--bg);border-color:transparent}body[data-v="1"] header b{font-size:20px}
 body[data-v="2"] header,body[data-v="2"] .tabs{background:var(--bg);border-color:transparent}body[data-v="2"] header b{font-size:22px;letter-spacing:-.01em}body[data-v="2"] nav{box-shadow:0 -2px 14px #0000000d;border-color:transparent}
 body[data-v="2"] .pr,body[data-v="2"] .bm,body[data-v="2"] .now{box-shadow:0 1px 10px #00000014;border-radius:22px}body[data-v="2"] .pr{padding:11px 14px;margin:6px 12px}body[data-v="2"] .bar{height:8px;border-radius:4px}body[data-v="2"] .bar i{border-radius:4px}
@@ -80,7 +87,7 @@ body[data-v="3"] .bm{background:none;border-radius:0;border-bottom:1px solid var
 <div id="bg"><div id="sheet"></div></div><input type="file" id="fi" accept="application/json" hidden>
 <script>
 (function(){
-const VER=3;document.body.dataset.v=VER;const KEY='hours-v4',uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+f(x),0),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const VER=3,PV=4;document.body.dataset.v=VER;document.body.dataset.pv=PV;const KEY='hours-v4',uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+f(x),0),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const CATS=['Research','Teaching','Chair & Admin','Personal'],CC={Research:'#2E7D4F',Teaching:'#D9822F','Chair & Admin':'#6B4FA3',Personal:'#7A7B80'};
 const BUD0={Research:14,Teaching:12,'Chair & Admin':10,Personal:4};
 function split(n,w){const t=sum(w,x=>x),r=w.map(x=>Math.floor(n*x/t));let left=n-sum(r,x=>x);w.map((x,i)=>[n*x/t-r[i],i]).sort((a,b)=>b[0]-a[0]).forEach((z,k)=>{if(k<left)r[z[1]]++});return r}
@@ -177,9 +184,15 @@ function pProj(p){const T=tot(p),D=dn(p),sh=shares(p.cat)[p.id]||0,ed=U.ed;
 head(p.name,p.cat+(p.sub?' · sub-top':'')+' · '+(sh?sh+' of '+S.bud[p.cat]+' h per week':'under 1 h per week')+' · '+D+' of '+T+' dots'+(!p.dt&&getSim().fin[p.id]!=null?' · likely done '+fdy(fri(getSim(),getSim().fin[p.id])):''),1);
 let h='<div class="pj">';
 p.st.forEach((s,i)=>{const H=sum(s.t,t=>t.h),Dn=sum(s.t,t=>t.d);
-h+='<div class="stx"><button class="tkb'+(s.g==='passed'?' p':s.g==='recheck'?' rc':'')+'" data-a="gate" data-i="'+i+'" aria-label="Gate">'+(s.g==='passed'?'✓':'')+'</button><b>'+esc(s.n)+'</b><span class="m">'+Dn+'/'+H+(s.g==='recheck'?' · re-check':'')+'</span><span class="sp"></span>'+(ed&&p.cat==='Research'?'<button class="link" data-a="gap" data-i="'+i+'">Gap</button>':'')+(ed?'<button class="link" data-a="addt" data-i="'+i+'">＋ Task</button>':'')+'</div>';
+h+='<div class="sc"><div class="stx"><button class="tkb'+(s.g==='passed'?' p':s.g==='recheck'?' rc':'')+'" data-a="gate" data-i="'+i+'" aria-label="Gate">'+(s.g==='passed'?'✓':'')+'</button><b>'+esc(s.n)+'</b><span class="m">'+Dn+'/'+H+(s.g==='recheck'?' · re-check':'')+'</span><span class="sp"></span>'+(ed&&p.cat==='Research'?'<button class="link" data-a="gap" data-i="'+i+'">Gap</button>':'')+(ed?'<button class="link" data-a="addt" data-i="'+i+'">＋ Task</button>':'')+'</div>';
 if(!p.dt&&s.g!=='passed'&&sum(s.t,t=>t.h-t.d)>0)h+='<div class="aimr">'+(ed?'<button class="link" data-a="aims" data-i="'+i+'">'+aimTxt(p,i)+'</button>':'<span class="m">'+aimTxt(p,i)+'</span>')+'</div>';
-const ct=curT(p);s.t.forEach(t=>{const act=ct&&t.id===ct.id,sq=!!p.dt||isCl(p,t);h+='<div class="ln'+(act?' act':'')+'" data-a="sel" data-t="'+t.id+'"><div class="lt"><span>'+esc(t.n)+(t.rp?' <span class="m">(repair)</span>':'')+'</span><span class="m">'+t.d+'/'+t.h+'</span></div><div class="dg" style="--s:16px;--g:1.5px">'+dots(t.h,t.d,p.c,{r:t.rp,sq})+'</div></div>'})});
+const ct=curT(p);s.t.forEach(t=>{const act=ct&&t.id===ct.id,sq=!!p.dt||isCl(p,t),on=t.h>0&&t.d>=t.h,pc=t.h?Math.round(100*t.d/t.h):0,nm=esc(t.n)+(t.rp?' <span class="m">(repair)</span>':''),ck=PV===5?'<button class="tck r5" data-a="tck" data-t="'+t.id+'" aria-label="Done" style="--c:'+p.c+';--p:'+pc+'">'+(on?'✓':'')+'</button>':'<button class="tck'+(on?' on':'')+'" data-a="tck" data-t="'+t.id+'" aria-label="Done" style="--c:'+p.c+'"></button>',cnt='<span class="m">'+t.d+'/'+t.h+'</span>',ds=sz=>'<div class="dg" style="--s:'+sz+'px;--g:1.5px">'+dots(t.h,t.d,p.c,{r:t.rp,sq})+'</div>';
+h+='<div class="ln l'+PV+(act?' act':'')+(on?' dn':'')+'" data-a="sel" data-t="'+t.id+'">'+
+(PV===1?'<div class="lt">'+ck+'<span class="nm">'+nm+'</span>'+cnt+'</div>'+ds(11):
+PV===2?'<div class="lt">'+ck+'<span class="nm">'+nm+'</span><i class="mb"><i style="width:'+pc+'%;background:'+p.c+'"></i></i>'+cnt+'</div>':
+PV===3?'<div class="lt">'+ck+'<span class="nm">'+nm+'</span>'+cnt+'</div>'+ds(14):
+PV===4?'<div class="lt"><span class="nm">'+nm+'</span>'+cnt+ck+'</div>'+ds(22):
+'<div class="lt">'+ck+'<span class="nm">'+nm+'</span>'+cnt+'</div>')+'</div>'});h+='</div>'});
 if(!p.dt)h+='<div class="aimr" style="margin-top:8px">'+(ed?'<button class="link" data-a="aimp">◇ Project: '+aimTxt(p,null)+'</button>':'<span class="m">◇ Project: '+aimTxt(p,null)+'</span>')+'</div>';
 else h+='<div class="aimr m">Fixed dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b)+'</div>';
 if(ed)h+='<div class="pad row" style="margin-top:2px"><button class="link" data-a="dates">'+(p.dt?'Fixed dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b):'Fixed dates (shown as squares)')+'</button><span class="sp"></span><button class="link" data-a="delp">'+(U.dp===p.id?'Tap again to delete project':'Delete project')+'</button></div>';
@@ -256,6 +269,7 @@ for(let j=i;j<p.st.length;j++)h+='<div class="row" style="padding:5px 0;border-t
 h+='<button class="big" data-a="dok">Start detour</button>';open(h)}
 /* actions */
 const A={
+tck(e){const p=cur(),[t]=findT(p,e.dataset.t);if(!t)return;if(t.d>=t.h&&t.h>0){t.d=Math.min(t.pd!=null&&t.pd<t.h?t.pd:0,t.h-1);delete t.pd}else{t.pd=t.d;t.d=t.h}draw()},
 ed(){U.ed=!U.ed;draw()},
 nowopen(){const p=actP();if(!p)return;U.cat=p.cat;U.proj=p.id;const t=curT(p);U.task=t?t.id:null;U.pg=1;draw()},
 nowchg(){let h='<b style="font-size:16px">Work on</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>{return'<button class="fit'+(S.act&&S.act.p===p.id?' act':'')+'" data-a="nowsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i><span class="fn">'+esc(p.name)+'</span></button>'}).join('')+'</div></div>'});open(h)},
