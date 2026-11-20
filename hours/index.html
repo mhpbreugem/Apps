@@ -110,7 +110,7 @@ ps.forEach(p=>{let cum=0;const cr=p.st.map(s=>cum+=sum(s.t,t=>t.h-t.d)),sf=p.st.
 return SIM={weeks,w0,N,alloc,fin,stfin,cumRem,sqd,sqw}}
 const fri=(sim,i)=>iso(addD(pd(sim.weeks[i]),4));
 function dayPlan(){const sim=getSim(),t=pd(td()),o={};for(let i=0;i<3;i++){const w=pd(sim.weeks[i]),days=[];for(let j=0;j<5;j++){const d=addD(w,j);if(d>=t)days.push(iso(d))}if(!days.length)continue;
-S.p.forEach(p=>{const a=(sim.alloc[p.id]||[])[i];if(!a)return;const pt=split(a,days.map(()=>1));days.forEach((d,j)=>{if(pt[j]){(o[d]=o[d]||{})[p.id]=pt[j]}})})}return o}
+let off=0;const n=days.length;S.p.forEach(p=>{const a=(sim.alloc[p.id]||[])[i];if(!a)return;const base=Math.floor(a/n),r=a%n;days.forEach((d,j)=>{const k=base+(((j-off)%n+n)%n<r?1:0);if(k){(o[d]=o[d]||{})[p.id]=k}});off+=r})}return o}
 function events(vis){const sim=getSim(),ev=[];S.p.filter(vis).forEach(p=>{if(p.dt)return;if(p.aim)ev.push({d:p.aim,t:'aim',l:p.name,c:p.c});p.st.forEach(s=>{if(s.aim)ev.push({d:s.aim,t:'aim',l:p.name+' · '+s.n,c:p.c})});
 const f=sim.fin[p.id];if(f!=null)ev.push({d:fri(sim,f),t:'fin',l:p.name,c:p.c});let last=-1;p.st.forEach((s,j)=>{if(sum(s.t,t=>t.h-t.d)>0)last=j});
 (sim.stfin[p.id]||[]).forEach((i,j)=>{if(i!=null&&p.cat==='Research'&&j!==last&&sum(p.st[j].t,t=>t.h-t.d)>0)ev.push({d:fri(sim,i),t:'fin',l:p.name+' · '+p.st[j].n,c:p.c})})});return ev}
