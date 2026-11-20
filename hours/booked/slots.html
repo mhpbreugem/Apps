@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Booked page: 20 slots per week, 10 styles</title>
+<style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7A7B82;--ln:#E3E1DA;--sf:#fff;--ch:#ECEAE3;--act:#FFF6CC;--fl:#D9D6CC}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--sf:#1B1C20;--ch:#26272D;--act:#3A3414;--fl:#3A3B41}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.3 Inter,system-ui,sans-serif;max-width:440px;margin:auto;padding:0 0 60px}
+header{background:#000;color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5}header b{font-size:17px}header small{display:block;opacity:.65;font-size:11.5px}
+section{padding:16px 10px 12px;border-bottom:8px solid var(--ch)}h2{font-size:15px;margin:0 6px 2px}p.d{margin:0 6px 10px;color:var(--mu);font-size:12px}
+.w{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px}.w.now{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.w.past{opacity:.55}
+.w .l{width:42px;font-size:11.5px;color:var(--mu);flex:none}.w .n{width:34px;text-align:right;font:700 12px Inter,system-ui;flex:none}.w .a{flex:1;min-width:0}
+.g{display:grid;gap:var(--g,3px)}.q{width:var(--s);height:var(--s);border-radius:14%;background:var(--c);display:block}.q.un{background:none;box-shadow:inset 0 0 0 1.5px var(--c)}.q.fr{background:none;box-shadow:none;border:1.5px dashed var(--fl);border-radius:14%}.q.rd{border-radius:50%}
+.ov{height:var(--s);min-width:var(--s);border-radius:14%;background:var(--ink);color:var(--bg);font:800 calc(var(--s)*.55) Inter,system-ui;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.r1{display:flex;gap:var(--g,3px);flex-wrap:nowrap;align-items:center}
+.pl{display:flex;flex-wrap:wrap;gap:3px 8px;font:600 10.5px Inter,system-ui;color:var(--mu);margin-top:3px}.pl i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:3px}
+.lg{display:flex;flex-wrap:wrap;gap:4px 12px;font:600 11.5px Inter,system-ui;color:var(--mu);margin:8px 6px 0}.lg i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--c);margin-right:4px}
+.mh{display:flex;margin:12px 6px 2px;font-weight:800}.mh span{margin-left:auto;font-weight:600;color:var(--mu)}
+.dh{display:grid;grid-template-columns:42px repeat(6,1fr) 34px;gap:4px;margin:0 6px 2px;font-size:10.5px;color:var(--mu);text-align:center}
+.dc{display:grid;grid-template-columns:42px repeat(6,1fr) 34px;gap:4px;align-items:start;padding:5px 6px;border-radius:8px}.dc.now{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.dc.past{opacity:.55}.dc .cell{display:grid;grid-template-columns:repeat(2,var(--s));gap:2px;justify-content:center;min-height:calc(var(--s)*2 + 2px)}
+.card{margin:6px;padding:6px 0 4px;background:var(--sf);border-radius:12px}.card .w{padding:3px 8px}
+</style></head><body>
+<header><b>Booked: 20 slots per week</b><small>10 styles in the Days look · overflow becomes a +x chip · hollow = not allocated yet · yellow = this week</small></header>
+<div id="app"></div>
+<script>
+const CAP=20,MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const P={FMA:{c:'#E39A4B',t:'FMA class'},BT:{c:'#B8651B',t:'BT lectures'},FRA:{c:'#C8402A',t:'Frankfurt'},REC:{c:'#7B4FA3',t:'Recruitment'},COM:{c:'#9A74BD',t:'Committee'},DEF:{c:'#2F7D5B',t:'Defences'}};
+const D=s=>{const a=s.split('-');return new Date(Date.UTC(+a[0],a[1]-1,+a[2]))},iso=d=>d.toISOString().slice(0,10),add=(d,n)=>new Date(d.getTime()+n*864e5),mon=d=>add(d,-((d.getUTCDay()+6)%7)),fd=s=>{const d=D(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]};
+const B=[];const bk=(d,h,p,un)=>B.push({d,h,p,un:!!un});
+bk('2026-11-20',6,'FMA');bk('2026-11-27',4,'FMA');bk('2026-12-04',4,'FMA');bk('2026-12-11',4,'FMA');
+['2026-11-25','2026-12-02','2026-12-09','2026-12-16','2027-01-13','2027-01-20'].forEach(d=>bk(d,2,'REC'));['2026-12-03','2027-01-14','2027-02-04'].forEach(d=>bk(d,2,'COM'));
+bk('2026-12-15',3,'DEF');bk('2026-12-17',3,'DEF');bk('2027-01-12',6,'BT');bk('2027-01-13',6,'BT');
+for(let i=0;i<5;i++)bk(iso(add(D('2027-01-25'),i)),6,'FRA');
+for(let i=0;i<10;i++){const d=add(D('2027-01-30'),i);if(d.getUTCDay())bk(iso(d),i<9?6:6,'FRA',1)}
+B.sort((a,b)=>a.d<b.d?-1:1);
+const T0=D('2026-11-20'),W0=mon(T0),NW=13,weeks=[...Array(NW)].map((_,i)=>add(W0,7*i));
+const wkOf=d=>Math.floor((D(d)-W0)/6048e5);
+const wt=weeks.map(()=>({tot:0,by:{},un:0}));B.forEach(b=>{const i=wkOf(b.d);if(i<0||i>=NW)return;wt[i].tot+=b.h;wt[i].by[b.p]=(wt[i].by[b.p]||0)+b.h;if(b.un)wt[i].un+=b.h});
+
+const NOW=0,ALL=Object.keys(P);
+const lg=`<div class="lg">${ALL.map(p=>`<span><i style="--c:${P[p].c}"></i>${P[p].t}</span>`).join('')}<span><i style="background:none;box-shadow:inset 0 0 0 1.5px #888"></i>not allocated yet</span></div>`;
+const hrs=i=>{const o=[];B.filter(b=>wkOf(b.d)===i).forEach(b=>{for(let k=0;k<b.h;k++)o.push({p:b.p,un:b.un,d:b.d})});o.sort((a,b)=>(a.un?1:0)-(b.un?1:0));return o};
+const tot=i=>hrs(i).length;
+const cell=(x,s,rd)=>`<i class="q${x.un?' un':''}${rd?' rd':''}" style="--c:${P[x.p].c};--s:${s}px"></i>`;
+const free=(s,rd)=>`<i class="q fr${rd?' rd':''}" style="--s:${s}px"></i>`;
+const chip=(n,s)=>`<i class="ov" style="--s:${s}px">+${n}</i>`;
+// slots (cap) with overflow chip; returns array of html
+const slots=(i,s,{fr,rd}={})=>{const h=hrs(i),n=h.length,o=[];if(n>CAP){for(let k=0;k<CAP-1;k++)o.push(cell(h[k],s,rd));o.push(chip(n-(CAP-1),s))}else{h.forEach(x=>o.push(cell(x,s,rd)));if(fr)for(let k=n;k<CAP;k++)o.push(free(s,rd))}return o};
+const cls=i=>i===NOW?' now':i<NOW?' past':'';
+const row=(i,area,extra='')=>`<div class="w${cls(i)}"><span class="l">${fd(iso(weeks[i]))}</span><div class="a">${area}${extra}</div><span class="n">${tot(i)}</span></div>`;
+const out=[];const S=(t,d,h)=>out.push(`<section><h2>${t}</h2><p class="d">${d}</p>${h}${lg}</section>`);
+const ws=[...Array(NW).keys()];
+// 1 one row mini
+S('1 · One row of 20','The version you liked, kept on a single line. Over 20 shows a +x chip as the last slot.',ws.map(i=>row(i,`<div class="r1" style="--g:2px">${slots(i,9).join('')}</div>`)).join(''));
+// 2 two rows of 10
+S('2 · Two rows of 10','Larger squares in the shape of the Days page: 10 per row.',ws.map(i=>row(i,`<div class="g" style="grid-template-columns:repeat(10,var(--s));--s:17px;--g:3px;justify-content:start">${slots(i,17).join('')}</div>`)).join(''));
+// 3 block 5x4 with chips
+S('3 · Block of 5 × 4','A compact block per week with the project names beside it.',ws.map(i=>{const by={};hrs(i).forEach(x=>by[x.p]=(by[x.p]||0)+1);return`<div class="w${cls(i)}" style="align-items:flex-start"><span class="l" style="padding-top:2px">${fd(iso(weeks[i]))}</span><div class="g" style="grid-template-columns:repeat(5,16px);--g:3px;flex:none">${slots(i,16).join('')}</div><div class="a" style="padding-left:6px"><div class="pl">${Object.keys(by).map(p=>`<span><i style="--c:${P[p].c}"></i>${P[p].t} ${by[p]}</span>`).join('')}</div></div><span class="n">${tot(i)}</span></div>`}).join(''));
+// 4 day grouped
+{let h='<div class="dh"><span></span>'+'MTWTFS'.split('').map(x=>`<span>${x}</span>`).join('')+'<span></span></div>';ws.forEach(i=>{h+=`<div class="dc${cls(i)}"><span class="l" style="font-size:11.5px;color:var(--mu)">${fd(iso(weeks[i]))}</span>`;for(let j=0;j<6;j++){const d=iso(add(weeks[i],j)),it=hrs(i).filter(x=>x.d===d),m=6;let c=it.slice(0,it.length>m?m-1:m).map(x=>cell(x,9)).join('');if(it.length>m)c+=chip(it.length-(m-1),9);h+=`<div class="cell" style="--s:9px">${c}</div>`}h+=`<span class="n" style="font:700 12px Inter,system-ui;text-align:right">${tot(i)}</span></div>`});S('4 · Grouped by day','Each week has six day columns, like the Days page. Hours stack in each day.',h)}
+// 5 Days look big squares
+S('5 · Days page look','Big rounded squares exactly like the Days page, 10 per row.',ws.map(i=>row(i,`<div class="g" style="grid-template-columns:repeat(10,1fr);--g:4px">${slots(i,22).map(x=>x.replace('--s:22px','--s:100%;aspect-ratio:1')).join('')}</div>`)).join(''));
+// 6 round free
+S('6 · Free slots dashed','Free hours show as dashed circles, like free dots on the Days page, so you see what is left.',ws.map(i=>row(i,`<div class="g" style="grid-template-columns:repeat(10,var(--s));--s:17px;--g:3px;justify-content:start">${slots(i,17,{fr:1,rd:0}).map((x,k)=>x.includes('fr')?x.replace('q fr','q fr rd'):x).join('')}</div>`)).join(''));
+// 7 fortnight cards
+{let h='';for(let i=0;i<NW-1;i+=2){h+=`<div class="card">`+[i,i+1].map(k=>row(k,`<div class="g" style="grid-template-columns:repeat(10,var(--s));--s:17px;--g:3px;justify-content:start">${slots(k,17).join('')}</div>`)).join('')+'</div>'}S('7 · Fortnight cards','Two weeks per card, matching the fortnight view of the Days page.',h)}
+// 8 grouped by project single row
+S('8 · Grouped by project','One row, with a small gap between projects so you see blocks of hours.',ws.map(i=>{const hh=hrs(i);let a=[],last=null;const n=hh.length;const sl=slots(i,9);sl.forEach((x,k)=>{const p=hh[k]&&hh[k].p;if(last!==null&&p!==last)a.push('<i style="width:5px;flex:none"></i>');last=p;a.push(x)});return row(i,`<div class="r1" style="--g:2px">${a.join('')}</div>`)}).join(''));
+// 9 two rows with free
+S('9 · Two rows with free hours','Two rows of 10 with free slots dashed, and the free count on the right.',ws.map(i=>`<div class="w${cls(i)}"><span class="l">${fd(iso(weeks[i]))}</span><div class="a"><div class="g" style="grid-template-columns:repeat(10,var(--s));--s:17px;--g:3px;justify-content:start">${slots(i,17,{fr:1}).join('')}</div></div><span class="n" style="width:46px;font-size:11px">${tot(i)>CAP?'':'<span style="color:var(--mu);font-weight:600">'+(CAP-tot(i))+' free</span>'}</span></div>`).join(''));
+// 10 month grouped
+{let h='',lastM='';ws.forEach(i=>{const m=weeks[i].getUTCMonth();if(m!==lastM){lastM=m;const mt=ws.filter(k=>weeks[k].getUTCMonth()===m).reduce((a,k)=>a+tot(k),0);h+=`<div class="mh">${MN[m]}<span>${mt} h</span></div>`}h+=row(i,`<div class="r1" style="--g:2px">${slots(i,9).join('')}</div>`)});S('10 · Grouped by month','The one-row version with a month header and month total.',h)}
+document.getElementById('app').innerHTML=out.join('');
+</script></body></html>
