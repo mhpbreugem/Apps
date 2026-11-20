@@ -107,20 +107,36 @@ let SIM=null;
 const iso=d=>d.toISOString().slice(0,10),addD=(d,n)=>new Date(+d+n*864e5),mon=d=>addD(d,-((d.getUTCDay()+6)%7));
 const fdy=s=>{const d=pd(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]+(d.getUTCFullYear()!==pd(td()).getUTCFullYear()?' '+d.getUTCFullYear():'')};
 function sqDays(p){const a=pd(p.dt.a),b=pd(p.dt.b),days=[];for(let d=a;d<=b;d=addD(d,1))if(d.getUTCDay()!==0)days.push(d);const T=tot(p),D=dn(p);if(!days.length||!T)return[];const pt=split(T,days.map(()=>1));let c=0;return days.map((d,i)=>{const k=pt[i],dd=Math.max(0,Math.min(k,D-c));c+=k;return{d:iso(d),k,open:k-dd}})}
+function fnCommit(){const o={pl:{},dn:{}},F=S.fn;if(!F)return o;const t=pd(td()),T=iso(t),w0=mon(t);
+const wk=d=>Math.round((mon(pd(d))-w0)/6048e5),pj=id=>S.p.find(p=>p.id===id);
+const add=(m,id,i,h)=>{const p=pj(id);if(!p||p.dt||i<0)return;(m[id]=m[id]||{})[i]=(m[id][i]||0)+h};
+const addD_=(id,i,h)=>{const p=pj(id);if(!p||p.dt||i<0)return;const c=p.cat;(o.dn[c]=o.dn[c]||{})[i]=(o.dn[c][i]||0)+h};
+Object.keys(F.ov).forEach(d=>{if(d<T)return;const i=wk(d);F.ov[d].forEach(x=>{if(x[1]===2)return;const sg=x[3]&&x[3].length?x[3]:null;
+if(sg){sg.forEach(q=>addD_(q,i,.25));add(o.pl,x[0],i,Math.max(0,1-sg.length*.25))}else if(x[2]>=1)addD_(x[0],i,1);else add(o.pl,x[0],i,1-x[2])})});
+Object.keys(F.cl).forEach(d=>{if(d<T)return;const i=wk(d);Object.keys(F.cl[d]).forEach(id=>{if(d===T)addD_(id,i,F.cl[d][id]);else add(o.pl,id,i,F.cl[d][id])})});
+return o}
+function fnDone(){const o={},F=S.fn;if(!F)return o;const T=td(),pj=id=>S.p.find(p=>p.id===id);
+const a=(id,h)=>{const p=pj(id);if(p&&!p.dt)o[id]=(o[id]||0)+h};
+Object.keys(F.ov).forEach(d=>F.ov[d].forEach(x=>{if(x[1]===2)return;if(x[3]&&x[3].length)x[3].forEach(q=>a(q,.25));else a(x[0],x[2])}));
+Object.keys(F.cl).forEach(d=>{if(d<=T)Object.keys(F.cl[d]).forEach(id=>a(id,F.cl[d][id]))});return o}
+function fnSync(){const F=S.fn;if(!F)return;F.ap=F.ap||{};const D=fnDone();
+S.p.forEach(p=>{if(p.dt)return;const target=Math.floor((D[p.id]||0)+1e-9);let delta=target-(F.ap[p.id]||0);const ts=tasks(p);
+if(delta>0){for(const t of ts){if(delta<=0)break;const k=Math.min(delta,t.h-t.d);if(k>0){t.d+=k;delta-=k;F.ap[p.id]=(F.ap[p.id]||0)+k}}}
+else if(delta<0){for(let i=ts.length-1;i>=0&&delta<0;i--){const t=ts[i],k=Math.min(-delta,t.d);if(k>0){t.d-=k;delta+=k;F.ap[p.id]=(F.ap[p.id]||0)-k}}}})}
 function getSim(){if(SIM)return SIM;const t=pd(td()),w0=mon(t),N=156,weeks=[];for(let i=0;i<N;i++)weeks.push(iso(addD(w0,7*i)));
 const wd=(t.getUTCDay()+6)%7,rw=wd<=4?5-wd:0,sq={},sqd={},sqw={};
 S.p.filter(p=>p.dt).forEach(p=>sqDays(p).forEach(x=>{if(x.open<=0||x.d<iso(t))return;const i=Math.floor((pd(x.d)-w0)/6048e5);if(i<0||i>=N)return;sq[p.cat]=sq[p.cat]||{};sq[p.cat][i]=(sq[p.cat][i]||0)+x.open;(sqd[x.d]=sqd[x.d]||{})[p.id]=x.open;sqw[p.id]=sqw[p.id]||[];sqw[p.id][i]=(sqw[p.id][i]||0)+x.open}));
-const alloc={},fin={},stfin={},cumRem={};
-CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c&&!p.dt&&rem(p)>0),r={};ps.forEach(p=>{r[p.id]=rem(p);alloc[p.id]=new Array(N).fill(0);fin[p.id]=null});
-for(let i=0;i<N;i++){let cap=S.off.includes(weeks[i])?0:Math.round(S.bud[c]*(i===0?rw/5:1));cap=Math.max(0,cap-((sq[c]||{})[i]||0));if(!cap)continue;const live=ps.filter(p=>r[p.id]>0);if(!live.length)break;
-if(S.mode[c]==='focus'){for(const p of live){const k=Math.min(r[p.id],cap);alloc[p.id][i]=k;r[p.id]-=k;cap-=k;if(!cap)break}}
-else{const R_=sum(live,p=>r[p.id]);if(cap>=R_)live.forEach(p=>{alloc[p.id][i]=r[p.id];r[p.id]=0});else{const a=split(cap,live.map(p=>r[p.id]));live.forEach((p,j)=>{alloc[p.id][i]=a[j];r[p.id]-=a[j]})}}
+const alloc={},fin={},stfin={},cumRem={},cm=fnCommit();
+CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c&&!p.dt&&rem(p)>0),r={};ps.forEach(p=>{const pl=cm.pl[p.id]||{},ct=Object.keys(pl).reduce((a,i)=>a+Math.ceil(pl[i]-1e-9),0);r[p.id]=Math.max(0,rem(p)-ct);alloc[p.id]=new Array(N).fill(0);fin[p.id]=null;Object.keys(pl).forEach(i=>{if(+i<N)alloc[p.id][i]=Math.ceil(pl[i]-1e-9)})});const cmc=i=>Math.round(((cm.dn[c]||{})[i]||0)+sum(S.p.filter(p=>p.cat===c&&!p.dt),p=>Math.ceil((((cm.pl[p.id]||{})[i])||0)-1e-9)));
+for(let i=0;i<N;i++){let cap=S.off.includes(weeks[i])?0:Math.round(S.bud[c]*(i===0?rw/5:1));cap=Math.max(0,cap-((sq[c]||{})[i]||0)-cmc(i));if(!cap)continue;const live=ps.filter(p=>r[p.id]>0);if(!live.length)break;
+if(S.mode[c]==='focus'){for(const p of live){const k=Math.min(r[p.id],cap);alloc[p.id][i]+=k;r[p.id]-=k;cap-=k;if(!cap)break}}
+else{const R_=sum(live,p=>r[p.id]);if(cap>=R_)live.forEach(p=>{alloc[p.id][i]+=r[p.id];r[p.id]=0});else{const a=split(cap,live.map(p=>r[p.id]));live.forEach((p,j)=>{alloc[p.id][i]+=a[j];r[p.id]-=a[j]})}}
 live.forEach(p=>{if(r[p.id]===0&&fin[p.id]==null)fin[p.id]=i})}
+ps.forEach(p=>{if(fin[p.id]==null&&r[p.id]===0){let l=-1;alloc[p.id].forEach((x,i)=>{if(x>0)l=i});fin[p.id]=Math.max(0,l)}});
 ps.forEach(p=>{let cum=0;const cr=p.st.map(s=>cum+=sum(s.t,t=>t.h-t.d)),sf=p.st.map(()=>null);let ac=0;for(let i=0;i<N;i++){ac+=alloc[p.id][i];cr.forEach((x,j)=>{if(sf[j]==null&&x>0&&ac>=x)sf[j]=i})}stfin[p.id]=sf;cumRem[p.id]=cr})});
 return SIM={weeks,w0,N,alloc,fin,stfin,cumRem,sqd,sqw}}
 const fri=(sim,i)=>iso(addD(pd(sim.weeks[i]),4));
-function dayPlan(){const sim=getSim(),t=pd(td()),o={};for(let i=0;i<3;i++){const w=pd(sim.weeks[i]),days=[];for(let j=0;j<5;j++){const d=addD(w,j);if(d>=t)days.push(iso(d))}if(!days.length)continue;
-let off=0;const n=days.length;S.p.forEach(p=>{const a=(sim.alloc[p.id]||[])[i];if(!a)return;const base=Math.floor(a/n),r=a%n;days.forEach((d,j)=>{const k=base+(((j-off)%n+n)%n<r?1:0);if(k){(o[d]=o[d]||{})[p.id]=k}});off+=r})}return o}
+function dayPlan(){const t=pd(td()),o={};for(let k=0;k<21;k++){const d=iso(addD(t,k));fnDay(d).forEach(x=>{if(x[1]===0&&x[2]<1){(o[d]=o[d]||{})[x[0]]=((o[d]||{})[x[0]]||0)+1}})}return o}
 function events(vis){const sim=getSim(),ev=[];S.p.filter(vis).forEach(p=>{if(p.dt)return;if(p.aim)ev.push({d:p.aim,t:'aim',l:p.name,c:p.c});p.st.forEach(s=>{if(s.aim)ev.push({d:s.aim,t:'aim',l:p.name+' · '+s.n,c:p.c})});
 const f=sim.fin[p.id];if(f!=null)ev.push({d:fri(sim,f),t:'fin',l:p.name,c:p.c});let last=-1;p.st.forEach((s,j)=>{if(sum(s.t,t=>t.h-t.d)>0)last=j});
 (sim.stfin[p.id]||[]).forEach((i,j)=>{if(i!=null&&p.cat==='Research'&&j!==last&&sum(p.st[j].t,t=>t.h-t.d)>0)ev.push({d:fri(sim,i),t:'fin',l:p.name+' · '+p.st[j].n,c:p.c})})});return ev}
@@ -180,8 +196,8 @@ let h='';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);h+='<div class="row 
 const fnS=()=>{if(!S.fn){const f=S.p.find(p=>p.name==='FMA');S.fn={ov:{},cl:{},sel:null,off:0};if(f)S.fn.cl[td()]={[f.id]:6}}return S.fn};
 const fnSel=()=>proj(fnS().sel)||S.p[0];
 function fnSugg(m){const sim=getSim(),out={},t=pd(td()),wi=Math.round((m-pd(sim.weeks[0]))/6048e5);for(let j=0;j<7;j++)out[iso(addD(m,j))]=[];
-if(wi>=0&&wi<sim.N){const days=[];for(let j=0;j<5;j++)if(wi>0||addD(m,j)>=t)days.push(j);const n=days.length;let o=0;
-S.p.forEach(p=>{if(p.dt)return;const a=(sim.alloc[p.id]||[])[wi];if(!a||!n)return;const base=Math.floor(a/n),r=a%n;days.forEach((j,q)=>{const k=base+(((q-o)%n+n)%n<r?1:0);for(let i=0;i<k;i++)out[iso(addD(m,j))].push([p.id,0,0])});o+=r})}
+if(wi>=0&&wi<sim.N){const days=[];for(let j=0;j<5;j++)if((wi>0||addD(m,j)>=t)&&fnS().ov[iso(addD(m,j))]===undefined)days.push(j);const n=days.length;let o=0;
+const cmm=fnCommit();S.p.forEach(p=>{if(p.dt)return;const a=Math.max(0,((sim.alloc[p.id]||[])[wi]||0)-Math.ceil((((cmm.pl[p.id]||{})[wi])||0)-1e-9));if(!a||!n)return;const base=Math.floor(a/n),r=a%n;days.forEach((j,q)=>{const k=base+(((q-o)%n+n)%n<r?1:0);for(let i=0;i<k;i++)out[iso(addD(m,j))].push([p.id,0,0])});o+=r})}
 S.p.forEach(p=>{if(!p.dt)return;sqDays(p).forEach(x=>{if(out[x.d])for(let i=0;i<x.k;i++)out[x.d].push([p.id,2,1])})});
 const cl=fnS().cl;Object.keys(cl).forEach(d=>{if(!out[d])return;Object.keys(cl[d]).forEach(id=>{for(let i=0;i<cl[d][id];i++){let q=out[d].findIndex(x=>x[1]===0&&x[0]===id);if(q<0)q=out[d].map(x=>x[1]).lastIndexOf(0);if(q>=0)out[d].splice(q,1);out[d].push([id,2,1])}})});
 Object.values(out).forEach(L=>L.sort((a,b)=>(b[1]===2)-(a[1]===2)));return out}
@@ -214,7 +230,7 @@ pg.addEventListener('pointerdown',e=>{const b=e.target.closest('.fdot');fired=fa
 pg.addEventListener('pointerup',e=>{clearTimeout(lp);const b=e.target.closest('.fdot');if(!b||fired||U.pg!==4)return;fnTap(b)});
 pg.addEventListener('pointercancel',()=>clearTimeout(lp));pg.addEventListener('pointermove',e=>{if(Math.abs(e.movementX)+Math.abs(e.movementY)>6)clearTimeout(lp)});pg.addEventListener('contextmenu',e=>{if(U.pg===4)e.preventDefault()})})();
 function fnSheet(){let h='<b style="font-size:16px">Pick a project</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>'<button class="fit" data-a="fnsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.name)+'<span>'+(Math.round((FN.dn[p.id]||0)*100)/100)+' of '+(FN.cnt[p.id]||0)+' h done</span></button>').join('')+'</div></div>'});open(h)}
-function draw(){SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3||U.pg===4?'ov':'';
+function draw(){fnS();fnSync();SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3||U.pg===4?'ov':'';
 pg.innerHTML=U.pg===0?pSettings():U.pg===2?pTime():U.pg===3?pOver():U.pg===4?pDays():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===4)fnSize();if(U.pg===1&&!m)head('Planner',U.cat+' · '+S.bud[U.cat]+' h per week');if(U.pg===0)head('Settings','Weekly hours per category');save()}
 /* sheets */
 const open=h=>{sheet.innerHTML=h;bg.classList.add('on')},close=()=>bg.classList.remove('on'),val=id=>document.getElementById(id).value;
