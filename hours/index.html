@@ -40,9 +40,13 @@ nav button.on{color:var(--ink)}nav svg{width:22px;height:22px;stroke:currentColo
 .tkb{width:24px;height:24px;border-radius:7px;border:2px solid var(--ink);background:#fff;color:#fff;font:700 15px/20px Inter;text-align:center;padding:0;flex:none}.tkb.p{background:var(--ink)}.tkb.rc{border-style:dashed}
 .rail{border-left:5px solid var(--rc);margin:0 14px 0 26px;padding-left:7px}.ln{padding:3px 4px 4px;border-radius:8px;cursor:pointer}.ln.sel{background:var(--ch)}.ln .lt{display:flex;font:600 11px Inter;gap:6px;padding-bottom:1px}.ln .lt span:first-child{flex:1}
 .bar2{position:sticky;bottom:-12px;background:var(--sf);border-top:1px solid var(--ln);padding:8px 14px;display:flex;align-items:center;gap:8px;z-index:3}.bar2 .t{flex:1;min-width:0;font:700 13px/1.2 Inter}.bar2 .t small{display:block;font-weight:400;color:var(--mu);font-size:11px}
+.d.sq{border-radius:28%}.aimr{padding:0 14px 2px 46px}.aimr .link{font-size:11px;text-decoration:none;color:var(--mu);padding:2px 0;text-align:left}
+.tm{display:flex;gap:8px;padding:6px 14px;border-bottom:1px solid var(--ln);align-items:flex-start}.tm.now{background:var(--ch)}.tm .lb{width:54px;font:600 11px/1.25 Inter;flex:none}.tm>b{min-width:20px;text-align:right;font-size:12px}
+.ev{display:inline-block;font:700 10px/1.2 Inter;border-radius:6px;padding:2px 6px;margin:3px 4px 0 0;background:color-mix(in srgb,var(--c) 22%,#fff);border-left:4px solid var(--c)}.ev.aim{border-left-style:dotted;background:#fff;outline:1px dashed var(--c)}
+.ybar{display:flex;height:20px;gap:1px;border-radius:5px;overflow:hidden;background:var(--ch)}.ybar i{display:block;height:100%}
 .ovl{padding:6px 12px}.ovl .row{margin-top:4px}.sync{font-size:11px;color:var(--mu)}
 </style></head><body><div id="app"><header><button id="bk" aria-label="Back">‹</button><div><b id="ttl">Planner</b><small id="sm"></small></div></header><main id="pg"></main>
-<nav id="nav"><button data-pg="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>Settings</button><button data-pg="1"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="10" rx="1"/><rect x="16" y="4" width="4" height="13" rx="1"/></svg>Planner</button><button data-pg="2"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Dates</button><button data-pg="3"><svg viewBox="0 0 24 24"><circle class="f" cx="6" cy="6" r="1.9"/><circle class="f" cx="12" cy="6" r="1.9"/><circle class="f" cx="18" cy="6" r="1.9"/><circle class="f" cx="6" cy="12" r="1.9"/><circle class="f" cx="12" cy="12" r="1.9"/><circle class="f" cx="18" cy="12" r="1.9"/><circle class="f" cx="6" cy="18" r="1.9"/><circle class="f" cx="12" cy="18" r="1.9"/><circle class="f" cx="18" cy="18" r="1.9"/></svg>Overview</button></nav></div>
+<nav id="nav"><button data-pg="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>Settings</button><button data-pg="1"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="10" rx="1"/><rect x="16" y="4" width="4" height="13" rx="1"/></svg>Planner</button><button data-pg="2"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Time</button><button data-pg="3"><svg viewBox="0 0 24 24"><circle class="f" cx="6" cy="6" r="1.9"/><circle class="f" cx="12" cy="6" r="1.9"/><circle class="f" cx="18" cy="6" r="1.9"/><circle class="f" cx="6" cy="12" r="1.9"/><circle class="f" cx="12" cy="12" r="1.9"/><circle class="f" cx="18" cy="12" r="1.9"/><circle class="f" cx="6" cy="18" r="1.9"/><circle class="f" cx="12" cy="18" r="1.9"/><circle class="f" cx="18" cy="18" r="1.9"/></svg>Overview</button></nav></div>
 <div id="bg"><div id="sheet"></div></div><input type="file" id="fi" accept="application/json" hidden>
 <script>
 (function(){
@@ -74,50 +78,95 @@ P('Chair & Admin','New master','#53387F',['Proposal','Partner talks','Curriculum
 P('Chair & Admin','Staff and MT','#A38BD3',['Ongoing'],[60],[[['Staff matters',4],['MT meetings',3],['Ceremonies',1]]]),
 P('Chair & Admin','Committees','#2F6FB5',['Ongoing'],[50],[[['Committee work',3],['Other admin',2]]],{admin:1}),
 P('Personal','Persian','#7A7B80',['Ongoing'],[60]),P('Personal','Sport','#9A9BA1',['Ongoing'],[100]),P('Personal','Home','#5F6065',['Ongoing'],[40])]}}
-let S;try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}if(!S||S.v!==3)S=demo();
+let S;try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}if(!S||S.v!==3)S=demo();S.mode=S.mode||{};S.off=S.off||[];
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const U=S.ui,pg=document.getElementById('pg'),bg=document.getElementById('bg'),sheet=document.getElementById('sheet');
 const tasks=p=>p.st.flatMap(s=>s.t),tot=p=>sum(tasks(p),t=>t.h),dn=p=>sum(tasks(p),t=>t.d),rem=p=>tot(p)-dn(p);
 const proj=id=>S.p.find(p=>p.id===id),cur=()=>U.proj?proj(U.proj):null;
 const findT=(p,id)=>{for(let i=0;i<p.st.length;i++){const t=p.st[i].t.find(x=>x.id===id);if(t)return[t,i]}return[]};
-function shares(cat){const ps=S.p.filter(p=>p.cat===cat&&rem(p)>0),B=Math.round(S.bud[cat]),R_=sum(ps,rem),o={};if(!R_)return o;const raw=ps.map(p=>B*rem(p)/R_),fl=raw.map(Math.floor),left=B-sum(fl,x=>x);raw.map((x,i)=>[x-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach((z,k)=>{if(k<left)fl[z[1]]++});ps.forEach((p,i)=>o[p.id]=fl[i]);return o}
-const dots=(n,d,c,o)=>{o=o||{};let h='';for(let k=0;k<n;k++)h+='<i class="d'+(k<d?'':(o.r?' r':' e'))+(o.hl?' hl':'')+'" style="--c:'+c+(o.s?';--s:'+o.s+'px':'')+(o.k?'" data-a="dot" data-k="'+k:'')+'"></i>';return h};
+function shares(cat){const ps=S.p.filter(p=>p.cat===cat&&rem(p)>0),B=Math.round(S.bud[cat]),R_=sum(ps,rem),o={};if(!R_)return o;if(S.mode[cat]==='focus'){let left=B;ps.forEach(p=>{const k=Math.min(rem(p),left);o[p.id]=k;left-=k});return o}const raw=ps.map(p=>B*rem(p)/R_),fl=raw.map(Math.floor),left=B-sum(fl,x=>x);raw.map((x,i)=>[x-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach((z,k)=>{if(k<left)fl[z[1]]++});ps.forEach((p,i)=>o[p.id]=fl[i]);return o}
+const dots=(n,d,c,o)=>{o=o||{};let h='';for(let k=0;k<n;k++)h+='<i class="d'+(k<d?'':(o.r?' r':' e'))+(o.hl?' hl':'')+(o.sq?' sq':'')+'" style="--c:'+c+(o.s?';--s:'+o.s+'px':'')+(o.k?'" data-a="dot" data-k="'+k:'')+'"></i>';return h};
 const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const pd=s=>{const a=s.split('-');return new Date(Date.UTC(+a[0],a[1]-1,+a[2]))},fdt=s=>{const d=pd(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]},td=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
 const gdi=g=>'<span class="gd'+(g==='passed'?' p':g==='recheck'?' rc':'')+'"></span>';
 function head(t,s,back){document.getElementById('ttl').textContent=t;document.getElementById('sm').textContent=s||'';document.getElementById('bk').style.display=back?'block':'none'}
 function stepper(a,v,extra){return '<button class="pill" data-a="'+a+'m"'+(extra||'')+'>−</button><b style="min-width:30px;text-align:center;font-size:16px">'+v+'</b><button class="pill" data-a="'+a+'p"'+(extra||'')+'>+</button>'}
+
+let SIM=null;
+const iso=d=>d.toISOString().slice(0,10),addD=(d,n)=>new Date(+d+n*864e5),mon=d=>addD(d,-((d.getUTCDay()+6)%7));
+const fdy=s=>{const d=pd(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]+(d.getUTCFullYear()!==pd(td()).getUTCFullYear()?' '+d.getUTCFullYear():'')};
+function sqDays(p){const a=pd(p.dt.a),b=pd(p.dt.b),days=[];for(let d=a;d<=b;d=addD(d,1))if(d.getUTCDay()!==0)days.push(d);const T=tot(p),D=dn(p);if(!days.length||!T)return[];const pt=split(T,days.map(()=>1));let c=0;return days.map((d,i)=>{const k=pt[i],dd=Math.max(0,Math.min(k,D-c));c+=k;return{d:iso(d),k,open:k-dd}})}
+function getSim(){if(SIM)return SIM;const t=pd(td()),w0=mon(t),N=156,weeks=[];for(let i=0;i<N;i++)weeks.push(iso(addD(w0,7*i)));
+const wd=(t.getUTCDay()+6)%7,rw=wd<=4?5-wd:0,sq={},sqd={},sqw={};
+S.p.filter(p=>p.dt).forEach(p=>sqDays(p).forEach(x=>{if(x.open<=0||x.d<iso(t))return;const i=Math.floor((pd(x.d)-w0)/6048e5);if(i<0||i>=N)return;sq[p.cat]=sq[p.cat]||{};sq[p.cat][i]=(sq[p.cat][i]||0)+x.open;(sqd[x.d]=sqd[x.d]||{})[p.id]=x.open;sqw[p.id]=sqw[p.id]||[];sqw[p.id][i]=(sqw[p.id][i]||0)+x.open}));
+const alloc={},fin={},stfin={},cumRem={};
+CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c&&!p.dt&&rem(p)>0),r={};ps.forEach(p=>{r[p.id]=rem(p);alloc[p.id]=new Array(N).fill(0);fin[p.id]=null});
+for(let i=0;i<N;i++){let cap=S.off.includes(weeks[i])?0:Math.round(S.bud[c]*(i===0?rw/5:1));cap=Math.max(0,cap-((sq[c]||{})[i]||0));if(!cap)continue;const live=ps.filter(p=>r[p.id]>0);if(!live.length)break;
+if(S.mode[c]==='focus'){for(const p of live){const k=Math.min(r[p.id],cap);alloc[p.id][i]=k;r[p.id]-=k;cap-=k;if(!cap)break}}
+else{const R_=sum(live,p=>r[p.id]);if(cap>=R_)live.forEach(p=>{alloc[p.id][i]=r[p.id];r[p.id]=0});else{const a=split(cap,live.map(p=>r[p.id]));live.forEach((p,j)=>{alloc[p.id][i]=a[j];r[p.id]-=a[j]})}}
+live.forEach(p=>{if(r[p.id]===0&&fin[p.id]==null)fin[p.id]=i})}
+ps.forEach(p=>{let cum=0;const cr=p.st.map(s=>cum+=sum(s.t,t=>t.h-t.d)),sf=p.st.map(()=>null);let ac=0;for(let i=0;i<N;i++){ac+=alloc[p.id][i];cr.forEach((x,j)=>{if(sf[j]==null&&x>0&&ac>=x)sf[j]=i})}stfin[p.id]=sf;cumRem[p.id]=cr})});
+return SIM={weeks,w0,N,alloc,fin,stfin,cumRem,sqd,sqw}}
+const fri=(sim,i)=>iso(addD(pd(sim.weeks[i]),4));
+function dayPlan(){const sim=getSim(),t=pd(td()),o={};for(let i=0;i<3;i++){const w=pd(sim.weeks[i]),days=[];for(let j=0;j<5;j++){const d=addD(w,j);if(d>=t)days.push(iso(d))}if(!days.length)continue;
+S.p.forEach(p=>{const a=(sim.alloc[p.id]||[])[i];if(!a)return;const pt=split(a,days.map(()=>1));days.forEach((d,j)=>{if(pt[j]){(o[d]=o[d]||{})[p.id]=pt[j]}})})}return o}
+function events(vis){const sim=getSim(),ev=[];S.p.filter(vis).forEach(p=>{if(p.dt)return;if(p.aim)ev.push({d:p.aim,t:'aim',l:p.name,c:p.c});p.st.forEach(s=>{if(s.aim)ev.push({d:s.aim,t:'aim',l:p.name+' · '+s.n,c:p.c})});
+const f=sim.fin[p.id];if(f!=null)ev.push({d:fri(sim,f),t:'fin',l:p.name,c:p.c});let last=-1;p.st.forEach((s,j)=>{if(sum(s.t,t=>t.h-t.d)>0)last=j});
+(sim.stfin[p.id]||[]).forEach((i,j)=>{if(i!=null&&p.cat==='Research'&&j!==last&&sum(p.st[j].t,t=>t.h-t.d)>0)ev.push({d:fri(sim,i),t:'fin',l:p.name+' · '+p.st[j].n,c:p.c})})});return ev}
+function aimTxt(p,j){const sim=getSim(),s=j==null?null:p.st[j],aim=s?s.aim:p.aim,f=s?(sim.stfin[p.id]||[])[j]:sim.fin[p.id],cr=s?(sim.cumRem[p.id]||[])[j]:rem(p),T0=pd(td()),parts=[];
+if(aim)parts.push('aim '+fdy(aim));if(f!=null)parts.push('likely '+fdy(fri(sim,f)));
+if(aim&&f!=null){const df=(pd(fri(sim,f))-pd(aim))/864e5;parts.push(df>0?'<span style="color:#B5651D">'+Math.ceil(df/7)+' wk late</span>':'on track')}
+if(aim&&cr>0&&pd(aim)>T0){const wl=Math.max(1,Math.ceil((pd(aim)-T0)/6048e5)),a=sim.alloc[p.id]||[];parts.push('needs '+Math.ceil(cr/wl)+' h/wk, gives '+Math.round(sum(a.slice(1,5),x=>x)/4))}
+return parts.length?parts.join(' · '):'Set aim'}
 /* pages */
 function pSettings(){head('Settings','Weekly hours per category');let h='<div class="card"><div class="m" style="margin-bottom:6px">Hours per week, shared over the projects of a category</div>';
-CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c),R_=sum(ps,rem),w=S.bud[c];h+='<div style="padding:9px 0;border-top:1px solid var(--ln)"><div class="row"><i class="d" style="--c:'+CC[c]+';--s:12px"></i><b>'+c+'</b><span class="sp"></span>'+stepper('bud',w,' data-c="'+esc(c)+'"')+'</div><div class="m">'+R_+' dots left · about '+(w>0?Math.ceil(R_/w):'–')+' weeks at this budget</div></div>'});
-h+='<div class="m" style="margin-top:6px">Total '+sum(CATS,c=>S.bud[c])+' h per week. Research stages have no dates; the numbers are information, not deadlines.</div></div>';
+CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c),R_=sum(ps,rem),w=S.bud[c];h+='<div style="padding:9px 0;border-top:1px solid var(--ln)"><div class="row"><i class="d" style="--c:'+CC[c]+';--s:12px"></i><b>'+c+'</b><span class="sp"></span>'+stepper('bud',w,' data-c="'+esc(c)+'"')+'</div><div class="m">'+R_+' dots left · about '+(w>0?Math.ceil(R_/w):'–')+' weeks at this budget</div><div class="row" style="margin-top:5px"><span class="m">Hours go</span><button class="chip" data-a="mode" data-c="'+esc(c)+'">'+(S.mode[c]==='focus'?'One project at a time (order on Planner)':'Shared by dots left')+'</button></div></div>'});
+h+='';h+='<div class="m" style="margin-top:6px">Total '+sum(CATS,c=>S.bud[c])+' h per week. Aims are targets, not deadlines; the numbers are information.</div></div>';
+h+='<div class="card"><b>Weeks off</b><div class="m" style="margin:4px 0 6px">Holiday weeks get no hours in the plan.</div>'+S.off.map((m,i)=>'<div class="row" style="padding:4px 0;border-top:1px solid var(--ln)"><span style="flex:1">Week of '+fdy(m)+'</span><button class="link" data-a="offdel" data-i="'+i+'">Remove</button></div>').join('')+'<button class="big g" data-a="offadd">＋ Week off</button></div>';
 h+='<div class="card"><b>Data</b><div class="m" style="margin:4px 0 8px">Saved on this phone. Export a copy or import one.</div><div class="row"><button class="big g" data-a="exp">Export</button><button class="big g" data-a="imp">Import</button></div><button class="link" data-a="reset" style="margin-top:8px">'+(U.rs?'Tap again to reset every project to the starting plan':'Reset to the starting plan')+'</button></div>';
 return h}
 function pList(){const c=U.cat,sh=shares(c),ps=S.p.filter(p=>p.cat===c);head('Planner',c+' · '+S.bud[c]+' h per week');
 let h='<div class="tabs" style="--cc:'+CC[c]+'">'+CATS.map(n=>'<button data-a="cat" data-c="'+esc(n)+'" class="'+(n===c?'on':'')+'" style="--cc:'+CC[n]+'">'+n+'</button>').join('')+'</div>';
 h+='<div class="pad"><div class="m">'+c+' budget · '+S.bud[c]+' h per week</div><div class="dg" style="margin:5px 0;--s:13px;--g:1.5px">';
 ps.forEach(p=>{const k=sh[p.id]||0;h+=dots(k,k,p.c)});h+='</div><div class="row m" style="flex-wrap:wrap;gap:4px 10px">'+ps.filter(p=>sh[p.id]).map(p=>'<span style="color:'+p.c+';font-weight:700">'+esc(p.name)+' '+sh[p.id]+'</span>').join('')+'</div></div>';
-ps.forEach(p=>{const T=tot(p),D=dn(p);h+='<div class="pr" data-a="open" data-p="'+p.id+'"><span class="sw" style="background:'+p.c+'"></span><div style="flex:1;min-width:0"><div class="row"><b>'+esc(p.name)+'</b>'+(p.sub?'<span class="chip">sub-top</span>':'')+(p.dt?'<span class="chip">'+fdt(p.dt.a)+' – '+fdt(p.dt.b)+'</span>':'')+'<span class="sp"></span><span class="m"><b style="color:var(--ink)">'+D+'</b> / '+T+'</span></div><div class="bar"><i style="width:'+(T?100*D/T:0)+'%;background:'+p.c+'"></i></div></div></div>'});
+ps.forEach(p=>{const T=tot(p),D=dn(p);h+='<div class="pr" data-a="open" data-p="'+p.id+'"><span class="sw" style="background:'+p.c+'"></span><div style="flex:1;min-width:0"><div class="row"><b>'+esc(p.name)+'</b>'+(p.sub?'<span class="chip">sub-top</span>':'')+(p.dt?'<span class="chip">'+fdt(p.dt.a)+' – '+fdt(p.dt.b)+'</span>':'')+'<span class="sp"></span>'+(S.mode[c]==='focus'?'<button class="pill s" data-a="up" data-p="'+p.id+'">▲</button>':'')+'<span class="m"><b style="color:var(--ink)">'+D+'</b> / '+T+'</span></div><div class="bar"><i style="width:'+(T?100*D/T:0)+'%;background:'+p.c+'"></i></div></div></div>'});
 h+='<div class="pad"><button class="big g" data-a="newp">＋ New project</button></div>';return h}
 function pProj(p){const T=tot(p),D=dn(p),sh=shares(p.cat)[p.id]||0;
-head(p.name,p.cat+(p.sub?' · sub-top':'')+' · '+(sh?sh+' of '+S.bud[p.cat]+' h per week':'under 1 h per week')+' · '+D+' of '+T+' dots'+(sh&&T-D?' · about '+Math.ceil((T-D)/sh)+' weeks at this pace':''),1);
+head(p.name,p.cat+(p.sub?' · sub-top':'')+' · '+(sh?sh+' of '+S.bud[p.cat]+' h per week':'under 1 h per week')+' · '+D+' of '+T+' dots'+(!p.dt&&getSim().fin[p.id]!=null?' · likely done '+fdy(fri(getSim(),getSim().fin[p.id])):''),1);
 let h='',n=0;
 p.st.forEach((s,i)=>{const H=sum(s.t,t=>t.h),Dn=sum(s.t,t=>t.d);
 h+='<div class="stx"><button class="tkb'+(s.g==='passed'?' p':s.g==='recheck'?' rc':'')+'" data-a="gate" data-i="'+i+'" aria-label="Gate">'+(s.g==='passed'?'✓':'')+'</button><b>'+esc(s.n)+'</b><span class="m">'+Dn+'/'+H+(s.g==='recheck'?' · re-check':'')+'</span><span class="sp"></span><button class="link" data-a="gap" data-i="'+i+'">Gap</button><button class="link" data-a="addt" data-i="'+i+'">＋ Task</button></div>';
-if(s.t.length){h+='<div class="rail" style="--rc:'+p.c+'">';s.t.forEach(t=>{n++;const sel=t.id===U.task;h+='<div class="ln'+(sel?' sel':'')+'" data-a="sel" data-t="'+t.id+'"><div class="lt"><span>'+esc(t.n)+(t.rp?' <span class="m">(repair)</span>':'')+'</span><span class="m">'+t.d+'/'+t.h+'</span></div><div class="dg" style="--s:16px;--g:1.5px">'+dots(t.h,t.d,p.c,{k:sel,r:t.rp})+'</div></div>'});h+='</div>'}});
-h+='<div class="pad row" style="margin-top:8px"><button class="link" data-a="dates">'+(p.dt?'Dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b):'Add dates')+'</button><span class="sp"></span><button class="link" data-a="delp">'+(U.dp===p.id?'Tap again to delete project':'Delete project')+'</button></div>';
+if(!p.dt&&s.g!=='passed'&&sum(s.t,t=>t.h-t.d)>0)h+='<div class="aimr"><button class="link" data-a="aims" data-i="'+i+'">'+aimTxt(p,i)+'</button></div>';
+if(s.t.length){h+='<div class="rail" style="--rc:'+p.c+'">';s.t.forEach(t=>{n++;const sel=t.id===U.task;h+='<div class="ln'+(sel?' sel':'')+'" data-a="sel" data-t="'+t.id+'"><div class="lt"><span>'+esc(t.n)+(t.rp?' <span class="m">(repair)</span>':'')+'</span><span class="m">'+t.d+'/'+t.h+'</span></div><div class="dg" style="--s:16px;--g:1.5px">'+dots(t.h,t.d,p.c,{k:sel,r:t.rp,sq:!!p.dt})+'</div></div>'});h+='</div>'}});
+if(!p.dt)h+='<div class="aimr" style="padding-left:14px;margin-top:8px"><button class="link" data-a="aimp">◇ Project: '+aimTxt(p,null)+'</button></div>';
+h+='<div class="pad row" style="margin-top:2px"><button class="link" data-a="dates">'+(p.dt?'Fixed dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b):'Fixed dates (shown as squares)')+'</button><span class="sp"></span><button class="link" data-a="delp">'+(U.dp===p.id?'Tap again to delete project':'Delete project')+'</button></div>';
 const [t,si]=U.task?findT(p,U.task):[];
 h+='<div class="bar2">'+(t?'<div class="t">'+esc(t.n)+'<small>'+esc(p.st[si].n)+' · '+t.d+' of '+t.h+'</small></div><button class="pill" data-a="logm">−1</button><button class="pill k" data-a="logp" style="min-width:92px;height:42px">Log 1 h</button><button class="pill" data-a="edit">⋯</button>':'<div class="t m" style="font-weight:600">Tap a task to log hours on it</div>')+'</div>';return h}
-function pDates(){head('Dates','Only things with a real date');const L=S.p.filter(p=>p.dt);let h='';if(!L.length)return'<div class="card m">Nothing has a date. Add dates on a project page when something is fixed, such as a course.</div>';
-const today=td();L.forEach(p=>{const days=[];for(let d=pd(p.dt.a);d<=pd(p.dt.b);d=new Date(+d+864e5))if(d.getUTCDay()!==0)days.push(d);const T=tot(p),D=dn(p),pt=split(T,days.map(()=>1));let c=0;
-h+='<div class="card"><div class="row"><span class="sw" style="background:'+p.c+';align-self:auto;height:16px"></span><b>'+esc(p.name)+'</b><span class="sp"></span><span class="m">'+fdt(p.dt.a)+' – '+fdt(p.dt.b)+' · no Sundays</span></div><div class="m" style="margin:4px 0">'+T+' dots over '+days.length+' days, spread evenly until the real schedule is known</div>';
-days.forEach((d,i)=>{const iso=d.toISOString().slice(0,10);const k=pt[i],dd=Math.max(0,Math.min(k,D-c));c+=k;h+='<div class="row" style="border-top:1px solid var(--ln);padding:3px 0;'+(iso===today?'background:var(--ch);border-radius:6px;':'')+'"><span class="m" style="width:74px;white-space:nowrap">'+WD[d.getUTCDay()]+' '+d.getUTCDate()+' '+MON[d.getUTCMonth()]+'</span><div class="dg" style="--s:9px;--g:1px">'+dots(k,dd,p.c)+'</div></div>'});h+='</div>'});return h}
+function pTime(){head('Time','Planned from today at your weekly hours · aims are not deadlines');
+const sim=getSim(),z=U.z||'w',tc=U.tc||'All',vis=p=>tc==='All'||p.cat===tc,PS=S.p.filter(vis),t0=iso(pd(td()));
+let h='<div class="tabs">'+[['w','Week'],['f','14 days'],['m','Month'],['q','Quarter'],['y','Year']].map(a=>'<button data-a="zoom" data-z="'+a[0]+'" class="'+(a[0]===z?'on':'')+'" style="--cc:var(--ink)">'+a[1]+'</button>').join('')+'</div>';
+h+='<div class="pad" style="padding-bottom:4px"><div class="row" style="flex-wrap:wrap;gap:6px">'+['All'].concat(CATS).map(c=>'<button class="chip" data-a="tcat" data-c="'+esc(c)+'" style="'+(c===tc?'background:var(--ink);color:#fff':'')+'">'+c+'</button>').join('')+'</div>';
+const lg=PS.filter(p=>p.dt||(sim.alloc[p.id]||[]).some(x=>x));h+='<div class="row m" style="flex-wrap:wrap;gap:3px 10px;margin-top:8px">'+lg.map(p=>'<span style="color:'+p.c+';font-weight:700"><i class="d'+(p.dt?' sq':'')+'" style="--c:'+p.c+';--s:9px;margin:0 3px 0 0"></i>'+esc(p.name)+'</span>').join('')+'</div><div class="m" style="font-size:10.5px;margin-top:3px">Round = flexible hour · square = fixed date · ◇ aim · ✓ likely done</div></div>';
+const ev=events(vis),evc=(a,b)=>ev.filter(e=>e.d>=a&&e.d<=b).map(e=>'<span class="ev'+(e.t==='aim'?' aim':'')+'" style="--c:'+e.c+'">'+(e.t==='aim'?'◇ ':'✓ ')+esc(e.l)+(e.t==='aim'?' aim':' likely')+'</span>').join('');
+const seg=(it,sq,s)=>PS.map(p=>{const f=it[p.id]||0,q=sq[p.id]||0;return dots(f,f,p.c,{s})+dots(q,q,p.c,{s,sq:1})}).join('');
+const wk=i=>{const o={};S.p.forEach(p=>{const a=sim.alloc[p.id];if(a&&a[i])o[p.id]=a[i]});return o},wq=i=>{const o={};S.p.forEach(p=>{const a=sim.sqw[p.id];if(a&&a[i])o[p.id]=a[i]});return o};
+const tt=(it,sq)=>sum(PS,p=>(it[p.id]||0)+(sq[p.id]||0));
+if(z==='w'||z==='f'){const n=z==='w'?7:14,dp=dayPlan();for(let k=0;k<n;k++){const d=addD(pd(t0),k),i=iso(d),it=dp[i]||{},sq=sim.sqd[i]||{};
+h+='<div class="tm'+(k===0?' now':'')+'"><div class="lb">'+WD[d.getUTCDay()]+'<br>'+d.getUTCDate()+' '+MON[d.getUTCMonth()]+'</div><div style="flex:1;min-width:0"><div class="dg" style="--g:1.5px">'+seg(it,sq,14)+'</div>'+evc(i,i)+'</div><b>'+(tt(it,sq)||'')+'</b></div>'}}
+else if(z==='m'||z==='q'){const n=z==='m'?5:13,s=z==='m'?15:7;for(let i=0;i<n;i++){const d=pd(sim.weeks[i]),a=i===0?t0:sim.weeks[i],b=iso(addD(d,6)),it=wk(i),sq=wq(i);
+h+='<div class="tm'+(i===0?' now':'')+'"><div class="lb">'+d.getUTCDate()+' '+MON[d.getUTCMonth()]+'<br><span class="m" style="font-size:9.5px">week</span></div><div style="flex:1;min-width:0"><div class="dg" style="--g:1px">'+seg(it,sq,s)+'</div>'+evc(a,b)+'</div><b>'+(tt(it,sq)||'')+'</b></div>'}}
+else{const b0=pd(t0),months=[];for(let k=0;k<12;k++){const m=(b0.getUTCMonth()+k)%12,y=b0.getUTCFullYear()+Math.floor((b0.getUTCMonth()+k)/12);months.push(y+'-'+String(m+1).padStart(2,'0'))}
+const agg={};months.forEach(m=>agg[m]={});for(let i=0;i<sim.N;i++){const key=iso(addD(pd(sim.weeks[i]),3)).slice(0,7);if(!agg[key])continue;S.p.forEach(p=>{const f=((sim.alloc[p.id]||[])[i]||0)+((sim.sqw[p.id]||[])[i]||0);if(f)agg[key][p.id]=(agg[key][p.id]||0)+f})}
+const mx=Math.max(1,...months.map(m=>sum(PS,p=>agg[m][p.id]||0)));
+months.forEach(m=>{const tot_=sum(PS,p=>agg[m][p.id]||0),e=ev.filter(x=>x.d.slice(0,7)===m),mm=+m.slice(5)-1;
+h+='<div class="tm"><div class="lb">'+MON[mm]+'<br><span class="m" style="font-size:9.5px">'+m.slice(0,4)+'</span></div><div style="flex:1;min-width:0"><div class="ybar" style="width:'+Math.max(4,100*tot_/mx)+'%">'+PS.map(p=>agg[m][p.id]?'<i style="width:'+100*agg[m][p.id]/tot_+'%;background:'+p.c+'"></i>':'').join('')+'</div>'+e.slice(0,4).map(x=>'<span class="ev'+(x.t==='aim'?' aim':'')+'" style="--c:'+x.c+'">'+(x.t==='aim'?'◇ ':'✓ ')+esc(x.l)+'</span>').join('')+(e.length>4?'<span class="m"> +'+(e.length-4)+'</span>':'')+'</div><b>'+(tot_||'')+'</b></div>'})}
+return h}
 function pOver(){head('Overview','All dots · '+sum(S.p,tot)+' in total · '+sum(S.p,dn)+' done');return'<div class="ovl" id="ov"></div>'}
 function fitOv(){const el=document.getElementById('ov');if(!el)return;const W=pg.clientWidth-24,H=pg.clientHeight-12;let best=3;
 const N=CATS.map(c=>sum(S.p.filter(p=>p.cat===c),tot));for(let s=16;s>=3;s--){const g=s+2,cols=Math.floor(W/g),rows=sum(N,n=>Math.ceil(n/cols)),lab=CATS.length*(20+8);if(rows*g+lab<=H){best=s;break}}
-let h='';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);h+='<div class="row m" style="margin-top:6px"><b style="color:'+CC[c]+'">'+c+'</b><span class="sp"></span>'+sum(ps,dn)+' / '+sum(ps,tot)+'</div><div class="dg" style="--s:'+best+'px;--g:1px">'+ps.map(p=>dots(tot(p),dn(p),p.c)).join('')+'</div>'});el.innerHTML=h}
-function draw(){const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3?'ov':'';
-pg.innerHTML=U.pg===0?pSettings():U.pg===2?pDates():U.pg===3?pOver():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===1&&!m)head('Planner',U.cat+' · '+S.bud[U.cat]+' h per week');if(U.pg===0)head('Settings','Weekly hours per category');save()}
+let h='';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);h+='<div class="row m" style="margin-top:6px"><b style="color:'+CC[c]+'">'+c+'</b><span class="sp"></span>'+sum(ps,dn)+' / '+sum(ps,tot)+'</div><div class="dg" style="--s:'+best+'px;--g:1px">'+ps.map(p=>dots(tot(p),dn(p),p.c,{sq:!!p.dt})).join('')+'</div>'});el.innerHTML=h}
+function draw(){SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3?'ov':'';
+pg.innerHTML=U.pg===0?pSettings():U.pg===2?pTime():U.pg===3?pOver():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===1&&!m)head('Planner',U.cat+' · '+S.bud[U.cat]+' h per week');if(U.pg===0)head('Settings','Weekly hours per category');save()}
 /* sheets */
 const open=h=>{sheet.innerHTML=h;bg.classList.add('on')},close=()=>bg.classList.remove('on'),val=id=>document.getElementById(id).value;
 let DT=null;
@@ -126,6 +175,13 @@ for(let j=i;j<p.st.length;j++)h+='<div class="row" style="padding:5px 0;border-t
 h+='<button class="big" data-a="dok">Start detour</button>';open(h)}
 /* actions */
 const A={
+zoom(e){U.z=e.dataset.z;draw()},tcat(e){U.tc=e.dataset.c;draw()},mode(e){const c=e.dataset.c;S.mode[c]=S.mode[c]==='focus'?'share':'focus';draw()},
+up(e){const i=S.p.findIndex(p=>p.id===e.dataset.p);let j=i-1;while(j>=0&&S.p[j].cat!==S.p[i].cat)j--;if(j>=0){const x=S.p[i];S.p[i]=S.p[j];S.p[j]=x}draw()},
+offadd(){open('<b>Week off</b><div class="m" style="margin:4px 0">Pick any day in the week.</div><input type="date" id="v1"><button class="big" data-a="offok">Add</button>')},
+offok(){const v=val('v1');if(v){const m=iso(mon(pd(v)));if(!S.off.includes(m)){S.off.push(m);S.off.sort()}}close();draw()},offdel(e){S.off.splice(+e.dataset.i,1);draw()},
+aimp(){U.at={j:null};A.aimsheet()},aims(e){U.at={j:+e.dataset.i};A.aimsheet()},
+aimsheet(){const p=cur(),j=U.at.j,cur_=j==null?p.aim:p.st[j].aim;open('<b>Aim before</b><div class="m" style="margin:4px 0 6px">'+esc(p.name)+(j==null?' · whole project':' · '+esc(p.st[j].n))+'. A target to plan against, not a deadline.</div><input type="date" id="v1" value="'+(cur_||'')+'"><button class="big" data-a="aimok">Save</button>'+(cur_?'<button class="big g" data-a="aimno">Remove aim</button>':''))},
+aimok(){const v=val('v1'),p=cur(),j=U.at.j;if(v){if(j==null)p.aim=v;else p.st[j].aim=v}close();draw()},aimno(){const p=cur(),j=U.at.j;if(j==null)delete p.aim;else delete p.st[j].aim;close();draw()},
 cat(e){U.cat=e.dataset.c;U.proj=null;draw()},open(e){U.proj=e.dataset.p;U.task=null;U.dl=U.dp=null;draw()},
 sel(e){if(U.task===e.dataset.t)return;U.task=e.dataset.t;U.dl=null;draw()},
 dot(e){const[t]=findT(cur(),U.task),k=+e.dataset.k;t.d=t.d===k+1?k:k+1;draw()},
