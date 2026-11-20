@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Booked page: Days screen with 3-month toggle</title>
+<style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7A7B82;--ln:#E3E1DA;--sf:#fff;--ch:#ECEAE3;--act:#FFF6CC;--fl:#D2CFC4;--cap:#C8402A;--gl:0}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--sf:#1B1C20;--ch:#26272D;--act:#3A3414;--fl:#44454C;--gl:1}}
+*{box-sizing:border-box}html{scroll-snap-type:y mandatory}body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.25 Inter,system-ui,sans-serif;max-width:440px;margin:auto}
+header.top{background:#000;color:#fff;padding:6px 14px;height:44px;position:sticky;top:0;z-index:9;display:flex;flex-direction:column;justify-content:center}header.top b{font-size:15px}header.top small{opacity:.65;font-size:10.5px}
+section{height:calc(100vh - 44px);height:calc(100dvh - 44px);scroll-snap-align:start;display:flex;flex-direction:column;border-bottom:6px solid var(--ch);overflow:hidden}
+.hd{background:#000;color:#fff;padding:6px 14px;flex:none}.hd b{font-size:15px;display:block}.hd small{opacity:.65;font-size:10.5px}
+.ct{display:flex;align-items:center;gap:6px;padding:6px 8px;flex:none}.ct button{border:0;background:var(--sf);color:var(--ink);height:30px;min-width:30px;border-radius:9px;font:700 13px Inter,system-ui;padding:0 9px}.ct .sp{flex:1}
+.seg{display:flex;background:var(--ch);border-radius:10px;padding:2px}.seg button{background:none!important;color:var(--mu)!important;font:700 11.5px Inter,system-ui!important;height:26px!important;padding:0 10px!important;border-radius:8px!important}.seg button.on{background:var(--ink)!important;color:var(--bg)!important}
+.body{flex:1;min-height:0;padding:0 8px;display:flex;flex-direction:column}.sum{font-size:11.5px;color:var(--mu);margin:0 4px 4px}.sum b{color:var(--ink)}
+.nav{flex:none;height:46px;background:var(--sf);border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;font-size:10.5px;color:var(--mu)}.nav b{color:var(--ink)}
+.rows{flex:1;display:flex;flex-direction:column;min-height:0}
+.w{flex:1;display:flex;align-items:center;gap:8px;padding:0 6px;border-radius:8px;min-height:0}.w.now{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.w.past{opacity:.55}
+.w .l{width:38px;font-size:11px;color:var(--mu);flex:none}.w .a{flex:1;min-width:0;display:flex;justify-content:center}.w .c{width:48px;flex:none;text-align:right;line-height:1.1}.w .c b{font-size:12px;white-space:nowrap}.w .c b.o{color:var(--cap)}.w .c small{display:block;font-size:10px;color:var(--mu)}
+.g{display:grid;gap:var(--g,3px)}.r1{display:flex;gap:var(--g,2px);align-items:center}
+.q{width:var(--s);height:var(--s);border-radius:16%;background:var(--c);display:block;box-shadow:0 0 calc(var(--gl)*6px) color-mix(in srgb,var(--c) 55%,transparent)}.q.un{background:none;box-shadow:inset 0 0 0 1.5px var(--c)}.q.fr{background:var(--ch);box-shadow:none}.q.fd{background:none;box-shadow:none;border:1.5px dashed var(--fl)}.q.rd{border-radius:50%}
+.ov{height:var(--s);min-width:var(--s);border-radius:16%;background:var(--ink);color:var(--bg);font:800 max(8px,calc(var(--s)*.5)) Inter,system-ui;display:flex;align-items:center;justify-content:center;padding:0 2px}
+.tr{height:3px;border-radius:2px;background:var(--ch);margin-top:2px;overflow:hidden}.tr i{display:block;height:100%;background:var(--ink)}.tr i.o{background:var(--cap)}
+.tile{background:var(--sf);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:0;padding:3px}.tile.now{background:var(--act)}.tile .tl{font-size:10px;color:var(--mu);display:flex;gap:6px;width:100%;justify-content:space-between;padding:0 4px}.tile .tl b{color:var(--ink)}
+.mp{display:flex;flex-direction:column;background:var(--sf);border-radius:12px;margin:2px 0;padding:3px 0;min-height:0}.mp .mh{display:flex;padding:0 10px;font-size:11.5px;font-weight:800;gap:8px}.mp .mh span{margin-left:auto;font-weight:600;color:var(--mu)}
+.fr1{flex:1;display:grid;grid-template-columns:24px repeat(6,1fr);align-items:center;justify-items:center;border-radius:8px;min-height:0}.fr1.we{background:var(--ch)}.fr1.td{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.fr1 small{font-size:10px;color:var(--mu);text-align:center;line-height:1}.fr1 small b{display:block;color:var(--ink);font-size:11px}
+.dot{width:var(--s);height:var(--s);border-radius:50%;border:calc(var(--s)*.11) solid var(--c)}.dot.s{border-radius:14%;background:var(--c);border:0}
+.mx{display:grid;gap:2px;flex:1;min-height:0}.mx .h{font-size:9.5px;color:var(--mu);text-align:center}.mx .p{font-size:10.5px;font-weight:700;display:flex;align-items:center}
+.lgd{display:flex;flex-wrap:wrap;gap:2px 10px;margin:4px 4px 0;font:500 10px Inter,system-ui;color:var(--mu)}.lgd i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:3px}.lgd i.u{background:none;box-shadow:inset 0 0 0 1.5px #999}
+</style></head><body>
+<header class="top"><b>Days screen with a 3-month toggle</b><small>Tap 3 months to switch · 2 weeks shows today's Days page · swipe up for the next design</small></header>
+<div id="app"></div>
+<script>
+const CAP=20,MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const P={FMA:{c:'#E39A4B',t:'FMA class'},BT:{c:'#B8651B',t:'BT lectures'},FRA:{c:'#C8402A',t:'Frankfurt'},REC:{c:'#7B4FA3',t:'Recruitment'},COM:{c:'#9A74BD',t:'Committee'},DEF:{c:'#2F7D5B',t:'Defences'}};
+const D=s=>{const a=s.split('-');return new Date(Date.UTC(+a[0],a[1]-1,+a[2]))},iso=d=>d.toISOString().slice(0,10),add=(d,n)=>new Date(d.getTime()+n*864e5),mon=d=>add(d,-((d.getUTCDay()+6)%7)),fd=s=>{const d=D(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]};
+const B=[];const bk=(d,h,p,un)=>B.push({d,h,p,un:!!un});
+bk('2026-11-20',6,'FMA');bk('2026-11-27',4,'FMA');bk('2026-12-04',4,'FMA');bk('2026-12-11',4,'FMA');
+['2026-11-25','2026-12-02','2026-12-09','2026-12-16','2027-01-13','2027-01-20'].forEach(d=>bk(d,2,'REC'));['2026-12-03','2027-01-14','2027-02-04'].forEach(d=>bk(d,2,'COM'));
+bk('2026-12-15',3,'DEF');bk('2026-12-17',3,'DEF');bk('2027-01-12',6,'BT');bk('2027-01-13',6,'BT');
+for(let i=0;i<5;i++)bk(iso(add(D('2027-01-25'),i)),6,'FRA');
+for(let i=0;i<10;i++){const d=add(D('2027-01-30'),i);if(d.getUTCDay())bk(iso(d),i<9?6:6,'FRA',1)}
+B.sort((a,b)=>a.d<b.d?-1:1);
+const T0=D('2026-11-20'),W0=mon(T0),NW=13,weeks=[...Array(NW)].map((_,i)=>add(W0,7*i));
+const wkOf=d=>Math.floor((D(d)-W0)/6048e5);
+const wt=weeks.map(()=>({tot:0,by:{},un:0}));B.forEach(b=>{const i=wkOf(b.d);if(i<0||i>=NW)return;wt[i].tot+=b.h;wt[i].by[b.p]=(wt[i].by[b.p]||0)+b.h;if(b.un)wt[i].un+=b.h});
+
+
+
+
+const ALL=Object.keys(P),NOW=0,CATC={FMA:'#E39A4B',BT:'#E39A4B'};
+const hrs=i=>{const o=[];B.filter(b=>wkOf(b.d)===i).forEach(b=>{for(let k=0;k<b.h;k++)o.push({p:b.p,un:b.un,d:b.d})});o.sort((a,b)=>(a.un?1:0)-(b.un?1:0));return o};
+const tot=i=>hrs(i).length,unn=i=>hrs(i).filter(x=>x.un).length,ws=[...Array(NW).keys()];
+const TOT=l=>l.reduce((a,i)=>a+tot(i),0),UN=l=>l.reduce((a,i)=>a+unn(i),0);
+const cell=(x,s,rd)=>`<i class="q${x.un?' un':''}${rd?' rd':''}" style="--c:${P[x.p].c};--s:${s}px"></i>`;
+const free=(s,k,rd)=>`<i class="q ${k||'fr'}${rd?' rd':''}" style="--s:${s}px"></i>`;
+const chip=(n,s)=>`<i class="ov" style="--s:${s}px">+${n}</i>`;
+const slots=(i,s,{fr,rd,cap=CAP}={})=>{const h=hrs(i),n=h.length,o=[];if(n>cap){for(let k=0;k<cap-1;k++)o.push(cell(h[k],s,rd));o.push(chip(n-(cap-1),s))}else{h.forEach(x=>o.push(cell(x,s,rd)));if(fr)for(let k=n;k<cap;k++)o.push(free(s,fr===2?'fd':'fr',rd))}return o};
+const cls=i=>i===NOW?' now':i<NOW?' past':'';
+const cap=(i,m)=>{const t=tot(i),p=Math.round(t/CAP*100);if(m==='free')return`<div class="c"><b class="${t>CAP?'o':''}">${t}</b><small>${t>CAP?'+'+(t-CAP)+' over':(CAP-t)+' free'}</small></div>`;if(m==='pct')return`<div class="c"><b class="${t>CAP?'o':''}" style="font-size:16px">${p}%</b></div>`;return`<div class="c"><b class="${t>CAP?'o':''}">${t}/${CAP}</b><small>${p}%</small></div>`};
+const row=(i,a,c)=>`<div class="w${cls(i)}"><span class="l">${fd(iso(weeks[i]))}</span><div class="a">${a}</div>${c}</div>`;
+const sumTxt=()=>{const t=TOT(ws),u=UN(ws),c=NW*CAP;return`<b>${t}</b> of ${c} h used · <b>${Math.round(t/c*100)}%</b> · ${u} h not allocated`};
+const lgd='<div class="lgd">'+ALL.map(p=>`<span><i style="--c:${P[p].c}"></i>${P[p].t}</span>`).join('')+'<span><i class="u"></i>not allocated</span></div>';
+// fortnight mock (today's Days page)
+const FN=(h)=>{const dl=['M','T','W','T','F'],rh=(h)/12;let o='';const cat=['#2E7D5B','#5AA874','#E39A4B','#C8402A','#7B4FA3'];for(let w=0;w<2;w++){for(let j=0;j<5;j++){const d=iso(add(weeks[w],j)),bk=B.filter(b=>b.d===d),td=w===0&&j===4,past=w===0&&j<4;const s=Math.min(rh-8,(366-24-16)/6-6,40);let dots='';for(let k=0;k<6;k++){if(td)dots+=`<i class="dot s" style="--c:#E39A4B;--s:${s}px"></i>`;else if(past)dots+=`<i class="dot" style="--c:var(--fl);--s:${s}px"></i>`;else dots+=`<i class="dot" style="--c:${cat[(k+j)%5]};--s:${s}px"></i>`}o+=`<div class="fr1${td?' td':''}"><small>${dl[j]}<b>${new Date(d+'T00:00:00Z').getUTCDate()}</b></small>${dots}</div>`}let dots='';for(let k=0;k<6;k++)dots+=`<i class="dot" style="--c:var(--fl);--s:${Math.min(rh-8,34)}px"></i>`;o+=`<div class="fr1 we"><small>S/S</small>${dots}</div>`}return`<div class="rows">${o}</div>`};
+const DS=[];
+const AVH=()=>innerHeight-44-44-42-46-30;
+// 1 two rows glowing
+DS.push(['Two rows of 10',(h)=>{const rh=h/NW,s=Math.floor(Math.min((366-16-38-48-24-27)/10,(rh-3)/2));return`<div class="rows">${ws.map(i=>row(i,`<div class="g" style="grid-template-columns:repeat(10,${s}px);--g:3px">${slots(i,s).join('')}</div>`,cap(i))).join('')}</div>`}]);
+// 2 one row 20
+DS.push(['One row of 20 (as concept 7)',(h)=>{const s=Math.floor((366-16-38-48-24-19*2)/20);return`<div class="rows">${ws.map(i=>row(i,`<div class="r1">${slots(i,s,{fr:1}).join('')}</div>`,cap(i,'pct'))).join('')}</div>`}]);
+// 3 two columns of 5x4 blocks
+DS.push(['Two columns, 5 × 4 blocks',(h)=>{const rows=7,rh=h/rows,s=Math.floor(Math.min((366-16-3*4-2*30)/2/5-3,(rh-18)/4-3));let o=`<div class="rows" style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(${rows},1fr);gap:4px">`;ws.forEach(i=>{o+=`<div class="tile${i===NOW?' now':''}"><div class="tl"><span>${fd(iso(weeks[i]))}</span><b style="${tot(i)>CAP?'color:var(--cap)':''}">${tot(i)}/${CAP}</b></div><div class="g" style="grid-template-columns:repeat(5,${s}px);--g:3px">${slots(i,s,{fr:1}).join('')}</div></div>`});o+=`<div class="tile"><div class="tl"><span>Total</span></div><b style="font-size:22px">${Math.round(TOT(ws)/(NW*CAP)*100)}%</b><span style="font-size:10px;color:var(--mu)">${TOT(ws)} of ${NW*CAP} h</span></div></div>`;return o}]);
+// 4 month panels
+DS.push(['Month panels',(h)=>{let lm='',groups=[];ws.forEach(i=>{const m=weeks[i].getUTCMonth();if(m!==lm){groups.push([]);lm=m}groups[groups.length-1].push(i)});const s=Math.floor((366-16-38-48-24-19*2-12)/20);return`<div class="rows">${groups.map(g=>{const m=weeks[g[0]].getUTCMonth(),t=TOT(g),c=g.length*CAP;return`<div class="mp" style="flex:${g.length+1.2}"><div class="mh">${MN[m]}<span>${t} of ${c} h · ${Math.round(t/c*100)}%</span></div>${g.map(i=>row(i,`<div class="r1">${slots(i,s,{fr:1}).join('')}</div>`,cap(i,'pct'))).join('')}</div>`}).join('')}</div>`}]);
+// 5 days compressed
+DS.push(['Days compressed',(h)=>{const rh=h/(NW+1),s=Math.floor(Math.min(rh-6,((366-16-38-48-24)/6)-6,34));let o=`<div style="display:grid;grid-template-columns:38px repeat(6,1fr) 48px;font-size:10px;color:var(--mu);text-align:center;margin:0 6px"><span></span>${'MTWTFS'.split('').map(x=>`<span>${x}</span>`).join('')}<span></span></div><div class="rows">`;ws.forEach(i=>{o+=`<div class="w${cls(i)}"><span class="l">${fd(iso(weeks[i]))}</span><div style="flex:1;display:grid;grid-template-columns:repeat(6,1fr);justify-items:center">`;for(let j=0;j<6;j++){const d=iso(add(weeks[i],j)),it=B.filter(b=>b.d===d),n=it.reduce((a,b)=>a+b.h,0);o+=n?`<i class="q${it[0].un?' un':''}" style="--c:${P[it[0].p].c};--s:${s}px;display:flex;align-items:center;justify-content:center;font:800 ${Math.round(s*.42)}px Inter,system-ui;color:${it[0].un?P[it[0].p].c:'#fff'}">${n}</i>`:`<i class="q fr" style="--s:${s}px;opacity:.6"></i>`}o+=`</div>${cap(i,'free')}</div>`});return o+'</div>'}]);
+// 6 cells + track
+DS.push(['Cells with capacity track',(h)=>{const s=Math.floor((366-16-38-48-24-19*2)/20);return`<div class="rows">${ws.map(i=>row(i,`<div style="width:100%"><div class="r1" style="justify-content:center">${slots(i,s,{fr:1}).join('')}</div><div class="tr"><i class="${tot(i)>CAP?'o':''}" style="width:${Math.min(100,tot(i)/CAP*100)}%"></i></div></div>`,cap(i))).join('')}</div>`}]);
+// 7 big dots free dashed
+DS.push(['Round dots like Days',(h)=>{const rh=h/NW,s=Math.floor(Math.min((366-16-38-48-24-27)/10,(rh-3)/2));return`<div class="rows">${ws.map(i=>row(i,`<div class="g" style="grid-template-columns:repeat(10,${s}px);--g:3px">${slots(i,s,{fr:2,rd:1}).join('')}</div>`,cap(i,'free'))).join('')}</div>`}]);
+// 8 tiles grid 3 cols
+DS.push(['Tile grid',(h)=>{const rows=5,rh=h/rows,s=Math.floor(Math.min((366-16-8-3*8)/3/5-3,(rh-22)/4-3));let o=`<div class="rows" style="display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(${rows},1fr);gap:4px">`;ws.forEach(i=>{o+=`<div class="tile${i===NOW?' now':''}"><div class="tl"><span>${fd(iso(weeks[i]))}</span><b style="${tot(i)>CAP?'color:var(--cap)':''}">${tot(i)}</b></div><div class="g" style="grid-template-columns:repeat(5,${s}px);--g:2px">${slots(i,s,{fr:1}).join('')}</div></div>`});o+=`<div class="tile" style="grid-column:span 2;flex-direction:row;gap:14px"><div style="text-align:center"><b style="font-size:26px">${Math.round(TOT(ws)/(NW*CAP)*100)}%</b><div style="font-size:10px;color:var(--mu)">${TOT(ws)} of ${NW*CAP} h</div></div><div style="font-size:10px;color:var(--mu)">${UN(ws)} h not<br>allocated yet</div></div></div>`;return o}]);
+// 9 focus
+DS.push(['Focus on the next two weeks',(h)=>{const big=h*.4,sB=Math.floor(Math.min((366-16-38-48-24-27)/10,(big/2-3)/2)),rest=ws.slice(2),sR=Math.floor((366-16-38-48-24-19*2)/20);return`<div class="rows"><div style="flex:${big};display:flex;flex-direction:column;background:var(--sf);border-radius:12px;padding:2px 0;margin-bottom:4px">${[0,1].map(i=>row(i,`<div class="g" style="grid-template-columns:repeat(10,${sB}px);--g:3px">${slots(i,sB,{fr:1}).join('')}</div>`,cap(i,'free'))).join('')}</div><div style="flex:${h-big};display:flex;flex-direction:column;min-height:0">${rest.map(i=>row(i,`<div class="r1">${slots(i,sR,{fr:1}).join('')}</div>`,cap(i,'pct'))).join('')}</div></div>`}]);
+// 10 project x week matrix
+DS.push(['Project by week',(h)=>{const lanes=ALL.filter(p=>B.some(b=>b.p===p)),cw=(366-16-62)/NW;let o=`<div class="mx" style="grid-template-columns:62px repeat(${NW},1fr);grid-template-rows:20px repeat(${lanes.length},1fr) 22px">`;o+=`<span></span>`+ws.map(i=>`<span class="h" style="${i===NOW?'color:var(--ink);font-weight:800':''}">${new Date(weeks[i]).getUTCDate()}</span>`).join('');lanes.forEach(p=>{o+=`<span class="p"><i style="width:8px;height:8px;border-radius:2px;background:${P[p].c};margin-right:5px;flex:none"></i>${P[p].t.split(' ')[0]}</span>`;ws.forEach(i=>{const n=B.filter(b=>wkOf(b.d)===i&&b.p===p&&!b.un).reduce((a,b)=>a+b.h,0),u=B.filter(b=>wkOf(b.d)===i&&b.p===p&&b.un).reduce((a,b)=>a+b.h,0),a=Math.min(1,(n+u)/20),sz=Math.min(cw-1,26);o+=`<div style="display:flex;align-items:center;justify-content:center"><i style="width:${sz}px;height:${sz}px;border-radius:16%;background:${n?`color-mix(in srgb,${P[p].c} ${Math.round(25+a*75)}%,transparent)`:'none'};${u&&!n?`box-shadow:inset 0 0 0 1.5px ${P[p].c}`:n?'':'background:var(--ch);opacity:.5'};display:flex;align-items:center;justify-content:center;font:700 9px Inter,system-ui;color:${n?'#fff':P[p].c}">${(n+u)||''}</i></div>`})});o+=`<span class="p" style="font-weight:600;color:var(--mu)">Total</span>`+ws.map(i=>`<span class="h" style="font-weight:700;color:${tot(i)>CAP?'var(--cap)':'var(--ink)'}">${tot(i)}</span>`).join('');return o+'</div>'}]);
+const st=DS.map(()=>'3');
+function draw(){document.getElementById('app').innerHTML=DS.map((d,i)=>`<section data-i="${i}"><div class="hd"><b>${i+1} · ${d[0]}</b><small>Days</small></div><div class="ct"><button>‹</button><button>›</button><span class="sp"></span><div class="seg"><button data-i="${i}" data-m="2" class="${st[i]==='2'?'on':''}">2 weeks</button><button data-i="${i}" data-m="3" class="${st[i]==='3'?'on':''}">3 months</button></div><button>Reset</button></div><div class="body"><div class="sum"></div><div class="vw" style="flex:1;min-height:0;display:flex;flex-direction:column"></div><div style="flex:none">${lgd}</div></div><div class="nav"><span>Planner</span><b>Days</b><span>Booked</span><span>Overview</span><span>Settings</span></div></section>`).join('');DS.forEach((d,i)=>fill(i))}
+function fill(i){const sec=document.querySelectorAll('section')[i],vw=sec.querySelector('.vw'),h=Math.floor(vw.clientHeight);sec.querySelector('.sum').innerHTML=st[i]==='3'?sumTxt():'This fortnight · 16 Nov – 29 Nov';vw.innerHTML=st[i]==='3'?DS[i][1](h):FN(h)}
+document.addEventListener('click',e=>{const b=e.target.closest('.seg button');if(!b)return;const i=+b.dataset.i;st[i]=b.dataset.m;document.querySelectorAll('section')[i].querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x.dataset.m===st[i]));fill(i)});
+draw();addEventListener('resize',draw);
+</script></body></html>
