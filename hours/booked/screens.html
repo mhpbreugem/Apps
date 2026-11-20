@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Booked page: full screen, capacity used</title>
+<style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7A7B82;--ln:#E3E1DA;--sf:#fff;--ch:#ECEAE3;--act:#FFF6CC;--fl:#D2CFC4;--cap:#C8402A}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--sf:#1B1C20;--ch:#26272D;--act:#3A3414;--fl:#44454C}}
+*{box-sizing:border-box}html{scroll-snap-type:y mandatory}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.25 Inter,system-ui,sans-serif;max-width:440px;margin:auto}
+header{background:#000;color:#fff;padding:8px 14px;height:44px;position:sticky;top:0;z-index:5;display:flex;flex-direction:column;justify-content:center}header b{font-size:15px}header small{opacity:.65;font-size:10.5px}
+section{height:calc(100vh - 44px);height:calc(100dvh - 44px);scroll-snap-align:start;display:flex;flex-direction:column;padding:6px 8px 8px;border-bottom:6px solid var(--ch)}
+.sh{display:flex;align-items:baseline;gap:8px;margin:0 4px}.sh b{font-size:14px}.sh span{display:none}
+.cu{margin:4px 4px 6px}.cu .t{display:flex;font-size:12px;font-weight:700;margin-bottom:3px}.cu .t span{margin-left:auto;color:var(--mu);font-weight:600}
+.cb{display:flex;height:8px;background:var(--ch);border-radius:4px;overflow:hidden}.cb i{display:block;height:100%}.cb .a{background:var(--ink)}.cb .u{background:repeating-linear-gradient(135deg,var(--mu) 0 2px,transparent 2px 4px);opacity:.7}.cb .o{background:var(--cap)}
+.rows{flex:1;display:flex;flex-direction:column;min-height:0}
+.w{flex:1;display:flex;align-items:center;gap:8px;padding:0 6px;border-radius:8px;min-height:0}.w.now{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.w.past{opacity:.55}
+.w .l{width:40px;font-size:11px;color:var(--mu);flex:none}.w .a{flex:1;min-width:0;display:flex;justify-content:center}.w .c{width:54px;flex:none;text-align:right;line-height:1.1}.w .c b{font-size:12px;white-space:nowrap}.w .c b.o{color:var(--cap)}.w .c small{display:block;font-size:10px;color:var(--mu)}.w .c .cb{height:4px;margin-top:3px}
+.g{display:grid;gap:var(--g,3px)}.r1{display:flex;gap:var(--g,2px);align-items:center}
+.q{width:var(--s);height:var(--s);border-radius:16%;background:var(--c);display:block}.q.un{background:none;box-shadow:inset 0 0 0 1.5px var(--c)}.q.fr{background:none;box-shadow:none;border:1.5px dashed var(--fl)}.q.rd{border-radius:50%}
+.ov{height:var(--s);min-width:var(--s);border-radius:16%;background:var(--ink);color:var(--bg);font:800 max(8px,calc(var(--s)*.5)) Inter,system-ui;display:flex;align-items:center;justify-content:center;padding:0 2px}
+.ring{--p:0;width:34px;height:34px;border-radius:50%;background:conic-gradient(var(--rc) calc(var(--p)*1%),var(--ch) 0);display:flex;align-items:center;justify-content:center;position:relative;flex:none}.ring:before{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--bg)}.w.now .ring:before{background:var(--act)}.ring b{position:relative;font-size:10px}
+.dh{display:grid;grid-template-columns:40px repeat(6,1fr) 50px;gap:4px;margin:0 6px;font-size:10px;color:var(--mu);text-align:center}
+.dc{flex:1;display:grid;grid-template-columns:36px repeat(6,1fr) 54px;gap:3px;align-items:center;padding:0 6px;border-radius:8px;min-height:0}.dc.now{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.dc.past{opacity:.55}.dc .cell{display:grid;grid-template-columns:repeat(2,var(--s));gap:2px;justify-content:center;align-content:center}
+.pr{font:600 9.5px Inter,system-ui;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.card{flex:1;display:flex;flex-direction:column;background:var(--sf);border-radius:12px;margin:3px 0;padding:4px 0;min-height:0}.card .ch{display:flex;padding:0 10px;font-size:10.5px;color:var(--mu);gap:8px;align-items:center}.card .ch .cb{flex:1;height:5px}
+.mp{flex:var(--n);display:flex;flex-direction:column;background:var(--sf);border-radius:12px;margin:3px 0;padding:3px 0;min-height:0}.mp .mh{display:flex;padding:0 10px;font-size:11.5px;font-weight:800;align-items:center;gap:8px}.mp .mh span{margin-left:auto;font-weight:600;color:var(--mu)}
+.strip{display:grid;grid-template-columns:repeat(13,1fr);gap:3px;margin:0 4px 6px}.strip i{height:18px;border-radius:4px;background:var(--ch);position:relative;overflow:hidden}.strip i u{position:absolute;left:0;right:0;bottom:0;background:var(--ink);opacity:.85}.strip i.o u{background:var(--cap)}.strip i.n{box-shadow:0 0 0 2px var(--act)}
+</style></head><body>
+<header><b>Booked: full screen, capacity used</b><small>20 h per week · +x chip over 20 · hollow = not allocated · swipe up for the next style</small></header>
+<div id="app"></div>
+<script>
+const CAP=20,MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const P={FMA:{c:'#E39A4B',t:'FMA class'},BT:{c:'#B8651B',t:'BT lectures'},FRA:{c:'#C8402A',t:'Frankfurt'},REC:{c:'#7B4FA3',t:'Recruitment'},COM:{c:'#9A74BD',t:'Committee'},DEF:{c:'#2F7D5B',t:'Defences'}};
+const D=s=>{const a=s.split('-');return new Date(Date.UTC(+a[0],a[1]-1,+a[2]))},iso=d=>d.toISOString().slice(0,10),add=(d,n)=>new Date(d.getTime()+n*864e5),mon=d=>add(d,-((d.getUTCDay()+6)%7)),fd=s=>{const d=D(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]};
+const B=[];const bk=(d,h,p,un)=>B.push({d,h,p,un:!!un});
+bk('2026-11-20',6,'FMA');bk('2026-11-27',4,'FMA');bk('2026-12-04',4,'FMA');bk('2026-12-11',4,'FMA');
+['2026-11-25','2026-12-02','2026-12-09','2026-12-16','2027-01-13','2027-01-20'].forEach(d=>bk(d,2,'REC'));['2026-12-03','2027-01-14','2027-02-04'].forEach(d=>bk(d,2,'COM'));
+bk('2026-12-15',3,'DEF');bk('2026-12-17',3,'DEF');bk('2027-01-12',6,'BT');bk('2027-01-13',6,'BT');
+for(let i=0;i<5;i++)bk(iso(add(D('2027-01-25'),i)),6,'FRA');
+for(let i=0;i<10;i++){const d=add(D('2027-01-30'),i);if(d.getUTCDay())bk(iso(d),i<9?6:6,'FRA',1)}
+B.sort((a,b)=>a.d<b.d?-1:1);
+const T0=D('2026-11-20'),W0=mon(T0),NW=13,weeks=[...Array(NW)].map((_,i)=>add(W0,7*i));
+const wkOf=d=>Math.floor((D(d)-W0)/6048e5);
+const wt=weeks.map(()=>({tot:0,by:{},un:0}));B.forEach(b=>{const i=wkOf(b.d);if(i<0||i>=NW)return;wt[i].tot+=b.h;wt[i].by[b.p]=(wt[i].by[b.p]||0)+b.h;if(b.un)wt[i].un+=b.h});
+
+
+const NOW=0,ALL=Object.keys(P),W=Math.min(innerWidth,440),NR=NW;
+const hrs=i=>{const o=[];B.filter(b=>wkOf(b.d)===i).forEach(b=>{for(let k=0;k<b.h;k++)o.push({p:b.p,un:b.un,d:b.d})});o.sort((a,b)=>(a.un?1:0)-(b.un?1:0));return o};
+const tot=i=>hrs(i).length,unn=i=>hrs(i).filter(x=>x.un).length;
+const TOT=ws=>ws.reduce((a,i)=>a+tot(i),0),UN=ws=>ws.reduce((a,i)=>a+unn(i),0);
+const ws=[...Array(NW).keys()];
+const cell=(x,s,rd)=>`<i class="q${x.un?' un':''}${rd?' rd':''}" style="--c:${P[x.p].c};--s:${s}px"></i>`;
+const free=(s,rd)=>`<i class="q fr${rd?' rd':''}" style="--s:${s}px"></i>`;
+const chip=(n,s)=>`<i class="ov" style="--s:${s}px">+${n}</i>`;
+const slots=(i,s,{fr,rd,cap=CAP}={})=>{const h=hrs(i),n=h.length,o=[];if(n>cap){for(let k=0;k<cap-1;k++)o.push(cell(h[k],s,rd));o.push(chip(n-(cap-1),s))}else{h.forEach(x=>o.push(cell(x,s,rd)));if(fr)for(let k=n;k<cap;k++)o.push(free(s,rd))}return o};
+const cls=i=>i===NOW?' now':i<NOW?' past':'';
+const bar=(t,u)=>{const m=Math.max(CAP,t),a=(t-u)/m*100,un=u/m*100;return`<div class="cb"><i class="${t>CAP?'o':'a'}" style="width:${a}%"></i><i class="u" style="width:${un}%"></i></div>`};
+const cap=(i,mode)=>{const t=tot(i),u=unn(i),p=Math.round(t/CAP*100);if(mode==='ring')return`<div class="ring" style="--rc:${t>CAP?'var(--cap)':'var(--ink)'};--p:${Math.min(100,p)}"><b>${p}</b></div>`;if(mode==='num')return`<div class="c"><b class="${t>CAP?'o':''}" style="font-size:17px">${p}%</b></div>`;if(mode==='free')return`<div class="c"><b class="${t>CAP?'o':''}">${t}</b><small>${t>CAP?'+'+(t-CAP)+' over':(CAP-t)+' free'}</small></div>`;return`<div class="c"><b class="${t>CAP?'o':''}">${t}/${CAP}</b><small>${p}%</small>${bar(t,u)}</div>`};
+const sumBar=(wl,label)=>{const t=TOT(wl),u=UN(wl),c=wl.length*CAP,p=Math.round(t/c*100);return`<div class="cu"><div class="t">${label||'Capacity used'} ${t} of ${c} h · ${p}%<span>${u?u+' h not allocated':'all allocated'}</span></div><div class="cb"><i class="a" style="width:${(t-u)/c*100}%"></i><i class="u" style="width:${u/c*100}%"></i></div></div>`};
+const out=[];const S=(t,d,h)=>out.push(`<section><div class="sh"><b>${t}</b><span>${d}</span></div>${sumBar(ws)}${h}</section>`);
+const AV=()=>innerHeight-44-6-8-26-44-14; // rows height estimate
+const rh=AV()/NR;
+const sz2=Math.floor(Math.min((W-16-40-50-24-9*3)/10,(rh-3)/2));
+const sz1=Math.floor((W-16-40-50-24-19*2)/20);
+const row=(i,a,c)=>`<div class="w${cls(i)}"><span class="l">${fd(iso(weeks[i]))}</span><div class="a">${a}</div>${c}</div>`;
+const two=(i,s,o)=>`<div class="g" style="grid-template-columns:repeat(10,${s}px);--g:3px">${slots(i,s,o).join('')}</div>`;
+const one=(i,s,o)=>`<div class="r1">${slots(i,s,o).join('')}</div>`;
+const R=h=>`<div class="rows">${h}</div>`;
+S('1 · Two rows, capacity bar','Squares fill the row. Each week shows hours, percent and a bar.',R(ws.map(i=>row(i,two(i,sz2),cap(i))).join('')));
+S('2 · Row shaded by capacity','The row background fills to the share of 20 h used.',R(ws.map(i=>`<div class="w${cls(i)}" style="${i===NOW?'':`background:linear-gradient(90deg,rgba(128,128,128,.18) ${Math.min(100,tot(i)/CAP*100)}%,transparent 0)`}"><span class="l">${fd(iso(weeks[i]))}</span><div class="a">${two(i,sz2)}</div>${cap(i,'num')}</div>`).join('')));
+S('3 · One row and a ring','All 20 slots on one line, with a capacity ring per week.',R(ws.map(i=>row(i,one(i,sz1),`<div class="c" style="display:flex;justify-content:flex-end">${cap(i,'ring')}</div>`)).join('')));
+{const s=Math.floor(Math.min(((W-16-36-54-24)/6-8)/2-2,(rh-6)/4-2));let h='<div class="dh"><span></span>'+'MTWTFS'.split('').map(x=>`<span>${x}</span>`).join('')+'<span></span></div><div class="rows">';ws.forEach(i=>{h+=`<div class="dc${cls(i)}"><span style="font-size:11px;color:var(--mu)">${fd(iso(weeks[i]))}</span>`;for(let j=0;j<6;j++){const d=iso(add(weeks[i],j)),it=hrs(i).filter(x=>x.d===d),m=8;let c=it.slice(0,it.length>m?m-1:m).map(x=>cell(x,s)).join('');if(it.length>m)c+=chip(it.length-(m-1),s);h+=`<div class="cell" style="--s:${s}px">${c}</div>`}h+=cap(i)+'</div>'});S('4 · Grouped by day','Six day columns per week, like the Days page.',h+'</div>')}
+S('5 · Dots like Days','Round dots: filled is allocated, ring is not allocated, dashed is free.',R(ws.map(i=>row(i,two(i,sz2,{fr:1,rd:1}),cap(i,'free'))).join('')));
+S('6 · Free squares dashed','See what is left: dashed squares are free hours.',R(ws.map(i=>row(i,two(i,sz2,{fr:1}),cap(i,'free'))).join('')));
+{let h='<div class="rows">';for(let i=0;i<NW-1;i+=2){const t=tot(i)+tot(i+1);h+=`<div class="card"><div class="ch"><span>${fd(iso(weeks[i]))} – ${fd(iso(add(weeks[i+1],5)))}</span>${bar(t,unn(i)+unn(i+1)).replace('class="cb"','class="cb" style="height:5px"')}<b style="color:var(--ink)">${t}/${CAP*2}</b></div>`+[i,i+1].map(k=>`<div class="w${cls(k)}" style="padding:0 8px"><span class="l">${fd(iso(weeks[k]))}</span><div class="a">${two(k,Math.floor(sz2*.82))}</div>${cap(k,'num')}</div>`).join('')+'</div>'}S('7 · Fortnight cards','Two weeks per card with a fortnight capacity bar.',h+'</div>')}
+S('8 · Grouped by project','One line per week with gaps between projects and the project names under it.',R(ws.map(i=>{const hh=hrs(i),a=[];let last=null;slots(i,sz1).forEach((x,k)=>{const p=hh[k]&&hh[k].p;if(last!==null&&p!==last)a.push('<i style="width:4px;flex:none"></i>');last=p;a.push(x)});const by={};hh.forEach(x=>by[x.p]=(by[x.p]||0)+1);return row(i,`<div style="width:100%"><div class="r1" style="justify-content:center">${a.join('')}</div><div class="pr" style="text-align:center">${Object.keys(by).map(p=>P[p].t+' '+by[p]).join(' · ')||'&nbsp;'}</div></div>`,cap(i,'num'))}).join('')));
+out.push(`<section><div class="sh"><b>9 · Overview strip on top</b><span>Weeks at a glance, then the details.</span></div>${sumBar(ws)}<div class="strip">${ws.map(i=>`<i class="${tot(i)>CAP?'o':''}${i===NOW?' n':''}"><u style="height:${Math.min(100,tot(i)/CAP*100)}%"></u></i>`).join('')}</div><div class="rows">${ws.map(i=>row(i,two(i,Math.min(sz2,Math.floor((rh-2-(innerHeight>800?3:0))/2)),{fr:1}),cap(i))).join('')}</div></section>`);
+{let h='<div class="rows">',lm='',groups=[];ws.forEach(i=>{const m=weeks[i].getUTCMonth();if(m!==lm){groups.push([]);lm=m}groups[groups.length-1].push(i)});groups.forEach(g=>{const m=weeks[g[0]].getUTCMonth(),t=TOT(g),c=g.length*CAP;h+=`<div class="mp" style="--n:${g.length+1}"><div class="mh">${MN[m]}<span>${t} of ${c} h · ${Math.round(t/c*100)}%</span></div>`+g.map(i=>row(i,one(i,sz1),cap(i,'num'))).join('')+'</div>'});S('10 · Month panels','Weeks inside month panels, with capacity per month.',h+'</div>')}
+document.getElementById('app').innerHTML=out.join('');
+</script></body></html>
