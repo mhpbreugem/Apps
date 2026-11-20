@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Days: larger dots, matching 3 mo</title><style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7A7B82;--ln:#E3E1DA;--sf:#fff;--ch:#ECEAE3;--act:#FFF6CC;--fl:#D2CFC4;--cap:#C8402A;--gl:0}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--sf:#1B1C20;--ch:#26272D;--act:#3A3414;--fl:#44454C;--gl:1}}
+*{box-sizing:border-box}html{scroll-snap-type:y mandatory}body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.25 Inter,system-ui,sans-serif;max-width:440px;margin:auto}
+header.top{background:#000;color:#fff;padding:6px 14px;height:44px;position:sticky;top:0;z-index:9;display:flex;flex-direction:column;justify-content:center}header.top b{font-size:15px}header.top small{opacity:.65;font-size:10.5px}
+section{height:calc(100vh - 44px);height:calc(100dvh - 44px);scroll-snap-align:start;display:flex;flex-direction:column;border-bottom:6px solid var(--ch);overflow:hidden}
+.hd{background:#000;color:#fff;padding:6px 14px;flex:none}.hd b{font-size:15px;display:block}.hd small{opacity:.65;font-size:10.5px}
+.ct{display:flex;align-items:center;gap:6px;padding:6px 8px;flex:none}.ct button{border:0;background:var(--sf);color:var(--ink);height:30px;min-width:30px;border-radius:9px;font:700 13px Inter,system-ui;padding:0 9px}.ct .sp{flex:1}
+.seg{display:flex;background:var(--ch);border-radius:10px;padding:2px}.seg button{background:none!important;color:var(--mu)!important;font:700 11.5px Inter,system-ui!important;height:26px!important;padding:0 10px!important;border-radius:8px!important}.seg button.on{background:var(--ink)!important;color:var(--bg)!important}
+.body{flex:1;min-height:0;padding:0 8px;display:flex;flex-direction:column}.sum{font-size:11.5px;color:var(--mu);margin:0 4px 4px}.sum b{color:var(--ink)}
+.nav{flex:none;height:46px;background:var(--sf);border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;font-size:10.5px;color:var(--mu)}.nav b{color:var(--ink)}
+.rows{flex:1;display:flex;flex-direction:column;min-height:0}
+.w{flex:1;display:flex;align-items:center;gap:8px;padding:0 6px;border-radius:8px;min-height:0}.w.now{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.w.past{opacity:.55}
+.w .l{width:38px;font-size:11px;color:var(--mu);flex:none}.w .a{flex:1;min-width:0;display:flex;justify-content:center}.w .c{width:48px;flex:none;text-align:right;line-height:1.1}.w .c b{font-size:12px;white-space:nowrap}.w .c b.o{color:var(--cap)}.w .c small{display:block;font-size:10px;color:var(--mu)}
+.g{display:grid;gap:var(--g,3px)}.r1{display:flex;gap:var(--g,2px);align-items:center}
+.q{width:var(--s);height:var(--s);border-radius:16%;background:var(--c);display:block;box-shadow:0 0 calc(var(--gl)*6px) color-mix(in srgb,var(--c) 55%,transparent)}.q.un{background:none;box-shadow:inset 0 0 0 1.5px var(--c)}.q.fr{background:var(--ch);box-shadow:none}.q.fd{background:none;box-shadow:none;border:1.5px dashed var(--fl)}.q.rd{border-radius:50%}
+.ov{height:var(--s);min-width:var(--s);border-radius:16%;background:var(--ink);color:var(--bg);font:800 max(8px,calc(var(--s)*.5)) Inter,system-ui;display:flex;align-items:center;justify-content:center;padding:0 2px}
+.tr{height:3px;border-radius:2px;background:var(--ch);margin-top:2px;overflow:hidden}.tr i{display:block;height:100%;background:var(--ink)}.tr i.o{background:var(--cap)}
+.tile{background:var(--sf);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:0;padding:3px}.tile.now{background:var(--act)}.tile .tl{font-size:10px;color:var(--mu);display:flex;gap:6px;width:100%;justify-content:space-between;padding:0 4px}.tile .tl b{color:var(--ink)}
+.mp{display:flex;flex-direction:column;background:var(--sf);border-radius:12px;margin:2px 0;padding:3px 0;min-height:0}.mp .mh{display:flex;padding:0 10px;font-size:11.5px;font-weight:800;gap:8px}.mp .mh span{margin-left:auto;font-weight:600;color:var(--mu)}
+.fr1{flex:1;display:grid;grid-template-columns:24px repeat(6,1fr);align-items:center;justify-items:center;border-radius:8px;min-height:0}.fr1.we{background:var(--ch)}.fr1.td{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.fr1 small{font-size:10px;color:var(--mu);text-align:center;line-height:1}.fr1 small b{display:block;color:var(--ink);font-size:11px}
+.dot{width:var(--s);height:var(--s);border-radius:50%;border:calc(var(--s)*.11) solid var(--c)}.dot.s{border-radius:14%;background:var(--c);border:0}
+.mx{display:grid;gap:2px;flex:1;min-height:0}.mx .h{font-size:9.5px;color:var(--mu);text-align:center}.mx .p{font-size:10.5px;font-weight:700;display:flex;align-items:center}
+.lgd{display:flex;flex-wrap:wrap;gap:2px 10px;margin:4px 4px 0;font:500 10px Inter,system-ui;color:var(--mu)}.lgd i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:3px}.lgd i.u{background:none;box-shadow:inset 0 0 0 1.5px #999}
+
+.m3r{flex:1;display:grid;align-items:center;justify-items:center;border-radius:8px;padding:0 4px;min-height:0}.m3r.td{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}
+.lb{justify-self:start;font-size:11px;color:var(--mu);line-height:1.15}
+.cp2{justify-self:end;text-align:right;line-height:1.1}.cp2 b{font-size:12px}.cp2 b.o{color:var(--cap)}.cp2 small{display:block;font-size:10px;color:var(--mu)}
+.hdr{display:grid;font-size:10px;color:var(--mu);text-align:center;margin:0 4px}
+.sq2{border-radius:16%;display:flex;align-items:center;justify-content:center;line-height:1;position:relative;overflow:hidden}
+.mini{display:grid;gap:1.5px;align-content:center}.mini i{display:block;border-radius:22%}
+.fr2{flex:1;display:grid;align-items:center;justify-items:stretch;padding:0 8px 0 4px;border-radius:8px;min-height:0}.fr2.td{background:var(--act);box-shadow:inset 3px 0 0 var(--ink)}.fr2.we{background:var(--ch)}.fr2 .cc{display:flex;justify-content:center;align-items:center}.lg1{font-size:10px;line-height:1.05;color:var(--mu);justify-self:start;display:flex;flex-direction:column;align-items:center;width:100%}.lg1 b{color:var(--ink);font-size:11px}
+.ov{height:var(--s);width:var(--s);background:var(--ink);color:var(--bg);font:800 11px Inter,system-ui;display:flex;align-items:center;justify-content:center;flex:none}
+</style></head><body>
+<header class="top"><b>Days: larger dots, matching 3 mo</b><small>3 designs, matching 2 wk and 3 mo layout · dashed line between months · swipe up</small></header>
+<div id="app"></div>
+<script>
+const CAP=20,MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const P={FMA:{c:'#E39A4B',t:'FMA class'},BT:{c:'#B8651B',t:'BT lectures'},FRA:{c:'#C8402A',t:'Frankfurt'},REC:{c:'#7B4FA3',t:'Recruitment'},COM:{c:'#9A74BD',t:'Committee'},DEF:{c:'#2F7D5B',t:'Defences'}};
+const D=s=>{const a=s.split('-');return new Date(Date.UTC(+a[0],a[1]-1,+a[2]))},iso=d=>d.toISOString().slice(0,10),add=(d,n)=>new Date(d.getTime()+n*864e5),mon=d=>add(d,-((d.getUTCDay()+6)%7)),fd=s=>{const d=D(s);return d.getUTCDate()+' '+MON[d.getUTCMonth()]};
+const B=[];const bk=(d,h,p,un)=>B.push({d,h,p,un:!!un});
+bk('2026-11-20',6,'FMA');bk('2026-11-27',4,'FMA');bk('2026-12-04',4,'FMA');bk('2026-12-11',4,'FMA');
+['2026-11-25','2026-12-02','2026-12-09','2026-12-16','2027-01-13','2027-01-20'].forEach(d=>bk(d,2,'REC'));['2026-12-03','2027-01-14','2027-02-04'].forEach(d=>bk(d,2,'COM'));
+bk('2026-12-15',3,'DEF');bk('2026-12-17',3,'DEF');bk('2027-01-12',6,'BT');bk('2027-01-13',6,'BT');
+for(let i=0;i<5;i++)bk(iso(add(D('2027-01-25'),i)),6,'FRA');
+for(let i=0;i<10;i++){const d=add(D('2027-01-30'),i);if(d.getUTCDay())bk(iso(d),i<9?6:6,'FRA',1)}
+B.sort((a,b)=>a.d<b.d?-1:1);
+const T0=D('2026-11-20'),W0=mon(T0),NW=13,weeks=[...Array(NW)].map((_,i)=>add(W0,7*i));
+const wkOf=d=>Math.floor((D(d)-W0)/6048e5);
+const wt=weeks.map(()=>({tot:0,by:{},un:0}));B.forEach(b=>{const i=wkOf(b.d);if(i<0||i>=NW)return;wt[i].tot+=b.h;wt[i].by[b.p]=(wt[i].by[b.p]||0)+b.h;if(b.un)wt[i].un+=b.h});
+
+
+
+
+const WCAP=40,N=13;
+const PC={MIZN:'#2E7D5B',TSI:'#5AA874',IRR:'#8CC79A',KEZ:'#E39A4B',BBP:'#C8742B',FMA:'#E39A4B',FRA:'#C8402A'};
+const WK=[];for(let w=0;w<N;w++){const wk=[];for(let j=0;j<6;j++){let L=[];
+if(w===0){if(j===4)L=Array(6).fill(['FMA','d'])}
+else if(w>=5&&w<=7){L=[]}
+else if(w===10||w===11){if(j<5)L=Array(12).fill(['FRA',w===10?'d':'h']);else L=Array(w===10?7:6).fill(['FRA',w===10?'d':'h'])}
+else{if(j<3)L=[...Array(4).fill(['MIZN','p']),...Array(2).fill(['TSI','p']),...Array(2).fill(['IRR','p'])];else if(j<5)L=[...Array(3).fill(['KEZ','p']),...Array(3).fill(['BBP','p']),...Array(2).fill(['TSI','p'])];if(w===2&&j===2)L=[...L.slice(0,6),['FMA','d'],['FMA','d']]}
+wk.push(L)}WK.push(wk)}
+const wkTot=w=>WK[w].reduce((a,l)=>a+l.length,0),TOT=WK.reduce((a,_,w)=>a+wkTot(w),0);
+const topP=L=>{const c={};L.forEach(x=>c[x[0]]=(c[x[0]]||0)+1);return Object.keys(c).sort((a,b)=>c[b]-c[a])[0]};
+const allDone=L=>L.length&&L.every(x=>x[1]==='d'),allHol=L=>L.length&&L.every(x=>x[1]==='h');
+const lab=w=>fd(iso(weeks[w])),mo=w=>weeks[w].getUTCMonth();
+const COLS='40px repeat(6,1fr)';
+const HDR=`<div class="hdr" style="grid-template-columns:${COLS}"><span></span>${'MTWTFS'.split('').map(x=>`<span>${x}</span>`).join('')}<span></span></div>`;
+const fr=w=>{const t=wkTot(w),o=t>WCAP;return`<div class="cp2"><b class="${o?'o':''}">${t}</b><small>${o?'+'+(t-WCAP)+' over':(WCAP-t)+' free'}</small></div>`};
+const frP=w=>{const t=wkTot(w),o=t>WCAP;return`<div class="cp2"><b class="${o?'o':''}" style="font-size:15px">${Math.round(t/WCAP*100)}%</b></div>`};
+// level cell
+function lvl(L,s,o={}){const base=`width:${s}px;height:${s}px;border-radius:16%;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;flex:none;line-height:1`;
+ if(!L.length)return`<i style="${base};background:var(--ch);opacity:.5"></i>`;
+ const col=PC[topP(L)],d=allDone(L),h=allHol(L),f=Math.min(1,L.length/6),over=L.length>6;
+ let fill;if(o.stack){const by={};L.forEach(x=>by[x[0]]=(by[x[0]]||0)+1);let a=0;const parts=Object.keys(by).map(p=>{const b=a+by[p]/6*100,t=`${PC[p]} ${a}% ${Math.min(100,b)}%`;a=Math.min(100,b);return t});parts.push(`transparent ${a}% 100%`);fill=`<u style="position:absolute;inset:0;background:linear-gradient(0deg,${parts.join(',')});opacity:${h?.35:d?1:.78}"></u>`}
+ else fill=`<u style="position:absolute;left:0;right:0;bottom:0;height:${f*100}%;background:${col};opacity:${h?.3:d?1:.62}"></u>`;
+ const ticks=o.ticks?[1,2,3,4,5].map(k=>`<s style="position:absolute;left:0;right:0;bottom:${k/6*100}%;border-top:1px solid ${'var(--bg)'};opacity:.55"></s>`).join(''):'';const pill=o.pill&&over?`<em style="position:absolute;top:2px;right:2px;font:800 ${Math.round(s*.24)}px/1 Inter,system-ui;background:var(--cap);color:#fff;border-radius:6px;padding:2px 3px;font-style:normal">+${L.length-6}</em>`:'';const num=o.num===false?'':`<b style="position:relative;font:800 ${Math.round(s*.38)}px Inter,system-ui;color:${f>.62&&!h?'#fff':'var(--ink)'};${o.stack?'text-shadow:0 1px 2px #0005;color:#fff':''}">${L.length}</b>`;
+ return`<i style="${base};background:var(--ch);${over&&!o.pill?'box-shadow:inset 0 2px 0 var(--cap);':''}${h?`box-shadow:inset 0 0 0 1.5px ${col};`:''}">${fill}${ticks}${num}${pill}</i>`}
+const SEP=m=>`<div style="flex:none;height:13px;display:flex;align-items:center;gap:6px;margin:1px 4px"><span style="font:700 9.5px Inter,system-ui;color:var(--mu)">${MN[m]}</span><i style="flex:1;border-top:1px dashed var(--mu);opacity:.55"></i></div>`;
+function build(h,rowFn,hdr=true){const seps=[...Array(N).keys()].filter(w=>w===0||mo(w)!==mo(w-1)).length,rh=(h-seps*13)/N;let o='';for(let w=0;w<N;w++){if(w===0||mo(w)!==mo(w-1))o+=SEP(mo(w));o+=rowFn(w,rh)}return(hdr?HDR:'')+`<div class="rows">${o}</div>`}
+const cwd=(Wd)=>(Wd-16-40-8)/6;
+const sz=(rh,Wd,m=2)=>Math.floor(Math.min(rh-m,cwd(Wd)-2,58));
+const row=(w,cells)=>`<div class="m3r${w===0?' td':''}" style="grid-template-columns:${COLS}"><span class="lb">${lab(w)}</span>${cells}</div>`;
+const ST={};
+const CLS=p=>p==='FMA'||p==='FRA';
+const dayL=(w,j)=>WK[w][j];
+// dots for 2-week view
+function dot(x,d,cfg){const c=PC[x[0]],sq=cfg.shape==='sq'||(cfg.shape==='mix'&&CLS(x[0])),r=sq?(cfg.shape==='sq'?'26%':'16%'):'50%',done=x[1]==='d',hol=x[1]==='h',b=Math.max(2,Math.round(d*.12));
+ return`<i style="width:${d}px;height:${d}px;border-radius:${r};flex:none;${hol?`border:${b}px dashed ${c}`:done||sq&&cfg.shape!=='circ'&&CLS(x[0])&&false?`background:${c}`:`border:${b}px solid ${c}`};opacity:${hol?.7:1}"></i>`}
+function fnRows(h,Wd,cfg){const LC=cfg.lc,cw=(Wd-16-LC-8-5*cfg.g)/6,rows=12,rh=h/rows,d=Math.floor(Math.min(cw,rh-cfg.g));let o='';
+ for(let w=0;w<2;w++){for(let j=0;j<5;j++){const L=dayL(w,j),now=w===0&&j===4,dts=weeks[w].getUTCDate()+j;const slots=[];if(L.length>6){for(let k=0;k<5;k++)slots.push(dot(L[k],d,cfg));slots.push(`<i class="ov" style="--s:${d}px;border-radius:${cfg.shape==='sq'?'26%':'50%'}">+${L.length-5}</i>`)}else{L.forEach(x=>slots.push(dot(x,d,cfg)));for(let k=L.length;k<6;k++)slots.push(`<i style="width:${d}px;height:${d}px;border-radius:${cfg.shape==='sq'?'26%':'50%'};border:1.5px dashed var(--fl);flex:none"></i>`)}
+  o+=`<div class="fr2${now?' td':''}" style="grid-template-columns:${LC}px repeat(6,1fr);column-gap:${cfg.g}px"><span class="lg1">${cfg.l2?`<b>${'MTWTF'[j]}</b>${dts}`:`${'MTWTF'[j]}${dts}`}</span>${slots.map(x=>`<div class="cc">${x}</div>`).join('')}</div>`}
+  o+=`<div class="fr2 we" style="grid-template-columns:${LC}px repeat(6,1fr);column-gap:${cfg.g}px"><span class="lg1">S/S</span>${[0,1,2,3,4,5].map(()=>`<div class="cc"><i style="width:${d}px;height:${d}px;border-radius:${cfg.shape==='sq'?'26%':'50%'};border:1.5px dashed var(--fl)"></i></div>`).join('')}</div>`}
+ return`<div class="rows">${o}</div>`}
+// month rows, same grid
+function lvlG(L,H,cfg){const base=`width:100%;height:${H}px;border-radius:${cfg.shape==='circ'?'50%':cfg.shape==='sq'?'26%':'14%'};position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;line-height:1`;
+ if(!L.length)return`<i style="${base};background:var(--ch);opacity:.5"></i>`;
+ const d=allDone(L),h=allHol(L),over=L.length>6,by={};L.forEach(x=>by[x[0]]=(by[x[0]]||0)+1);let a=0;const parts=Object.keys(by).map(p=>{const b=Math.min(100,a+by[p]/6*100),t=`${PC[p]} ${a}% ${b}%`;a=b;return t});parts.push(`transparent ${a}% 100%`);const col=PC[topP(L)];
+ return`<i style="${base};background:var(--ch);${over?'box-shadow:inset 0 2px 0 var(--cap);':''}${h?`box-shadow:inset 0 0 0 1.5px ${col};`:''}"><u style="position:absolute;inset:0;background:linear-gradient(0deg,${parts.join(',')});opacity:${h?.35:d?1:.78}"></u><b style="position:relative;font:800 ${Math.min(19,Math.round(H*.42))}px Inter,system-ui;color:#fff;text-shadow:0 1px 2px #0005">${L.length}</b></i>`}
+function moRows(h,Wd,cfg){const LC=cfg.lc,seps=[...Array(N).keys()].filter(w=>w===0||mo(w)!==mo(w-1)).length,rh=(h-seps*13)/N;let o='';for(let w=0;w<N;w++){if(w===0||mo(w)!==mo(w-1))o+=SEP(mo(w));o+=`<div class="fr2${w===0?' td':''}" style="grid-template-columns:${LC}px repeat(6,1fr);column-gap:${cfg.g}px;flex:1"><span class="lg1">${cfg.l2?`<b>${'M'}</b>${weeks[w].getUTCDate()}`:`${weeks[w].getUTCDate()}`}</span>${WK[w].map(L=>lvlG(L,Math.floor(rh-cfg.g),cfg)).join('')}</div>`}return`<div class="rows">${o}</div>`}
+const CF=[
+ {n:'Round dots, 28 px legend',shape:'circ',g:3,lc:28,l2:1},
+ {n:'Rounded squares, 24 px legend',shape:'sq',g:2,lc:24,l2:0},
+ {n:'Circles and class squares, 22 px legend',shape:'mix',g:1,lc:22,l2:1}];
+const hdr=cfg=>`<div class="hdr" style="grid-template-columns:${cfg.lc}px repeat(6,1fr);column-gap:${cfg.g}px;padding:0 8px"><span></span>${'123456'.split('').map(x=>`<span>${x}</span>`).join('')}</div>`;
+function draw(){const Wd=Math.min(innerWidth,440);document.getElementById('app').innerHTML=CF.map((c,i)=>`<section data-i="${i}"><div class="hd"><b>${i+1} · ${c.n}</b><small>Days</small></div><div class="ct"><button>‹</button><button>›</button><span class="seg" style="margin-left:6px"><button data-i="${i}" data-m="2" class="${(ST[i]||'2')==='2'?'on':''}">2 wk</button><button data-i="${i}" data-m="3" class="${ST[i]==='3'?'on':''}">3 mo</button></span><span class="sp"></span><button>MIZN ▾</button></div><div class="body"><div class="sum"></div><div class="vw" style="flex:1;min-height:0;display:flex;flex-direction:column;padding:0 8px"></div></div><div class="nav"><span>Planner</span><b>Days</b><span>Booked</span><span>Overview</span><span>Settings</span></div></section>`).join('');CF.forEach((c,i)=>fill(i))}
+function fill(i){const c=CF[i],m=ST[i]||'2',sec=document.querySelectorAll('section')[i],vw=sec.querySelector('.vw'),Wd=Math.min(innerWidth,440);sec.querySelector('.sum').innerHTML=m==='2'?'16 Nov – 29 Nov':`<b>${TOT}</b> of ${N*WCAP} h planned · <b>${Math.round(TOT/(N*WCAP)*100)}%</b>`;vw.innerHTML=(m==='2'?fnRows(Math.floor(vw.clientHeight)-4,Wd,c):hdr(c)+moRows(Math.floor(vw.clientHeight)-18,Wd,c))}
+document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data-i]');if(!b)return;const i=+b.dataset.i;ST[i]=b.dataset.m;document.querySelectorAll('section')[i].querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x.dataset.m===ST[i]));fill(i)});
+draw();addEventListener('resize',draw);
+</script></body></html>
