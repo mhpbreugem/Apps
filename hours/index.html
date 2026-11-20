@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Hours</title>
 <style>
 :root{--bg:#F7F6F2;--ink:#17181C;--mu:#5C5D63;--ln:#E4E2DC;--sf:#fff;--ch:#F2F1ED;--pg:#d9d8d3;color-scheme:light dark}
-@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--sf:#1B1C20;--ch:#26272D;--pg:#0A0A0C}.d,.sw,.ybar i,.pbar div{filter:brightness(1.3)}.lgn{filter:brightness(1.2)}.d.e{opacity:.5}}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--sf:#1B1C20;--ch:#26272D;--pg:#0A0A0C}.fg{--we:#1E1F24;--td:#2B2814;--fl:#3A3B41}.fdot.f{filter:brightness(1.25)}.fdot.ovf{filter:none!important}.d,.sw,.ybar i,.pbar div{filter:brightness(1.3)}.lgn{filter:brightness(1.2)}.d.e{opacity:.5}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;margin:0}
 body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--pg)}
 #app{max-width:480px;height:100%;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;position:relative}
@@ -45,9 +45,19 @@ nav button.on{color:var(--ink)}nav svg{width:22px;height:22px;stroke:currentColo
 .tm{display:flex;gap:8px;padding:6px 14px;border-bottom:1px solid var(--ln);align-items:flex-start}.tm.now{background:var(--ch)}.tm .lb{width:54px;font:600 11px/1.25 Inter;flex:none}.tm>b{min-width:20px;text-align:right;font-size:12px}
 .ev{display:inline-block;font:700 10px/1.2 Inter;border-radius:6px;padding:2px 6px;margin:3px 4px 0 0;background:color-mix(in srgb,var(--c) 22%,var(--sf));border-left:4px solid var(--c)}.ev.aim{border-left-style:dotted;background:var(--sf);outline:1px dashed var(--c)}
 .ybar{display:flex;height:20px;gap:1px;border-radius:5px;overflow:hidden;background:var(--ch)}.ybar i{display:block;height:100%}
+.fg{height:100%;display:flex;flex-direction:column;--we:#E6E4DD;--td:#FFF7D6;--fl:#CFCDC6}.ft{height:40px;display:flex;align-items:center;gap:6px;padding:0 8px;flex:none}
+.fb{border:0;background:var(--sf);color:var(--ink);border-radius:9px;height:28px;padding:0 10px;font:700 12px Inter,system-ui}.fsw{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.fgrid{flex:1;min-height:0;display:grid;grid-template-rows:repeat(6,1fr) 7px repeat(6,1fr);padding:0 4px 4px}
+.fr{display:grid;grid-template-columns:24px repeat(6,1fr);align-items:center;justify-items:center;border-radius:8px}.fr.we{background:var(--we)}.fr.td{background:var(--td);box-shadow:inset 3px 0 0 var(--ink)}.fr.pa .fdot{opacity:.55}
+.flb{justify-self:stretch;text-align:center;font:700 9px/1.05 Inter,system-ui;color:var(--mu)}.flb b{display:block;font-size:10px;color:var(--ink)}
+.fdot{width:var(--d,48px);height:var(--d,48px);border-radius:50%;border:0;padding:0;margin:0;background:transparent;box-shadow:inset 0 0 0 2px var(--fl);color:#fff;font:800 calc(var(--d,48px)*.34) Inter,system-ui;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.fdot.f{background:var(--c);box-shadow:none}.fdot.f.ring{background:conic-gradient(var(--c) calc(var(--f)*360deg),var(--sf) 0);border:calc(var(--d,48px)*.11) solid var(--c)}.fdot.f.sq{border-radius:14%}.fdot.ovf{background:var(--ink);color:var(--bg);box-shadow:none}
+.fgp{display:flex;gap:8px;border-top:1px solid var(--ln);margin-top:6px;padding-top:2px}.fcn{writing-mode:vertical-rl;transform:rotate(180deg);flex:none;font:700 12px Inter,system-ui;color:var(--mu);text-align:center;padding:6px 0}.fgl{flex:1;min-width:0}
+.fit{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--ink);padding:9px 4px;font:600 14px Inter,system-ui;text-align:left;border-bottom:1px solid var(--ln)}.fit i{width:22px;height:22px;border-radius:50%;flex:none}.fit span{margin-left:auto;color:var(--mu);font-size:12px}
+#ftoast{position:absolute;left:50%;top:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:6px 12px;border-radius:14px;font:700 12px Inter,system-ui;opacity:0;transition:opacity .15s;pointer-events:none;white-space:nowrap;z-index:6}#ftoast.on{opacity:1}
 .ovl{padding:6px 12px}.ovl .row{margin-top:4px}.sync{font-size:11px;color:var(--mu)}
 </style></head><body><div id="app"><header><button id="bk" aria-label="Back">‹</button><div><b id="ttl">Planner</b><small id="sm"></small></div></header><main id="pg"></main>
-<nav id="nav"><button data-pg="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>Settings</button><button data-pg="1"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="10" rx="1"/><rect x="16" y="4" width="4" height="13" rx="1"/></svg>Planner</button><button data-pg="2"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Time</button><button data-pg="3"><svg viewBox="0 0 24 24"><circle class="f" cx="6" cy="6" r="1.9"/><circle class="f" cx="12" cy="6" r="1.9"/><circle class="f" cx="18" cy="6" r="1.9"/><circle class="f" cx="6" cy="12" r="1.9"/><circle class="f" cx="12" cy="12" r="1.9"/><circle class="f" cx="18" cy="12" r="1.9"/><circle class="f" cx="6" cy="18" r="1.9"/><circle class="f" cx="12" cy="18" r="1.9"/><circle class="f" cx="18" cy="18" r="1.9"/></svg>Overview</button></nav></div>
+<nav id="nav"><button data-pg="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>Settings</button><button data-pg="1"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="10" rx="1"/><rect x="16" y="4" width="4" height="13" rx="1"/></svg>Planner</button><button data-pg="2"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Time</button><button data-pg="4"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><circle cx="7" cy="17" r="3"/><circle class="f" cx="17" cy="17" r="3"/></svg>Days</button><button data-pg="3"><svg viewBox="0 0 24 24"><circle class="f" cx="6" cy="6" r="1.9"/><circle class="f" cx="12" cy="6" r="1.9"/><circle class="f" cx="18" cy="6" r="1.9"/><circle class="f" cx="6" cy="12" r="1.9"/><circle class="f" cx="12" cy="12" r="1.9"/><circle class="f" cx="18" cy="12" r="1.9"/><circle class="f" cx="6" cy="18" r="1.9"/><circle class="f" cx="12" cy="18" r="1.9"/><circle class="f" cx="18" cy="18" r="1.9"/></svg>Overview</button></nav></div>
 <div id="bg"><div id="sheet"></div></div><input type="file" id="fi" accept="application/json" hidden>
 <script>
 (function(){
@@ -166,8 +176,46 @@ function pOver(){head('Overview','All dots · '+sum(S.p,tot)+' in total · '+sum
 function fitOv(){const el=document.getElementById('ov');if(!el)return;const W=pg.clientWidth-24,H=pg.clientHeight-12;let best=3;
 const N=CATS.map(c=>sum(S.p.filter(p=>p.cat===c),tot));for(let s=16;s>=3;s--){const g=s+2,cols=Math.floor(W/g),rows=sum(N,n=>Math.ceil(n/cols)),lab=CATS.length*(20+8);if(rows*g+lab<=H){best=s;break}}
 let h='';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);h+='<div class="row m" style="margin-top:6px"><b style="color:'+CC[c]+'">'+c+'</b><span class="sp"></span>'+sum(ps,dn)+' / '+sum(ps,tot)+'</div><div class="dg" style="--s:'+best+'px;--g:1px">'+ps.map(p=>dots(tot(p),dn(p),p.c,{sq:!!p.dt})).join('')+'</div>'});el.innerHTML=h}
-function draw(){SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3?'ov':'';
-pg.innerHTML=U.pg===0?pSettings():U.pg===2?pTime():U.pg===3?pOver():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===1&&!m)head('Planner',U.cat+' · '+S.bud[U.cat]+' h per week');if(U.pg===0)head('Settings','Weekly hours per category');save()}
+/* fortnight (Days) */
+const fnS=()=>{if(!S.fn){const f=S.p.find(p=>p.name==='FMA');S.fn={ov:{},cl:{},sel:null,off:0};if(f)S.fn.cl[td()]={[f.id]:6}}return S.fn};
+const fnSel=()=>proj(fnS().sel)||S.p[0];
+function fnSugg(m){const sim=getSim(),out={},t=pd(td()),wi=Math.round((m-pd(sim.weeks[0]))/6048e5);for(let j=0;j<7;j++)out[iso(addD(m,j))]=[];
+if(wi>=0&&wi<sim.N){const days=[];for(let j=0;j<5;j++)if(wi>0||addD(m,j)>=t)days.push(j);const n=days.length;let o=0;
+S.p.forEach(p=>{if(p.dt)return;const a=(sim.alloc[p.id]||[])[wi];if(!a||!n)return;const base=Math.floor(a/n),r=a%n;days.forEach((j,q)=>{const k=base+(((q-o)%n+n)%n<r?1:0);for(let i=0;i<k;i++)out[iso(addD(m,j))].push([p.id,0,0])});o+=r})}
+S.p.forEach(p=>{if(!p.dt)return;sqDays(p).forEach(x=>{if(out[x.d])for(let i=0;i<x.k;i++)out[x.d].push([p.id,2,1])})});
+const cl=fnS().cl;Object.keys(cl).forEach(d=>{if(!out[d])return;Object.keys(cl[d]).forEach(id=>{for(let i=0;i<cl[d][id];i++){let q=out[d].findIndex(x=>x[1]===0&&x[0]===id);if(q<0)q=out[d].map(x=>x[1]).lastIndexOf(0);if(q>=0)out[d].splice(q,1);out[d].push([id,2,1])}})});
+Object.values(out).forEach(L=>L.sort((a,b)=>(b[1]===2)-(a[1]===2)));return out}
+function fnDay(d){const F=fnS(),L=F.ov[d]!==undefined?F.ov[d]:(fnSugg(mon(pd(d)))[d]||[]);return L.filter(x=>proj(x[0])).map(x=>x.map(v=>Array.isArray(v)?v.slice():v))}
+function fnBg(x){if(!x[3]||!x[3].length)return'';let g=[],i=0;for(;i<x[3].length;i++){const p=proj(x[3][i]);g.push((p?p.c:'#888')+' '+i*90+'deg '+(i+1)*90+'deg')}if(i<4)g.push('var(--sf) '+i*90+'deg 360deg');return';background:conic-gradient('+g.join(',')+')'}
+let FN={cnt:{},dn:{}};
+function pDays(){const F=fnS(),t=pd(td()),m=addD(mon(t),7*(F.off||0)),e=addD(m,13),sp=fnSel(),sg=[fnSugg(m),fnSugg(addD(m,7))],cnt={},dn={},DL=['M','T','W','T','F'];
+head('Days',fdt(iso(m))+' – '+fdt(iso(e)));
+let h='<div class="fg"><div class="ft"><button class="fb" data-a="fnprev">‹</button><button class="fb" data-a="fnnext">›</button>'+(F.off?'<button class="fb" data-a="fnnow">Today</button>':'')+'<span class="sp"></span><button class="fb" data-a="fnpick"><i class="fsw" style="background:'+sp.c+'"></i>'+esc(sp.name)+' ▾</button><button class="fb" data-a="fnreset">Reset</button></div><div class="fgrid">';
+for(let w=0;w<2;w++){const wm=addD(m,7*w);for(let j=0;j<6;j++){const we=j===5,dd=addD(wm,we?5:j),d=iso(dd),L=fnDay(d);
+L.forEach(x=>{cnt[x[0]]=(cnt[x[0]]||0)+1;if(x[1]!==2&&x[3]&&x[3].length)x[3].forEach(q=>dn[q]=(dn[q]||0)+.25);else dn[x[0]]=(dn[x[0]]||0)+(x[1]===2?1:x[2])});
+h+='<div class="fr'+(we?' we':'')+(!we&&+dd===+t?' td':'')+((we?addD(dd,1):dd)<t?' pa':'')+'"><div class="flb">'+(we?'<b>S/S</b>':'<b>'+DL[j]+'</b>'+dd.getUTCDate())+'</div>';
+const n=L.length;for(let k=0;k<6;k++){if(n>6&&k===5)h+='<button class="fdot ovf" data-d="'+d+'" data-ov="1">+'+(n-5)+'</button>';
+else if(k<n){const x=L[k];h+='<button class="fdot f'+(x[1]===2?' sq':x[2]>=1?'':' ring')+'" data-d="'+d+'" data-k="'+k+'" style="--c:'+proj(x[0]).c+';--f:'+x[2]+fnBg(x)+'"></button>'}
+else h+='<button class="fdot" data-d="'+d+'" data-k="'+k+'"></button>'}h+='</div>'}if(w===0)h+='<div></div>'}
+FN={cnt,dn};return h+'</div></div>'}
+function fnSize(){const g=pg.querySelector('.fgrid');if(!g)return;const H=(g.clientHeight-7)/12,W=(g.clientWidth-8-24)/6;pg.style.setProperty('--d',Math.max(20,Math.floor(Math.min(H-4,W-4)*.92))+'px')}
+let tt;function fnToast(s){let t=document.getElementById('ftoast');if(!t){t=document.createElement('div');t.id='ftoast';document.getElementById('app').appendChild(t)}t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1100)}
+function fnSet(d,L){fnS().ov[d]=L;draw()}
+function fnTap(b){const d=b.dataset.d,L=fnDay(d);if(b.dataset.ov){const c={};L.forEach(x=>c[x[0]]=(c[x[0]]||0)+1);fnToast(Object.keys(c).map(i=>proj(i).name+' '+c[i]).join(' · '));return}
+const k=+b.dataset.k,sp=fnSel();
+if(k<L.length){const x=L[k];if(x[1]===2){fnToast('Classroom hour, fixed');return}
+if(x[2]<1){if(x[3]&&x[3].length)while(x[3].length<4)x[3].push(x[0]);x[2]=1;fnToast(proj(x[0]).name+' done')}else{L.splice(k,1);fnToast('Emptied')}}
+else{L.push([sp.id,0,0]);fnToast(sp.name+' planned')}fnSet(d,L)}
+function fnQuarter(b){if(b.dataset.ov||b.dataset.k===undefined)return;const d=b.dataset.d,k=+b.dataset.k,L=fnDay(d),sp=fnSel();
+if(k<L.length){const x=L[k];if(x[1]===2){fnToast('Classroom hour, fixed');return}const sg=x[3]||(x[2]>0&&x[2]<1?Array(Math.round(x[2]*4)).fill(x[0]):x[2]>=1?Array(4).fill(x[0]):[]);if(sg.length>=4){x[3]=[];x[2]=0}else{sg.push(sp.id);x[3]=sg;x[2]=sg.length/4}fnToast(sp.name+' quarter, '+x[2]*4+' of 4')}
+else{L.push([sp.id,0,.25,[sp.id]]);fnToast(sp.name+' quarter, 1 of 4')}fnSet(d,L)}
+(function(){let lp=null,fired=false;
+pg.addEventListener('pointerdown',e=>{const b=e.target.closest('.fdot');fired=false;if(!b||U.pg!==4)return;lp=setTimeout(()=>{fired=true;fnQuarter(b)},450)});
+pg.addEventListener('pointerup',e=>{clearTimeout(lp);const b=e.target.closest('.fdot');if(!b||fired||U.pg!==4)return;fnTap(b)});
+pg.addEventListener('pointercancel',()=>clearTimeout(lp));pg.addEventListener('pointermove',e=>{if(Math.abs(e.movementX)+Math.abs(e.movementY)>6)clearTimeout(lp)});pg.addEventListener('contextmenu',e=>{if(U.pg===4)e.preventDefault()})})();
+function fnSheet(){let h='<b style="font-size:16px">Pick a project</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>'<button class="fit" data-a="fnsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.name)+'<span>'+(Math.round((FN.dn[p.id]||0)*100)/100)+' of '+(FN.cnt[p.id]||0)+' h done</span></button>').join('')+'</div></div>'});open(h)}
+function draw(){SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3||U.pg===4?'ov':'';
+pg.innerHTML=U.pg===0?pSettings():U.pg===2?pTime():U.pg===3?pOver():U.pg===4?pDays():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===4)fnSize();if(U.pg===1&&!m)head('Planner',U.cat+' · '+S.bud[U.cat]+' h per week');if(U.pg===0)head('Settings','Weekly hours per category');save()}
 /* sheets */
 const open=h=>{sheet.innerHTML=h;bg.classList.add('on')},close=()=>bg.classList.remove('on'),val=id=>document.getElementById(id).value;
 let DT=null;
@@ -176,6 +224,7 @@ for(let j=i;j<p.st.length;j++)h+='<div class="row" style="padding:5px 0;border-t
 h+='<button class="big" data-a="dok">Start detour</button>';open(h)}
 /* actions */
 const A={
+fnprev(){fnS().off--;draw()},fnnext(){fnS().off++;draw()},fnnow(){fnS().off=0;draw()},fnpick(){fnSheet()},fnsel(e){fnS().sel=e.dataset.id;close();draw()},fnreset(){fnS().ov={};draw();fnToast('Back to the suggested plan')},
 lg(){U.lg=!U.lg;draw()},zoom(e){U.z=e.dataset.z;draw()},tcat(e){U.tc=e.dataset.c;draw()},mode(e){const c=e.dataset.c;S.mode[c]=S.mode[c]==='focus'?'share':'focus';draw()},
 up(e){const i=S.p.findIndex(p=>p.id===e.dataset.p);let j=i-1;while(j>=0&&S.p[j].cat!==S.p[i].cat)j--;if(j>=0){const x=S.p[i];S.p[i]=S.p[j];S.p[j]=x}draw()},
 offadd(){open('<b>Week off</b><div class="m" style="margin:4px 0">Pick any day in the week.</div><input type="date" id="v1"><button class="big" data-a="offok">Add</button>')},
@@ -209,6 +258,6 @@ reset(){if(!U.rs){U.rs=1;return draw()}try{localStorage.setItem(KEY,JSON.stringi
 document.addEventListener('click',e=>{if(e.target===bg)return close();const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a]){e.stopPropagation();A[el.dataset.a](el);return}const nb=e.target.closest('nav button');if(nb){U.pg=+nb.dataset.pg;draw()}});
 document.getElementById('bk').onclick=()=>{U.proj=null;U.task=null;draw()};
 document.getElementById('fi').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(o.v===3){localStorage.setItem(KEY,JSON.stringify(o));location.reload()}}catch(x){}};r.readAsText(f)};
-window.addEventListener('resize',()=>{if(U.pg===3)fitOv()});draw();window.H={S,draw,U,getSim,rem,tot,dn};
+window.addEventListener('resize',()=>{if(U.pg===3)fitOv();if(U.pg===4)fnSize()});draw();window.H={S,draw,U,getSim,rem,tot,dn};
 })();
 </script></body></html>
