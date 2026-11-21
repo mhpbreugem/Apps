@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MIZN page on one screen, 5 designs</title>
+<style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7B7D86;--ln:#E3E1DA;--ch:#ECEAE4;--c:#2E7D4F}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--ch:#26272D}}
+*{box-sizing:border-box;margin:0}html,body{background:#777}body{font:14px Inter,system-ui,sans-serif;color:var(--ink);display:flex;flex-wrap:wrap;gap:16px;justify-content:center;padding:16px 0}
+section{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;border-radius:14px}
+.hd{background:#000;color:#fff;padding:12px 14px;flex:none}.hd b{font-size:16px;display:block}.hd small{opacity:.7;font-size:11px}
+.body{flex:1;min-height:0;padding:2px 12px 66px;overflow:auto}
+.bar2{flex:none;height:62px;margin-top:-62px;position:relative;background:var(--bg);border-top:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:12px}.bar2 button{border:0;background:var(--ink);color:var(--bg);border-radius:20px;padding:10px 18px;font:700 14px Inter}
+.nav{flex:none;height:56px;border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;font-size:10px;color:var(--mu)}
+.stg{display:flex;align-items:baseline;gap:7px;padding:7px 0 3px;font-size:14px;font-weight:700}.stg small{font:500 10.5px Inter;color:var(--mu)}.sc+.sc{border-top:1px solid var(--ln);margin-top:4px}
+.oc{--o:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);display:inline-flex;align-items:center;justify-content:center;width:var(--s,20px);height:var(--s,20px);background:var(--c);clip-path:var(--o);position:relative;flex:none;margin-right:1.5px}.oc:before{content:'';position:absolute;inset:2px;background:var(--bg);clip-path:var(--o)}.oc.on:before{display:none}.oc b{position:relative;font:700 calc(var(--s,20px)*.5)/1 Inter;color:var(--ink)}.oc.on b{color:#fff}
+.dg{display:flex;flex-wrap:wrap;line-height:0;row-gap:0}.dg i{width:var(--s);height:var(--s);border-radius:50%;background:var(--c);flex:none;margin-right:1.5px}.dg i.e{opacity:.28}
+.chip{height:var(--s);display:flex;align-items:center;gap:4px;padding:0 7px 0 3px;margin-right:4px;background:var(--ch);border-radius:20px;font:600 10.5px Inter;white-space:nowrap;flex:none;line-height:1}.chip .oc{margin:0}
+.key{font:500 11px/1.35 Inter;color:var(--mu);padding:3px 0}.key b{color:var(--ink);font-weight:700}.key2{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;font:500 11px/1.3 Inter;padding:6px 0 0}.key2 span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.key2 b{display:inline-block;width:14px;font-weight:700}.key2 i{color:var(--mu);font-style:normal}
+.lab{display:grid;grid-template-columns:96px 1fr;gap:0 6px;margin-bottom:3px}.lab .tn{font:600 11px/1.15 Inter;display:flex;gap:4px;align-items:flex-start}.lab .tn span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.lab small{display:block;font:500 10px Inter;color:var(--mu)}
+.ln{display:flex;align-items:center;gap:6px;font:700 10px Inter;color:var(--mu);margin:4px 0 1px}.ln i{flex:1;border-top:1px solid var(--ln)}
+</style></head><body>
+<script>
+const ST=[['Question','18 Dec',[['Write the claim in one sentence',10,10]]],['Initial model','9 Apr 2027',[['Set up the economy',17,17],['Solve the baseline',17,4],['Prove the main property',16,0]]],['Story','18 Jun 2027',[['Introduction and positioning',18,0],['Intuition and interpretation',12,0]]],['Numerics and extensions','5 Nov 2027',[['Robustness checks',20,0],['Extensions',25,0],['Review the AI output',15,0]]],['Submit and revise','26 May 2028',[['Polish and seminars',30,0],['Submit',10,0],['Referee rounds',60,0]]]];
+let N=0;ST.forEach(S=>S[2].forEach(t=>t.push(++N)));
+const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0);
+const dots=(n,d,s)=>{let o='';for(let k=0;k<n;k++)o+=`<i class="${k<d?'':'e'}" style="--s:${s}px"></i>`;return o};
+const mk=(t,s)=>`<span class="oc${t[2]>=t[1]?' on':''}" style="--s:${s}px"><b>${t[3]}</b></span>`;
+const stc=S=>sum(S[2],t=>t[2])+'/'+sum(S[2],t=>t[1]);
+const stH=S=>`<div class="stg">${S[0]}<small>${stc(S)} · likely ${S[1]}</small></div>`;
+const short=n=>n.split(' ').slice(0,2).join(' ');
+const DES=[
+ {n:'1 · Name chips inside the dot flow',f:s=>ST.map(S=>`<div class="sc">${stH(S)}<div class="dg" style="row-gap:2px">`+S[2].map(t=>`<span class="chip" style="--s:${s}px"><span class="oc${t[2]>=t[1]?' on':''}" style="--s:${Math.max(12,s-8)}px"><b>${t[3]}</b></span>${short(t[0])} <span style="color:var(--mu);font-weight:500">${t[2]}/${t[1]}</span></span>${dots(t[1],t[2],s)}`).join('')+`</div></div>`).join('')},
+ {n:'2 · Numbered octagons, key under each stage',f:s=>ST.map(S=>`<div class="sc">${stH(S)}<div class="dg">`+S[2].map(t=>mk(t,s)+dots(t[1],t[2],s)).join('')+`</div><div class="key">`+S[2].map(t=>`<b>${t[3]}</b> ${t[0]} ${t[2]}/${t[1]}`).join('  ·  ')+`</div></div>`).join('')},
+ {n:'3 · Numbered octagons, one key at the bottom',f:s=>ST.map(S=>`<div class="sc">${stH(S)}<div class="dg">`+S[2].map(t=>mk(t,s)+dots(t[1],t[2],s)).join('')+`</div></div>`).join('')+`<div class="key2">`+ST.flatMap(S=>S[2]).map(t=>`<span><b>${t[3]}</b>${t[0]} <i>${t[2]}/${t[1]}</i></span>`).join('')+`</div>`},
+ {n:'4 · Names left, dots right',f:s=>ST.map(S=>`<div class="sc">${stH(S)}`+S[2].map(t=>`<div class="lab"><div class="tn"><span class="oc${t[2]>=t[1]?' on':''}" style="--s:16px"><b>${t[3]}</b></span><span>${t[0]}<small>${t[2]}/${t[1]}</small></span></div><div class="dg" style="align-content:flex-start;--s:${s}px">${dots(t[1],t[2],s)}</div></div>`).join('')+`</div>`).join('')},
+ {n:'5 · One dot field, stage rules, key at the bottom',f:s=>ST.map(S=>`<div class="ln">${S[0]} ${stc(S)}<i></i></div><div class="dg">`+S[2].map(t=>mk(t,s)+dots(t[1],t[2],s)).join('')+`</div>`).join('')+`<div class="key2">`+ST.flatMap(S=>S[2]).map(t=>`<span><b>${t[3]}</b>${t[0]} <i>${t[2]}/${t[1]}</i></span>`).join('')+`</div>`}];
+document.body.innerHTML=DES.map(d=>`<section><div class="hd"><b>${d.n}</b><small>MIZN</small></div><div class="body"></div><div class="bar2"><span><b>Solve the baseline</b><br><small>Initial model · 4 of 17</small></span><button>Log 1 h</button></div><div class="nav"><span>Planner</span><span>Days</span><span>Booked</span><span>Overview</span><span>Settings</span></div></section>`).join('');
+document.querySelectorAll('section').forEach((sec,i)=>{const b=sec.querySelector('.body');let s=36;for(;s>=10;s--){b.innerHTML=DES[i].f(s);if(b.scrollHeight<=b.clientHeight)break}sec.querySelector('.hd small').textContent='MIZN · dots '+s+' px, one screen'});
+</script></body></html>
