@@ -144,7 +144,7 @@ header>div{min-width:0;flex:1 1 auto}header>div b{white-space:nowrap;overflow:hi
 <div id="bg"><div id="sheet"></div></div><input type="file" id="fi" accept="application/json" hidden>
 <script>
 (function(){
-const VER=3,PV=1;document.body.dataset.v=VER;document.body.dataset.pv=PV;const KEY='hours-v4',uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+f(x),0),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const VER=3,PV=4;document.body.dataset.v=VER;document.body.dataset.pv=PV;const KEY='hours-v4',uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+f(x),0),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const CATS=['Research','Teaching','Chair & Admin','Personal'],CC={Research:'#2E7D4F',Teaching:'#D9822F','Chair & Admin':'#6B4FA3',Personal:'#7A7B80'};
 const BUD0={Research:14,Teaching:12,'Chair & Admin':10,Personal:4};
 function split(n,w){const t=sum(w,x=>x),r=w.map(x=>Math.floor(n*x/t));let left=n-sum(r,x=>x);w.map((x,i)=>[n*x/t-r[i],i]).sort((a,b)=>b[0]-a[0]).forEach((z,k)=>{if(k<left)r[z[1]]++});return r}
