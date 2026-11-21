@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Planner overview, 10 alternatives</title>
+<style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7B7D86;--ln:#E3E1DA;--ch:#ECEAE4;--sf:#fff}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--ch:#26272D;--sf:#1B1C20}}
+*{box-sizing:border-box;margin:0}html,body{background:#777}body{font:13px Inter,system-ui,sans-serif;color:var(--ink);display:flex;flex-wrap:wrap;gap:16px;justify-content:center;padding:16px 0}
+section{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;border-radius:14px}
+.hd{background:#000;color:#fff;padding:10px 14px;flex:none;display:flex;justify-content:space-between;align-items:flex-end}.hd b{font-size:16px;display:block}.hd small{opacity:.7;font-size:11px}.hd em{font:normal 10px Inter;opacity:.6}
+.body{flex:1;min-height:0;padding:6px 12px 8px;overflow:hidden;position:relative}
+.nav{flex:none;height:56px;border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;font-size:10px;color:var(--mu)}.nav b{color:var(--ink)}
+.cn{display:flex;align-items:baseline;gap:6px;font:700 12px Inter;margin:6px 0 3px}.cn small{font:500 10px Inter;color:var(--mu)}.cn i{width:9px;height:9px;border-radius:3px;background:var(--c);align-self:center}.cn .sp{flex:1}
+.m{color:var(--mu);font-size:10px}
+.ring{width:var(--z);height:var(--z);border-radius:50%;background:linear-gradient(0deg,var(--c) calc(var(--p)*1%),color-mix(in srgb,var(--c) 24%,var(--bg)) 0);display:flex;align-items:center;justify-content:center;flex:none}.ring b{display:flex;align-items:center;justify-content:center;font:700 calc(var(--z)*.22) Inter;color:var(--ink);text-shadow:0 0 3px var(--bg),0 0 3px var(--bg)}
+.bar{height:var(--h,8px);border-radius:var(--r,4px);background:color-mix(in srgb,var(--c) 22%,var(--bg));overflow:hidden}.bar i{display:block;height:100%;background:var(--c)}
+.dg{display:flex;flex-wrap:wrap;line-height:0}.dg i{width:var(--s);height:var(--s);border-radius:50%;background:var(--c);margin:0 1.5px 1.5px 0;flex:none}.dg i.e{opacity:.26}
+</style><style>
+.mh,.mr{display:grid;column-gap:4px;align-items:center}.mh{font:600 9px Inter;color:var(--mu);text-align:center;padding-top:2px}.mh span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mr{height:21px}.mr.t{height:24px}.mr b{font:600 11.5px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.r{text-align:right}
+.bar.tx{position:relative}.bar.tx u{position:absolute;inset:0;display:flex;align-items:center;padding:0 5px;font:600 8.5px Inter;text-decoration:none;white-space:nowrap;overflow:hidden;color:var(--ink)}
+.bar.one{background-image:repeating-linear-gradient(90deg,transparent 0 calc(100%/var(--n) - 2px),var(--bg) calc(100%/var(--n) - 2px) calc(100%/var(--n)));position:relative}
+.dc{display:flex;justify-content:center}.dc i{width:15px;height:15px;border-radius:50%}
+.pr{display:grid;grid-template-columns:1fr auto;padding:2px 0 3px;row-gap:2px}.pr b{font:600 11.5px Inter}.pl2{display:flex;gap:3px}.pl2 span{flex:1;min-width:0;font:600 8.5px Inter;padding:3px 2px;border-radius:7px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs small{font:500 9px Inter;color:var(--mu);display:block;margin-top:1px}
+.hc{height:17px;border-radius:4px;display:flex;align-items:center;justify-content:center}.hc small{font:600 8px Inter;color:var(--ink)}
+.tl{height:15px;background:repeating-linear-gradient(90deg,var(--ln) 0 1px,transparent 1px calc(100%/7))}.tb{height:15px;display:flex;gap:1px;border-radius:5px;overflow:hidden}.tb i{flex:1}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:5px}.cd{display:grid;grid-template-columns:1fr auto;padding:4px 6px;border-radius:8px;background:var(--sf);border:1px solid var(--ln);row-gap:1px}.cd b{font:600 11px Inter}.cd small{grid-column:1/3;font:500 8px Inter;color:var(--mu)}.sg{grid-column:1/3;display:grid;gap:2px;margin-top:2px}
+.lad{display:flex}.lad span{flex:1;font:600 8.5px Inter;padding:3px 2px;text-align:center;white-space:nowrap;overflow:hidden;clip-path:polygon(0 0,calc(100% - 5px) 0,100% 50%,calc(100% - 5px) 100%,0 100%,5px 50%);margin-left:-3px}
+</style></head><body>
+<script>
+const C={Research:'#2E7D4F',Teaching:'#E39A45','Chair & Admin':'#6B4FA3',Personal:'#7B7D86'};
+const R=['Question','Initial model','Story','Numerics','Submit'];
+const D=[['Research',14,[['MIZN',250,21,18,R,[1,.4,0,0,0]],['TSI',200,40,20,R,[1,1,.2,0,0]],['IRR',150,0,24,R,[0,0,0,0,0]],['KEZ',150,12,22,R,[.6,0,0,0,0]],['BBP',100,60,14,R,[1,1,.6,0,0]],['WP0',100,10,26,R,[.4,0,0,0,0]],['WP1',150,0,28,R,[0,0,0,0,0]]]],
+['Teaching',12,[['BT',75,18,5,['Prepare','Teach','Exam and grading'],[.5,.1,0]],['FMA',50,6,3,['Prepare','Teach','Exam and grading'],[.4,0,0]],['EEOD',10,0,2,['Prepare','Teach','Exam and grading'],[0,0,0]],['Frankfurt',90,0,3,['Teach'],[0]],['Theses',74,30,8,['Supervision','Reading','Defences'],[.7,.3,0]]]],
+['Chair & Admin',10,[['Recruitment',30,12,4,['Profile','Applications','Fly-outs','Decide','Offer'],[1,.5,0,0,0]],['Teaching alloc.',20,8,3,['Supply and demand','Draft','Agree'],[1,.4,0]],['New master',30,4,10,['Proposal','Partner talks','Curriculum','Approval'],[.3,0,0,0]],['Staff and MT',60,20,12,['Ongoing'],[.33]],['Committees',50,10,12,['Ongoing'],[.2]]]],
+['Personal',4,[['Persian',60,15,16,['Ongoing'],[.25]],['Sport',100,40,12,['Ongoing'],[.4]],['Home',40,5,6,['Ongoing'],[.12]]]]];
+const CATS=D.map(([n,wk,ps])=>({n,wk,c:C[n],ps:ps.map(([a,t,d,m,sn,sf])=>({n:a,t,d,m,sn,sf,c:C[n]}))}));
+const tr=c=>`color-mix(in srgb,${c} 22%,var(--bg))`;
+const cat=c=>`<div class="cn" style="--c:${c.c}"><i></i>${c.n}<span class="sp"></span><small>${c.ps.reduce((a,p)=>a+p.d,0)} of ${c.ps.reduce((a,p)=>a+p.t,0)} h · ${c.wk} h/wk</small></div>`;
+const grp=(c,fn)=>{let h='',sig=null;c.ps.forEach(p=>{const s=p.sn.join('|');h+=fn(p,s!==sig);sig=s});return h};
+const cols=n=>`grid-template-columns:74px repeat(${n},minmax(0,1fr)) 38px`;
+const hdr=p=>`<div class="mh" style="${cols(p.sn.length)}"><span></span>${p.sn.map(x=>`<span>${x}</span>`).join('')}<span></span></div>`;
+const seg=(p,h,x)=>p.sn.map((_,i)=>`<div class="bar" style="--c:${p.c};--h:${h}px;--r:${x||5}px"><i style="width:${p.sf[i]*100}%"></i></div>`).join('');
+const cnt=p=>`<span class="m r">${p.d}/${p.t}</span>`;
+const V=[
+['1 · Header rows',c=>grp(c,(p,f)=>(f?hdr(p):'')+`<div class="mr" style="${cols(p.sn.length)}"><b>${p.n}</b>${seg(p,13)}${cnt(p)}</div>`)],
+['2 · Names inside bars',c=>c.ps.map(p=>`<div class="mr t" style="${cols(p.sn.length)}"><b>${p.n}</b>${p.sn.map((s,i)=>`<div class="bar tx" style="--c:${p.c};--h:19px;--r:5px"><i style="width:${p.sf[i]*100}%"></i><u>${s}</u></div>`).join('')}${cnt(p)}</div>`).join('')],
+['3 · Stage dots',c=>grp(c,(p,f)=>(f?hdr(p):'')+`<div class="mr" style="${cols(p.sn.length)}"><b>${p.n}</b>${p.sn.map((_,i)=>`<div class="dc"><i style="--c:${p.c};background:conic-gradient(${p.c} ${p.sf[i]*360}deg,${tr(p.c)} 0)"></i></div>`).join('')}${cnt(p)}</div>`)],
+['4 · One bar, ticks',c=>grp(c,(p,f)=>{const n=p.sn.length,w=p.sf.reduce((a,b)=>a+b,0)/n*100;return (f?`<div class="mh" style="grid-template-columns:74px 1fr 38px"><span></span><div style="display:grid;grid-template-columns:repeat(${n},1fr)">${p.sn.map(x=>`<span>${x}</span>`).join('')}</div><span></span></div>`:'')+`<div class="mr" style="grid-template-columns:74px 1fr 38px"><b>${p.n}</b><div class="bar one" style="--c:${p.c};--h:13px;--r:5px;--n:${n}"><i style="width:${w}%"></i></div>${cnt(p)}</div>`})],
+['5 · Stage pills',c=>c.ps.map(p=>`<div class="mr t" style="grid-template-columns:74px 1fr 38px"><b>${p.n}</b><div class="pl2">${p.sn.map((s,i)=>`<span style="background:linear-gradient(90deg,${p.c} ${p.sf[i]*100}%,${tr(p.c)} 0);color:${p.sf[i]>.5?'#fff':'var(--ink)'}">${s}</span>`).join('')}</div>${cnt(p)}</div>`).join('')],
+['6 · Current stage',c=>c.ps.map(p=>{const k=p.sf.findIndex(x=>x<1),i=k<0?p.sn.length-1:k;return `<div class="mr" style="grid-template-columns:74px 1fr 38px"><b>${p.n}</b><div class="cs"><div class="bar" style="--c:${p.c};--h:6px;--r:3px"><i style="width:${p.d/p.t*100}%"></i></div><small>${i+1}/${p.sn.length} ${p.sn[i]}</small></div>${cnt(p)}</div>`}).join('')],
+['7 · Heat squares',c=>grp(c,(p,f)=>(f?hdr(p):'')+`<div class="mr" style="${cols(p.sn.length)}"><b>${p.n}</b>${p.sn.map((_,i)=>`<div class="hc" style="background:color-mix(in srgb,${p.c} ${8+p.sf[i]*92}%,var(--bg))"><small>${Math.round(p.sf[i]*100)}</small></div>`).join('')}${cnt(p)}</div>`)],
+['8 · Months to finish',c=>c.ps.map(p=>`<div class="mr" style="grid-template-columns:74px 1fr 38px"><b>${p.n}</b><div class="tl"><div style="width:${p.m/28*100}%;--c:${p.c}" class="tb">${p.sn.map((_,i)=>`<i style="background:linear-gradient(90deg,${p.c} ${p.sf[i]*100}%,${tr(p.c)} 0)"></i>`).join('')}</div></div><span class="m r">${p.m} mo</span></div>`).join('')],
+['9 · Two columns',c=>`<div class="g2">${c.ps.map(p=>{const k=p.sf.findIndex(x=>x<1),i=k<0?p.sn.length-1:k;return `<div class="cd" style="--c:${p.c}"><b>${p.n}</b>${cnt(p)}<div class="sg" style="grid-template-columns:repeat(${p.sn.length},1fr)">${seg(p,6,2)}</div><small>${p.sn[i]}</small></div>`}).join('')}</div>`],
+['10 · Stage ladder',c=>c.ps.map(p=>`<div class="mr" style="grid-template-columns:74px 1fr 38px"><b>${p.n}</b><div class="lad">${p.sn.map((s,i)=>`<span style="--c:${p.c};background:${p.sf[i]>=1?p.c:p.sf[i]>0?`linear-gradient(90deg,${p.c} ${p.sf[i]*100}%,${tr(p.c)} 0)`:tr(p.c)};color:${p.sf[i]>=1?'#fff':'var(--ink)'}">${s.split(' ')[0]}</span>`).join('')}</div>${cnt(p)}</div>`).join('')]
+];
+document.body.innerHTML=V.map(([t,f])=>`<section><div class="hd"><div><b>Planner</b><small>6 of 1789 h done</small></div><em>${t}</em></div><div class="body">${CATS.map(c=>cat(c)+f(c)).join('')}</div><div class="nav"><b>Planner</b><span>Days</span><span>Booked</span><span>Settings</span></div></section>`).join('');
+</script></body></html>
