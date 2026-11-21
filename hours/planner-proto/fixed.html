@@ -1,0 +1,35 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MIZN page: fixed dot size, 1 or 2 columns</title>
+<style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7B7D86;--ln:#E3E1DA;--ch:#ECEAE4;--c:#2E7D4F}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--ch:#26272D}}
+*{box-sizing:border-box;margin:0}html,body{background:#777}body{font:14px Inter,system-ui,sans-serif;color:var(--ink);display:flex;flex-wrap:wrap;gap:16px;justify-content:center;padding:16px 0}
+section{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;border-radius:14px}
+.hd{background:#000;color:#fff;padding:12px 14px;flex:none}.hd b{font-size:16px;display:block}.hd small{opacity:.7;font-size:11px}
+.body{flex:1;min-height:0;padding:0 12px 70px;overflow:auto}
+.bar2{flex:none;height:62px;margin-top:-62px;position:relative;background:var(--bg);border-top:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:12px}.bar2 button{border:0;background:var(--ink);color:var(--bg);border-radius:20px;padding:10px 18px;font:700 14px Inter}
+.nav{flex:none;height:56px;border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;font-size:10px;color:var(--mu)}
+.stg{display:flex;align-items:baseline;gap:7px;padding:9px 0 4px;font-size:15px;font-weight:700}.stg small{font:500 10.5px Inter;color:var(--mu)}.sc+.sc{border-top:1px solid var(--ln);margin-top:6px}
+.oc{--o:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);display:inline-block;width:20px;height:20px;background:var(--c);clip-path:var(--o);position:relative;flex:none}.oc:before{content:'';position:absolute;inset:2px;background:var(--bg);clip-path:var(--o)}.oc.on:before{display:none}.oc.on:after{content:'✓';position:absolute;inset:0;color:#fff;font:700 12px/20px Inter;text-align:center}
+.tn{display:flex;align-items:flex-start;gap:6px;font:600 12px/1.2 Inter;min-height:20px}.tn .nm{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding-top:2px}.tn .m{font:500 10.5px Inter;color:var(--mu);padding-top:3px}
+.dg{display:flex;flex-wrap:wrap;line-height:0;margin-top:3px}.dg i{width:var(--s);height:var(--s);border-radius:50%;background:var(--c);flex:none;margin-right:1.5px}.dg i.e{opacity:.28}
+.tk{margin-bottom:6px;min-width:0}
+.g2{display:grid;column-gap:var(--gap);align-items:start}
+.gd{display:grid;column-gap:var(--gap);grid-auto-flow:row dense;align-items:start}.gd .w{grid-column:1/-1}
+</style></head><body>
+<script>
+const ST=[['Question','likely 18 Dec',[['Write the claim in one sentence',10,10]]],['Initial model','likely 9 Apr 2027',[['Set up the economy',17,17],['Solve the baseline',17,4],['Prove the main property',16,0]]],['Story','likely 18 Jun 2027',[['Introduction and positioning',18,0],['Intuition and interpretation',12,0]]],['Numerics and extensions','likely 5 Nov 2027',[['Robustness checks',20,0],['Extensions',25,0],['Review the AI output',15,0]]],['Submit and revise','likely 26 May 2028',[['Polish and seminars',30,0],['Submit',10,0],['Referee rounds',60,0]]]];
+const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0),W=366,G=1.5;
+// n1 slots across full width (odd); n2=(n1-1)/2 per column; column gap = one dot slot + 1.5
+function geo(n1){const s=Math.floor(((W+G)/n1-G)*100)/100,p=s+G,n2=(n1-1)/2;return{s,p,n2,cw:n2*p-G,gap:p+G,n1}}
+const dots=(n,d,s)=>{let o='';for(let k=0;k<n;k++)o+=`<i class="${k<d?'':'e'}" style="--s:${s}px"></i>`;return o};
+const oc=t=>`<i class="oc${t[2]>=t[1]?' on':''}"></i>`;
+const stH=S=>`<div class="stg">${S[0]}<small>${sum(S[2],t=>t[2])}/${sum(S[2],t=>t[1])} · ${S[1]}</small></div>`;
+const task=(t,g,full)=>`<div class="tk${full?' w':''}" style="${full?'':'width:'+g.cw+'px'}"><div class="tn">${oc(t)}<span class="nm">${t[0]}</span><span class="m">${t[2]}/${t[1]}</span></div><div class="dg" style="--s:${g.s}px">${dots(t[1],t[2],g.s)}</div></div>`;
+// A,B,C: per stage 2 columns when stage has 2+ tasks, else 1 column
+const byStage=n1=>({n1,f(){const g=geo(n1);return ST.map(S=>`<div class="sc">${stH(S)}`+(S[2].length>1?`<div class="g2" style="grid-template-columns:${g.cw}px ${g.cw}px;--gap:${g.gap}px">${S[2].map(t=>task(t,g,false)).join('')}</div>`:S[2].map(t=>task(t,g,true)).join(''))+`</div>`).join('')}});
+// D: per task: small tasks (fit in half width, up to 2 rows) pair in two columns, big tasks span the full width
+const mixed=n1=>({n1,f(){const g=geo(n1),lim=g.n2*2;return ST.map(S=>`<div class="sc">${stH(S)}<div class="gd" style="grid-template-columns:${g.cw}px ${g.cw}px;--gap:${g.gap}px">${S[2].map(t=>t[1]>lim?task(t,g,true).replace('class="tk w"','class="tk w"'):task(t,g,false)).join('')}</div></div>`).join('')}});
+const DES=[{n:'A · 22.6 px dots, 2 columns per stage',...byStage(15)},{n:'B · 26.4 px dots, 2 columns per stage',...byStage(13)},{n:'C · 19.8 px dots, 2 columns per stage',...byStage(17)},{n:'D · 22.6 px dots, big tasks full width',...mixed(15)}];
+document.body.innerHTML=DES.map(d=>`<section><div class="hd"><b>${d.n}</b><small>MIZN · same dot size on every project</small></div><div class="body"></div><div class="bar2"><span><b>Solve the baseline</b><br><small>Initial model · 4 of 17</small></span><button>Log 1 h</button></div><div class="nav"><span>Planner</span><span>Days</span><span>Booked</span><span>Overview</span><span>Settings</span></div></section>`).join('');
+document.querySelectorAll('section').forEach((sec,i)=>{const b=sec.querySelector('.body');b.innerHTML=DES[i].f();sec.querySelector('.hd small').textContent+=` · ${(b.scrollHeight/(b.clientHeight-70)).toFixed(1)} screens`});
+</script></body></html>
