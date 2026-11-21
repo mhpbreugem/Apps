@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MIZN page: names left, 5 versions</title>
+<style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7B7D86;--ln:#E3E1DA;--ch:#ECEAE4;--c:#2E7D4F;--cs:#DDE9E1}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--ch:#26272D;--cs:#1E2A23}}
+*{box-sizing:border-box;margin:0}html,body{background:#777}body{font:14px Inter,system-ui,sans-serif;color:var(--ink);display:flex;flex-wrap:wrap;gap:16px;justify-content:center;padding:16px 0}
+section{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;border-radius:14px}
+.hd{background:#000;color:#fff;padding:12px 14px;flex:none}.hd b{font-size:16px;display:block}.hd small{opacity:.7;font-size:11px}
+.body{flex:1;min-height:0;padding:4px 12px 66px;overflow:auto}
+.bar2{flex:none;height:62px;margin-top:-62px;position:relative;background:var(--bg);border-top:1px solid var(--ln);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:12px}.bar2 button{border:0;background:var(--ink);color:var(--bg);border-radius:20px;padding:10px 18px;font:700 14px Inter}
+.nav{flex:none;height:56px;border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;font-size:10px;color:var(--mu)}
+.oc{--o:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);display:inline-block;width:14px;height:14px;background:var(--c);clip-path:var(--o);position:relative;flex:none}.oc:before{content:'';position:absolute;inset:1.6px;background:var(--bg);clip-path:var(--o)}.oc.on:before{display:none}.oc.on:after{content:'✓';position:absolute;inset:0;color:#fff;font:800 9px/14px Inter;text-align:center}
+.dg{display:flex;flex-wrap:wrap;align-content:flex-start;line-height:0}.dg i{width:var(--s);height:var(--s);border-radius:50%;background:var(--c);flex:none;margin-right:1.5px}.dg i.e{opacity:.28}
+.row{display:grid;grid-template-columns:var(--lw) 1fr;gap:0 6px;margin-bottom:3px;align-items:start}
+.nm{font:600 9.5px/1.15 Inter;display:flex;gap:4px;align-items:flex-start;padding-top:1px}.nm span.t{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-width:0}.nm small{display:block;font:500 8.5px Inter;color:var(--mu);margin-top:1px}
+.sh{display:flex;align-items:baseline;gap:6px;font:700 12.5px Inter;padding:8px 0 3px}.sh small{font:500 9.5px Inter;color:var(--mu)}.sh .sp{flex:1}
+.pb{height:3px;border-radius:2px;background:var(--ch);overflow:hidden;margin:0 0 4px}.pb i{display:block;height:100%;background:var(--c)}
+.sc+.sc{border-top:1px solid var(--ln);margin-top:3px}
+/* v2 cards */
+.v2 .sc{background:color-mix(in srgb,var(--ch) 55%,transparent);border-radius:12px;padding:0 8px 4px;margin-bottom:6px;border-top:0}
+/* v3 octagon next to dots */
+.v3 .row{grid-template-columns:var(--lw) 14px 1fr}.v3 .nm{justify-content:flex-end;text-align:right}.v3 .nm small{text-align:right}
+/* v4 rail */
+.v4 .sc{display:grid;grid-template-columns:16px 1fr;gap:0 6px;border-top:0;padding:0 0 4px;margin-bottom:2px}.v4 .rail{writing-mode:vertical-rl;transform:rotate(180deg);font:700 10.5px Inter;color:var(--c);text-align:center;border-left:2px solid var(--c);padding:0 0 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;border-radius:2px}
+/* v5 inline stage rule */
+.v5 .sr{display:flex;align-items:center;gap:6px;font:700 9.5px Inter;color:var(--mu);margin:5px 0 2px}.v5 .sr i{flex:1;border-top:1px solid var(--ln)}
+</style></head><body>
+<script>
+const ST=[['Question','18 Dec',[['Write the claim in one sentence',10,10]]],['Initial model','9 Apr 2027',[['Set up the economy',17,17],['Solve the baseline',17,4],['Prove the main property',16,0]]],['Story','18 Jun 2027',[['Introduction and positioning',18,0],['Intuition and interpretation',12,0]]],['Numerics and extensions','5 Nov 2027',[['Robustness checks',20,0],['Extensions',25,0],['Review the AI output',15,0]]],['Submit and revise','26 May 2028',[['Polish and seminars',30,0],['Submit',10,0],['Referee rounds',60,0]]]];
+const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0);
+const dots=(n,d,s)=>{let o='';for(let k=0;k<n;k++)o+=`<i class="${k<d?'':'e'}" style="--s:${s}px"></i>`;return o};
+const oc=t=>`<span class="oc${t[2]>=t[1]?' on':''}"></span>`;
+const D=S=>sum(S[2],t=>t[2]),H=S=>sum(S[2],t=>t[1]);
+const row=(t,s,lw,v)=>v===3?`<div class="row" style="--lw:${lw}px"><div class="nm"><span class="t">${t[0]}<small>${t[2]}/${t[1]}</small></span></div>${oc(t)}<div class="dg" style="--s:${s}px">${dots(t[1],t[2],s)}</div></div>`:`<div class="row" style="--lw:${lw}px"><div class="nm">${oc(t)}<span class="t">${t[0]}<small>${t[2]}/${t[1]}</small></span></div><div class="dg" style="--s:${s}px">${dots(t[1],t[2],s)}</div></div>`;
+const hdr=S=>`<div class="sh">${S[0]}<small>${D(S)}/${H(S)} · likely ${S[1]}</small></div>`;
+const DES=[
+ {n:'1 · Clean',cls:'v1',lw:80,f:s=>ST.map(S=>`<div class="sc">${hdr(S)}${S[2].map(t=>row(t,s,80,1)).join('')}</div>`).join('')},
+ {n:'2 · Stage cards with progress bar',cls:'v2',lw:78,f:s=>ST.map(S=>`<div class="sc">${hdr(S)}<div class="pb"><i style="width:${100*D(S)/H(S)}%"></i></div>${S[2].map(t=>row(t,s,78,1)).join('')}</div>`).join('')},
+ {n:'3 · Names right-aligned, octagon beside dots',cls:'v3',lw:70,f:s=>ST.map(S=>`<div class="sc">${hdr(S)}${S[2].map(t=>row(t,s,70,3)).join('')}</div>`).join('')},
+ {n:'4 · Stage name as a side rail',cls:'v4',lw:74,f:s=>ST.map(S=>`<div class="sc"><div class="rail">${S[0]}</div><div>${S[2].map(t=>row(t,s,74,1)).join('')}</div></div>`).join('')},
+ {n:'5 · Stage rules, tightest',cls:'v5',lw:76,f:s=>ST.map(S=>`<div class="sr">${S[0]} ${D(S)}/${H(S)}<i></i>likely ${S[1]}</div>${S[2].map(t=>row(t,s,76,1)).join('')}`).join('')}];
+document.body.innerHTML=DES.map(d=>`<section class="${d.cls}"><div class="hd"><b>${d.n}</b><small>MIZN</small></div><div class="body"></div><div class="bar2"><span><b>Solve the baseline</b><br><small>Initial model · 4 of 17</small></span><button>Log 1 h</button></div><div class="nav"><span>Planner</span><span>Days</span><span>Booked</span><span>Overview</span><span>Settings</span></div></section>`).join('');
+document.querySelectorAll('section').forEach((sec,i)=>{const b=sec.querySelector('.body');let s=34;for(;s>=10;s--){b.innerHTML=DES[i].f(s);if(b.scrollHeight<=b.clientHeight)break}sec.querySelector('.hd small').textContent='MIZN · dots '+s+' px, one screen'});
+</script></body></html>
