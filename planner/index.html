@@ -269,7 +269,7 @@ const fq=n=>{const w=Math.floor(n+1e-9),f=Math.round((n-w)*100)/100;return w+(f?
 function pBooked(){const F=fnS(),bo=F.bo||0,WC=Math.max(1,sum(CATS,c=>S.bud[c])),t=pd(td()),T=iso(t),m0=addD(mon(t),7*bo),N=13,sp=fnSel(),DL=['M','T','W','T','F','S'];head('Booked',fdt(iso(m0))+' – '+fdt(iso(addD(m0,7*N-2))));
 let h='<div class="fg"><div class="ft">'+(bo?'<button class="fb" data-a="bnow">Today</button>':'')+'</div>';
 let TT=0;const wk=[];for(let w=0;w<N;w++){const wm=addD(m0,7*w),sg=fnSugg(wm),days=[];let n=0;for(let j=0;j<6;j++){const d=iso(addD(wm,j)),L=(F.ov[d]!==undefined?F.ov[d]:(sg[d]||[])).filter(x=>x[1]===2&&proj(x[0]));n+=sum(L,y=>y[2]>0&&y[2]<1?y[2]:1);days.push({d,L})}TT+=n;wk.push({wm,days})}
-h+='<div class="m3s">'+fq(TT)+' booked hours (squares)</div><div class="m3h"><span></span>'+DL.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="fgrid m3">';
+h+='<div class="m3h" style="margin-top:6px"><span></span>'+DL.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="fgrid m3">';
 wk.forEach((r,w)=>{const mo=r.wm.getUTCMonth(),pm=w?wk[w-1].wm.getUTCMonth():-1;if(mo!==pm)h+='<div class="m3sep"><span>'+MN[mo]+'</span><i></i></div>';const cur=+r.wm===+mon(t),past=addD(r.wm,6)<t;
 h+='<div class="m3r'+(cur?' td':'')+(past?' pa':'')+'"><div class="flb"><b>M</b>'+r.wm.getUTCDate()+'</div>';
 r.days.forEach(x=>{const L=x.L,wi=w+bo,tdy=x.d===T?' tdy':'';if(!L.length){h+='<button class="m3c e'+tdy+'" data-a="bday" data-d="'+x.d+'"></button>';return}
@@ -326,7 +326,7 @@ else if(k<n){const x=L[k];h+='<button class="fdot f'+(x[1]===2?' sq b2':x[2]>=1?
 else h+='<button class="fdot" data-d="'+d+'" data-k="'+k+'"></button>'}h+='</div>'}if(w===0)h+='<div></div>'}
 FN={cnt,dn};return h+'</div></div>'}
 
-function fnSize(){const g=pg.querySelector('.fgrid');if(!g)return;const m3=g.classList.contains('m3'),F=fnS(),m0=addD(mon(pd(td())),7*(F.bo||0));let ns=0;for(let w=0;w<13;w++)if(w===0||addD(m0,7*w).getUTCMonth()!==addD(m0,7*(w-1)).getUTCMonth())ns++;const gh=g.clientHeight,gM=m3?gh:gh-36,W=(g.clientWidth-8-24-10)/6,dM=(gM-ns*15)/13-2,dD=(gM+36-7)/12-2;pg.style.setProperty('--d',Math.max(20,Math.floor(m3?Math.min(W,dM):Math.min(W-8,dD)))+'px')}
+function fnSize(){const g=pg.querySelector('.fgrid');if(!g)return;const m3=g.classList.contains('m3'),F=fnS(),m0=addD(mon(pd(td())),7*(F.bo||0));let ns=0;for(let w=0;w<13;w++)if(w===0||addD(m0,7*w).getUTCMonth()!==addD(m0,7*(w-1)).getUTCMonth())ns++;const gh=g.clientHeight,gM=m3?gh:gh-36,W=(g.clientWidth-8-24-10)/6,dM=(gM-ns*15)/13-4,dD=(gM+36-7)/12-2;pg.style.setProperty('--d',Math.max(20,Math.floor(m3?Math.min(W,dM):Math.min(W-8,dD)))+'px')}
 let tt;function fnToast(s){let t=document.getElementById('ftoast');if(!t){t=document.createElement('div');t.id='ftoast';document.getElementById('app').appendChild(t)}t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1100)}
 function fnSqAdd(d,sp){if(!(sp.dt||clP(sp.id)))return false;if(!sqLeft(sp).length){fnToast(sp.name+': no unassigned squares. Add them on its project page');return true}BSQ={sel:{},d:BSQ.d,day:d,only:sp.id};bsqOpen();return true}
 function fnSet(d,L){fnS().ov[d]=L;draw()}
