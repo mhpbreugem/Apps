@@ -217,16 +217,17 @@ const [t,si]=U.task?findT(p,U.task):[];
 h+='<div class="bar2">'+(t?'<div class="t">'+esc(t.n)+'<small>'+esc(p.st[si].n)+' · '+t.d+' of '+t.h+'</small></div><button class="pill" data-a="logm">−1</button><button class="pill k" data-a="logp" style="min-width:92px;height:42px">Log 1 h</button>'+(ed?'<button class="pill" data-a="edit">⋯</button>':''):'<div class="t m" style="font-weight:600">Tap a task to work on it and log hours</div>')+'</div>';return h}
 const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 function bkAll(){const o=[];S.p.filter(p=>p.dt).forEach(p=>sqDays(p).forEach(x=>{if(x.u>0)o.push({d:x.d,h:x.u,p:p.id,n:p.name,un:1})}));fnS();S.bk.forEach(b=>o.push({d:b.d,h:b.h,p:b.p,n:b.n,id:b.id}));return o.filter(x=>proj(x.p)).sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)}
-function pBooked(){const all=bkAll(),t=pd(td()),T=iso(t),ed=U.ed;head('Booked','Squares are hours already fixed in the calendar: classes, meetings, defences');
-let h='<div class="bkp">'+(ed?'<div class="pad"><button class="big g" data-a="bkadd">＋ Book hours</button></div>':'');
-for(let k=0;k<12;k++){const y=t.getUTCFullYear()+Math.floor((t.getUTCMonth()+k)/12),m=(t.getUTCMonth()+k)%12,key=y+'-'+String(m+1).padStart(2,'0'),it=all.filter(x=>x.d.slice(0,7)===key),n=sum(it,x=>x.h);
-const sz=n<=30?18:n<=60?14:n<=130?10:8,by={};it.forEach(x=>by[x.p]=(by[x.p]||0)+x.h);
-h+='<div class="bm'+(n?'':' em')+'"><div class="bh"><b>'+MN[m]+(k===0||m===0?' <span class="m">'+y+'</span>':'')+'</b><span class="bn">'+(n?n+' h':'–')+'</span></div>';
-if(n){h+='<div class="bs" style="--s:'+sz+'px">'+it.map(x=>{let q='';for(let i=0;i<x.h;i++)q+='<i style="--c:'+proj(x.p).c+'"'+(x.un?' class="un"':x.d<T?' class="past"':'')+'></i>';return q}).join('')+'</div>';
-h+='<div class="bl">'+Object.keys(by).map(id=>'<span class="bc" style="--c:'+proj(id).c+'"><i></i>'+esc(proj(id).name)+' '+by[id]+'</span>').join('')+'</div>';
-if(ed)h+=it.filter(x=>x.id).map(x=>'<div class="bd row"><span>'+fdt(x.d)+' · '+esc(x.n)+' · '+x.h+' h</span><span class="sp"></span><button class="link" data-a="bkdel" data-id="'+x.id+'">Remove</button></div>').join('')}
-h+='</div>'}
-return h+'</div>'}
+function pBooked(){const F=fnS(),bo=F.bo||0,WC=Math.max(1,sum(CATS,c=>S.bud[c])),t=pd(td()),T=iso(t),m0=addD(mon(t),7*bo),N=13,sp=fnSel(),DL=['M','T','W','T','F','S'];head('Booked',fdt(iso(m0))+' – '+fdt(iso(addD(m0,7*N-2))));
+let h='<div class="fg"><div class="ft"><button class="fb" data-a="bprev">‹</button><button class="fb" data-a="bnext">›</button>'+(bo?'<button class="fb" data-a="bnow">Today</button>':'')+'<span class="sp"></span><button class="fb" data-a="fnpick"><i class="fsw" style="background:'+sp.c+'"></i>'+esc(sp.name)+' ▾</button></div>';
+let TT=0;const wk=[];for(let w=0;w<N;w++){const wm=addD(m0,7*w),sg=fnSugg(wm),days=[];let n=0;for(let j=0;j<6;j++){const d=iso(addD(wm,j)),L=(F.ov[d]!==undefined?F.ov[d]:(sg[d]||[])).filter(x=>x[1]!==3&&proj(x[0]));n+=L.length;days.push({d,L})}TT+=n;wk.push({wm,days})}
+h+='<div class="m3s">'+TT+' of '+(N*WC)+' h planned · '+Math.round(100*TT/(N*WC))+'%</div><div class="m3h"><span></span>'+DL.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="fgrid m3">';
+wk.forEach((r,w)=>{const mo=r.wm.getUTCMonth(),pm=w?wk[w-1].wm.getUTCMonth():-1;if(mo!==pm)h+='<div class="m3sep"><span>'+MN[mo]+'</span><i></i></div>';const cur=+r.wm===+mon(t),past=addD(r.wm,6)<t;
+h+='<div class="m3r'+(cur?' td':'')+(past?' pa':'')+'"><div class="flb"><b>M</b>'+r.wm.getUTCDate()+'</div>';
+r.days.forEach(x=>{const L=x.L,wi=w+bo,tdy=x.d===T?' tdy':'';if(!L.length){h+='<button class="m3c e'+tdy+'" data-a="fn3" data-w="'+wi+'"></button>';return}
+const hol=L.every(y=>y[1]===2&&y[2]<1),dn_=L.every(y=>y[2]>=1),by={};L.forEach(y=>by[y[0]]=(by[y[0]]||0)+1);let a=0;const parts=Object.keys(by).map(p=>{const b=Math.min(100,a+by[p]/6*100),c=proj(p).c,tx=c+' '+a+'% '+b+'%';a=b;return tx});parts.push('transparent '+a+'% 100%');const top=Object.keys(by).sort((p,q)=>by[q]-by[p])[0];
+h+='<button class="m3c'+(L.length>6?' ov':'')+(hol?' hol':'')+tdy+'" data-a="fn3" data-w="'+wi+'" style="--c:'+proj(top).c+'"><u style="background:linear-gradient(0deg,'+parts.join(',')+');opacity:'+(hol?.35:dn_?1:.78)+'"></u><b>'+L.length+'</b></button>'});
+h+='</div>'});
+return h+'</div></div>'}
 function pOver(){head('Overview','All dots · '+sum(S.p,tot)+' in total · '+sum(S.p,dn)+' done');return'<div class="ovl" id="ov"></div>'}
 function fitPl(){const t=pg.querySelector('.pt');if(!t)return;const W=t.clientWidth,H=t.clientHeight;pg.style.setProperty('--pz',Math.max(30,Math.min(70,W-14,H-50))+'px')}
 function fitOv(){const el=document.getElementById('ov');if(!el)return;const W=pg.clientWidth-24,H=pg.clientHeight-12;let best=3;
@@ -251,9 +252,9 @@ Object.values(out).forEach(L=>L.sort((a,b)=>(b[1]===2)-(a[1]===2)||(a[1]===3)-(b
 function fnDay(d){const F=fnS(),L=F.ov[d]!==undefined?F.ov[d]:(fnSugg(mon(pd(d)))[d]||[]);return L.filter(x=>x[1]===3||proj(x[0])).map(x=>x.map(v=>Array.isArray(v)?v.slice():v))}
 function fnBg(x){if(!x[3]||!x[3].length)return'';let g=[],i=0;for(;i<x[3].length;i++){const p=proj(x[3][i]);g.push((p?p.c:'#888')+' '+i*90+'deg '+(i+1)*90+'deg')}if(i<4)g.push('var(--sf) '+i*90+'deg 360deg');return';background:conic-gradient('+g.join(',')+')'}
 let FN={cnt:{},dn:{}};
-function pDays(){const F=fnS();if(F.v==='3')return pDays3();const t=pd(td()),m=addD(mon(t),7*(F.off||0)),e=addD(m,13),sp=fnSel(),sg=[fnSugg(m),fnSugg(addD(m,7))],cnt={},dn={},DL=['M','T','W','T','F'];
+function pDays(){const F=fnS();const t=pd(td()),m=addD(mon(t),7*(F.off||0)),e=addD(m,13),sp=fnSel(),sg=[fnSugg(m),fnSugg(addD(m,7))],cnt={},dn={},DL=['M','T','W','T','F'];
 head('Days',fdt(iso(m))+' – '+fdt(iso(e)));
-let h='<div class="fg"><div class="ft"><button class="fb" data-a="fnprev">‹</button><button class="fb" data-a="fnnext">›</button>'+(F.off?'<button class="fb" data-a="fnnow">Today</button>':'')+fnSeg(F)+'<span class="sp"></span><button class="fb" data-a="fnpick"><i class="fsw" style="background:'+sp.c+'"></i>'+esc(sp.name)+' ▾</button><button class="fb" data-a="fnreset">Reset</button></div><div class="fgrid">';
+let h='<div class="fg"><div class="ft"><button class="fb" data-a="fnprev">‹</button><button class="fb" data-a="fnnext">›</button>'+(F.off?'<button class="fb" data-a="fnnow">Today</button>':'')+'<span class="sp"></span><button class="fb" data-a="fnpick"><i class="fsw" style="background:'+sp.c+'"></i>'+esc(sp.name)+' ▾</button><button class="fb" data-a="fnreset">Reset</button></div><div class="fgrid">';
 for(let w=0;w<2;w++){const wm=addD(m,7*w);for(let j=0;j<6;j++){const we=j===5,dd=addD(wm,we?5:j),d=iso(dd),L=fnDay(d);
 L.forEach(x=>{if(x[1]===3)return;cnt[x[0]]=(cnt[x[0]]||0)+1;if(x[1]!==2&&x[3]&&x[3].length)x[3].forEach(q=>dn[q]=(dn[q]||0)+.25);else dn[x[0]]=(dn[x[0]]||0)+x[2]});
 h+='<div class="fr'+(we?' we':'')+(!we&&+dd===+t?' td':'')+((we?addD(dd,1):dd)<t?' pa':'')+'"><div class="flb">'+(we?'<b>S/S</b>':'<b>'+DL[j]+'</b>'+dd.getUTCDate())+'</div>';
@@ -262,19 +263,8 @@ else if(k<n&&L[k][1]===3)h+='<button class="fdot free" data-d="'+d+'" data-k="'+
 else if(k<n){const x=L[k];h+='<button class="fdot f'+(x[1]===2?(x[2]>=1?' sq':' sq ring'):x[2]>=1?'':' ring')+(x[1]===0&&clP(x[0])?' sq':'')+'" data-d="'+d+'" data-k="'+k+'" style="--c:'+proj(x[0]).c+';--f:'+x[2]+fnBg(x)+'"></button>'}
 else h+='<button class="fdot" data-d="'+d+'" data-k="'+k+'"></button>'}h+='</div>'}if(w===0)h+='<div></div>'}
 FN={cnt,dn};return h+'</div></div>'}
-const fnSeg=F=>'<span class="sgm"><button data-a="fnv" data-v="2" class="'+(F.v==='3'?'':'on')+'">2 wk</button><button data-a="fnv" data-v="3" class="'+(F.v==='3'?'on':'')+'">3 mo</button></span>';
-function pDays3(){const F=fnS(),WC=Math.max(1,sum(CATS,c=>S.bud[c])),t=pd(td()),T=iso(t),m0=addD(mon(t),7*(F.off||0)),N=13,sp=fnSel(),DL=['M','T','W','T','F','S'];head('Days',fdt(iso(m0))+' – '+fdt(iso(addD(m0,7*N-2))));
-let h='<div class="fg"><div class="ft"><button class="fb" data-a="fnprev">‹</button><button class="fb" data-a="fnnext">›</button>'+(F.off?'<button class="fb" data-a="fnnow">Today</button>':'')+fnSeg(F)+'<span class="sp"></span><button class="fb" data-a="fnpick"><i class="fsw" style="background:'+sp.c+'"></i>'+esc(sp.name)+' ▾</button></div>';
-let TT=0;const wk=[];for(let w=0;w<N;w++){const wm=addD(m0,7*w),sg=fnSugg(wm),days=[];let n=0;for(let j=0;j<6;j++){const d=iso(addD(wm,j)),L=(F.ov[d]!==undefined?F.ov[d]:(sg[d]||[])).filter(x=>x[1]!==3&&proj(x[0]));n+=L.length;days.push({d,L})}TT+=n;wk.push({wm,days})}
-h+='<div class="m3s">'+TT+' of '+(N*WC)+' h planned · '+Math.round(100*TT/(N*WC))+'%</div><div class="m3h"><span></span>'+DL.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="fgrid m3">';
-wk.forEach((r,w)=>{const mo=r.wm.getUTCMonth(),pm=w?wk[w-1].wm.getUTCMonth():-1;if(mo!==pm)h+='<div class="m3sep"><span>'+MN[mo]+'</span><i></i></div>';const cur=+r.wm===+mon(t),past=addD(r.wm,6)<t;
-h+='<div class="m3r'+(cur?' td':'')+(past?' pa':'')+'"><div class="flb"><b>M</b>'+r.wm.getUTCDate()+'</div>';
-r.days.forEach(x=>{const L=x.L,wi=w+(F.off||0),tdy=x.d===T?' tdy':'';if(!L.length){h+='<button class="m3c e'+tdy+'" data-a="fn3" data-w="'+wi+'"></button>';return}
-const hol=L.every(y=>y[1]===2&&y[2]<1),dn_=L.every(y=>y[2]>=1),by={};L.forEach(y=>by[y[0]]=(by[y[0]]||0)+1);let a=0;const parts=Object.keys(by).map(p=>{const b=Math.min(100,a+by[p]/6*100),c=proj(p).c,tx=c+' '+a+'% '+b+'%';a=b;return tx});parts.push('transparent '+a+'% 100%');const top=Object.keys(by).sort((p,q)=>by[q]-by[p])[0];
-h+='<button class="m3c'+(L.length>6?' ov':'')+(hol?' hol':'')+tdy+'" data-a="fn3" data-w="'+wi+'" style="--c:'+proj(top).c+'"><u style="background:linear-gradient(0deg,'+parts.join(',')+');opacity:'+(hol?.35:dn_?1:.78)+'"></u><b>'+L.length+'</b></button>'});
-h+='</div>'});
-return h+'</div></div>'}
-function fnSize(){const g=pg.querySelector('.fgrid');if(!g)return;const m3=g.classList.contains('m3'),F=fnS(),m0=addD(mon(pd(td())),7*(F.off||0));let ns=0;for(let w=0;w<13;w++)if(w===0||addD(m0,7*w).getUTCMonth()!==addD(m0,7*(w-1)).getUTCMonth())ns++;const gh=g.clientHeight,gM=m3?gh:gh-36,W=(g.clientWidth-8-24-10)/6,dM=(gM-ns*15)/13-2,dD=(gM+36-7)/12-2;pg.style.setProperty('--d',Math.max(20,Math.floor(Math.min(W,dM,dD)))+'px')}
+
+function fnSize(){const g=pg.querySelector('.fgrid');if(!g)return;const m3=g.classList.contains('m3'),F=fnS(),m0=addD(mon(pd(td())),7*(F.bo||0));let ns=0;for(let w=0;w<13;w++)if(w===0||addD(m0,7*w).getUTCMonth()!==addD(m0,7*(w-1)).getUTCMonth())ns++;const gh=g.clientHeight,gM=m3?gh:gh-36,W=(g.clientWidth-8-24-10)/6,dM=(gM-ns*15)/13-2,dD=(gM+36-7)/12-2;pg.style.setProperty('--d',Math.max(20,Math.floor(Math.min(W,dM,dD)))+'px')}
 let tt;function fnToast(s){let t=document.getElementById('ftoast');if(!t){t=document.createElement('div');t.id='ftoast';document.getElementById('app').appendChild(t)}t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1100)}
 function fnSet(d,L){fnS().ov[d]=L;draw()}
 function fnTap(b){const d=b.dataset.d,L=fnDay(d);if(b.dataset.ov){const c={};let fr=0;L.forEach(x=>{if(x[1]===3)fr++;else c[x[0]]=(c[x[0]]||0)+1});fnToast(Object.keys(c).map(i=>proj(i).name+' '+c[i]).join(' · ')+(fr?' · empty '+fr:''));return}
@@ -293,7 +283,7 @@ pg.addEventListener('pointerup',e=>{clearTimeout(lp);const b=e.target.closest('.
 pg.addEventListener('pointercancel',()=>clearTimeout(lp));pg.addEventListener('pointermove',e=>{if(Math.abs(e.movementX)+Math.abs(e.movementY)>6)clearTimeout(lp)});pg.addEventListener('contextmenu',e=>{if(U.pg===4)e.preventDefault()})})();
 function fnSheet(){let h='<b style="font-size:16px">Pick a project</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>'<button class="fit" data-a="fnsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i>'+esc(p.name)+'<span>'+(Math.round((FN.dn[p.id]||0)*100)/100)+' of '+(FN.cnt[p.id]||0)+' h done</span></button>').join('')+'</div></div>'});open(h)}
 let LK;function draw(){const k=U.pg+'|'+(U.pg===1?U.proj||'':'');if(LK!==undefined&&k!==LK)U.ed=false;LK=k;fnS();sqAuto();fnSync();SIM=null;const m=U.proj&&U.pg===1&&cur()?'proj':'';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',+b.dataset.pg===U.pg));pg.className=U.pg===3||U.pg===4||(U.pg===1&&!m)?'ov':'';
-pg.innerHTML=U.pg===0?pSettings():U.pg===2?pBooked():U.pg===3?pOver():U.pg===4?pDays():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===4)fnSize();if(U.pg===1&&!m)fitPl();{const eb=document.getElementById('ed');eb.hidden=!(U.pg===1||U.pg===2);eb.classList.toggle('on',!!U.ed);eb.setAttribute('aria-pressed',!!U.ed)}if(U.pg===0)head('Settings','Weekly hours per category');save()}
+pg.innerHTML=U.pg===0?pSettings():U.pg===2?pBooked():U.pg===3?pOver():U.pg===4?pDays():(m?pProj(cur()):pList());if(U.pg===3)fitOv();if(U.pg===4||U.pg===2)fnSize();if(U.pg===1&&!m)fitPl();{const eb=document.getElementById('ed');eb.hidden=!(U.pg===1);eb.classList.toggle('on',!!U.ed);eb.setAttribute('aria-pressed',!!U.ed)}if(U.pg===0)head('Settings','Weekly hours per category');save()}
 /* sheets */
 const open=h=>{sheet.innerHTML=h;bg.classList.add('on')},close=()=>bg.classList.remove('on'),val=id=>document.getElementById(id).value;
 let DT=null;
@@ -321,7 +311,7 @@ clt(){const p=cur(),[t]=findT(p,U.task);t.cl=!isCl(p,t);A.edit();draw()},
 bkadd(){open('<b style="font-size:16px">Book hours</b><div class="m" style="margin:6px 0 0">What</div><input type="text" id="v1" placeholder="Meeting, class, defence"><div class="m">Project</div><select id="v2">'+S.p.map(p=>'<option value="'+p.id+'">'+esc(p.cat+' · '+p.name)+'</option>').join('')+'</select><div class="m">Date</div><input type="date" id="v3" value="'+td()+'"><div class="m">Hours</div><input type="number" id="v4" value="1" min="1"><button class="big" data-a="bkok">Add</button>')},
 bkok(){const n=val('v1').trim(),p=val('v2'),d=val('v3'),h=Math.max(1,parseInt(val('v4'))||1);if(d&&proj(p)){fnS();S.bk.push({id:uid(),d,h,p,n:n||proj(p).name})}close();draw()},
 bkdel(e){S.bk=S.bk.filter(b=>b.id!==e.dataset.id);draw()},
-fnprev(){fnS().off-=fnS().v==='3'?4:1;draw()},fnnext(){fnS().off+=fnS().v==='3'?4:1;draw()},fnv(e){fnS().v=e.dataset.v;draw()},fn3(e){const F=fnS();F.off=+e.dataset.w;F.v='2';draw()},fnnow(){fnS().off=0;draw()},fnpick(){fnSheet()},fnsel(e){setActP(e.dataset.id);close();draw()},fnreset(){fnS().ov={};draw();fnToast('Back to the suggested plan')},
+fnprev(){fnS().off-=1;draw()},fnnext(){fnS().off+=1;draw()},bprev(){const F=fnS();F.bo=(F.bo||0)-4;draw()},bnext(){const F=fnS();F.bo=(F.bo||0)+4;draw()},bnow(){fnS().bo=0;draw()},fn3(e){const F=fnS();F.off=+e.dataset.w;U.pg=4;draw()},fnnow(){fnS().off=0;draw()},fnpick(){fnSheet()},fnsel(e){setActP(e.dataset.id);close();draw()},fnreset(){fnS().ov={};draw();fnToast('Back to the suggested plan')},
 mode(e){const c=e.dataset.c;S.mode[c]=S.mode[c]==='focus'?'share':'focus';draw()},
 up(e){const i=S.p.findIndex(p=>p.id===e.dataset.p);let j=i-1;while(j>=0&&S.p[j].cat!==S.p[i].cat)j--;if(j>=0){const x=S.p[i];S.p[i]=S.p[j];S.p[j]=x}draw()},
 offadd(){open('<b>Week off</b><div class="m" style="margin:4px 0">Pick any day in the week.</div><input type="date" id="v1"><button class="big" data-a="offok">Add</button>')},
@@ -360,7 +350,7 @@ let LPT,LPF=0;document.addEventListener('pointerdown',e=>{clearTimeout(LPT);if(e
 document.addEventListener('click',e=>{if(e.target===bg)return close();const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a]){e.stopPropagation();A[el.dataset.a](el);return}const nb=e.target.closest('nav button');if(nb){U.pg=+nb.dataset.pg;draw()}});
 document.getElementById('bk').onclick=()=>{U.proj=null;U.task=null;draw()};
 document.getElementById('fi').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(o.v===3){localStorage.setItem(KEY,JSON.stringify(o));location.reload()}}catch(x){}};r.readAsText(f)};
-window.addEventListener('resize',()=>{if(U.pg===3)fitOv();if(U.pg===4)fnSize();if(U.pg===1&&!U.proj)fitPl()});
+window.addEventListener('resize',()=>{if(U.pg===3)fitOv();if(U.pg===4||U.pg===2)fnSize();if(U.pg===1&&!U.proj)fitPl()});
 (function(){const ok=document.documentElement.requestFullscreen&&!matchMedia('(display-mode: standalone)').matches&&!matchMedia('(display-mode: fullscreen)').matches&&!document.fullscreenElement;if(!ok)return;
 const h=document.createElement('button');h.id='fshint';h.textContent='Tap anywhere to use full screen';document.getElementById('app').appendChild(h);
 const go=()=>{h.remove();document.removeEventListener('pointerup',go,true);try{document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}catch(e){}};
