@@ -268,7 +268,7 @@ function bkAll(){const o=[];S.p.filter(p=>p.dt).forEach(p=>sqDays(p).forEach(x=>
 const fq=n=>{const w=Math.floor(n+1e-9),f=Math.round((n-w)*100)/100;return w+(f?'<span class="fh">'+String(f).replace(/^0/,'')+'</span>':'')};
 function pBooked(){const F=fnS(),bo=F.bo||0,WC=Math.max(1,sum(CATS,c=>S.bud[c])),t=pd(td()),T=iso(t),m0=addD(mon(t),7*bo),N=13,sp=fnSel(),DL=['M','T','W','T','F','S'];head('Booked',fdt(iso(m0))+' – '+fdt(iso(addD(m0,7*N-2))));
 let h='<div class="fg"><div class="ft"></div>';
-let TT=0;const wk=[];for(let w=0;w<N;w++){const wm=addD(m0,7*w),sg=fnSugg(wm),days=[];let n=0;for(let j=0;j<6;j++){const d=iso(addD(wm,j)),L=(F.ov[d]!==undefined?F.ov[d]:(sg[d]||[])).filter(x=>x[1]===2&&proj(x[0]));n+=sum(L,y=>y[2]>0&&y[2]<1?y[2]:1);days.push({d,L})}TT+=n;wk.push({wm,days})}
+let TT=0;const wk=[];for(let w=0;w<N;w++){const wm=addD(m0,7*w),sg=fnSugg(wm),days=[];let n=0;for(let j=0;j<6;j++){const d=iso(addD(wm,j)),L=dayLs(F,sg,d).filter(x=>x[1]===2&&proj(x[0]));n+=sum(L,y=>y[2]>0&&y[2]<1?y[2]:1);days.push({d,L})}TT+=n;wk.push({wm,days})}
 h+='<div class="m3h" style="margin-top:6px"><span></span>'+DL.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="fgrid m3">';
 wk.forEach((r,w)=>{const mo=r.wm.getUTCMonth(),pm=w?wk[w-1].wm.getUTCMonth():-1;if(mo!==pm)h+='<div class="m3sep"><span>'+MN[mo]+'</span><i></i></div>';const cur=+r.wm===+mon(t),past=addD(r.wm,6)<t;
 h+='<div class="m3r'+(cur?' td':'')+(past?' pa':'')+'"><div class="flb"><b>M</b>'+r.wm.getUTCDate()+'</div>';
@@ -279,7 +279,7 @@ h+='</div>'});
 return h+'</div></div>'}
 function pBookedY(){const F=fnS(),t=pd(td()),yo=F.yo||0,T=iso(t),m0=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+yo,1)),m1=new Date(Date.UTC(m0.getUTCFullYear(),m0.getUTCMonth()+11,1)),sgc={};
 head('Booked',MON[m0.getUTCMonth()]+' '+m0.getUTCFullYear()+' – '+MON[m1.getUTCMonth()]+' '+m1.getUTCFullYear());
-const tl=c=>{const n=parseInt((c||'#888').replace('#','').slice(0,6),16);return (.299*(n>>16)+.587*((n>>8)&255)+.114*(n&255))<140},tcol={},hrs=d=>{const wm=mon(d),k=iso(wm),sg=sgc[k]||(sgc[k]=fnSugg(wm)),s=iso(d),L=(F.ov[s]!==undefined?F.ov[s]:(sg[s]||[])).filter(x=>x[1]===2&&proj(x[0])),by={};L.forEach(y=>by[y[0]]=(by[y[0]]||0)+(y[2]>0&&y[2]<1?y[2]:1));const top=Object.keys(by).sort((p,q)=>by[q]-by[p])[0];if(top)tcol[s]=proj(top).c;return sum(L,y=>y[2]>0&&y[2]<1?y[2]:1)},hf=h=>(Math.floor(h+1e-9)||'')+(h%1?'<span class="fh">½</span>':'');
+const tl=c=>{const n=parseInt((c||'#888').replace('#','').slice(0,6),16);return (.299*(n>>16)+.587*((n>>8)&255)+.114*(n&255))<140},tcol={},hrs=d=>{const wm=mon(d),k=iso(wm),sg=sgc[k]||(sgc[k]=fnSugg(wm)),s=iso(d),L=dayLs(F,sg,s).filter(x=>x[1]===2&&proj(x[0])),by={};L.forEach(y=>by[y[0]]=(by[y[0]]||0)+(y[2]>0&&y[2]<1?y[2]:1));const top=Object.keys(by).sort((p,q)=>by[q]-by[p])[0];if(top)tcol[s]=proj(top).c;return sum(L,y=>y[2]>0&&y[2]<1?y[2]:1)},hf=h=>(Math.floor(h+1e-9)||'')+(h%1?'<span class="fh">½</span>':'');
 let h='<div class="fg"><div class="yv">';
 for(let i=0;i<12;i++){const y=m0.getUTCFullYear(),m=m0.getUTCMonth()+i,Y=y+Math.floor(m/12),M=((m%12)+12)%12,n=new Date(Date.UTC(Y,M+1,0)).getUTCDate();let tot=0,c='',first=null;const g0=new Date(Date.UTC(Y,M,1)).getUTCDay(),lead=g0===0?0:g0-1;for(let k=0;k<lead;k++)c+='<i class="ye"></i>';
 for(let k=1;k<=n;k++){const D=new Date(Date.UTC(Y,M,k));if(D.getUTCDay()===0)continue;const s=iso(D),v=D<mon(t)&&false?0:hrs(D);tot+=v;if(!first)first=s;c+='<button class="yc'+(v>6||(v>=4&&tl(tcol[s]))?' h':'')+(s===T?' tdy':'')+'" data-a="byd" data-d="'+s+'"'+(v?' style="background:'+(v>6?'#8c3a33':'color-mix(in srgb,'+tcol[s]+' '+Math.round(32+Math.min(6,v)/6*68)+'%,transparent)')+'"':'')+'>'+(v?hf(v):'')+'</button>'}
@@ -311,7 +311,8 @@ S.p.forEach(p=>{if(!p.dt)return;sqDays(p).forEach(x=>{if(out[x.d]){for(let i=0;i
 fnS();S.bk.forEach(b=>{const pp=proj(b.p);if(!out[b.d]||!pp||pp.dt)return;for(let i=0;i<b.h;i++){const w=Math.min(1,b.h-i);let q=out[b.d].findIndex(x=>x[1]===0&&x[0]===b.p);if(q<0)q=out[b.d].map(x=>x[1]).lastIndexOf(0);if(q>=0)out[b.d].splice(q,1);out[b.d].push([b.p,2,w])}});
 if(false&&wi>=0&&wi<sim.N&&(S.free||0)>0&&!S.off.includes(iso(m))){const rw=[0,1,2,3,4].filter(j=>wi>0||addD(m,j)>=t).length,Fw=Math.round(S.free*(wi===0?rw/5:1));const dl=[0,1,2,3,4].filter(j=>(wi>0||addD(m,j)>=t)&&fnS().ov[iso(addD(m,j))]===undefined),n2=dl.length;if(n2&&Fw){const base=Math.floor(Fw/n2),r=Fw%n2;dl.forEach((j,q)=>{const k=base+(q<r?1:0);for(let i=0;i<k;i++)out[iso(addD(m,j))].push(['',3,0])})}}
 Object.values(out).forEach(L=>L.sort((a,b)=>(b[1]===2)-(a[1]===2)||(a[1]===3)-(b[1]===3)));return out}
-function fnDay(d){const F=fnS(),L=F.ov[d]!==undefined?F.ov[d]:(fnSugg(mon(pd(d)))[d]||[]);return L.filter(x=>x[1]===3||proj(x[0])).map(x=>x.map(v=>Array.isArray(v)?v.slice():v))}
+function dayLs(F,sg,d){const b=sg[d]||[];return F.ov[d]===undefined?b:b.filter(x=>x[1]===2).concat(F.ov[d].filter(x=>x[1]!==2))}
+function fnDay(d){const F=fnS(),L=dayLs(F,fnSugg(mon(pd(d))),d);return L.filter(x=>x[1]===3||proj(x[0])).map(x=>x.map(v=>Array.isArray(v)?v.slice():v))}
 function fnBg(x){if(!x[3]||!x[3].length)return'';let g=[],i=0;for(;i<x[3].length;i++){const p=proj(x[3][i]);g.push((p?p.c:'#888')+' '+i*90+'deg '+(i+1)*90+'deg')}if(i<4)g.push('var(--ch) '+i*90+'deg 360deg');return';background:conic-gradient('+g.join(',')+')'}
 let FN={cnt:{},dn:{}};
 function pDays(){const F=fnS();const t=pd(td()),m=addD(mon(t),7*(F.off||0)),e=addD(m,13),sp=fnSel(),sg=[fnSugg(m),fnSugg(addD(m,7))],cnt={},dn={},DL=['M','T','W','T','F'];
