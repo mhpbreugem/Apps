@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Planner: dense dots, 5 designs</title>
+<style>
+:root{--bg:#F7F6F2;--ink:#17181B;--mu:#7B7D86;--ln:#E3E1DA;--ch:#ECEAE4;--c:#2E7D5B}
+@media(prefers-color-scheme:dark){:root{--bg:#131417;--ink:#ECECEF;--mu:#9EA0A8;--ln:#2B2C32;--ch:#26272D}}
+*{box-sizing:border-box;margin:0}html,body{background:#777}body{font:14px Inter,system-ui,sans-serif;color:var(--ink);display:flex;flex-wrap:wrap;gap:16px;justify-content:center;padding:16px 0}
+section{width:390px;height:844px;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;border-radius:14px}
+.hd{background:#000;color:#fff;padding:12px 14px;flex:none}.hd b{font-size:16px;display:block}.hd small{opacity:.7;font-size:11px}
+.bar{display:flex;gap:6px;align-items:center;padding:6px 14px;font-size:11px;color:var(--mu);flex:none}.bar button{border:0;background:var(--ch);color:var(--ink);border-radius:8px;padding:5px 9px;font:600 11px Inter}.bar button.on{background:var(--ink);color:var(--bg)}.bar .sp{flex:1}
+.body{flex:1;min-height:0;padding:0 14px;overflow:hidden}
+.nav{flex:none;height:56px;border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;font-size:10px;color:var(--mu)}.nav b{color:var(--ink)}
+.stg{font:700 11px Inter;color:var(--mu);margin:6px 0 2px;display:flex;justify-content:space-between}
+.tn{display:flex;align-items:center;gap:6px;font-size:13px;line-height:1.1}.tn .m{color:var(--mu);font-size:11px;margin-left:auto}
+.tn i.ck{width:16px;height:16px;border-radius:50%;border:2px solid var(--c);flex:none}.tn i.ck.on{background:var(--c)}
+.dg{display:flex;flex-wrap:wrap;align-content:flex-start}
+.dg i{width:var(--s);height:var(--s);border-radius:24%;background:var(--c);flex:none}.dg i.e{opacity:.3}
+.tk{margin-bottom:var(--tm,5px)}
+/* D2 side label */
+.sl{display:grid;grid-template-columns:104px 1fr;gap:0 6px;margin-bottom:4px;align-items:start}.sl>.tn{display:grid;grid-template-columns:16px 1fr;column-gap:5px;align-items:center;font-size:11.5px;min-height:28px;min-width:0}.sl>.tn span:not(.m){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sl>.tn .m{grid-column:2;margin:0}.sl .dg{min-width:0}
+/* D3 inline chips */
+.nm{height:var(--s);display:flex;align-items:center;padding:0 6px;margin:0 3px 0 0;font:600 11px Inter;background:var(--ch);border-radius:4px;white-space:nowrap;flex:none;color:var(--ink)}
+.nm.on{background:var(--c);color:#fff}.nm span{opacity:.6;margin-left:4px;font-weight:500}
+/* D4 touching */
+.tt i{box-shadow:inset 0 0 0 1px var(--bg);border-radius:0}.tt i:first-child{border-radius:30% 0 0 30%}
+/* D5 two columns */
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.c2 .tn{font-size:12px}
+</style></head><body>
+<script>
+const C='#2E7D5B',DONE=70;
+const ST=[['Model',[['Derive first-order conditions',12],['Solve numerically',28],['Calibrate to data',16],['Robustness checks',14]]],['Paper',[['Introduction',10],['Results section',24],['Literature review',18],['Appendix proofs',12]]],['Revision',[['Referee 1 response',20],['Referee 2 response',16],['Resubmit',8],['Conference slides',22]]]];
+const SC=[1,.4]; // scale for small sample
+let dn0=DONE;
+function data(sc){let k=0,left=DONE*sc;return ST.map(([s,ts])=>({s,t:ts.map(([n,h])=>{h=Math.max(2,Math.round(h*sc));const d=Math.min(h,Math.max(0,Math.round(left)));left-=d;return{n,h,d}})}))}
+const dots=(t,s)=>{let o='';for(let k=0;k<t.h;k++)o+=`<i class="${k<t.d?'':'e'}" style="--s:${s}px"></i>`;return o};
+const ck=t=>`<i class="ck${t.d>=t.h?' on':''}"></i>`;
+const cnt=t=>`<span class="m">${t.d}/${t.h}</span>`;
+const DES=[
+ {n:'Stacked, rows touch',g:1.5,f:(D,s)=>D.map(S=>`<div class="stg"><span>${S.s}</span><span>${S.t.reduce((a,t)=>a+t.d,0)}/${S.t.reduce((a,t)=>a+t.h,0)}</span></div>`+S.t.map(t=>`<div class="tk"><div class="tn">${ck(t)}<span>${t.n}</span>${cnt(t)}</div><div class="dg" style="column-gap:1.5px;row-gap:0;margin-top:3px">${dots(t,s)}</div></div>`).join('')).join(''),max:26},
+ {n:'Label left, dots right',g:1.5,f:(D,s)=>D.map(S=>`<div class="stg"><span>${S.s}</span></div>`+S.t.map(t=>`<div class="sl"><div class="tn">${ck(t)}<span>${t.n}</span>${cnt(t)}</div><div class="dg" style="column-gap:1.5px;row-gap:0">${dots(t,s)}</div></div>`).join('')).join(''),max:26,sl:1},
+ {n:'Name chip inside the dot flow',g:1.5,f:(D,s)=>D.map(S=>`<div class="stg"><span>${S.s}</span></div><div class="dg" style="column-gap:1.5px;row-gap:0;margin-bottom:4px">`+S.t.map(t=>`<span class="nm${t.d>=t.h?' on':''}" style="--s:${s}px">${t.n.split(' ')[0]}<span>${t.d}/${t.h}</span></span>${dots(t,s)}`).join('')+`</div>`).join(''),max:26},
+ {n:'Touching tiles, no gaps',g:0,f:(D,s)=>D.map(S=>`<div class="stg"><span>${S.s}</span></div>`+S.t.map(t=>`<div class="tk" style="--tm:3px"><div class="tn">${ck(t)}<span>${t.n}</span>${cnt(t)}</div><div class="dg tt" style="margin-top:2px">${dots(t,s)}</div></div>`).join('')).join(''),max:30},
+ {n:'Two task columns',g:1.5,f:(D,s)=>D.map(S=>`<div class="stg"><span>${S.s}</span></div><div class="c2">`+S.t.map(t=>`<div class="tk"><div class="tn">${ck(t)}<span>${t.n}</span>${cnt(t)}</div><div class="dg" style="column-gap:1.5px;row-gap:0;margin-top:2px">${dots(t,s)}</div></div>`).join('')+`</div>`).join(''),max:26}];
+const MODE=[0,0,0,0,0];
+function draw(){document.body.innerHTML=DES.map((d,i)=>`<section data-i="${i}"><div class="hd"><b>${i+1} · ${d.n}</b><small>MIZN paper</small></div><div class="bar"><button data-i="${i}" data-m="0" class="${MODE[i]?'':'on'}">200 dots</button><button data-i="${i}" data-m="1" class="${MODE[i]?'on':''}">80 dots</button><span class="sp"></span><span class="rd"></span></div><div class="body"></div><div class="nav"><span>Planner</span><b>Days</b><span>Booked</span><span>Overview</span><span>Settings</span></div></section>`).join('');DES.forEach((d,i)=>fill(i))}
+function fill(i){const d=DES[i],sec=document.querySelectorAll('section')[i],b=sec.querySelector('.body'),D=data(MODE[i]?SC[1]:1),H=b.clientHeight;let s=d.max;for(;s>=8;s--){b.innerHTML=d.f(D,s);if(b.scrollHeight<=H)break}sec.querySelector('.rd').textContent='dot size '+s+' px, '+D.reduce((a,S)=>a+S.t.reduce((x,t)=>x+t.h,0),0)+' dots'}
+document.addEventListener('click',e=>{const b=e.target.closest('.bar button');if(!b)return;MODE[+b.dataset.i]=+b.dataset.m;const i=+b.dataset.i,sec=document.querySelectorAll('section')[i];sec.querySelectorAll('.bar button').forEach(x=>x.classList.toggle('on',x.dataset.m===b.dataset.m));fill(i)});
+draw();
+</script></body></html>
