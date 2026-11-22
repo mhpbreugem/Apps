@@ -160,7 +160,7 @@ html:not([data-th="4"]):not([data-th="7"]) header #hq *{color:#fff!important}htm
 <script>
 (function(){
 const VER=3,PV=4;document.body.dataset.v=VER;document.body.dataset.pv=PV;const KEY='hours-v4',uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+f(x),0),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const CATS=['Research','Teaching','Chair & Admin','Personal'],CC={Research:'#2E7D4F',Teaching:'#F2A900','Chair & Admin':'#2F6FB5',Personal:'#7A7B80'};
+const CATS=['Research','Teaching','Chair & Admin','Personal'],CC={Research:'#2E7D4F',Teaching:'#DE8A00','Chair & Admin':'#2F6FB5',Personal:'#7A7B80'};
 const BUD0={Research:14,Teaching:12,'Chair & Admin':10,Personal:4};
 function split(n,w){const t=sum(w,x=>x),r=w.map(x=>Math.floor(n*x/t));let left=n-sum(r,x=>x);w.map((x,i)=>[n*x/t-r[i],i]).sort((a,b)=>b[0]-a[0]).forEach((z,k)=>{if(k<left)r[z[1]]++});return r}
 function mk(names,hs,tk){return names.map((n,i)=>{const h=hs[i]||0,tl=(tk&&tk[i])||[[n,1]],pt=h>0?split(h,tl.map(x=>x[1])):[];return{n,g:h>0?'open':'passed',t:h>0?tl.map((x,j)=>({id:uid(),n:x[0],h:pt[j],d:0})):[]}})}
@@ -178,16 +178,16 @@ R('KEZ','#14482C',[5,35,20,40,50],0,{sub:1}),
 R('BBP','#7DBE8A',[0,0,0,0,100],[['Response letter and rewrite',5],['Numerics the referees asked for',4],['Resubmit',1]]),
 R('WP0','#9BCB7C',[0,0,0,0,100],[['Revise the paper',6],['Response letter',3],['Resubmit',1]]),
 R('WP1','#3C9C86',[0,25,10,15,100]),
-course('BT','#F2A900',[30,25,20]),course('FMA','#F2A900',[20,15,15]),course('EEOD','#F2A900',[4,3,3]),
+course('BT','#DE8A00',[30,25,20]),course('FMA','#DE8A00',[20,15,15]),course('EEOD','#DE8A00',[4,3,3]),
 P('Teaching','Frankfurt','#7B4FB3',['Teach'],[90],[[['Lectures in Frankfurt',1]]],{dt:{a:'2027-01-25',b:'2027-02-09'}}),
-P('Teaching','Theses','#F2A900',['Supervision','Reading','Defences'],[48,16,10]),
+P('Teaching','Theses','#DE8A00',['Supervision','Reading','Defences'],[48,16,10]),
 P('Chair & Admin','Recruitment','#2F6FB5',['Profile','Applications','Fly-outs','Decide','Offer'],[3,8,12,4,3],[0,0,[['Fly-outs and talks',2],['Hiring second candidate',1]]]),
 P('Chair & Admin','Teaching allocation','#4F8AD0',['Supply and demand','Draft','Agree'],[6,7,7]),
 P('Chair & Admin','New master','#1F4E8C',['Proposal','Partner talks','Curriculum','Approval'],[8,8,10,4],[0,[['Talks with the partner',1],['Torino MSc',1]]]),
 P('Chair & Admin','Staff and MT','#7BA7DE',['Ongoing'],[60],[[['Staff matters',4],['MT meetings',3],['Ceremonies',1]]]),
 P('Chair & Admin','Committees','#3A86C8',['Ongoing'],[50],[[['Committee work',3],['Other admin',2]]],{admin:1}),
 P('Personal','Persian','#7A7B80',['Ongoing'],[60]),P('Personal','Sport','#9A9BA1',['Ongoing'],[100]),P('Personal','Home','#5F6065',['Ongoing'],[40])]}}
-let S;try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}if(!S||S.v!==3)S=demo();if(!S.rc){const RC={BT:'#F2A900',FMA:'#F2A900',EEOD:'#F2A900',Theses:'#F2A900',Frankfurt:'#7B4FB3',Recruitment:'#2F6FB5','Teaching allocation':'#4F8AD0','New master':'#1F4E8C','Staff and MT':'#7BA7DE',Committees:'#3A86C8'};S.p.forEach(p=>{if(RC[p.name])p.c=RC[p.name]});S.rc=1}if(!S.rc2){S.p.forEach(p=>{if(p.name!=='Frankfurt'&&CC[p.cat])p.c=CC[p.cat]});S.rc2=1}if(!S.rc3){S.p.forEach(p=>{if(p.cat==='Teaching'&&p.name!=='Frankfurt')p.c=CC.Teaching});S.rc3=1}S.mode=S.mode||{};S.off=S.off||[];
+let S;try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}if(!S||S.v!==3)S=demo();if(!S.rc){const RC={BT:'#DE8A00',FMA:'#DE8A00',EEOD:'#DE8A00',Theses:'#DE8A00',Frankfurt:'#7B4FB3',Recruitment:'#2F6FB5','Teaching allocation':'#4F8AD0','New master':'#1F4E8C','Staff and MT':'#7BA7DE',Committees:'#3A86C8'};S.p.forEach(p=>{if(RC[p.name])p.c=RC[p.name]});S.rc=1}if(!S.rc2){S.p.forEach(p=>{if(p.name!=='Frankfurt'&&CC[p.cat])p.c=CC[p.cat]});S.rc2=1}if(!S.rc3){S.p.forEach(p=>{if(p.cat==='Teaching'&&p.name!=='Frankfurt')p.c=CC.Teaching});S.rc3=1}if(!S.rc4){S.p.forEach(p=>{if(p.cat==='Teaching'&&p.name!=='Frankfurt')p.c=CC.Teaching});S.rc4=1}S.mode=S.mode||{};S.off=S.off||[];
 const GHR=(k,v)=>k==='ui'||k==='ts'?undefined:v;let LJ=JSON.stringify(S,GHR);
 function doneLog(){const cur={},cat={};S.p.forEach(p=>tasks(p).forEach(t=>{cur[t.id]=t.d;cat[t.id]=[p.id,p.cat]}));if(!S.dn){S.dn=cur;S.log=[];S.logFrom=td();S.base={};S.p.forEach(p=>S.base[p.cat]=(S.base[p.cat]||0)+dn(p));return}S.log=S.log||[];const T=td();Object.keys(cur).forEach(id=>{if(S.dn[id]===undefined)return;const df=cur[id]-S.dn[id];if(df>0){const e=S.log.find(x=>x.d===T&&x.t===id);if(e)e.h+=df;else S.log.push({d:T,t:id,p:cat[id][0],c:cat[id][1],h:df})}else if(df<0){let r=-df;for(let i=S.log.length-1;i>=0&&r>0;i--){const e=S.log[i];if(e.t!==id)continue;const x=Math.min(r,e.h);e.h-=x;r-=x}S.log=S.log.filter(e=>e.h>0)}});S.dn=cur}
 let UH=[],RH=[],UP=null,UNDOING=false;try{UH=JSON.parse(localStorage.getItem('hours-undo')||'[]')}catch(e){UH=[]}
@@ -494,7 +494,7 @@ dvm(e){DT.note=val('dn');const j=+e.dataset.j;DT.v[j]=Math.max(0,DT.v[j]-1);deto
 dok(){const p=cur(),i=DT.i,note=val('dn').trim();DT.v.forEach((v,j)=>{if(j<i)return;const s=p.st[j];if(v>0)s.t.push({id:uid(),n:j===i?(note||'Repair'):'Re-check: '+(note||p.st[i].n),h:v,d:0,rp:1});s.g=j===i?'open':(s.g==='passed'?'recheck':s.g)});close();draw()},
 freem(){S.free=Math.max(0,(S.free||0)-1);draw()},freep(){S.free=Math.min(30,(S.free||0)+1);draw()},budm(e){const c=e.dataset.c;S.bud[c]=Math.max(0,S.bud[c]-1);draw()},budp(e){const c=e.dataset.c;S.bud[c]++;draw()},
 newp(){open('<b>New '+U.cat+' project</b><input type="text" id="v1" placeholder="Name"><div class="m">Total dots</div><input type="number" id="v2" value="100" min="1"><button class="big" data-a="newok">Add</button>')},
-newok(){const n=val('v1').trim(),h=Math.max(1,parseInt(val('v2'))||1);if(!n)return close();const cols=['#3C9C86','#4F8AD0','#F2A900','#9A9BA1'],c=U.cat==='Research'?'#2E7D4F':CC[U.cat],p=U.cat==='Research'?R(n,c,split(h,[5,25,15,25,30])):P(U.cat,n,c,['Work'],[h]);S.p.push(p);U.proj=p.id;U.task=null;close();draw()},
+newok(){const n=val('v1').trim(),h=Math.max(1,parseInt(val('v2'))||1);if(!n)return close();const cols=['#3C9C86','#4F8AD0','#DE8A00','#9A9BA1'],c=U.cat==='Research'?'#2E7D4F':CC[U.cat],p=U.cat==='Research'?R(n,c,split(h,[5,25,15,25,30])):P(U.cat,n,c,['Work'],[h]);S.p.push(p);U.proj=p.id;U.task=null;close();draw()},
 delp(){A.delwarn({dataset:{p:cur().id}})},
 delwarn(e){const p=proj(e.dataset.p);if(!p)return;const nt=tasks(p).length;open('<b>Delete '+esc(p.name)+'?</b><div class="m" style="margin:6px 0 4px">This removes the project with its '+nt+' tasks and the '+dn(p)+' of '+tot(p)+' hours logged. Its bookings and planned hours disappear too. This cannot be undone.</div><button class="big" style="background:#C8402A;color:#fff" data-a="delok" data-p="'+p.id+'">Delete project</button><button class="big g" data-a="delno">Cancel</button>')},
 delno(){close()},pendok(){const f=PEND;PEND=null;close();if(f)f()},
