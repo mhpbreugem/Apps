@@ -260,7 +260,7 @@ h+='<div class="ql'+(ap&&ap.id===p.id?' act':'')+'" style="--c:'+p.c+'" data-a="
 h+='</div></div>'});
 return h+'</div>'}
 function pProj(p){const T=tot(p),D=dn(p),sh=shares(p.cat)[p.id]||0,ed=false;
-head(p.name,(sh?sh+' h/wk · ':'')+D+'/'+T+' dots'+(p.sub?' · sub-top':'')+(!p.dt&&getSim().fin[p.id]!=null?' · done '+fdy(fri(getSim(),getSim().fin[p.id])):''),1);
+head(p.name,D+'/'+T,1);
 let h='<div class="pj">';
 p.st.forEach((s,i)=>{const H=sum(s.t,t=>t.h),Dn=sum(s.t,t=>t.d);
 h+='<div class="sc"><div role="button" class="srl'+(s.g==='passed'?' p':s.g==='recheck'?' rc':'')+'" data-a="gate" data-i="'+i+'" data-lp="editst" style="--c:'+p.c+'" aria-label="Stage gate">'+(s.g==='passed'?'✓ ':'')+esc(s.n)+'</div><div class="sb">'+(ed?'<div class="stx"><button class="stn" data-a="editst" data-i="'+i+'">'+esc(s.n)+' ✎</button><span class="m">'+Dn+'/'+H+'</span><span class="sp"></span>'+(p.cat==='Research'?'<button class="link" data-a="gap" data-i="'+i+'">Gap</button>':'')+'<button class="link" data-a="addt" data-i="'+i+'">＋ Task</button><button class="link" data-a="stmv" data-i="'+i+'" data-m="-1" aria-label="Move stage up"'+(i?'':' disabled')+'>▲</button><button class="link" data-a="stmv" data-i="'+i+'" data-m="1" aria-label="Move stage down"'+(i<p.st.length-1?'':' disabled')+'>▼</button></div>':'');
