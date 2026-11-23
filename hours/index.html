@@ -584,7 +584,7 @@ document.addEventListener('pointerup',go,true);document.addEventListener('fullsc
 /* overview: pie of done hours, counted wherever they were ticked */
 const OVP=[['7','7d','7 days'],['30','30d','30 days'],['90','90d','90 days'],['365','1y','Year'],['all','All','All time'],['c','⋯','Custom dates']];
 function ovRange(){const o=U.ov=U.ov||{k:'30'},t=td();if(o.k==='all')return[ '0000-01-01',t];if(o.k==='c')return[o.a||t,o.b||t];return[iso(addD(pd(t),-(+o.k-1))),t]}
-function ovData(){const[a,b]=ovRange(),C={},P={};(S.log||[]).forEach(e=>{if(e.d<a||e.d>b)return;C[e.c]=(C[e.c]||0)+e.h;const p=proj(e.p),n=p?(typeof shn==='function'?shn(p):p.name):'(deleted)';P[e.p]={n,c:p?p.c:'#888',cat:e.c,h:(P[e.p]?P[e.p].h:0)+e.h}});if((U.ov||{}).k==='all')Object.keys(S.base||{}).forEach(c=>{if(S.base[c]>0){C[c]=(C[c]||0)+S.base[c];P['base:'+c]={n:'Earlier',c:CC[c],cat:c,h:S.base[c]}}});return{C,P,a,b}}
+function ovData(){const[a,b]=ovRange(),C={},P={};(S.log||[]).forEach(e=>{if(e.d<a||e.d>b)return;const p=proj(e.p);if(!p)return;C[e.c]=(C[e.c]||0)+e.h;const n=typeof shn==='function'?shn(p):p.name;P[e.p]={n,c:p.c,cat:e.c,h:(P[e.p]?P[e.p].h:0)+e.h}});if((U.ov||{}).k==='all')Object.keys(S.base||{}).forEach(c=>{if(S.base[c]>0){C[c]=(C[c]||0)+S.base[c];P['base:'+c]={n:'Earlier',c:CC[c],cat:c,h:S.base[c]}}});return{C,P,a,b}}
 function pOv2(){const o=U.ov=U.ov||{k:'30'},{C,P,a,b}=ovData(),T=sum(Object.values(C),x=>x),lab=o.k==='all'?'All time':o.k==='c'?fdt(a)+' – '+fdt(b):'Last '+o.k+' days';head('Overview',lab);
 const W=sum(CATS.filter(c=>c!=='Personal'),c=>C[c]||0),PE=C.Personal||0,MX=Math.max(1,...Object.values(P).map(x=>x.h)),wk=Math.max(1,((pd(b)-pd(a>'1990'?a:(S.logFrom||b)))/864e5+1)/7);
 let h='<div class="ovw">';
