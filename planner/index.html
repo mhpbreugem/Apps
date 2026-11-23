@@ -366,7 +366,9 @@ function setActP(id){if(!proj(id))return;S.act={p:id}}
 const fnS=()=>{if(!S.fn){S.fn={ov:{},off:0};if(!S.bk){const f=S.p.find(p=>p.name==='FMA');S.bk=f?[{id:uid(),d:td(),h:6,p:f.id,n:'FMA class'}]:[]}}const F=S.fn;if(!S.bk)S.bk=[];if(F.cl){Object.keys(F.cl).forEach(d=>Object.keys(F.cl[d]).forEach(id=>S.bk.push({id:uid(),d,h:F.cl[d][id],p:id,n:'Class'})));delete F.cl}
 if(S.act&&S.act.t&&proj(S.act.p)&&!proj(S.act.p).cur){proj(S.act.p).cur=S.act.t;delete S.act.t}if(!S.act||!proj(S.act.p)){const f=S.p.find(p=>!p.dt&&rem(p)>0)||S.p[0];if(f)setActP(f.id)}return F};
 const fnSel=()=>{fnS();return actP()||S.p[0]};
-function clP(id){const p=proj(id);if(!p||p.dt)return false;const t=curT(p);return !!(t&&isCl(p,t))}
+const hasOth=p=>!p.dt&&tasks(p).some(t=>t.d<t.h&&!isCl(p,t));
+function clP(id){const p=proj(id);if(!p||p.dt)return false;const t=curT(p);return !!(t&&isCl(p,t)&&!hasOth(p))}
+let FC={};function fnMix(d,k,sp){if(sp.dt)return false;const t=curT(sp);if(!(t&&isCl(sp,t)&&hasOth(sp)))return false;FC={d,k};open('<b style="font-size:16px">'+esc(sp.name)+'</b><div class="m" style="margin:2px 0 10px">Teaching and preparing at the same time. What is this hour?</div><button class="big" data-a="fcc">Circle: working hour</button><button class="big g" data-a="fcs">Square: class hour</button><button class="big g" data-a="delno">Cancel</button>');return true}
 function fnSugg(m){const sim=getSim(),out={},t=pd(td()),wi=Math.round((m-pd(sim.weeks[0]))/6048e5);for(let j=0;j<7;j++)out[iso(addD(m,j))]=[];
 if(false&&wi>=0&&wi<sim.N){const days=[];for(let j=0;j<5;j++)if((wi>0||addD(m,j)>=t)&&fnS().ov[iso(addD(m,j))]===undefined)days.push(j);const n=days.length;let o=0;
 const cmm=fnCommit();S.p.forEach(p=>{if(p.dt)return;const a=Math.max(0,((sim.alloc[p.id]||[])[wi]||0)-Math.ceil((((cmm.pl[p.id]||{})[wi])||0)-1e-9));if(!a||!n)return;const base=Math.floor(a/n),r=a%n;days.forEach((j,q)=>{const k=base+(((q-o)%n+n)%n<r?1:0);for(let i=0;i<k;i++)out[iso(addD(m,j))].push([p.id,0,0])});o+=r})}
@@ -395,11 +397,11 @@ FN={cnt,dn};return h+'</div></div>'}
 
 function fnSize(){const g=pg.querySelector('.fgrid');if(!g)return;const m3=g.classList.contains('m3'),gh=g.clientHeight,W=(g.clientWidth-8-24-10)/6;let d;if(m3){const ft=pg.querySelector('.ft'),ex=ft?Math.max(0,g.getBoundingClientRect().top-ft.getBoundingClientRect().bottom):0;d=Math.min(W-8,(gh+ex+29)/12-2,gh/12-4)}else d=Math.min(W-8,(gh-36+36-7)/12-2);pg.style.setProperty('--d',Math.max(20,Math.floor(d))+'px')}
 let tt;function fnToast(s){let t=document.getElementById('ftoast');if(!t){t=document.createElement('div');t.id='ftoast';document.getElementById('app').appendChild(t)}t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1100)}
-function fnSqAdd(d,sp){if(!(sp.dt||clP(sp.id)))return false;if(!sqLeft(sp).length){fnToast(sp.name+': no unassigned squares. Add them on its project page');return true}BSQ={sel:{},d:BSQ.d,day:d,only:sp.id};bsqOpen();return true}
+function fnSqAdd(d,sp,f){if(!(f||sp.dt||clP(sp.id)))return false;if(!sqLeft(sp).length){fnToast(sp.name+': no unassigned squares. Add them on its project page');return true}BSQ={sel:{},d:BSQ.d,day:d,only:sp.id};bsqOpen();return true}
 function fnSet(d,L){fnS().ov[d]=L;draw()}
 function fnTap(b){const d=b.dataset.d,L=fnDay(d);if(b.dataset.ov){const c={};let fr=0;L.forEach(x=>{if(x[1]===3)fr++;else c[x[0]]=(c[x[0]]||0)+1});fnToast(Object.keys(c).map(i=>proj(i).name+' '+c[i]).join(' · ')+(fr?' · empty '+fr:''));return}
 const k=+b.dataset.k,sp=fnSel();
-if((k>=L.length||L[k][1]===3)&&fnSqAdd(d,sp))return;if(k<L.length&&L[k][1]===3){L[k]=[sp.id,0,0];fnToast(sp.name+' planned in an empty hour');return fnSet(d,L)}
+if((k>=L.length||L[k][1]===3)&&(fnMix(d,k,sp)||fnSqAdd(d,sp)))return;if(k<L.length&&L[k][1]===3){L[k]=[sp.id,0,0];fnToast(sp.name+' planned in an empty hour');return fnSet(d,L)}
 if(k<L.length){const x=L[k];if(x[1]===2){BSQ={sel:{},d:BSQ.d,day:d};return bdayOpen()}
 const sg=x[3]||(x[2]>0&&x[2]<1?Array(Math.round(x[2]*4)).fill(x[0]):x[2]>=1?Array(4).fill(x[0]):[]);if(x[2]>=1||sg.length>=4){L.splice(k,1);fnToast('Emptied')}else{sg.push(sp.id);x[3]=sg;x[2]=sg.length/4;fnToast(sp.name+' '+sg.length+' of 4 quarters')}}
 else{L.push([sp.id,0,0]);fnToast(sp.name+' planned')}fnSet(d,L)}
@@ -502,6 +504,7 @@ nowsel(e){setActP(e.dataset.id);close();draw()},
 clt(){const p=cur(),[t]=findT(p,U.task);t.cl=!isCl(p,t);A.edit();draw()},
 bkadd(){open('<b style="font-size:16px">Book hours</b><div class="m" style="margin:6px 0 0">What</div><input type="text" id="v1" placeholder="Meeting, class, defence"><div class="m">Project</div><select id="v2">'+S.p.map(p=>'<option value="'+p.id+'">'+esc(p.cat+' · '+p.name)+'</option>').join('')+'</select><div class="m">Date</div><input type="date" id="v3" value="'+td()+'"><div class="m">Hours</div><input type="number" id="v4" value="1" min="0.5" step="0.5" inputmode="decimal"><button class="big" data-a="bkok">Add</button>')},
 bkok(){const n=val('v1').trim(),p=val('v2'),d=val('v3'),h=Math.max(.5,Math.round((parseFloat(val('v4'))||1)*2)/2);if(d&&proj(p)){fnS();S.bk.push({id:uid(),d,h,p,n:n||proj(p).name})}close();draw()},
+fcc(){close();const L=fnDay(FC.d),sp=fnSel();if(FC.k<L.length&&L[FC.k][1]===3)L[FC.k]=[sp.id,0,0];else L.push([sp.id,0,0]);fnToast(sp.name+' planned');fnSet(FC.d,L)},fcs(){close();fnSqAdd(FC.d,fnSel(),1)},
 hbt(e){const w=e.dataset.w,i=+e.dataset.i;S.hb=S.hb||{};const q=(S.hb[w]||[0,0,0]).slice();q[i]=(q[i]||0)>=4?0:(q[i]||0)+1;S.hb[w]=q;draw();fnToast(q[i]?HABN[i]+' '+q[i]*15+' of 60 min this week':HABN[i]+' reset for this week')},
 bcir(){const ad=S.p.find(p=>p.name==='Admin')||S.p.find(p=>p.cat==='Chair & Admin');BCI={p:ad?ad.id:null,h:1,n:''};bcirOpen()},
 bcip(e){const el=document.getElementById('v1');if(el)BCI.n=el.value;BCI.p=e.dataset.p;bcirOpen()},
