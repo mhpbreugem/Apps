@@ -309,8 +309,7 @@ PV===2?'<div class="lt">'+ck+'<span class="nm">'+nm+'</span><i class="mb"><i sty
 PV===3?'<div class="lt">'+ck+'<span class="nm">'+nm+'</span>'+cnt+'</div>'+ds(14):
 PV===4?'<div class="lt">'+ck+'<span class="nm">'+nm+'<small>'+t.d+'/'+t.h+(A?'<br>'+A+' booked':'')+'</small></span></div>'+ds(20):
 '<div class="lt">'+ck+'<span class="nm">'+nm+'</span>'+cnt+'</div>')+'</div>'});h+='</div></div>'});
-if(!p.dt&&ed)h+='<div class="aimr" data-lp="pjmenu" style="margin-top:8px;padding:10px 0 24px"><button class="link" data-a="aimp">◇ Project: '+aimTxt(p,null)+'</button></div>';
-else h+='<div class="aimr m" data-lp="pjmenu" style="padding:10px 0 24px">Fixed dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b)+'</div>';
+if(p.dt)h+='<div class="aimr m" data-lp="pjmenu" style="padding:10px 0 24px">Fixed dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b)+'</div>';else if(ed)h+='<div class="aimr" data-lp="pjmenu" style="margin-top:8px;padding:10px 0 24px"><button class="link" data-a="aimp">◇ Project: '+aimTxt(p,null)+'</button></div>';
 if(ed)h+='<div class="pad row" style="margin-top:6px"><button class="link" data-a="editp">Edit project</button><button class="link" data-a="addst">＋ Stage</button><button class="link" data-a="dates">'+(p.dt?'Fixed dates: '+fdt(p.dt.a)+' – '+fdt(p.dt.b):'Fixed dates')+'</button><span class="sp"></span><button class="link" data-a="delp">'+'Delete project'+'</button></div>';
 h+='</div>';
 const [t,si]=U.task?findT(p,U.task):[];
