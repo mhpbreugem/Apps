@@ -511,7 +511,7 @@ addstb(){const p=cur();p.st.splice(U.es+1,0,{n:val('v1').trim()&&false?'':'New s
 addst(){const p=cur();p.st.push({n:'New stage',g:'open',t:[{id:uid(),n:'Work',h:10,d:0}]});draw()},
 stmv(e){const p=cur(),i=+e.dataset.i,j=i+ +e.dataset.m;if(j<0||j>=p.st.length)return;const x=p.st[i];p.st[i]=p.st[j];p.st[j]=x;draw()},
 delst(){const p=cur();if(p.st.length<2){close();return}if(U.dls!==U.es){U.dls=U.es;return A.editst({dataset:{i:U.es}})}const gone=p.st[U.es];p.st.splice(U.es,1);if(gone.t.some(t=>t.id===U.task))U.task=null;if(gone.t.some(t=>t.id===p.cur))delete p.cur;U.dls=null;close();draw()},
-tck(e){const p=cur(),[t]=findT(p,e.dataset.t);if(!t)return;if(t.d>=t.h&&t.h>0){t.d=Math.min(t.pd!=null&&t.pd<t.h?t.pd:0,t.h-1);delete t.pd}else{t.pd=t.d;t.d=t.h}draw()},
+tck(e){const p=cur(),[t]=findT(p,e.dataset.t);if(!t)return;const was0=t.d>=t.h&&t.h>0;if(p.er){const k=iso(mon(pd(td()))),dq=Math.round(t.h*4)*(was0?-1:1);S.hb=S.hb||{};const q=(S.hb[k]||[0,0,0]).slice();q[2]=Math.max(0,Math.min(4,(q[2]||0)+dq));S.hb[k]=q}if(t.d>=t.h&&t.h>0){t.d=Math.min(t.pd!=null&&t.pd<t.h?t.pd:0,t.h-1);delete t.pd}else{t.pd=t.d;t.d=t.h}draw()},
 ed(){U.ed=!U.ed;draw()},
 nowopen(){const p=actP();if(!p)return;U.cat=p.cat;U.proj=p.id;const t=curT(p);U.task=t?t.id:null;U.pg=1;draw()},
 nowchg(){let h='<b style="font-size:16px">Work on</b>';CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="fgp"><div class="fcn">'+esc(c)+'</div><div class="fgl">'+ps.map(p=>{return'<button class="fit'+(S.act&&S.act.p===p.id?' act':'')+'" data-a="nowsel" data-id="'+p.id+'"><i style="background:'+p.c+'"></i><span class="fn">'+esc(p.name)+'</span></button>'}).join('')+'</div></div>'});open(h)},
