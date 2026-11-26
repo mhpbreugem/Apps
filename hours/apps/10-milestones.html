@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"><title>Hours · Milestones</title><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#F7F6F2;--ink:#17181C;--mu:#6B6C72;--ln:#E4E2DC;--sf:#fff;--ch:#EEECE6;--hl:#FFF1A8;--top:max(env(safe-area-inset-top),38px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:500 14px/1.35 var(--ff,Inter),system-ui,sans-serif;font-feature-settings:'tnum' 1}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}input{font:inherit}
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto}
+header{background:var(--hd,#17181C);color:var(--hf,#fff);padding:var(--top) 14px 12px;display:flex;align-items:flex-end;gap:8px;flex:none}
+header .tt{flex:1;min-width:0}header h1{margin:0;font:var(--hw,800) 22px/1.1 var(--hff,Inter);letter-spacing:-.02em}header small{display:block;color:var(--hs,#ffffff99);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb{height:34px;min-width:34px;padding:0 10px;border-radius:var(--hr,10px);background:var(--hbb,#ffffff24);color:var(--hf,#fff);font-weight:700;font-size:13px;flex:none}.hb:disabled{opacity:.3}
+main{flex:1;overflow:auto;padding:10px 14px 40px}
+.dt{display:inline-block;width:var(--s);height:var(--s);border-radius:50%;box-shadow:inset 0 0 0 2px var(--c);vertical-align:middle;margin:1px}
+.sq{display:inline-block;border-radius:24%}
+.gh{font:700 11.5px Inter;color:var(--mu);margin:18px 0 6px}
+.tri{font-size:10px}.late{color:#C8402A}
+#sh{position:fixed;inset:0;background:#0006;display:none;align-items:flex-end;justify-content:center;z-index:9}#sh.on{display:flex}
+#shi{background:var(--sf);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:86vh;overflow:auto}
+#shi h2{margin:0;font:800 18px Inter}#shi .m{color:var(--mu);font-size:12.5px}
+.btn{display:block;width:100%;height:46px;border-radius:12px;background:var(--ink);color:#fff;font-weight:700;margin-top:8px}.btn.g{background:var(--ch);color:var(--ink)}
+.row{display:flex;gap:8px;align-items:center}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#17181C;color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10;white-space:nowrap}#toast.on{opacity:1}
+.ver{text-align:center;color:#bbb;font-size:11px;margin-top:22px}
+</style><script>const KEY='hours-a10';
+const OLD='hours-v4',CATS=['Research','Teaching','Chair & Admin','Personal'];
+const $=id=>document.getElementById(id),uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+(f?f(x):x),0);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)},td=()=>iso(new Date());
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const mon=d=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],WD=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const fdt=s=>{const d=pd(s);return d.getDate()+' '+MO[d.getMonth()]};
+const qf=x=>{x=Math.round((+x||0)*4)/4;const w=Math.floor(x),f=x-w,q=f===.25?'¼':f===.5?'½':f===.75?'¾':'';return (w||!q?w:'')+q};
+const wkNo=d=>{const t=new Date(d);t.setDate(t.getDate()+3-((t.getDay()+6)%7));const w1=new Date(t.getFullYear(),0,4);return 1+Math.round(((t-w1)/864e5-3+((w1.getDay()+6)%7))/7)};
+function fromOld(o){return{v:1,bud:Object.assign({Research:14,Teaching:12,'Chair & Admin':10,Personal:4},o.bud||{}),
+ p:(o.p||[]).filter(p=>!p.dt).map(p=>({id:p.id,n:p.name,c:p.c||'#111',cat:CATS.includes(p.cat)?p.cat:'Personal',er:!!p.er,dl:p.aim||null,w:2,
+  t:(p.st||[]).filter(s=>!s.q).flatMap(s=>(s.t||[]).filter(t=>!t.mx).map(t=>({id:t.id,n:t.n,s:s.n,h:+t.h||0,d:Math.min(+t.d||0,+t.h||0),dl:t.dl||null})))})),
+ q:(o.qk||[]).filter(q=>q.d<q.h).map(q=>({id:q.id,n:q.n,h:+q.h||.25,p:q.p,dl:q.dl||null})),log:[],wk:{}}}
+const SEED={bud:{Research:14,Teaching:12,'Chair & Admin':10,Personal:4},p:[
+ {id:'a',name:'MIZN',cat:'Research',c:'#2E7D4F',aim:'2027-03-01',st:[{n:'Question',t:[{id:'a1',n:'Write the claim in one sentence',h:10,d:3}]},{n:'Model',t:[{id:'a2',n:'Set up the economy',h:17,d:0},{id:'a3',n:'Solve the baseline',h:17,d:0}]}]},
+ {id:'b',name:'TSI',cat:'Research',c:'#3E9E62',st:[{n:'Question',t:[{id:'b1',n:'Set up the economy',h:20,d:0}]}]},
+ {id:'c',name:'BT',cat:'Teaching',c:'#C8682F',st:[{n:'Prepare',t:[{id:'c1',n:'Plan the sessions',h:8,d:2,dl:'2026-12-04'},{id:'c2',n:'Slides',h:16,d:0}]}]},
+ {id:'d',name:'Recruitment',cat:'Chair & Admin',c:'#2F6FB5',st:[{n:'Profile',t:[{id:'d1',n:'Profile',h:3,d:0}]}]},
+ {id:'e',name:'Admin',cat:'Chair & Admin',c:'#8E9096',er:1,st:[]},{id:'f',name:'Sport',cat:'Personal',c:'#7C8B7A',st:[{n:'Ongoing',t:[{id:'f1',n:'Training',h:100,d:0}]}]}],
+ qk:[{id:'q1',n:'Reply to Linda',h:.25,d:0,p:'e'},{id:'q2',n:'Sign contracts',h:.5,d:0,p:'e'}]};
+let S=(()=>{try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}try{const o=localStorage.getItem(OLD);if(o)return fromOld(JSON.parse(o))}catch(e){}return fromOld(SEED)})();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let UH=[];const snap=()=>{UH.push(JSON.stringify(S));if(UH.length>40)UH.shift()};
+const P=id=>S.p.find(p=>p.id===id),left=p=>sum(p.t,t=>t.h-t.d),doneP=p=>sum(p.t,t=>t.d),cur=p=>p.t.find(t=>t.d<t.h);
+const pDL=p=>p.t.filter(t=>t.d<t.h&&t.dl).map(t=>t.dl).sort()[0]||(left(p)>0?p.dl:null);
+function logH(pid,h,qid){const p=P(pid);if(!p)return;S.log.push({d:td(),p:pid,h,q:qid||undefined});let r=h;
+ if(h>0){for(const t of p.t){if(r<=0)break;const k=Math.min(r,t.h-t.d);t.d+=k;r-=k}}
+ else{r=-h;for(let i=p.t.length-1;i>=0&&r>0;i--){const t=p.t[i],k=Math.min(r,t.d);t.d-=k;r-=k}}}
+const wk0=()=>iso(mon(new Date()));
+const doneWk=f=>sum(S.log.filter(l=>l.d>=wk0()&&f(l)),l=>l.h);
+const dots=(c,h,d,sz)=>{let o='';const n=Math.ceil(h-1e-9);for(let i=0;i<n;i++){const f=Math.max(0,Math.min(1,d-i)),cap=Math.min(1,h-i);o+='<i class="dt" style="--c:'+c+';--s:'+(sz||14)+'px;'+(cap<1?'transform:scale(.8);':'')+(f>=cap?'background:'+c:f>0?'background:conic-gradient('+c+' 0 '+(f*100)+'%,transparent 0)':'')+'"></i>'}return o};
+let TT;function toast(t){const x=$('toast');x.textContent=t;x.classList.add('on');clearTimeout(TT);TT=setTimeout(()=>x.classList.remove('on'),1600)}
+function open(h){$('shi').innerHTML=h;$('sh').classList.add('on')}function close(){$('sh').classList.remove('on')}
+const undoB=()=>'<button class="hb" data-a="undo" aria-label="Undo"'+(UH.length?'':' disabled')+'>↶</button>';
+const baseA={undo(){if(!UH.length)return;S=JSON.parse(UH.pop());draw()}};
+function bind(A){A=Object.assign({},baseA,A);document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&A[b.dataset.a])A[b.dataset.a](b,e);else if(e.target.id==='sh')close()});return A}
+const openP=()=>S.p.filter(p=>!p.er&&left(p)>0);
+const pName=p=>p?p.n:'?';
+</script></head><body>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,800&display=swap');
+:root{--bg:#fff;--hd:#fff;--hf:#111;--hs:#777;--hbb:#f1f1f1;--hff:Fraunces;--ink:#111;--mu:#777}
+header{border-bottom:2px solid #111}header h1{font-size:30px!important;font-weight:500!important}
+main{padding:0 16px 30px}
+.ms{display:grid;grid-template-columns:76px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid #e6e6e6;width:100%;text-align:left}
+.ms .n{font:800 40px/1 Fraunces,serif;letter-spacing:-.03em;text-align:right}.ms .n small{display:block;font:600 11px Inter;color:var(--mu);margin-top:4px;letter-spacing:0}
+.ms .n.late{color:#E0301E}
+.ms b{font:600 17px/1.2 Fraunces,serif;display:block}.ms .pj{font:700 12px Inter;color:var(--c);margin-bottom:3px}
+.ms .bar{height:6px;background:#eee;border-radius:3px;margin-top:8px;overflow:hidden}.ms .bar i{display:block;height:100%;background:var(--c)}
+.st{display:inline-block;font:800 10.5px Inter;padding:3px 7px;border-radius:5px;margin-top:6px}.st.ok{background:#E6F4EA;color:#1E7B3A}.st.ti{background:#FFF3D6;color:#9A6500}.st.la{background:#FDE7E5;color:#C0271A}
+.ms .f{font:500 12px Inter;color:var(--mu);margin-top:4px}
+.add{padding:18px 0;font:600 14px Fraunces,serif;color:var(--mu);width:100%;text-align:left}
+.pt{display:block;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid #eee}.pt small{color:var(--mu)}
+</style>
+<div id="app"><header id="hd"></header><main id="mn"></main></div>
+<script>
+function items(){const T=pd(td()),o=[];S.p.forEach(p=>{if(p.er)return;const r=(+S.bud[p.cat]||0)/Math.max(1,openP().filter(x=>x.cat===p.cat).length);let acc=0;
+ p.t.forEach(t=>{acc+=t.h-t.d;if(t.dl&&t.d<t.h){const days=Math.round((pd(t.dl)-T)/864e5),avail=Math.max(0,days/7*r),need=acc;o.push({p,t,dl:t.dl,days,need,avail})}});
+ if(p.dl&&left(p)>0){const days=Math.round((pd(p.dl)-T)/864e5);o.push({p,t:{n:'Whole project',d:doneP(p),h:sum(p.t,t=>t.h)},dl:p.dl,days,need:left(p),avail:Math.max(0,days/7*r),proj:1})}});
+ S.q.filter(q=>q.dl).forEach(q=>{const p=P(q.p)||{c:'#888',n:'?'};const days=Math.round((pd(q.dl)-T)/864e5);o.push({p,t:{n:q.n,d:0,h:q.h},dl:q.dl,days,need:q.h,avail:99,q})});
+ return o.sort((a,b)=>a.dl<b.dl?-1:1)}
+function draw(){const L=items();
+ $('hd').innerHTML='<div class="tt"><h1>Milestones</h1><small>'+L.length+' deadlines · counted down in days</small></div>'+undoB();
+ let h=L.map((x,i)=>{const st=x.days<0?['la','Overdue']:x.need>x.avail?['la','Will not fit']:x.need>x.avail*.7?['ti','Tight']:['ok','On track'];
+  return '<button class="ms" data-a="op" data-i="'+i+'" style="--c:'+x.p.c+'"><div class="n'+(x.days<0?' late':'')+'">'+Math.abs(x.days)+'<small>'+(x.days<0?'days late':x.days===1?'day':'days')+'</small></div><div><div class="pj">'+esc(x.p.n)+' · ▲ '+fdt(x.dl)+'</div><b>'+esc(x.t.n)+'</b><div class="f">'+qf(x.need)+' h to do before then · about '+qf(Math.round(x.avail))+' h available</div><span class="st '+st[0]+'">'+st[1]+'</span><div class="bar"><i style="width:'+(x.t.h?x.t.d/x.t.h*100:0)+'%"></i></div></div></button>'}).join('')||'<div class="add">No deadlines yet.</div>';
+ $('mn').innerHTML=h+'<button class="add" data-a="new">＋ Add a ▲ deadline to a task</button>';save()}
+let CUR=null;
+bind({op(e){const x=items()[+e.dataset.i];CUR=x;open('<h2>'+esc(x.t.n)+'</h2><div class="m">'+esc(x.p.n)+' · ▲ '+fdt(x.dl)+'</div>'+(x.q?'':'<div class="row" style="margin-top:10px"><button class="btn g" style="margin:0" data-a="lg" data-h="1">Log +1 h</button></div>')+'<button class="btn g" data-a="clr">Remove deadline</button>')},
+ lg(){snap();logH(CUR.p.id,1);close();draw()},clr(){snap();if(CUR.q)CUR.q.dl=null;else if(CUR.proj)CUR.p.dl=null;else CUR.t.dl=null;close();draw()},
+ new(){open('<h2>Pick a task</h2>'+openP().map(p=>p.t.filter(t=>t.d<t.h).slice(0,3).map(t=>'<button class="pt" data-a="pick" data-p="'+p.id+'" data-t="'+t.id+'"><b style="color:'+p.c+'">'+esc(p.n)+'</b> '+esc(t.n)+' <small>'+(t.dl?'▲ '+fdt(t.dl):'')+'</small></button>').join('')).join(''))},
+ pick(e){CUR={p:P(e.dataset.p),t:P(e.dataset.p).t.find(t=>t.id===e.dataset.t)};open('<h2>'+esc(CUR.t.n)+'</h2><div class="m">Set the ▲ deadline</div><input type="date" id="nd" value="'+(CUR.t.dl||'')+'" style="width:100%;height:46px;border:0;border-radius:12px;background:#f1f1f1;padding:0 12px;margin-top:10px"><button class="btn" data-a="sv">Save</button>')},
+ sv(){const v=$('nd').value;if(!v)return;snap();CUR.t.dl=v;close();draw()}});
+draw();
+</script>
+<div id="sh"><div id="shi"></div></div><div id="toast"></div></body></html>
