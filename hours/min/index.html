@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#000000">
+<title>Hours</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#fff;--ink:#000;--mu:#767676;--ln:#e8e8e8;--tr:#efefef;--hl:#ffe600;--top:max(env(safe-area-inset-top),38px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:500 14px/1.35 Inter,system-ui,sans-serif;font-feature-settings:'tnum' 1,'cv11' 1}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,select{font:inherit;color:inherit}
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto}
+header{background:#000;color:#fff;padding:var(--top) 16px 14px;display:flex;align-items:flex-end;gap:10px;flex:none}
+header .tt{flex:1;min-width:0}
+header h1{margin:0;font:700 24px/1.1 Inter,system-ui;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header small{display:block;margin-top:3px;font:500 12px Inter,system-ui;color:#ffffff99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb{height:34px;min-width:34px;padding:0 10px;border-radius:10px;background:#ffffff22;color:#fff;display:flex;align-items:center;gap:7px;font-weight:600;font-size:13px;flex:none}
+.hb:disabled{opacity:.3}
+.hb .dt{width:9px;height:9px;border-radius:50%}
+.sw{display:flex;background:#ffffff22;border-radius:10px;padding:3px;flex:none}
+.sw button{height:28px;padding:0 11px;border-radius:8px;font-weight:600;font-size:13px;color:#ffffffb0}
+.sw button.on{background:#fff;color:#000}
+.bk{font-size:24px;line-height:1;margin-right:2px;color:#fff;height:34px;width:24px}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 16px 40px}
+nav{display:flex;border-top:1px solid #000;flex:none;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;height:54px;font:600 13px Inter,system-ui;color:var(--mu);position:relative}
+nav button.on{color:#000}
+nav button.on:before{content:'';position:absolute;left:28%;right:28%;top:-1px;height:3px;background:#000}
+.m{color:var(--mu)}
+.gh{font:600 12px Inter,system-ui;color:var(--mu);margin:18px 0 4px}
+/* plan rows */
+.pr{display:block;width:100%;text-align:left;padding:9px 0 10px;border-bottom:1px solid var(--ln)}
+.pr .l1{display:flex;align-items:baseline;gap:8px}
+.pr b{font:700 15px Inter,system-ui;letter-spacing:-.01em;white-space:nowrap}
+.pr .tk{flex:1;min-width:0;color:var(--mu);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr .n{font:700 15px Inter,system-ui;flex:none}
+.pr .n i{font-style:normal;font-weight:500;color:var(--mu);font-size:12px;margin-left:2px}
+.bar{position:relative;height:7px;background:var(--tr);margin-top:7px;overflow:hidden}
+.bar>i{position:absolute;left:0;top:0;bottom:0;background:var(--c)}
+.bar>s{position:absolute;top:0;bottom:0;width:2px;background:var(--bg)}
+.tri{color:var(--ink);font-size:10px;margin-left:4px}
+.late .tri{color:#d0021b}
+.qrow{display:flex;gap:3px;margin-top:8px;flex-wrap:wrap}
+.add{width:100%;text-align:left;padding:14px 0;font-weight:600;color:var(--mu)}
+/* project page */
+.st{margin-top:18px}
+.st h3{margin:0 0 2px;font:700 12px Inter,system-ui;color:var(--mu);display:flex;justify-content:space-between}
+.tr_{display:grid;grid-template-columns:1fr auto;gap:2px 10px;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid var(--ln);align-items:baseline}
+.tr_ .nm{font-weight:600;font-size:14px;min-width:0}
+.tr_.dn .nm{color:var(--mu);text-decoration:line-through;text-decoration-thickness:1px}
+.tr_ .hh{font-weight:600;font-size:13px}
+.tr_ .bar{grid-column:1/3;margin-top:4px;height:4px}
+.tr_.cu .nm:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:7px;vertical-align:1px}
+.lk{font-weight:600;color:var(--mu);padding:10px 0;font-size:13px}
+/* quick */
+.qa{display:flex;gap:6px;margin:10px 0 6px}
+.qa input{flex:1;min-width:0;height:46px;border:0;border-radius:12px;background:var(--tr);padding:0 14px;font-size:15px;outline:0}
+.qa input:focus{box-shadow:inset 0 0 0 2px #000;background:#fff}
+.qa button{width:46px;height:46px;border-radius:12px;background:#000;color:#fff;font:700 15px Inter,system-ui}
+.qi{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--ln)}
+.qi .pie{flex:none}
+.qi .nm{flex:1;min-width:0;font-weight:600;font-size:14.5px;text-align:left}
+.qi .mt{font-size:12px;color:var(--mu);white-space:nowrap}
+.qi .mt b{color:var(--c);font-weight:700}
+.qi.dn .nm{color:var(--mu);text-decoration:line-through;text-decoration-thickness:1px}
+.fold{width:100%;text-align:left;padding:14px 0;font-weight:600;color:var(--mu)}
+.empty{padding:28px 0;color:var(--mu)}
+/* pies / circles */
+.pie{width:22px;height:22px;border-radius:50%;display:inline-block;position:relative}
+.pie.o{box-shadow:inset 0 0 0 2px var(--c)}
+.pie.f{background:var(--c)}
+.pie.p{background:conic-gradient(var(--c) 0 var(--q),transparent 0);box-shadow:inset 0 0 0 2px var(--c)}
+.pie.s{width:12px;height:12px}
+/* days */
+.wk{display:flex;align-items:center;justify-content:space-between;margin:6px 0 2px}
+.wk b{font-weight:700;font-size:15px}
+.wk button{width:38px;height:38px;font-size:20px;border-radius:10px}
+.wk .td{width:auto;padding:0 10px;font-size:13px;font-weight:600;background:var(--tr)}
+.dy{display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:10px;min-height:66px;border-bottom:1px solid var(--ln);width:100%;text-align:left;padding:8px 0}
+.dy .dd{display:flex;flex-direction:column;align-items:center;justify-content:center;width:42px;height:46px;border-radius:12px}
+.dy .dd small{font:600 11px Inter,system-ui;color:var(--mu)}
+.dy .dd b{font:700 20px/1 Inter,system-ui;letter-spacing:-.02em}
+.dy.to .dd{background:var(--hl)}
+.dy.pa .dd b{color:var(--mu)}
+.dy .cs{display:flex;flex-wrap:wrap;gap:5px;min-height:24px;align-items:center}
+.dy .cs .pl{width:22px;height:22px;border-radius:50%;border:1.5px dashed #c8c8c8;color:#c8c8c8;font-size:14px;line-height:19px;text-align:center}
+.dy .tt{font:700 14px Inter,system-ui;min-width:26px;text-align:right}
+.dy .tt i{display:block;font:500 10.5px Inter,system-ui;font-style:normal;color:var(--mu)}
+.dy.oo{opacity:.4}
+.lg{display:flex;gap:16px;margin:16px 0 0;font-size:12px;color:var(--mu);align-items:center}
+.lg span{display:flex;align-items:center;gap:6px}
+.ws{margin-top:14px;display:flex;justify-content:space-between;align-items:baseline}
+.ws b{font:800 28px Inter,system-ui;letter-spacing:-.03em}
+/* done */
+.big{font:800 44px/1 Inter,system-ui;letter-spacing:-.04em;margin:16px 0 2px}
+.chips{display:flex;gap:6px;margin:8px 0 6px}
+.chips button{flex:1;height:34px;border-radius:10px;background:var(--tr);font-weight:600;font-size:13px}
+.chips button.on{background:#000;color:#fff}
+.dr{display:grid;grid-template-columns:96px 1fr 44px;gap:10px;align-items:center;padding:6px 0}
+.dr span{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dr .bar{margin:0;height:10px;background:none}
+.dr em{font-style:normal;font-weight:700;text-align:right;font-size:13px}
+/* settings */
+.fr{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--ln);gap:12px}
+.fr input{width:70px;height:36px;border:0;border-radius:10px;background:var(--tr);text-align:center;font-weight:700}
+.btn{display:block;width:100%;height:48px;border-radius:12px;background:#000;color:#fff;font-weight:700;margin-top:10px}
+.btn.g{background:var(--tr);color:#000}
+.btn.r{background:var(--tr);color:#d0021b}
+/* sheet */
+#sh{position:fixed;inset:0;background:#00000059;display:none;align-items:flex-end;justify-content:center;z-index:9}
+#sh.on{display:flex}
+#sh .in{background:#fff;width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto}
+#sh .in:before{content:'';display:block;width:36px;height:4px;border-radius:2px;background:#ddd;margin:0 auto 12px}
+#sh h2{margin:0 0 2px;font:700 18px Inter,system-ui;letter-spacing:-.01em}
+#sh .sub{color:var(--mu);font-size:12.5px;margin-bottom:10px}
+#sh label{display:block;font:600 12px Inter,system-ui;color:var(--mu);margin:14px 0 6px}
+#sh input[type=text],#sh input[type=date],#sh select{width:100%;height:46px;border:0;border-radius:12px;background:var(--tr);padding:0 14px;font-size:15px;outline:0}
+#sh input:focus{box-shadow:inset 0 0 0 2px #000;background:#fff}
+.hrs{display:flex;align-items:center;gap:8px}
+.hrs button{width:52px;height:46px;border-radius:12px;background:var(--tr);font-weight:700}
+.hrs input{flex:1;text-align:center;font:800 22px Inter,system-ui!important}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}
+.pg button{display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:10px;text-align:left;min-width:0}
+.pg button.on{background:var(--hl)}
+.pg button i{width:10px;height:10px;border-radius:50%;flex:none}
+.pg button b{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg button small{margin-left:auto;color:var(--mu);font-size:11.5px;white-space:nowrap}
+.sgh{font:600 12px Inter,system-ui;color:var(--mu);margin:12px 0 2px;padding-left:8px}
+.cols{display:flex;gap:8px;flex-wrap:wrap}
+.cols button{width:32px;height:32px;border-radius:50%}
+.cols button.on{box-shadow:0 0 0 2px #fff,0 0 0 4px #000}
+#toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#000;color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10;white-space:nowrap}
+#toast.on{opacity:1}
+.ver{text-align:center;color:#bbb;font-size:11px;margin-top:24px}
+</style></head><body>
+<div id="app"><header id="hd"></header><main id="mn"></main>
+<nav id="nv"><button data-a="go" data-k="q">Quick</button><button data-a="go" data-k="p">Plan</button><button data-a="go" data-k="d">Days</button><button data-a="go" data-k="s">Settings</button></nav></div>
+<div id="sh"><div class="in" id="shi"></div></div><div id="toast"></div>
+<script>
+(function(){
+const BUILD='min-2611-2215',KEY='hours-v5',OLD='hours-v4';
+const CATS=['Research','Teaching','Chair & Admin','Personal'];
+const COLS=['#2E7D4F','#3E9E62','#C8682F','#7B4FB0','#2F6FB5','#1F4E9A','#8E9096','#7C8B7A','#C8402A','#111111'];
+const $=id=>document.getElementById(id),uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+(f?f(x):x),0);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const td=()=>iso(new Date()),addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const mon=d=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],WD=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const fdt=s=>{const d=pd(s);return d.getDate()+' '+MO[d.getMonth()]};
+const qf=x=>{x=Math.round((+x||0)*4)/4;const w=Math.floor(x),f=x-w,q=f===.25?'¼':f===.5?'½':f===.75?'¾':'';return (w||!q?w:'')+q};
+
+/* ---------- state ---------- */
+let S;
+function blank(){return{v:5,p:[],q:[],days:{},bud:{Research:14,Teaching:12,'Chair & Admin':10,Personal:4},qp:null}}
+function fromOld(o){
+  const N=blank();N.bud=Object.assign(N.bud,o.bud||{});const T=td(),dayDone={};
+  const push=(d,e)=>{(N.days[d]=N.days[d]||[]).push(e)};
+  const F=o.fn&&o.fn.ov||{};
+  Object.keys(F).forEach(d=>(F[d]||[]).forEach(x=>{if(!x||!x[0])return;const h=+x[2]||1;if(x[1]===2||x[1]===3)push(d,{id:uid(),p:x[0],h,s:0});else{push(d,{id:uid(),p:x[0],h,s:1});dayDone[x[0]]=(dayDone[x[0]]||0)+h}}));
+  (o.bk||[]).forEach(b=>{if(b.d<=T){push(b.d,{id:uid(),p:b.p,h:b.h,s:1});dayDone[b.p]=(dayDone[b.p]||0)+b.h}else push(b.d,{id:uid(),p:b.p,h:b.h,s:0})});
+  (o.p||[]).forEach(p=>{
+    const all=(p.st||[]).flatMap(s=>s.t||[]),dsum=sum(all,t=>+t.d||0);
+    const np={id:p.id,name:p.name,c:p.c||'#111',cat:CATS.includes(p.cat)?p.cat:'Personal',b:Math.max(0,dsum-(dayDone[p.id]||0))};
+    if(p.dt)np.dt=p.dt;if(p.aim)np.dl=p.aim;
+    if(p.er)np.bk=1;else np.st=(p.st||[]).filter(s=>!s.q).map(s=>({id:uid(),n:s.n,t:(s.t||[]).filter(t=>!t.mx).map(t=>({id:t.id,n:t.n,h:+t.h||0,dl:t.dl||undefined}))}));
+    N.p.push(np)});
+  (o.qk||[]).forEach(q=>N.q.push({id:q.id,n:q.n,h:+q.h||.25,p:q.p,dl:q.dl||undefined,done:q.d>=q.h?(q.at||T):null}));
+  return N}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}
+  try{const o=localStorage.getItem(OLD);if(o)return fromOld(JSON.parse(o))}catch(e){}
+  return seed()}
+function seed(){const N=blank(),mk=(name,cat,c,st,x)=>N.p.push(Object.assign({id:uid(),name,cat,c,b:0},st?{st:st.map(([n,ts])=>({id:uid(),n,t:ts.map(([tn,h])=>({id:uid(),n:tn,h}))}))}:{bk:1},x||{}));
+  mk('MIZN','Research','#2E7D4F',[['Question',[['Write the claim in one sentence',10]]],['Model',[['Set up the economy',17],['Solve the baseline',17]]],['Story',[['Introduction',18]]]]);
+  mk('BT','Teaching','#C8682F',[['Prepare',[['Plan the sessions',8],['Slides',16]]],['Teach',[['Sessions',24]]]]);
+  mk('Chair','Chair & Admin','#2F6FB5');mk('Admin','Chair & Admin','#8E9096');mk('Home','Personal','#7C8B7A');return N}
+S=load();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let UH=[],RH=[];const snap=()=>{UH.push(JSON.stringify(S));if(UH.length>40)UH.shift();RH=[]};
+const U={pg:'p',pj:null,mode:'plan',per:'30',wk:0,sel:null};
+
+/* ---------- derived ---------- */
+const P=id=>S.p.find(p=>p.id===id);
+const ents=()=>Object.entries(S.days).flatMap(([d,L])=>L.map(e=>Object.assign({d},e)));
+function doneH(p,qk){return sum(ents().filter(e=>e.p===p.id&&e.s===1&&(qk?!!e.q:!e.q)),e=>e.h)}
+function tasksOf(p){return(p.st||[]).flatMap(s=>s.t)}
+function prog(p){/* fill tasks in order with stage hours */
+  let r=(p.b||0)+doneH(p,0);const out={};tasksOf(p).forEach(t=>{const k=Math.min(r,t.h);out[t.id]=k;r-=k});return out}
+const tot=p=>sum(tasksOf(p),t=>t.h);
+function curTask(p,pr){pr=pr||prog(p);return tasksOf(p).find(t=>pr[t.id]<t.h)}
+const openQ=p=>S.q.filter(q=>q.p===p.id&&!q.done);
+const projDL=p=>{const ds=tasksOf(p).map(t=>t.dl).concat(p.dl?[p.dl]:[]).filter(Boolean).sort();const pr=prog(p);const o=tasksOf(p).filter(t=>t.dl&&pr[t.id]<t.h).map(t=>t.dl).sort();return o[0]||(p.dl&&sum(Object.values(pr))<tot(p)?p.dl:null)};
+const defQ=()=>P(S.qp)?S.qp:(S.p.find(p=>p.name==='Admin')||S.p[0]||{}).id;
+const selP=()=>P(U.sel)?U.sel:(S.p.find(p=>!p.dt&&!p.bk)||S.p[0]||{}).id;
+function pie(c,h,state,small){const cls='pie'+(small?' s':'');if(state===0)return '<i class="'+cls+' o" style="--c:'+c+'"></i>';if(h>=1)return '<i class="'+cls+' f" style="--c:'+c+'"></i>';return '<i class="'+cls+' p" style="--c:'+c+';--q:'+(h*100)+'%"></i>'}
+
+/* ---------- header ---------- */
+function head(t,s,right,back){$('hd').innerHTML=(back?'<button class="bk" data-a="back" aria-label="Back">‹</button>':'')+'<div class="tt"><h1>'+esc(t)+'</h1><small>'+esc(s||'')+'</small></div>'+(right||'')}
+const undoB=()=>'<button class="hb" data-a="undo" aria-label="Undo"'+(UH.length?'':' disabled')+'>↶</button>';
+const pickB=(id,a)=>{const p=P(id)||{c:'#888',name:'–'};return '<button class="hb" data-a="'+a+'"><span class="dt" style="background:'+p.c+'"></span>'+esc(p.name)+' ▾</button>'};
+
+/* ---------- pages ---------- */
+function pPlan(){
+  if(U.pj&&P(U.pj))return pProj(P(U.pj));U.pj=null;
+  const right='<div class="sw"><button class="'+(U.mode==='plan'?'on':'')+'" data-a="mode" data-k="plan">Plan</button><button class="'+(U.mode==='done'?'on':'')+'" data-a="mode" data-k="done">Done</button></div>';
+  if(U.mode==='done')return pDone(right);
+  const left=sum(S.p.filter(p=>!p.bk&&!p.dt),p=>{const pr=prog(p);return tot(p)-sum(Object.values(pr))});
+  head('Plan',qf(left)+' h left · '+sum(CATS,c=>+S.bud[c]||0)+' h a week',right);
+  let h='';
+  CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c);if(!ps.length)return;h+='<div class="gh">'+esc(c)+'</div>';
+    ps.forEach(p=>{
+      if(p.dt){h+='<button class="pr" data-a="pj" data-id="'+p.id+'"><div class="l1"><b>'+esc(p.name)+'</b><span class="tk">'+fdt(p.dt.a)+' – '+fdt(p.dt.b)+'</span><span class="n m" style="font-weight:500;font-size:12px">fixed dates</span></div></button>';return}
+      if(p.bk){const o=openQ(p),wk=iso(mon(new Date())),dw=sum(ents().filter(e=>e.p===p.id&&e.s===1&&e.d>=wk),e=>e.h);
+        h+='<button class="pr" data-a="qto" data-id="'+p.id+'" style="--c:'+p.c+'"><div class="l1"><b>'+esc(p.name)+'</b><span class="tk">'+(o.length?o.length+' open':'Nothing open')+(dw?' · '+qf(dw)+' h this week':'')+'</span><span class="n">'+(o.length?qf(sum(o,q=>q.h))+'<i>h</i>':'✓')+'</span></div>'+(o.length?'<div class="qrow">'+o.slice(0,14).map(q=>pie(p.c,q.h,0,1)).join('')+'</div>':'')+'</button>';return}
+      const pr=prog(p),T=tot(p),D=sum(Object.values(pr)),ct=curTask(p,pr),dl=projDL(p);let acc=0;
+      const ticks=(p.st||[]).slice(0,-1).map(s=>{acc+=sum(s.t,t=>t.h);return T?'<s style="left:calc('+(acc/T*100)+'% - 1px)"></s>':''}).join('');
+      const late=dl&&dl<td();
+      h+='<button class="pr'+(late?' late':'')+'" data-a="pj" data-id="'+p.id+'" style="--c:'+p.c+'"><div class="l1"><b>'+esc(p.name)+'</b><span class="tk">'+(ct?esc(ct.n):'All done')+(dl?'<span class="tri">▲ '+fdt(dl)+'</span>':'')+'</span><span class="n">'+(T-D>0?qf(T-D)+'':'✓')+'</span></div><div class="bar"><i style="width:'+(T?D/T*100:0)+'%"></i>'+ticks+'</div></button>'})});
+  return h+'<button class="add" data-a="newp">+ New project</button>'}
+
+function pProj(p){
+  const pr=prog(p),T=tot(p),D=sum(Object.values(pr)),ct=curTask(p,pr);
+  head(p.name,p.dt?fdt(p.dt.a)+' – '+fdt(p.dt.b):qf(D)+' of '+qf(T)+' h done'+(p.dl?' · ▲ '+fdt(p.dl):''),'<button class="hb" data-a="pedit">Edit</button>',1);
+  if(p.dt)return '<div class="empty">A fixed-dates project. Edit it to change the dates.</div>';
+  let h='';(p.st||[]).forEach(s=>{const sh=sum(s.t,t=>t.h),sd=sum(s.t,t=>pr[t.id]);
+    h+='<div class="st"><h3><button data-a="sedit" data-s="'+s.id+'">'+esc(s.n)+'</button><span>'+qf(sd)+' / '+qf(sh)+'</span></h3>'+s.t.map(t=>{const d=pr[t.id],dn=d>=t.h;
+      return '<button class="tr_'+(dn?' dn':'')+(ct===t?' cu':'')+'" data-a="tedit" data-s="'+s.id+'" data-t="'+t.id+'" style="--c:'+p.c+'"><span class="nm">'+esc(t.n)+(t.dl?' <span class="tri">▲ '+fdt(t.dl)+'</span>':'')+'</span><span class="hh">'+(dn?'✓ ':'')+qf(d)+' / '+qf(t.h)+'</span>'+(!dn&&d>0?'<div class="bar"><i style="width:'+(d/t.h*100)+'%"></i></div>':'')+'</button>'}).join('')+'<button class="lk" data-a="tnew" data-s="'+s.id+'">+ Task</button></div>'});
+  return h+'<button class="add" data-a="snew">+ Stage</button>'}
+
+function pDone(right){
+  const k=U.per,T=td(),from=k==='all'?'0000':iso(addD(new Date(),-(+k-1)));
+  const by={};ents().forEach(e=>{if(e.s===1&&e.d>=from&&e.d<=T)by[e.p]=(by[e.p]||0)+e.h});
+  if(k==='all')S.p.forEach(p=>{if(p.b)by[p.id]=(by[p.id]||0)+p.b});
+  const all=sum(Object.values(by)),days=k==='all'?null:+k;
+  head('Plan',k==='all'?'All time · done':'Last '+(k==='365'?'year':k+' days')+' · done',right);
+  let h='<div class="chips">'+[['7','7d'],['30','30d'],['90','90d'],['365','1y'],['all','All']].map(([kk,l])=>'<button class="'+(k===kk?'on':'')+'" data-a="per" data-k="'+kk+'">'+l+'</button>').join('')+'</div>';
+  h+='<div class="big">'+qf(all)+' h</div><div class="m">'+(days?qf(all/days*7)+' h a week on average':'including hours done before tracking')+'</div>';
+  if(!all)return h+'<div class="empty">Nothing done in this period yet. Fill circles in Days or tick quick tasks.</div>';
+  const mx=Math.max(...Object.values(by));
+  CATS.forEach(c=>{const L=S.p.filter(p=>p.cat===c&&by[p.id]).sort((a,b)=>by[b.id]-by[a.id]);if(!L.length)return;
+    h+='<div class="gh">'+esc(c)+' · '+qf(sum(L,p=>by[p.id]))+' h</div>'+L.map(p=>'<div class="dr" style="--c:'+p.c+'"><span>'+esc(p.name)+'</span><div class="bar"><i style="width:'+Math.max(2,by[p.id]/mx*100)+'%"></i></div><em>'+qf(by[p.id])+'</em></div>').join('')});
+  return h}
+
+function pQuick(){
+  const op=S.q.filter(q=>!q.done),dn=S.q.filter(q=>q.done).sort((a,b)=>a.done<b.done?1:-1),dp=P(defQ());
+  head('Quick',op.length+' open · '+qf(sum(op,q=>q.h))+' h',pickB(defQ(),'qpick')+undoB());
+  const row=q=>{const p=P(q.p)||{c:'#888',name:'?'};return '<div class="qi'+(q.done?' dn':'')+'" style="--c:'+p.c+'"><button data-a="qtick" data-id="'+q.id+'" aria-label="Done">'+pie(p.c,q.h,q.done?1:0)+'</button><button class="nm" data-a="qedit" data-id="'+q.id+'">'+esc(q.n)+'</button><span class="mt"><b>'+esc(p.name)+'</b> · '+qf(q.h)+' h'+(q.dl&&!q.done?' <span class="tri">▲ '+fdt(q.dl)+'</span>':'')+'</span></div>'};
+  let h='<div class="qa"><input id="qn" type="text" placeholder="New task for '+esc(dp?dp.name:'')+'" enterkeyhint="done" autocomplete="off"><button data-a="qadd" data-h=".25">¼</button><button data-a="qadd" data-h=".5">½</button><button data-a="qadd" data-h="1">1</button></div>';
+  h+=op.map(row).join('')||'<div class="empty">Nothing open. Type a task above and pick how long it takes.</div>';
+  if(dn.length)h+='<button class="fold" data-a="qfold">✓ '+dn.length+' done · '+qf(sum(dn,q=>q.h))+' h '+(U.qd?'▴':'▾')+'</button>'+(U.qd?dn.slice(0,50).map(row).join(''):'');
+  return h}
+
+function pDays(){
+  const m=addD(mon(new Date()),U.wk*7),T=td(),bud=sum(CATS,c=>+S.bud[c]||0);
+  head('Days',fdt(iso(m))+' – '+fdt(iso(addD(m,6))),pickB(selP(),'dpick')+undoB());
+  let h='<div class="wk"><button data-a="wk" data-k="-1" aria-label="Previous week">‹</button><b>Week '+wkNo(m)+'</b>'+(U.wk?'<button class="td" data-a="wk" data-k="0">This week</button>':'')+'<button data-a="wk" data-k="1" aria-label="Next week">›</button></div>';
+  let wd=0,wp=0;
+  for(let i=0;i<7;i++){const d=iso(addD(m,i)),L=S.days[d]||[],dn=sum(L.filter(e=>e.s===1),e=>e.h),pl=sum(L.filter(e=>e.s===0),e=>e.h);wd+=dn;wp+=pl;
+    h+='<div class="dy'+(d===T?' to':d<T?' pa':'')+'" data-a="dadd" data-d="'+d+'"><div class="dd"><small>'+WD[i]+'</small><b>'+pd(d).getDate()+'</b></div><div class="cs">'+L.map(e=>{const p=P(e.p);return p?'<button data-a="dtap" data-d="'+d+'" data-id="'+e.id+'" aria-label="'+esc(p.name)+'">'+pie(p.c,e.h,e.s)+'</button>':''}).join('')+(L.length?'':'<span class="pl">+</span>')+'</div><div class="tt">'+(dn?qf(dn):'')+(pl?'<i>+'+qf(pl)+' plan</i>':'')+'</div></div>'}
+  h+='<div class="ws"><span class="m">This week</span><span><b>'+qf(wd)+'</b><span class="m"> / '+bud+' h'+(wp?' · '+qf(wp)+' planned':'')+'</span></span></div>';
+  h+='<div class="lg"><span>'+pie('#000',1,0)+' planned</span><span>'+pie('#000',1,1)+' done</span><span>Tap a day to add an hour</span></div>';
+  return h}
+const wkNo=d=>{const t=new Date(d);t.setDate(t.getDate()+3-((t.getDay()+6)%7));const w1=new Date(t.getFullYear(),0,4);return 1+Math.round(((t-w1)/864e5-3+((w1.getDay()+6)%7))/7)};
+
+function pSet(){head('Settings','Targets and data');
+  let h='<div class="gh">Hours a week</div>'+CATS.map(c=>'<div class="fr"><span style="font-weight:600">'+esc(c)+'</span><input type="number" inputmode="decimal" min="0" step="1" data-bud="'+esc(c)+'" value="'+(+S.bud[c]||0)+'"></div>').join('');
+  h+='<div class="gh">Data</div><button class="btn g" data-a="exp">Export as file</button><button class="btn g" data-a="imp">Import a file</button><input type="file" id="impf" accept=".json,application/json" hidden>';
+  h+='<button class="btn g" data-a="reold">Copy again from the current Hours app</button><button class="btn r" data-a="wipe">Start empty</button>';
+  return h+'<div class="ver">Hours, minimal edition · build '+BUILD+'</div>'}
+
+/* ---------- draw ---------- */
+const mn=$('mn');
+function draw(){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===U.pg));
+  mn.innerHTML=U.pg==='q'?pQuick():U.pg==='d'?pDays():U.pg==='s'?pSet():pPlan();save()}
+
+/* ---------- sheets ---------- */
+const sh=$('sh'),shi=$('shi');
+function open(h){shi.innerHTML=h;sh.classList.add('on')}
+function close(){sh.classList.remove('on');shi.innerHTML=''}
+sh.addEventListener('click',e=>{if(e.target===sh)close()});
+function picker(title,sub,act,cur,meta,filter){let h='<h2>'+title+'</h2><div class="sub">'+sub+'</div>';
+  CATS.forEach(c=>{const ps=S.p.filter(p=>p.cat===c&&(!filter||filter(p)));if(!ps.length)return;h+='<div class="sgh">'+esc(c)+'</div><div class="pg">'+ps.map(p=>'<button class="'+(p.id===cur?'on':'')+'" data-a="'+act+'" data-id="'+p.id+'"><i style="background:'+p.c+'"></i><b>'+esc(p.name)+'</b><small>'+(meta(p)||'')+'</small></button>').join('')+'</div>'});open(h)}
+const hrs=(id,v)=>'<div class="hrs"><button data-a="hstep" data-k="-1" data-f="'+id+'">−1</button><button data-a="hstep" data-k="-.25" data-f="'+id+'">−¼</button><input type="text" inputmode="decimal" id="'+id+'" value="'+v+'"><button data-a="hstep" data-k=".25" data-f="'+id+'">+¼</button><button data-a="hstep" data-k="1" data-f="'+id+'">+1</button></div>';
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.').replace('¼','.25').replace('½','.5').replace('¾','.75'));return isNaN(v)?0:Math.max(0,Math.round(v*4)/4)};
+let ED=null;
+
+/* ---------- toast ---------- */
+let TT;function toast(t){const x=$('toast');x.textContent=t;x.classList.add('on');clearTimeout(TT);TT=setTimeout(()=>x.classList.remove('on'),1800)}
+
+/* ---------- actions ---------- */
+const MUT=new Set(['qadd','qtick','qsave','qdel','dadd','dtap','tsave','tdel','tdone','tnew_ok','ssave','sdel','snew_ok','psave','pdel','newp_ok','dsave','ddel']);
+const A={
+  go(e){U.pg=e.dataset.k;if(U.pg==='p'&&U.pg===e.dataset.k&&U.pj&&mn.scrollTop<5){}U.pj=null;mn.scrollTop=0;draw()},
+  back(){U.pj=null;draw()},
+  undo(){if(!UH.length)return;RH.push(JSON.stringify(S));S=JSON.parse(UH.pop());draw();toast('Undone')},
+  mode(e){U.mode=e.dataset.k;draw()},per(e){U.per=e.dataset.k;draw()},
+  pj(e){U.pj=e.dataset.id;mn.scrollTop=0;draw()},
+  qto(e){S.qp=e.dataset.id;U.pg='q';draw()},
+  /* quick */
+  qpick(){picker('Add quick tasks for','Pick a project','qps',defQ(),p=>{const o=openQ(p);return o.length?o.length+' open':''},p=>!p.dt)},
+  qps(e){S.qp=e.dataset.id;close();draw();setTimeout(()=>$('qn')&&$('qn').focus(),50)},
+  qadd(e){const n=($('qn').value||'').trim();if(!n){$('qn').focus();toast('Type the task first');UH.pop();return}S.q.unshift({id:uid(),n,h:+e.dataset.h,p:defQ(),done:null});draw();setTimeout(()=>$('qn')&&$('qn').focus(),30)},
+  qtick(e){const q=S.q.find(x=>x.id===e.dataset.id);if(!q)return;if(q.done){Object.keys(S.days).forEach(d=>{S.days[d]=S.days[d].filter(x=>x.q!==q.id);if(!S.days[d].length)delete S.days[d]});q.done=null}else{const d=td();(S.days[d]=S.days[d]||[]).push({id:uid(),p:q.p,h:q.h,s:1,q:q.id});q.done=d}draw()},
+  qfold(){U.qd=!U.qd;draw()},
+  qedit(e){const q=S.q.find(x=>x.id===e.dataset.id);if(!q)return;ED={q:q.id,p:q.p};qSheet()},
+  qproj(){picker('Move to','Pick a project','qpset',ED.p,()=>'' ,p=>!p.dt)},
+  qpset(e){ED.p=e.dataset.id;qSheet(true)},
+  qsave(){const q=S.q.find(x=>x.id===ED.q);if(!q)return close();q.n=$('en').value.trim()||q.n;q.h=num('eh')||.25;q.p=ED.p;q.dl=$('ed').value||undefined;Object.values(S.days).forEach(L=>L.forEach(x=>{if(x.q===q.id){x.p=q.p;x.h=q.h}}));close();draw()},
+  qdel(){const q=S.q.find(x=>x.id===ED.q);if(q){S.q=S.q.filter(x=>x!==q);Object.keys(S.days).forEach(d=>{S.days[d]=S.days[d].filter(x=>x.q!==q.id);if(!S.days[d].length)delete S.days[d]})}close();draw();toast('Deleted')},
+  hstep(e){const i=$(e.dataset.f);const v=Math.max(0,num(e.dataset.f)+ +e.dataset.k);i.value=v},
+  /* days */
+  dpick(){picker('Fill circles for','Pick a project','dps',selP(),p=>{if(p.bk){const o=openQ(p);return o.length?o.length+' open':''}const pr=prog(p),l=tot(p)-sum(Object.values(pr));return l>0?qf(l)+' h left':'✓'},p=>!p.dt)},
+  dps(e){U.sel=e.dataset.id;close();draw()},
+  wk(e){const k=+e.dataset.k;U.wk=k===0?0:U.wk+k;draw()},
+  dadd(e){const d=e.dataset.d,p=P(selP());if(!p){UH.pop();return}(S.days[d]=S.days[d]||[]).push({id:uid(),p:p.id,h:1,s:d<=td()?1:0});draw()},
+  dtap(e){const d=e.dataset.d,L=S.days[d]||[],x=L.find(y=>y.id===e.dataset.id);if(!x)return;
+    if(x.q){const q=S.q.find(y=>y.id===x.q);if(q)q.done=null;S.days[d]=L.filter(y=>y!==x)}
+    else if(x.s===0)x.s=1;else S.days[d]=L.filter(y=>y!==x);
+    if(!S.days[d].length)delete S.days[d];draw()},
+  /* project */
+  pedit(){const p=P(U.pj);ED={p:p.id,c:p.c,cat:p.cat};pSheet(p)},
+  pcol(e){ED.c=e.dataset.k;shi.querySelectorAll('.cols button').forEach(b=>b.classList.toggle('on',b.dataset.k===ED.c))},
+  psave(){const p=P(ED.p)||null,n=$('pn').value.trim();if(!n){toast('Give it a name');UH.pop();return}
+    if(!p){const np={id:uid(),name:n,c:ED.c,cat:$('pc').value,b:0};if($('pk').value==='bk')np.bk=1;else np.st=[{id:uid(),n:'Stage 1',t:[]}];S.p.push(np);close();if(!np.bk){U.pj=np.id}draw();return}
+    p.name=n;p.c=ED.c;p.cat=$('pc').value;p.dl=$('pd')&&$('pd').value||undefined;close();draw()},
+  pdel(){if(!confirmStep('pdel'))return UH.pop();S.p=S.p.filter(x=>x.id!==ED.p);S.q=S.q.filter(q=>q.p!==ED.p);Object.keys(S.days).forEach(d=>{S.days[d]=S.days[d].filter(x=>x.p!==ED.p);if(!S.days[d].length)delete S.days[d]});U.pj=null;close();draw();toast('Project deleted')},
+  newp(){ED={p:null,c:COLS[0],cat:'Research'};pSheet(null)},
+  /* stages & tasks */
+  snew(){snap();const p=P(U.pj);p.st.push({id:uid(),n:'Stage '+(p.st.length+1),t:[]});draw();mn.scrollTop=1e5},
+  sedit(e){ED={s:e.dataset.s};const s=P(U.pj).st.find(x=>x.id===ED.s);open('<h2>Stage</h2><label>Name</label><input type="text" id="sn" value="'+esc(s.n)+'"><button class="btn" data-a="ssave">Save</button><button class="btn r" data-a="sdel">Delete stage and its tasks</button>')},
+  ssave(){const s=P(U.pj).st.find(x=>x.id===ED.s);s.n=$('sn').value.trim()||s.n;close();draw()},
+  sdel(){if(!confirmStep('sdel'))return UH.pop();const p=P(U.pj);p.st=p.st.filter(x=>x.id!==ED.s);close();draw()},
+  tnew(e){ED={s:e.dataset.s,t:null};tSheet({n:'',h:4})},
+  tedit(e){ED={s:e.dataset.s,t:e.dataset.t};const t=P(U.pj).st.find(x=>x.id===ED.s).t.find(x=>x.id===ED.t);tSheet(t)},
+  tsave(){const p=P(U.pj),s=p.st.find(x=>x.id===ED.s),n=$('tn').value.trim();if(!n){toast('Give it a name');UH.pop();return}
+    let t=ED.t&&s.t.find(x=>x.id===ED.t);if(!t){t={id:uid()};s.t.push(t)}t.n=n;t.h=num('th')||.25;t.dl=$('tdl').value||undefined;close();draw()},
+  tdel(){const s=P(U.pj).st.find(x=>x.id===ED.s);s.t=s.t.filter(x=>x.id!==ED.t);close();draw();toast('Task deleted')},
+  tdone(){const p=P(U.pj),pr=prog(p),L=tasksOf(p),i=L.findIndex(x=>x.id===ED.t);let need=0;for(let j=0;j<=i;j++)need+=L[j].h-pr[L[j].id];p.b=(p.b||0)+need;close();draw();toast('Marked done')},
+  /* settings */
+  exp(){const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='hours-'+td()+'.json';a.click()},
+  imp(){$('impf').click()},
+  reold(){let o=null;try{o=JSON.parse(localStorage.getItem(OLD))}catch(e){}if(!o)return toast('No data from the current app on this device');if(!confirmStep('reold'))return;snap();S=fromOld(o);draw();toast('Copied from the current app')},
+  wipe(){if(!confirmStep('wipe'))return;snap();S=blank();draw();toast('Started empty')}
+};
+let CF=null;function confirmStep(k){if(CF===k){CF=null;return true}CF=k;toast('Tap again to confirm');setTimeout(()=>{if(CF===k)CF=null},2500);return false}
+function qSheet(keep){const q=S.q.find(x=>x.id===ED.q),p=P(ED.p)||{c:'#888',name:'?'};
+  const n=keep?$('en').value:q.n,h=keep?$('eh').value:q.h,dl=keep?$('ed').value:(q.dl||'');
+  open('<h2>Quick task</h2><div class="sub">'+(q.done?'Done on '+fdt(q.done):'Open')+'</div><label>Name</label><input type="text" id="en" value="'+esc(n)+'"><label>Hours</label>'+hrs('eh',h)+'<label>Project</label><button class="btn g" style="margin:0;display:flex;align-items:center;gap:10px;padding:0 14px;font-weight:600" data-a="qproj"><span class="pie s f" style="--c:'+p.c+'"></span>'+esc(p.name)+' ▾</button><label>▲ Deadline (optional)</label><input type="date" id="ed" value="'+dl+'"><button class="btn" data-a="qsave">Save</button><button class="btn r" data-a="qdel">Delete</button>')}
+function tSheet(t){const pr=ED.t?prog(P(U.pj))[ED.t]:0;
+  open('<h2>'+(ED.t?'Task':'New task')+'</h2><div class="sub">'+(ED.t?qf(pr)+' of '+qf(t.h)+' h done':'Add it to this stage')+'</div><label>Name</label><input type="text" id="tn" value="'+esc(t.n)+'" placeholder="What needs doing"><label>Hours</label>'+hrs('th',t.h)+'<label>▲ Deadline (optional)</label><input type="date" id="tdl" value="'+(t.dl||'')+'"><button class="btn" data-a="tsave">Save</button>'+(ED.t?(pr<t.h?'<button class="btn g" data-a="tdone">Mark done</button>':'')+'<button class="btn r" data-a="tdel">Delete</button>':''));if(!ED.t)setTimeout(()=>$('tn').focus(),50)}
+function pSheet(p){
+  open('<h2>'+(p?'Project':'New project')+'</h2><label>Name</label><input type="text" id="pn" value="'+esc(p?p.name:'')+'"><label>Category</label><select id="pc">'+CATS.map(c=>'<option'+(c===ED.cat?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select>'+(p?'':'<label>Kind</label><select id="pk"><option value="st">Stages and tasks</option><option value="bk">Quick tasks only</option></select>')+(p&&!p.bk&&!p.dt?'<label>▲ Deadline (optional)</label><input type="date" id="pd" value="'+(p.dl||'')+'">':'')+'<label>Colour</label><div class="cols">'+COLS.map(c=>'<button class="'+(c===ED.c?'on':'')+'" data-a="pcol" data-k="'+c+'" style="background:'+c+'" aria-label="Colour"></button>').join('')+'</div><button class="btn" data-a="psave">Save</button>'+(p?'<button class="btn r" data-a="pdel">Delete project</button>':''))}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;if(!A[a])return;e.stopPropagation();if(MUT.has(a))snap();A[a](b)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='qn'){e.preventDefault();snap();A.qadd({dataset:{h:'.25'}})}});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.bud){S.bud[t.dataset.bud]=Math.max(0,+t.value||0);save()}
+  if(t.id==='impf'&&t.files[0]){const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);snap();S=o.v===5?o:fromOld(o);draw();toast('Imported')}catch(x){toast('That file could not be read')}};r.readAsText(t.files[0]);t.value=''}});
+window.H={get S(){return S},draw,U,A};
+draw();
+})();
+</script></body></html>
