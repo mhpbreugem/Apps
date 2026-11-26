@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"><title>Hours · Review</title><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#F7F6F2;--ink:#17181C;--mu:#6B6C72;--ln:#E4E2DC;--sf:#fff;--ch:#EEECE6;--hl:#FFF1A8;--top:max(env(safe-area-inset-top),38px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:500 14px/1.35 var(--ff,Inter),system-ui,sans-serif;font-feature-settings:'tnum' 1}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}input{font:inherit}
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto}
+header{background:var(--hd,#17181C);color:var(--hf,#fff);padding:var(--top) 14px 12px;display:flex;align-items:flex-end;gap:8px;flex:none}
+header .tt{flex:1;min-width:0}header h1{margin:0;font:var(--hw,800) 22px/1.1 var(--hff,Inter);letter-spacing:-.02em}header small{display:block;color:var(--hs,#ffffff99);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb{height:34px;min-width:34px;padding:0 10px;border-radius:var(--hr,10px);background:var(--hbb,#ffffff24);color:var(--hf,#fff);font-weight:700;font-size:13px;flex:none}.hb:disabled{opacity:.3}
+main{flex:1;overflow:auto;padding:10px 14px 40px}
+.dt{display:inline-block;width:var(--s);height:var(--s);border-radius:50%;box-shadow:inset 0 0 0 2px var(--c);vertical-align:middle;margin:1px}
+.sq{display:inline-block;border-radius:24%}
+.gh{font:700 11.5px Inter;color:var(--mu);margin:18px 0 6px}
+.tri{font-size:10px}.late{color:#C8402A}
+#sh{position:fixed;inset:0;background:#0006;display:none;align-items:flex-end;justify-content:center;z-index:9}#sh.on{display:flex}
+#shi{background:var(--sf);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:86vh;overflow:auto}
+#shi h2{margin:0;font:800 18px Inter}#shi .m{color:var(--mu);font-size:12.5px}
+.btn{display:block;width:100%;height:46px;border-radius:12px;background:var(--ink);color:#fff;font-weight:700;margin-top:8px}.btn.g{background:var(--ch);color:var(--ink)}
+.row{display:flex;gap:8px;align-items:center}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#17181C;color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10;white-space:nowrap}#toast.on{opacity:1}
+.ver{text-align:center;color:#bbb;font-size:11px;margin-top:22px}
+</style><script>const KEY='hours-a24';
+const OLD='hours-v4',CATS=['Research','Teaching','Chair & Admin','Personal'];
+const $=id=>document.getElementById(id),uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+(f?f(x):x),0);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)},td=()=>iso(new Date());
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const mon=d=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],WD=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const fdt=s=>{const d=pd(s);return d.getDate()+' '+MO[d.getMonth()]};
+const qf=x=>{x=Math.round((+x||0)*4)/4;const w=Math.floor(x),f=x-w,q=f===.25?'¼':f===.5?'½':f===.75?'¾':'';return (w||!q?w:'')+q};
+const wkNo=d=>{const t=new Date(d);t.setDate(t.getDate()+3-((t.getDay()+6)%7));const w1=new Date(t.getFullYear(),0,4);return 1+Math.round(((t-w1)/864e5-3+((w1.getDay()+6)%7))/7)};
+function fromOld(o){return{v:1,bud:Object.assign({Research:14,Teaching:12,'Chair & Admin':10,Personal:4},o.bud||{}),
+ p:(o.p||[]).filter(p=>!p.dt).map(p=>({id:p.id,n:p.name,c:p.c||'#111',cat:CATS.includes(p.cat)?p.cat:'Personal',er:!!p.er,dl:p.aim||null,w:2,
+  t:(p.st||[]).filter(s=>!s.q).flatMap(s=>(s.t||[]).filter(t=>!t.mx).map(t=>({id:t.id,n:t.n,s:s.n,h:+t.h||0,d:Math.min(+t.d||0,+t.h||0),dl:t.dl||null})))})),
+ q:(o.qk||[]).filter(q=>q.d<q.h).map(q=>({id:q.id,n:q.n,h:+q.h||.25,p:q.p,dl:q.dl||null})),log:[],wk:{}}}
+const SEED={bud:{Research:14,Teaching:12,'Chair & Admin':10,Personal:4},p:[
+ {id:'a',name:'MIZN',cat:'Research',c:'#2E7D4F',aim:'2027-03-01',st:[{n:'Question',t:[{id:'a1',n:'Write the claim in one sentence',h:10,d:3}]},{n:'Model',t:[{id:'a2',n:'Set up the economy',h:17,d:0},{id:'a3',n:'Solve the baseline',h:17,d:0}]}]},
+ {id:'b',name:'TSI',cat:'Research',c:'#3E9E62',st:[{n:'Question',t:[{id:'b1',n:'Set up the economy',h:20,d:0}]}]},
+ {id:'c',name:'BT',cat:'Teaching',c:'#C8682F',st:[{n:'Prepare',t:[{id:'c1',n:'Plan the sessions',h:8,d:2,dl:'2026-12-04'},{id:'c2',n:'Slides',h:16,d:0}]}]},
+ {id:'d',name:'Recruitment',cat:'Chair & Admin',c:'#2F6FB5',st:[{n:'Profile',t:[{id:'d1',n:'Profile',h:3,d:0}]}]},
+ {id:'e',name:'Admin',cat:'Chair & Admin',c:'#8E9096',er:1,st:[]},{id:'f',name:'Sport',cat:'Personal',c:'#7C8B7A',st:[{n:'Ongoing',t:[{id:'f1',n:'Training',h:100,d:0}]}]}],
+ qk:[{id:'q1',n:'Reply to Linda',h:.25,d:0,p:'e'},{id:'q2',n:'Sign contracts',h:.5,d:0,p:'e'}]};
+let S=(()=>{try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}try{const o=localStorage.getItem(OLD);if(o)return fromOld(JSON.parse(o))}catch(e){}return fromOld(SEED)})();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let UH=[];const snap=()=>{UH.push(JSON.stringify(S));if(UH.length>40)UH.shift()};
+const P=id=>S.p.find(p=>p.id===id),left=p=>sum(p.t,t=>t.h-t.d),doneP=p=>sum(p.t,t=>t.d),cur=p=>p.t.find(t=>t.d<t.h);
+const pDL=p=>p.t.filter(t=>t.d<t.h&&t.dl).map(t=>t.dl).sort()[0]||(left(p)>0?p.dl:null);
+function logH(pid,h,qid){const p=P(pid);if(!p)return;S.log.push({d:td(),p:pid,h,q:qid||undefined});let r=h;
+ if(h>0){for(const t of p.t){if(r<=0)break;const k=Math.min(r,t.h-t.d);t.d+=k;r-=k}}
+ else{r=-h;for(let i=p.t.length-1;i>=0&&r>0;i--){const t=p.t[i],k=Math.min(r,t.d);t.d-=k;r-=k}}}
+const wk0=()=>iso(mon(new Date()));
+const doneWk=f=>sum(S.log.filter(l=>l.d>=wk0()&&f(l)),l=>l.h);
+const dots=(c,h,d,sz)=>{let o='';const n=Math.ceil(h-1e-9);for(let i=0;i<n;i++){const f=Math.max(0,Math.min(1,d-i)),cap=Math.min(1,h-i);o+='<i class="dt" style="--c:'+c+';--s:'+(sz||14)+'px;'+(cap<1?'transform:scale(.8);':'')+(f>=cap?'background:'+c:f>0?'background:conic-gradient('+c+' 0 '+(f*100)+'%,transparent 0)':'')+'"></i>'}return o};
+let TT;function toast(t){const x=$('toast');x.textContent=t;x.classList.add('on');clearTimeout(TT);TT=setTimeout(()=>x.classList.remove('on'),1600)}
+function open(h){$('shi').innerHTML=h;$('sh').classList.add('on')}function close(){$('sh').classList.remove('on')}
+const undoB=()=>'<button class="hb" data-a="undo" aria-label="Undo"'+(UH.length?'':' disabled')+'>↶</button>';
+const baseA={undo(){if(!UH.length)return;S=JSON.parse(UH.pop());draw()}};
+function bind(A){A=Object.assign({},baseA,A);document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&A[b.dataset.a])A[b.dataset.a](b,e);else if(e.target.id==='sh')close()});return A}
+const openP=()=>S.p.filter(p=>!p.er&&left(p)>0);
+const pName=p=>p?p.n:'?';
+</script></head><body>
+<style>
+:root{--bg:#F1F4F8;--hd:#F1F4F8;--hf:#16202E;--hs:#66738A;--hbb:#16202e12;--ink:#16202E;--mu:#66738A}
+main{padding:6px 18px 30px;display:flex;flex-direction:column}
+.stp{display:flex;gap:6px;margin:4px 0 18px}.stp i{flex:1;height:5px;border-radius:3px;background:#D5DCE6}.stp i.on{background:#16202E}
+h2.t{font:800 26px/1.15 Inter;letter-spacing:-.02em;margin:0 0 4px}.sub{color:var(--mu);margin-bottom:14px}
+.cr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px;background:#fff;border-radius:14px;margin-bottom:8px}
+.cr b{font-size:14px}.cr em{font-style:normal;font-weight:800}.cr em.u{color:#C0532A}.cr em.o{color:#2A7A52}
+.cr .br{grid-column:1/3;height:7px;border-radius:4px;background:#E7ECF2;overflow:hidden}.cr .br i{display:block;height:100%;background:var(--c)}
+.dl{display:flex;gap:10px;align-items:center;padding:10px 12px;background:#fff;border-radius:12px;margin-bottom:6px}.dl .n{font:800 20px Inter;min-width:38px;text-align:center}.dl .n small{display:block;font:600 10px Inter;color:var(--mu)}.dl b{flex:1;font-size:13.5px}.dl b small{display:block;color:var(--mu);font-weight:600}
+.pl{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #E1E6EE}.pl i{width:10px;height:10px;border-radius:50%;background:var(--c)}.pl b{flex:1;font-size:13.5px}.pl em{font-style:normal;font-weight:800;min-width:24px;text-align:center}.pl button{width:36px;height:34px;border-radius:9px;background:#fff;font-weight:800;box-shadow:0 1px 2px #0001}
+.nav{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:20px}.nav button{height:52px;border-radius:14px;font-weight:800;background:#16202E;color:#fff}.nav button.g{background:#fff;color:#16202E}
+.big{font:800 54px/1 Inter;letter-spacing:-.04em}
+</style>
+<div id="app"><header id="hd"></header><main id="mn"></main></div>
+<script>
+const U={s:0};S.plan=S.plan||{};
+const lastWk=()=>{const a=iso(addD(mon(new Date()),-7)),b=wk0();return S.log.filter(l=>l.d>=a&&l.d<b&&P(l.p))};
+const CC={Research:'#2E7D4F',Teaching:'#C8682F','Chair & Admin':'#2F6FB5',Personal:'#7C8B7A'};
+function plan(){const k=wk0();if(!S.plan[k]){const o={};CATS.forEach(c=>{const ps=openP().filter(p=>p.cat===c),b=+S.bud[c]||0;ps.forEach((p,i)=>o[p.id]=Math.floor(b/ps.length)+(i<b%ps.length?1:0))});S.plan[k]=o}return S.plan[k]}
+function draw(){const s=U.s,N=4;$('hd').innerHTML='<div class="tt"><h1>Weekly review</h1><small>Week '+wkNo(new Date())+' · four short steps</small></div>'+undoB();
+ let h='<div class="stp">'+[0,1,2,3].map(i=>'<i class="'+(i<=s?'on':'')+'"></i>').join('')+'</div>';
+ if(s===0){const L=lastWk(),tot=sum(L,l=>l.h),bud=sum(CATS,c=>+S.bud[c]||0);h+='<h2 class="t">How did last week go?</h2><div class="sub">'+qf(tot)+' of '+bud+' hours</div>'+CATS.map(c=>{const a=sum(L.filter(l=>P(l.p).cat===c),l=>l.h),b=+S.bud[c]||0;return '<div class="cr" style="--c:'+CC[c]+'"><b>'+esc(c)+'</b><em class="'+(a<b*.8?'u':a>=b?'o':'')+'">'+qf(a)+' / '+b+'</em><div class="br"><i style="width:'+Math.min(100,b?a/b*100:0)+'%"></i></div></div>'}).join('')}
+ if(s===1){const T=pd(td()),L=[];S.p.forEach(p=>{p.t.forEach(t=>{if(t.dl&&t.d<t.h){const d=(pd(t.dl)-T)/864e5;if(d<=21)L.push({p,t,d})}});});L.sort((a,b)=>a.d-b.d);
+  h+='<h2 class="t">What is due soon?</h2><div class="sub">▲ deadlines in the next three weeks</div>'+(L.map(x=>'<div class="dl"><span class="n" style="color:'+(x.d<0?'#C0532A':x.p.c)+'">'+Math.round(x.d)+'<small>days</small></span><b>'+esc(x.t.n)+'<small>'+esc(x.p.n)+' · '+qf(x.t.h-x.t.d)+' h left · ▲ '+fdt(x.t.dl)+'</small></b></div>').join('')||'<div class="sub">Nothing due. Good moment for deep work.</div>')}
+ if(s===2){const P_=plan();h+='<h2 class="t">Plan this week</h2><div class="sub">'+sum(Object.values(P_))+' hours planned · budget '+sum(CATS,c=>+S.bud[c]||0)+'</div>'+openP().map(p=>'<div class="pl" style="--c:'+p.c+'"><i></i><b>'+esc(p.n)+'</b><button data-a="pm" data-p="'+p.id+'" data-k="-1">−</button><em>'+(P_[p.id]||0)+'</em><button data-a="pm" data-p="'+p.id+'" data-k="1">+</button></div>').join('')}
+ if(s===3){const P_=plan(),top=Object.entries(P_).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);h+='<h2 class="t">Your week</h2><div class="big">'+sum(Object.values(P_))+' h</div><div class="sub" style="margin-top:6px">Focus on</div>'+top.slice(0,5).map(([id,v])=>{const p=P(id);return '<div class="dl"><span class="n" style="color:'+p.c+'">'+v+'<small>hours</small></span><b>'+esc(p.n)+'<small>'+esc(cur(p).n)+'</small></b></div>'}).join('')+'<div class="sub" style="margin-top:10px">Done this week so far: '+qf(doneWk(()=>1))+' h</div>'}
+ h+='<div class="nav"><button class="g" data-a="bk"'+(s?'':' disabled style="opacity:.4"')+'>Back</button><button data-a="nx">'+(s<N-1?'Next':'Start again')+'</button></div>';
+ $('mn').innerHTML=h;save()}
+bind({nx(){U.s=U.s<3?U.s+1:0;draw()},bk(){if(U.s)U.s--;draw()},pm(e){snap();const P_=plan();P_[e.dataset.p]=Math.max(0,(P_[e.dataset.p]||0)+ +e.dataset.k);draw()}});
+draw();
+</script>
+<div id="sh"><div id="shi"></div></div><div id="toast"></div></body></html>
