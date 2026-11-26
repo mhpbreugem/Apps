@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"><title>Hours · Matrix</title><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#F7F6F2;--ink:#17181C;--mu:#6B6C72;--ln:#E4E2DC;--sf:#fff;--ch:#EEECE6;--hl:#FFF1A8;--top:max(env(safe-area-inset-top),38px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:500 14px/1.35 var(--ff,Inter),system-ui,sans-serif;font-feature-settings:'tnum' 1}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}input{font:inherit}
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto}
+header{background:var(--hd,#17181C);color:var(--hf,#fff);padding:var(--top) 14px 12px;display:flex;align-items:flex-end;gap:8px;flex:none}
+header .tt{flex:1;min-width:0}header h1{margin:0;font:var(--hw,800) 22px/1.1 var(--hff,Inter);letter-spacing:-.02em}header small{display:block;color:var(--hs,#ffffff99);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb{height:34px;min-width:34px;padding:0 10px;border-radius:var(--hr,10px);background:var(--hbb,#ffffff24);color:var(--hf,#fff);font-weight:700;font-size:13px;flex:none}.hb:disabled{opacity:.3}
+main{flex:1;overflow:auto;padding:10px 14px 40px}
+.dt{display:inline-block;width:var(--s);height:var(--s);border-radius:50%;box-shadow:inset 0 0 0 2px var(--c);vertical-align:middle;margin:1px}
+.sq{display:inline-block;border-radius:24%}
+.gh{font:700 11.5px Inter;color:var(--mu);margin:18px 0 6px}
+.tri{font-size:10px}.late{color:#C8402A}
+#sh{position:fixed;inset:0;background:#0006;display:none;align-items:flex-end;justify-content:center;z-index:9}#sh.on{display:flex}
+#shi{background:var(--sf);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:86vh;overflow:auto}
+#shi h2{margin:0;font:800 18px Inter}#shi .m{color:var(--mu);font-size:12.5px}
+.btn{display:block;width:100%;height:46px;border-radius:12px;background:var(--ink);color:#fff;font-weight:700;margin-top:8px}.btn.g{background:var(--ch);color:var(--ink)}
+.row{display:flex;gap:8px;align-items:center}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#17181C;color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10;white-space:nowrap}#toast.on{opacity:1}
+.ver{text-align:center;color:#bbb;font-size:11px;margin-top:22px}
+</style><script>const KEY='hours-a13';
+const OLD='hours-v4',CATS=['Research','Teaching','Chair & Admin','Personal'];
+const $=id=>document.getElementById(id),uid=()=>Math.random().toString(36).slice(2,9),sum=(a,f)=>a.reduce((s,x)=>s+(f?f(x):x),0);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const pd=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)},td=()=>iso(new Date());
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const mon=d=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],WD=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const fdt=s=>{const d=pd(s);return d.getDate()+' '+MO[d.getMonth()]};
+const qf=x=>{x=Math.round((+x||0)*4)/4;const w=Math.floor(x),f=x-w,q=f===.25?'¼':f===.5?'½':f===.75?'¾':'';return (w||!q?w:'')+q};
+const wkNo=d=>{const t=new Date(d);t.setDate(t.getDate()+3-((t.getDay()+6)%7));const w1=new Date(t.getFullYear(),0,4);return 1+Math.round(((t-w1)/864e5-3+((w1.getDay()+6)%7))/7)};
+function fromOld(o){return{v:1,bud:Object.assign({Research:14,Teaching:12,'Chair & Admin':10,Personal:4},o.bud||{}),
+ p:(o.p||[]).filter(p=>!p.dt).map(p=>({id:p.id,n:p.name,c:p.c||'#111',cat:CATS.includes(p.cat)?p.cat:'Personal',er:!!p.er,dl:p.aim||null,w:2,
+  t:(p.st||[]).filter(s=>!s.q).flatMap(s=>(s.t||[]).filter(t=>!t.mx).map(t=>({id:t.id,n:t.n,s:s.n,h:+t.h||0,d:Math.min(+t.d||0,+t.h||0),dl:t.dl||null})))})),
+ q:(o.qk||[]).filter(q=>q.d<q.h).map(q=>({id:q.id,n:q.n,h:+q.h||.25,p:q.p,dl:q.dl||null})),log:[],wk:{}}}
+const SEED={bud:{Research:14,Teaching:12,'Chair & Admin':10,Personal:4},p:[
+ {id:'a',name:'MIZN',cat:'Research',c:'#2E7D4F',aim:'2027-03-01',st:[{n:'Question',t:[{id:'a1',n:'Write the claim in one sentence',h:10,d:3}]},{n:'Model',t:[{id:'a2',n:'Set up the economy',h:17,d:0},{id:'a3',n:'Solve the baseline',h:17,d:0}]}]},
+ {id:'b',name:'TSI',cat:'Research',c:'#3E9E62',st:[{n:'Question',t:[{id:'b1',n:'Set up the economy',h:20,d:0}]}]},
+ {id:'c',name:'BT',cat:'Teaching',c:'#C8682F',st:[{n:'Prepare',t:[{id:'c1',n:'Plan the sessions',h:8,d:2,dl:'2026-12-04'},{id:'c2',n:'Slides',h:16,d:0}]}]},
+ {id:'d',name:'Recruitment',cat:'Chair & Admin',c:'#2F6FB5',st:[{n:'Profile',t:[{id:'d1',n:'Profile',h:3,d:0}]}]},
+ {id:'e',name:'Admin',cat:'Chair & Admin',c:'#8E9096',er:1,st:[]},{id:'f',name:'Sport',cat:'Personal',c:'#7C8B7A',st:[{n:'Ongoing',t:[{id:'f1',n:'Training',h:100,d:0}]}]}],
+ qk:[{id:'q1',n:'Reply to Linda',h:.25,d:0,p:'e'},{id:'q2',n:'Sign contracts',h:.5,d:0,p:'e'}]};
+let S=(()=>{try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}try{const o=localStorage.getItem(OLD);if(o)return fromOld(JSON.parse(o))}catch(e){}return fromOld(SEED)})();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let UH=[];const snap=()=>{UH.push(JSON.stringify(S));if(UH.length>40)UH.shift()};
+const P=id=>S.p.find(p=>p.id===id),left=p=>sum(p.t,t=>t.h-t.d),doneP=p=>sum(p.t,t=>t.d),cur=p=>p.t.find(t=>t.d<t.h);
+const pDL=p=>p.t.filter(t=>t.d<t.h&&t.dl).map(t=>t.dl).sort()[0]||(left(p)>0?p.dl:null);
+function logH(pid,h,qid){const p=P(pid);if(!p)return;S.log.push({d:td(),p:pid,h,q:qid||undefined});let r=h;
+ if(h>0){for(const t of p.t){if(r<=0)break;const k=Math.min(r,t.h-t.d);t.d+=k;r-=k}}
+ else{r=-h;for(let i=p.t.length-1;i>=0&&r>0;i--){const t=p.t[i],k=Math.min(r,t.d);t.d-=k;r-=k}}}
+const wk0=()=>iso(mon(new Date()));
+const doneWk=f=>sum(S.log.filter(l=>l.d>=wk0()&&f(l)),l=>l.h);
+const dots=(c,h,d,sz)=>{let o='';const n=Math.ceil(h-1e-9);for(let i=0;i<n;i++){const f=Math.max(0,Math.min(1,d-i)),cap=Math.min(1,h-i);o+='<i class="dt" style="--c:'+c+';--s:'+(sz||14)+'px;'+(cap<1?'transform:scale(.8);':'')+(f>=cap?'background:'+c:f>0?'background:conic-gradient('+c+' 0 '+(f*100)+'%,transparent 0)':'')+'"></i>'}return o};
+let TT;function toast(t){const x=$('toast');x.textContent=t;x.classList.add('on');clearTimeout(TT);TT=setTimeout(()=>x.classList.remove('on'),1600)}
+function open(h){$('shi').innerHTML=h;$('sh').classList.add('on')}function close(){$('sh').classList.remove('on')}
+const undoB=()=>'<button class="hb" data-a="undo" aria-label="Undo"'+(UH.length?'':' disabled')+'>↶</button>';
+const baseA={undo(){if(!UH.length)return;S=JSON.parse(UH.pop());draw()}};
+function bind(A){A=Object.assign({},baseA,A);document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&A[b.dataset.a])A[b.dataset.a](b,e);else if(e.target.id==='sh')close()});return A}
+const openP=()=>S.p.filter(p=>!p.er&&left(p)>0);
+const pName=p=>p?p.n:'?';
+</script></head><body>
+<style>
+:root{--bg:#F5F5F2;--hd:#232323;--ink:#1E1E1E;--mu:#6E6E6E}
+main{padding:10px 10px 30px;display:flex;flex-direction:column}
+.mx{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:6px;flex:1}
+.qd{border-radius:14px;padding:10px 8px;min-height:250px;display:flex;flex-direction:column;gap:5px}
+.qd h3{margin:0 0 4px;font:800 12.5px Inter}.qd h3 small{display:block;font-weight:600;color:#0008;font-size:10.5px}
+.q1{background:#FFD8CF}.q2{background:#D6ECFF}.q3{background:#FFF2C2}.q4{background:#E4E4E0}
+.it{background:#fff;border-radius:9px;padding:7px 8px;text-align:left;border-left:4px solid var(--c);font-size:12px;box-shadow:0 1px 1px #0000000d}
+.it b{display:block;font-size:12.5px}.it small{color:var(--mu);font-size:10.5px}
+.ax{display:flex;justify-content:space-between;font:700 10.5px Inter;color:var(--mu);padding:6px 4px 0}
+</style>
+<div id="app"><header id="hd"></header><main id="mn"></main></div>
+<script>
+S.imp=S.imp||{};const isImp=p=>S.imp[p.id]!=null?S.imp[p.id]:(p.cat==='Research'||p.cat==='Teaching');
+function items(){const T=pd(td()),o=[];openP().forEach(p=>{const t=cur(p),dl=pDL(p),days=dl?(pd(dl)-T)/864e5:999;o.push({k:'p',p,n:t.n,sub:p.n+' · '+qf(t.h-t.d)+' h'+(dl?' · ▲ '+fdt(dl):''),urg:days<=14,imp:isImp(p)})});
+ S.q.forEach(q=>{const p=P(q.p)||{c:'#888',n:'?'},days=q.dl?(pd(q.dl)-T)/864e5:999;o.push({k:'q',q,p,n:q.n,sub:p.n+' · '+qf(q.h)+' h',urg:days<=7||true,imp:!!S.imp['q'+q.id]})});return o}
+function draw(){const I=items();
+ $('hd').innerHTML='<div class="tt"><h1>Matrix</h1><small>Urgent = ▲ within 2 weeks or a quick task · tap to act</small></div>'+undoB();
+ const Q=[['q1','Do now','urgent · important',x=>x.urg&&x.imp],['q2','Schedule','important · not urgent',x=>!x.urg&&x.imp],['q3','Squeeze in','urgent · less important',x=>x.urg&&!x.imp],['q4','Later','neither',x=>!x.urg&&!x.imp]];
+ $('mn').innerHTML='<div class="ax"><span>← urgent</span><span>not urgent →</span></div><div class="mx">'+[Q[0],Q[1],Q[2],Q[3]].map(([c,t,s,f])=>'<div class="qd '+c+'"><h3>'+t+'<small>'+s+'</small></h3>'+I.map((x,i)=>f(x)?'<button class="it" data-a="op" data-i="'+i+'" style="--c:'+x.p.c+'"><b>'+esc(x.n)+'</b><small>'+esc(x.sub)+'</small></button>':'').join('')+'</div>').join('')+'</div>';save()}
+let CUR=null;
+bind({op(e){CUR=items()[+e.dataset.i];open('<h2>'+esc(CUR.n)+'</h2><div class="m">'+esc(CUR.sub)+'</div>'+(CUR.k==='p'?'<div class="row" style="margin-top:10px"><button class="btn g" style="margin:0" data-a="lg" data-h=".25">+¼</button><button class="btn" style="margin:0" data-a="lg" data-h="1">+1 h</button></div>':'<button class="btn" data-a="qd">Done</button>')+'<button class="btn g" data-a="ti">'+(CUR.imp?'Mark less important':'Mark important')+'</button>')},
+ lg(e){snap();logH(CUR.p.id,+e.dataset.h);close();toast('Logged');draw()},
+ qd(){snap();S.q=S.q.filter(x=>x!==CUR.q);logH(CUR.q.p,CUR.q.h,CUR.q.id);close();draw()},
+ ti(){snap();const k=CUR.k==='p'?CUR.p.id:'q'+CUR.q.id;S.imp[k]=!CUR.imp;close();draw()}});
+draw();
+</script>
+<div id="sh"><div id="shi"></div></div><div id="toast"></div></body></html>
