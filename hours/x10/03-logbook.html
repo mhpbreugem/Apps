@@ -153,6 +153,44 @@ button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:trans
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 #hd .t small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+.pool{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}.pool::-webkit-scrollbar{display:none}
+.pc{flex:none;display:flex;align-items:center;gap:7px;max-width:170px;padding:7px 10px 7px 8px;border-radius:12px;background:var(--card);box-shadow:0 0 0 1px var(--line);text-align:left}
+.pc i{width:14px;height:14px;border-radius:4px;background:var(--c);flex:none}.pc.qq i{border-radius:50%;background:none;box-shadow:inset 0 0 0 2.5px var(--c)}
+.pc b{display:block;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}.pc small{display:block;font-size:10.5px;color:var(--mut)}
+.pc>span{min-width:0}.pc{flex-wrap:nowrap}
+.pc.on{box-shadow:0 0 0 2.5px var(--c);transform:translateY(-2px)}
+.pool.back{box-shadow:inset 0 0 0 2px var(--fg);border-radius:14px;padding:6px}.pb{align-self:center;font-size:18px;padding:0 8px}
+.wv{display:flex;flex-direction:column;gap:5px}
+.wd{display:flex;align-items:stretch;gap:10px;background:var(--card);border-radius:14px;padding:8px 10px;min-height:58px;transition:box-shadow .15s}
+.wd.now{box-shadow:inset 0 0 0 2px var(--fg)}.wd.past{opacity:.55}.wd.off{opacity:.35}
+.picking .wd:not(.past){box-shadow:inset 0 0 0 2px var(--fg);border-style:dashed}
+.wh{width:26px;flex:none;display:flex;flex-direction:column;align-items:center}.wh small{font-size:10px;color:var(--mut);font-weight:700}.wh b{font-size:19px;font-weight:800;line-height:1.05}.wh em{font-style:normal;font-size:9px;line-height:1}
+.wb{flex:1;display:flex;flex-wrap:wrap;gap:4px;align-content:center}
+.sb{height:26px;width:calc(var(--h)*24px + 2px);min-width:26px;border-radius:7px;background:var(--c);color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.sb.au{background:color-mix(in srgb,var(--c) 45%,transparent);color:var(--fg)}
+.sb.ok::after{content:'✓';position:absolute;right:3px;top:1px;font-size:9px}.sb.ok{opacity:.55}
+.sb.on{box-shadow:0 0 0 2.5px var(--bg),0 0 0 4.5px var(--c)}
+.wb .fr{width:10px;height:26px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--res);opacity:.6}
+.lgd{display:flex;flex-direction:column;gap:3px}
+.lgh,.lgr{display:grid;grid-template-columns:44px repeat(var(--n),1fr);gap:3px;align-items:center}
+.lgh button{font-size:9.5px;color:var(--mut);font-weight:700}
+.lgp{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700}.lgp i{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+.lgc{height:30px;border-radius:7px;background:var(--soft);position:relative;display:flex;align-items:center;justify-content:center}
+.lgc .q{position:absolute;inset:4px;border-radius:5px;background:var(--c);opacity:var(--o)}
+.lgc .r{width:var(--s);height:var(--s);border-radius:50%;box-shadow:inset 0 0 0 2px var(--c);position:relative}
+.lgc b{position:absolute;top:0;right:2px;font-size:8px;color:var(--fg)}
+.lgc.ld{box-shadow:inset 0 0 0 2px var(--c)}
+.dv{display:flex;flex-direction:column;gap:10px}
+.ohs{display:flex;gap:8px}.ohc{flex:1;display:flex;align-items:center;gap:8px;height:52px;padding:0 10px;border-radius:16px;background:var(--card);box-shadow:0 0 0 1px var(--line)}
+.ohc span{display:flex;gap:2px;flex-wrap:wrap;flex:1}.ohc b{font-size:12px;font-weight:700;color:var(--mut)}.ohc i{font-style:normal;width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:17px}
+.dl2{display:flex;flex-direction:column;gap:6px}
+.db{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--card);text-align:left;min-height:calc(36px + var(--h,0)*10px)}
+.db i{width:24px;height:24px;border-radius:7px;box-shadow:inset 0 0 0 2.5px var(--c);flex:none;transition:background .15s}.db.q i{border-radius:50%}
+.db.ok i{background:var(--c)}.db.ok b{text-decoration:line-through;color:var(--mut)}
+.db b{flex:1;font-weight:600;font-size:14px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.db small{font-size:11px;color:var(--mut);font-weight:700;white-space:nowrap}
+.emp{text-align:center;color:var(--mut);font-size:28px;padding:30px}
+#nv button span:empty{display:none}
+
 :root{--bg:#FFFFFF;--fg:#111214;--mut:#6E7076;--line:#EEEEEF;--card:#fff;--soft:#F2F2F3;--ff:'Bricolage Grotesque',system-ui,sans-serif;--rs:30px;--nav:#fff}
 #hd{padding:calc(env(safe-area-inset-top) + 12px) 14px 0;display:flex;align-items:center;gap:8px}
 #hd .t{flex:1;font-weight:700;font-size:15px;color:var(--mut)}#hd .t b{color:var(--fg);font-weight:800}
@@ -457,6 +495,30 @@ const ACT={
  tdel:d=>{const x=findT(d.t);if(!x)return;act('Deleted '+x.t.n,()=>{x.s.t=x.s.t.filter(t=>t.id!==d.t);S.bk=S.bk.filter(b=>b.t!==d.t)});close()},
  newproj:()=>newProjSheet(),pc:d=>{U.pc=d.v;renderSheet()},
  pnew:()=>{const n=(U.pn||'').trim();if(!n)return toast('Give the project a name');let id;act('New project '+n,()=>{id=uid();S.p.push({id,name:n,cat:U.pc,c:CC[U.pc],st:[{n:'Tasks',t:[{id:uid(),n:'First task',h:1,d:0}]}]})});projSheet(id)}};
+
+/* ---------- flow: long → week → day ---------- */
+const ck=c=>c.k+':'+c.id;
+function pool(w0){const w1=add(w0,6),o=[],bl=new Set(S.bk.filter(b=>b.d>=w0&&b.d<=w1&&b.t).map(b=>b.t)),bq=new Set(S.bk.filter(b=>b.q).map(b=>b.q));
+ allOpen().filter(x=>x.t.dl&&x.t.dl<=add(w1,14)&&!bl.has(x.t.id)).sort((a,b)=>a.t.dl<b.t.dl?-1:1).forEach(x=>o.push({k:'t',id:x.t.id,p:x.p,n:x.t.n,h:left(x.t),dl:x.t.dl}));
+ row().filter(p=>!isOH(p)).forEach(p=>{const c=tasks(p).find(x=>open(x.t)&&!bl.has(x.t.id)&&!o.some(y=>y.id===x.t.id));if(c)o.push({k:'t',id:c.t.id,p,n:c.t.n,h:left(c.t),dl:c.t.dl||null})});
+ (S.qk||[]).filter(q=>!q.at&&!bq.has(q.id)).forEach(q=>{const p=P(q.p);if(p)o.push({k:'q',id:q.id,p,n:q.n,h:+q.h||.25})});return o}
+function cand(v){const [k,id]=v.split(':');if(k==='q'){const q=S.qk.find(x=>x.id===id);return q&&{k,id,p:P(q.p),n:q.n,h:+q.h||.25}}const f=findT(id);return f&&{k:'t',id,p:f.p,n:f.t.n,h:left(f.t)}}
+function place(c,d,h){S.bk.push({id:uid(),d,h:h||(c.k==='q'?c.h:Math.min(2,Math.max(.5,rq(c.h)||1))),p:c.p.id,n:c.n,t:c.k==='t'?c.id:null,q:c.k==='q'?c.id:undefined})}
+function autoWeek(w0){const T=td(),w1=add(w0,6);S.bk=S.bk.filter(b=>!(b.auto&&!b.ok&&b.d>=T&&b.d<=w1));for(let i=0;i<5;i++){const d=add(w0,i);if(d<T||S.h10.off[d])continue;autoPlan(d,0).filter(x=>x.k!=='fix'&&x.k!=='oh').forEach(x=>{let h=x.h;if(x.t){const f=findT(x.t);if(f)h=rq(Math.min(h,left(f.t)-sum(S.bk.filter(b=>b.t===x.t&&b.d>=T&&!b.ok),b=>b.h)))}if(h>=.25)S.bk.push({id:uid(),d,h,p:x.p,n:x.n,t:x.t,auto:1})})}}
+function tickB(id){const b=S.bk.find(x=>x.id===id);if(!b)return;const p=P(b.p),ld=b.d<=td()?b.d:td();act(b.ok?'↺ '+lab(p):'✓ '+fh(b.h)+' '+lab(p),()=>{const f=b.t&&findT(b.t),q=b.q&&S.qk.find(x=>x.id===b.q);if(!b.ok){b.ok=1;logH(b.p,b.h,ld);if(f){b.pd=+f.t.d||0;f.t.d=Math.min(+f.t.h||0,(+f.t.d||0)+b.h);if(!open(f.t))S.h10.dn[f.t.id]=td()}if(q){q.d=q.h;q.at=td()}}else{delete b.ok;unlogH(b.p,b.h,ld);if(f){f.t.d=b.pd||0;delete S.h10.dn[f.t.id]}if(q){q.d=0;delete q.at}}})}
+const fw0=()=>add(W0(),7*U.wo);
+function poolHTML(w0){const L=pool(w0),pk=U.pk||'',bp=pk.startsWith('b:');return `<div class="pool${bp?' back':''}"${bp?' data-a="back"':''}>${bp?'<span class="pb">↩</span>':''}`+L.map(c=>`<button class="pc${pk===ck(c)?' on':''}${c.k==='q'?' qq':''}" data-a="pick" data-v="${ck(c)}" style="--c:${col(c.p)}"><i></i><span><b>${esc(c.n)}</b><small>${esc(lab(c.p))} ${fq(c.h)}${c.dl?' ▲'+fwd(c.dl):''}</small></span></button>`).join('')+'</div>'}
+function blk(b){const p=P(b.p);return `<button class="sb${b.ok?' ok':''}${U.pk==='b:'+b.id?' on':''}${b.auto?' au':''}" data-a="pick" data-v="b:${b.id}" style="--c:${col(p)};--h:${b.h}" aria-label="${esc(b.n)}"><span>${esc(lab(p))}</span></button>`}
+function weekView(w0,o){o=o||{};const pk=!!U.pk,O=allOpen();return `<div class="wv ${o.cls||''}${pk?' picking':''}">`+[0,1,2,3,4].map(i=>{const d=add(w0,i),B=S.bk.filter(b=>b.d===d),fr=resFree(d),dl=O.filter(x=>x.t.dl===d);return `<div class="wd${d===td()?' now':''}${S.h10.off[d]?' off':''}${d<td()?' past':''}" data-a="${pk&&d>=td()?'drop':'day'}" data-d="${d}"><div class="wh"><small>${fwd(d)[0]}</small><b>${pd(d).getDate()}</b>${dl.map(x=>`<em style="color:${col(x.p)}">▲</em>`).join('')}</div><div class="wb">${B.map(blk).join('')}${Array.from({length:Math.round(fr)},()=>'<i class="fr"></i>').join('')}</div></div>`}).join('')+'</div>'}
+function longGrid(n){n=n||12;const W=weeks(n),R=row(),L=landing(),M=mon(td());return `<div class="lgd" style="--n:${n}"><div class="lgh"><span></span>${W.map((w,i)=>`<button data-a="lw" data-v="${i}">${pd(w.w0).getDate()}</button>`).join('')}</div>`+R.map(p=>`<div class="lgr"><button class="lgp" data-a="proj" data-p="${p.id}" style="--c:${col(p)}"><i></i><b>${esc(lab(p))}</b></button>${W.map((w,i)=>{const h=sum(w.bk.filter(b=>b.p===p.id),b=>b.h),dl=w.dl.some(x=>x.p.id===p.id),r=L[p.id],wi=Math.round(dd(M,w.w0)/7),rh=r&&r.wk[wi]||0,ld=r&&r.date&&r.date>=w.w0&&r.date<=add(w.w0,6),past=r&&r.date&&w.w0>r.date;return `<button class="lgc${ld?' ld':''}" data-a="lw" data-v="${i}" style="--c:${col(p)}">${h?`<i class="q" style="--o:${Math.min(1,.25+h/8)}"></i>`:''}${rh&&!past?`<i class="r" style="--s:${Math.min(16,5+rh*1.6)}px"></i>`:''}${dl?'<b>▲</b>':''}</button>`}).join('')}</div>`).join('')+'</div>'}
+function dayView(d){const B=S.bk.filter(b=>b.d===d),Q=(S.qk||[]).filter(q=>(!q.at||q.at===d)&&!B.some(b=>b.q===q.id));return `<div class="dv"><div class="ohs">${OH().map(p=>`<button class="ohc" data-a="log" data-p="${p.id}" data-h=".25" data-d="${d}" style="--c:${col(p)}"><span>${circles(hOn(d,fP(p.id)),col(p),10,8)||ring(col(p),10)}</span><b>${esc(lab(p))}</b><i>+</i></button>`).join('')}</div><div class="dl2">${B.map(b=>{const p=P(b.p);return `<button class="db${b.ok?' ok':''}" data-a="tickb" data-b="${b.id}" style="--c:${col(p)};--h:${b.h}"><i></i><b>${esc(b.n)}</b><small>${esc(lab(p))} ${fq(b.h)}</small></button>`}).join('')}${Q.map(q=>{const p=P(q.p);return `<button class="db q${q.at?' ok':''}" data-a="qtick" data-q="${q.id}" style="--c:${col(p)}"><i></i><b>${esc(q.n)}</b><small>${esc(lab(p))}</small></button>`}).join('')}${!B.length&&!Q.length?'<div class="emp">○</div>':''}</div></div>`}
+Object.assign(ACT,{
+ pick:d=>{U.pk=U.pk===d.v?null:d.v;draw()},
+ drop:d=>{const v=U.pk;if(!v)return;U.pk=null;const [k,id]=v.split(':');if(k==='b')return act('→ '+fwd(d.d),()=>{const b=S.bk.find(x=>x.id===id);if(b){b.d=d.d;delete b.auto}});const c=cand(v);if(c)act('→ '+fwd(d.d)+' '+lab(c.p),()=>place(c,d.d))},
+ back:()=>{const v=U.pk||'';if(!v.startsWith('b:'))return;U.pk=null;act('↩',()=>{S.bk=S.bk.filter(b=>b.id!==v.slice(2))})},
+ autow:()=>{U.pk=null;act('✦',()=>autoWeek(fw0()))},
+ tickb:d=>tickB(d.b),
+ lw:d=>{U.wo=+d.v;U.pk=null;if(A.wk)ACT.tab({v:A.wk});else draw()}});
 const CHG={
  tname:(v,d)=>{const x=findT(d.t);if(x&&v.trim()&&v!==x.t.n)act(null,()=>{x.t.n=v.trim();S.bk.forEach(b=>{if(b.t===x.t.id)b.n=x.t.n})})},
  tdl:(v,d)=>{const x=findT(d.t);if(x)act(v?'Deadline '+fdm(v):'Deadline cleared',()=>{if(v)x.t.dl=v;else delete x.t.dl})},
@@ -473,7 +535,7 @@ document.addEventListener('input',e=>{const el=e.target.closest('[data-i]');if(!
 document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const el=e.target.closest('[data-enter]');if(!el)return;const f=find(el.dataset.enter);if(f){e.preventDefault();f(el.dataset,el,e)}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&SH)close()});
 function start(app){A=app;load();const t=S.h10.ui.tab;U.tab=A.tabs.some(x=>x.id===t)?t:A.tabs[0].id;A.init&&A.init();draw();setInterval(()=>{if(A.tick)A.tick()},1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()})}
-return{start,draw,act,save,toast,sheet,close,renderSheet,get S(){return S},U,
+return{blk,pool,cand,place,autoWeek,tickB,fw0,poolHTML,weekView,longGrid,dayView,ck,start,draw,act,save,toast,sheet,close,renderSheet,get S(){return S},U,
  $,uid,esc,sum,cl,rq,iso,pd,add,td,dow,mon,nextWork,W0,workDays,dd,DN,MN,fd,fdm,fwd,wkno,wkLabel,fq,fh,hm,
  CATS,CC,live,P,isRes,isOH,lab,col,named,OH,row,act2,stg,tasks,left,open,cur,curStage,sLeft,pLeft,findT,nextDl,allOpen,
  hOn,hRange,wk,fP,fCat,fRes,logH,unlogH,bud,budT,capDay,resFree,resWeek,landing,landingOf,inW,weekItems,weeks,autoPlan,planTimes,tips,
