@@ -357,6 +357,18 @@ body.dragging,body.dragging *{cursor:grabbing!important}
 .rr2>.ib{background:#ECEBE6;color:#17181C;height:30px;min-width:30px;padding:0}
 .rch{font-size:11px;font-weight:800;color:#fff;background:var(--c);border-radius:8px;padding:2px 8px;display:inline-block;margin:10px 0 2px}
 
+.w16{padding:6px 8px 4px}.w16.wk{padding-top:8px}
+.g16{display:grid;grid-template-columns:34px repeat(5,minmax(0,1fr));gap:6px;align-items:center;padding:2px 4px;border-radius:10px;margin-bottom:2px}
+.g16.h span{text-align:center;font-size:11px;font-weight:700;color:var(--mut)}.g16.cur{background:var(--act)}
+.lb16{font-size:9.5px;font-weight:800;text-align:center;line-height:1.05}.lb16 small{display:block;color:var(--mut);font-weight:600;font-size:10px}
+.r16{height:28px;border-radius:9px;background:#ECEBE6;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;position:relative}
+.r16.f{background:var(--c)}.r16.l{background:color-mix(in srgb,var(--c) 35%,#fff);color:#17181C}
+.r16.ld{box-shadow:inset 0 0 0 3px #E8C547;background:#FFF9DF;color:#17181C}.r16.past{opacity:.5}
+.r16 em{position:absolute;top:-6px;right:-4px;width:20px;height:17px;clip-path:polygon(50% 0,100% 100%,0 100%);background:var(--tc);color:#fff;font-style:normal;font-size:8.5px;font-weight:800;display:flex;align-items:flex-end;justify-content:center}
+.wk .r16{height:28px}.wk .r16.now{box-shadow:0 0 0 2px #17181C}.wk.picking .r16:not(.past),.r16.hov{box-shadow:0 0 0 2px #17181C;transform:scale(1.04)}
+.w16:not(.wk) .r16{height:24px;font-size:11.5px}.w16:not(.wk) .g16{margin-bottom:0;gap:5px}
+.wk .r16{height:44px;border-radius:12px;font-size:15px}
+
 </style></head><body>
 <div id="app"></div><div id="sh"></div><div id="to" role="status" aria-live="polite"></div>
 <script>/* Hours ×10 — shared core. Keeps its own copy of the Hours data (format v3). Never writes 'hours-v4'. */
@@ -785,9 +797,9 @@ function unbookV(v){H.act('↩',()=>{H.S.bk=H.S.bk.filter(b=>b.id!==v.slice(2))}
 function dragInit(){
  document.addEventListener('pointerdown',e=>{const el=e.target.closest('.qc,.wq[data-b]:not(.ok),.spq');if(!el||e.button>0)return;D={el,x:e.clientX,y:e.clientY,on:false,v:el.dataset.v}},{passive:true});
  document.addEventListener('pointermove',e=>{if(!D)return;if(!D.on){if(Math.hypot(e.clientX-D.x,e.clientY-D.y)<8)return;D.on=true;const r=D.el.getBoundingClientRect();D.g=D.el.cloneNode(true);D.g.classList.add('ghost');Object.assign(D.g.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',pointerEvents:'none',zIndex:80,margin:0});D.ox=e.clientX-r.left;D.oy=e.clientY-r.top;document.body.appendChild(D.g);document.body.classList.add('dragging');D.el.classList.add('src')}
-  D.g.style.left=(e.clientX-D.ox)+'px';D.g.style.top=(e.clientY-D.oy)+'px';document.querySelectorAll('.hov').forEach(x=>x.classList.remove('hov'));const t=document.elementFromPoint(e.clientX,e.clientY),tg=t&&t.closest('.dcol:not(.past),.qc,.qg');if(tg&&tg!==D.el)tg.classList.add('hov')},{passive:true});
- document.addEventListener('pointerup',e=>{if(!D)return;const d=D;D=null;if(!d.on)return;d.g.remove();document.body.classList.remove('dragging');d.el.classList.remove('src');document.querySelectorAll('.hov').forEach(x=>x.classList.remove('hov'));supp=Date.now();const t=document.elementFromPoint(e.clientX,e.clientY),tg=t&&t.closest('.dcol:not(.past),.qc,.qg');if(!tg)return;
-  if(tg.classList.contains('dcol'))(H.A&&H.A.drop||drop)(d.v,tg.dataset.d);else if(tg.classList.contains('qc')&&!d.v.startsWith('b:')){if(tg.dataset.v!==d.v)reorder(d.v,tg.dataset.v)}else if(d.v.startsWith('b:'))unbookV(d.v)});
+  D.g.style.left=(e.clientX-D.ox)+'px';D.g.style.top=(e.clientY-D.oy)+'px';document.querySelectorAll('.hov').forEach(x=>x.classList.remove('hov'));const t=document.elementFromPoint(e.clientX,e.clientY),tg=t&&t.closest('.dcol:not(.past),.dz:not(.past),.qc,.qg');if(tg&&tg!==D.el)tg.classList.add('hov')},{passive:true});
+ document.addEventListener('pointerup',e=>{if(!D)return;const d=D;D=null;if(!d.on)return;d.g.remove();document.body.classList.remove('dragging');d.el.classList.remove('src');document.querySelectorAll('.hov').forEach(x=>x.classList.remove('hov'));supp=Date.now();const t=document.elementFromPoint(e.clientX,e.clientY),tg=t&&t.closest('.dcol:not(.past),.dz:not(.past),.qc,.qg');if(!tg)return;
+  if(tg.classList.contains('dcol')||tg.classList.contains('dz'))(H.A&&H.A.drop||drop)(d.v,tg.dataset.d);else if(tg.classList.contains('qc')&&!d.v.startsWith('b:')){if(tg.dataset.v!==d.v)reorder(d.v,tg.dataset.v)}else if(d.v.startsWith('b:'))unbookV(d.v)});
  document.addEventListener('pointercancel',()=>{if(D&&D.g){D.g.remove();D.el.classList.remove('src')}document.body.classList.remove('dragging');D=null});
  document.addEventListener('click',e=>{if(supp&&Date.now()-supp<300){supp=0;e.stopPropagation();e.preventDefault()}},true)}
 dragInit();
@@ -806,7 +818,16 @@ const act={
   else if(tool==='er'){if(k<dn)return;H.act(null,()=>{t.sq=Math.max(bk,k-dn)},{undo:true})}},
  dlset:d=>{const f=H.findT(d.t);if(!f)return;H.close();H.act(d.v?'▲ '+H.fdm(d.v):'▲ ⌫',()=>{if(d.v)f.t.dl=d.v;else delete f.t.dl})},
  hw:d=>{U.wo=+d.v-(H.W0()>H.mon(T0())?1:0);U.pk=null;if(H.A.weekTab)H.ACT.tab({v:H.A.weekTab});else H.draw()}};
-return{ohRes,booked,unb,capL,key,items,book,tick,wdays,plan,fillWeek,forecast,strip,ohp,grid,projPage,tools,planTab,tiles,bars,lanes,stats,reorder,drop,act}})();
+
+function cell(d,F,pv){const by={},fb={};dayB(d).forEach(b=>by[b.p]=(by[b.p]||0)+b.h);Object.entries((F&&F.fc[d])||{}).forEach(([k,h])=>fb[k]=(fb[k]||0)+h);(pv&&pv[d]||[]).forEach(x=>fb[x.p]=(fb[x.p]||0)+x.h);
+ const bh=H.sum(Object.values(by)),fh=H.sum(Object.values(fb)),top=Object.entries(bh?by:fb).sort((a,b)=>b[1]-a[1])[0];return{bh,fh,c:top?H.col(H.P(top[0])):'#ccc',dl:H.allOpen().find(x=>x.t.dl===d)}}
+function rect(d,x,cls,a,ld){const T=T0();return `<button class="r16 ${x.bh?'f':x.fh?'l':''}${ld?' ld':''}${d===T?' now':''}${d<T?' past':''} ${cls||''}" data-a="${a}" data-d="${d}" style="--c:${x.c}${x.dl?';--tc:'+H.col(x.dl.p):''}">${x.bh+x.fh?H.fq(x.bh+x.fh):''}${x.dl?`<em>${H.fq(H.left(x.dl.t))}</em>`:''}</button>`}
+const hdr=()=>`<div class="g16 h"><span></span>${'MTWTF'.split('').map(x=>`<span>${x}</span>`).join('')}</div>`;
+function t16(o){o=o||{};const T=T0(),M=H.mon(T),F=o.fc||forecast(16),L=H.landing(),lands={};H.act2().forEach(p=>{const r=L[p.id];if(r&&r.date)lands[r.date]=1});
+ return `<div class="w16">${hdr()}`+Array.from({length:16},(_,w)=>{const w0=H.add(M,7*w),dt=H.pd(w0);return `<div class="g16${w===0?' cur':''}"><button class="lb16" data-a="hw" data-v="${w}">${w===0||dt.getDate()<=7?H.MN[dt.getMonth()].toUpperCase():''}<small>${dt.getDate()}</small></button>${[0,1,2,3,4].map(k=>{const d=H.add(w0,k);return rect(d,cell(d,F),'',`hw" data-v="${w}`,lands[d])}).join('')}</div>`}).join('')+'</div>'}
+function wrow(w0,o){o=o||{};const T=T0(),pk=U.pk||'',F={fc:{}};return `<div class="w16 wk${pk?' picking':''}">${hdr()}<div class="g16"><span class="lb16">${H.wkno(w0)}<small>wk</small></span>${[0,1,2,3,4].map(k=>{const d=H.add(w0,k);return rect(d,cell(d,F,o.pv),'dz',pk&&d>=T?'wdrop':'dsh')}).join('')}</div></div>`}
+act.dsh=d=>{H.sheet(()=>{const B=dayB(d.d),Q2=(H.S.qk||[]).filter(q=>(!q.at||q.at===d.d)&&!H.S.bk.some(b=>b.q===q.id));return H.shHead(H.fd(d.d))+`<div class="shb">${C.oh(d.d)}<div class="ql">${B.map(b=>{const p=H.P(b.p);return `<button class="qr${b.ok?' ok':''}" data-a="btk" data-b="${b.id}" style="--c:${H.col(p)}"><i class="k s"></i><b>${E(b.n)}</b><small>${E(H.lab(p))} <span>· ${H.fq(b.h)}h</span></small></button>`}).join('')}${Q2.map(q=>{const p=H.P(q.p);return `<button class="qr${q.at?' ok':''}" data-a="qtick" data-q="${q.id}" style="--c:${H.col(p)}"><i class="k"></i><b>${E(q.n)}</b><small>${E(H.lab(p))}</small></button>`}).join('')}${B.length+Q2.length?'':'<div class="ft2">○</div>'}</div></div>`})};
+return{t16,wrow,ohRes,booked,unb,capL,key,items,book,tick,wdays,plan,fillWeek,forecast,strip,ohp,grid,projPage,tools,planTab,tiles,bars,lanes,stats,reorder,drop,act}})();
 </script><script>
 const X=()=>H.S.h10;
 function rate(p){const x=X();x.rate=x.rate||{};if(x.rate[p.id]!=null)return x.rate[p.id];if(H.isOH(p))return 0;if(H.isRes(p)){const i=x.act.indexOf(p.id);return i<0?0:Math.round(H.bud('Research')*(i===0?x.split:1-x.split))}const n=H.row().filter(q=>q.cat===p.cat).length||1;return H.row().includes(p)?Math.round(H.bud(p.cat)/n):0}
@@ -815,13 +836,13 @@ function fcRate(n){const T=H.td(),M=H.mon(T),fc={},fin={};const base=Q.forecast(
  H.live().forEach(p=>{const r=rate(p);if(r<=0)return;let R=Math.max(0,H.pLeft(p)-H.sum(H.S.bk.filter(b=>b.p===p.id&&!b.ok),b=>b.h)-H.sum(H.tasks(p),x=>Q.unb(x.t)));const cum=[];let s=0;H.tasks(p).filter(x=>H.open(x.t)).forEach(x=>{s+=H.left(x.t);cum.push([x.t.id,s])});let used=H.pLeft(p)-R;
   for(let w=1;w<n&&R>0;w++){const w0=H.add(M,7*w),h=Math.min(r,R);R-=h;used+=h;const ds=[0,1,2,3,4].map(k=>H.add(w0,k)).filter(d=>!X().off[d]);ds.forEach(d=>{const o=fc[d]=fc[d]||{};o[p.id]=(o[p.id]||0)+h/ds.length});cum.forEach(([id,c])=>{if(!fin['t:'+id]&&used>=c)fin['t:'+id]=H.add(w0,4)})}});return{fc,fin}}
 function rateList(){let h='<div class="rl">';H.CATS.forEach(c=>{const L=H.live().filter(p=>p.cat===c&&(H.row().includes(p)||rate(p)>0));if(!L.length)return;h+=`<span class="rch" style="--c:${H.CC[c]}">${c}</span>`+L.map(p=>{const r=rate(p),cs=H.curStage(p),col=H.col(p);let left=H.pLeft(p),wks=r>0?Math.ceil((cs?H.sLeft(cs):0)/r):0;return `<div class="rr2" style="--c:${col}"><button data-a="pp" data-p="${p.id}"><span style="color:${col}">${H.esc(H.lab(p))}</span><small>${cs?H.esc(cs.n):'✓'}</small></button><span class="rq">${Array.from({length:Math.min(14,r)},()=>'<i></i>').join('')}${r>14?`<small>+${r-14}</small>`:''}${r&&cs?`<small>→ ${H.fdm(H.add(H.mon(H.td()),7*wks+4))}</small>`:''}</span><button class="ib" data-a="rt" data-p="${p.id}" data-v="-1">−</button><button class="ib" data-a="rt" data-p="${p.id}" data-v="1">+</button></div>`}).join('')});return h+'</div>'}
-H.start({key:'hq-auto',name:'Auto',planTab:'p',weekTab:'w',tabs:[{id:'h',l:'26w',ic:'grid'},{id:'p',l:'Plan',ic:'plan'},{id:'w',l:'Week',ic:'week'}],
+H.start({key:'hq-auto',name:'Auto',planTab:'p',weekTab:'w',tabs:[{id:'h',l:'16w',ic:'grid'},{id:'p',l:'Plan',ic:'plan'},{id:'w',l:'Week',ic:'week'}],
  act:Object.assign({},C.act,Q.act,{
   rt:d=>{const p=H.P(d.p);H.act(null,()=>{const x=X();x.rate=x.rate||{};x.rate[p.id]=Math.max(0,rate(p)+ +d.v)},{undo:true})},
   qfill:()=>{const w0=H.fw0(),w1=H.add(w0,6),T=H.td();H.U.pk=null;H.act('✦',()=>{H.S.bk=H.S.bk.filter(b=>!(b.auto&&!b.ok&&b.d>=T&&b.d<=w1));Q.fillWeek(w0)})}}),
  before(tab){if(tab!=='w')return;const w0=H.fw0(),x=X();x.af=x.af||{};if(!x.af[w0]&&w0>=H.mon(H.td())){autoRate(w0);x.af[w0]=1;H.save()}},
  render(tab){const T=H.td();
   if(tab==='p')return Q.planTab({list:rateList});
-  if(tab==='h')return{hd:C.hd('26 weeks','at your weekly rates'),mn:Q.stats()+Q.tiles(26,{fc:fcRate(26)})+`<div class="lls">${H.landLine()}</div>`};
-  const w0=H.fw0();return{hd:C.hd('Week '+H.wkno(w0),C.wsub(w0),C.wnav()+C.ib('qfill','✦','aria-label="Book again"')),mn:Q.strip(w0)+Q.ohp()+Q.grid(Q.items())}}});
+  if(tab==='h')return{hd:C.hd('16 weeks','at your weekly rates'),mn:Q.stats()+Q.t16({fc:fcRate(16)})+`<div class="lls">${H.landLine()}</div>`};
+  const w0=H.fw0();return{hd:C.hd('Week '+H.wkno(w0),C.wsub(w0),C.wnav()+C.ib('qfill','✦','aria-label="Book again"')),mn:Q.wrow(w0)+Q.ohp()+Q.grid(Q.items())}}});
 </script></body></html>
