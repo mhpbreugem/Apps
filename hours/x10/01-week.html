@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#141518"><title>Hours · Week</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F0F0EC;--fg:#16171B;--mut:#76777D;--line:#E2E1DB;--card:#fff;--soft:#ECEBE6;--nav:#fff;--navf:#9A9BA0;--acc:#16171B;--accf:#fff;--ff:Inter,system-ui,sans-serif;--fd:var(--ff);--rs:28px;--red:#D92D20;--res:#2E7D4F;--toast:#16171B}
+html,body{height:100%;background:var(--bg)}
+body{color:var(--fg);font-family:var(--ff);font-size:14px;line-height:1.35;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;overscroll-behavior:none}
+button,a,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:520px;margin:0 auto;position:relative;overflow:hidden}
+#hd,#ft{flex:none}
+#mn{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0;-webkit-overflow-scrolling:touch}
+#nv{flex:none;display:flex;height:calc(58px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--nav);border-top:1px solid var(--line)}
+#nv button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--navf);font-size:11px;font-weight:600}
+#nv button.on{color:var(--fg)}
+#nv svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#nv button.on svg{stroke-width:2.3}
+.o{display:inline-block;flex:none;width:var(--s);height:var(--s);vertical-align:middle}
+.o.d{border-radius:50%;background:var(--c)}
+.o.r{border-radius:50%;background:conic-gradient(var(--c) var(--f),transparent 0);box-shadow:inset 0 0 0 max(1.5px,calc(var(--s)*.15)) var(--c)}
+.o.q{border-radius:24%;background:var(--c)}
+.o.qo{border-radius:24%;box-shadow:inset 0 0 0 1.5px var(--c)}
+.o.t{font-style:normal;font-size:.8em;line-height:1;width:auto;height:auto;vertical-align:.05em}
+.more{font-size:10.5px;color:var(--mut);font-weight:700;margin-left:2px;align-self:center}
+.r10{display:flex;justify-content:space-between}
+.r1{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;padding:3px 0}
+.r1 .rd{width:var(--rs);height:var(--rs);border-radius:50%;box-shadow:inset 0 0 0 3px var(--c);transition:transform .12s}
+.r1.on .rd{background:var(--c);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--c)}
+.r1 b{font-size:10px;font-weight:700;color:var(--mut);white-space:nowrap;letter-spacing:.01em}
+.r1.on b{color:var(--fg)}
+.r1:active .rd{transform:scale(.88)}
+.r10.sm{--rs:20px;margin:6px 0}
+.r10.sm .r1.on .rd{box-shadow:0 0 0 2px var(--sheet,var(--card)),0 0 0 4px var(--c)}
+#sh{position:fixed;inset:0;z-index:50;display:none}
+#sh.on{display:block}
+.shbg{position:absolute;inset:0;background:rgba(8,10,14,.42);animation:fi .18s}
+.shp{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:var(--sheet,var(--card));color:var(--fg);border-radius:22px 22px 0 0;max-height:88dvh;display:flex;flex-direction:column;animation:su .24s cubic-bezier(.2,.8,.2,1);padding-bottom:env(safe-area-inset-bottom);--bg:var(--sheet,var(--card))}
+.shh{display:flex;align-items:flex-start;gap:12px;padding:18px 16px 10px}
+.shh::before{content:'';width:5px;align-self:stretch;border-radius:3px;background:var(--c);flex:none}
+.shh>div{flex:1;min-width:0}
+.shh b{font-family:var(--fd);font-size:19px;font-weight:750;display:block;letter-spacing:-.01em}
+.shh small{color:var(--mut);font-size:12.5px}
+.shx{width:34px;height:34px;border-radius:50%;background:var(--soft);font-size:21px;line-height:1;flex:none}
+.shb{overflow:auto;padding:0 16px 20px}
+#to{position:fixed;left:50%;bottom:calc(72px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;transition:.2s;z-index:60;background:var(--toast);color:#fff;border-radius:12px;padding:10px 12px 10px 14px;display:flex;gap:14px;align-items:center;font-size:13px;font-weight:600;max-width:92vw;box-shadow:0 10px 28px rgba(0,0,0,.22)}
+#to.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#to span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#to button{color:#9CC3FF;font-weight:800;flex:none}
+.inp{background:var(--soft);border:1.5px solid transparent;border-radius:10px;padding:8px 10px;min-width:0;color:var(--fg)}
+.inp.big{width:100%;font-size:17px;font-weight:600;padding:11px 12px;margin:2px 0 8px}
+.inp:focus{outline:none;border-color:var(--fg)}
+.fl{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0}
+.fl>span:first-child{color:var(--mut);font-weight:600;font-size:13px}
+.fr2{display:flex;gap:6px;align-items:center}
+.stp{display:flex;align-items:center;background:var(--soft);border-radius:10px}
+.stp button{width:38px;height:36px;font-size:19px;font-weight:600}
+.stp b{min-width:58px;text-align:center;font-weight:700}
+.pbar{height:6px;border-radius:3px;background:var(--soft);overflow:hidden;margin:2px 0 6px}
+.pbar i{display:block;height:100%}
+.sl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;font-weight:700;color:var(--mut);margin:16px 0 6px}
+.sl span{font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.chip{height:32px;padding:0 11px;border-radius:16px;background:var(--soft);font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip.on{background:var(--fg);color:var(--bg)}
+.btn{height:44px;padding:0 16px;border-radius:12px;background:var(--acc);color:var(--accf);font-weight:700;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap}
+.btn.ghost{background:var(--soft);color:var(--fg)}
+.btn.wide{width:100%;margin-top:10px}
+.btn.warn{color:var(--red)}
+.row2{display:flex;gap:8px;margin-top:10px}
+.row2>*{flex:1;min-width:0}
+.li{display:flex;align-items:center;gap:10px;width:100%;padding:9px 4px;border-bottom:1px solid var(--line);text-align:left}
+.li b{flex:1;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li span{color:var(--mut);font-size:12.5px;white-space:nowrap}
+.li .x{width:30px;height:30px;border-radius:8px;background:var(--soft);font-size:16px;flex:none}
+.li.sel.on{background:var(--soft);border-radius:12px;border-color:transparent}
+.tr,.it{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.tk{width:22px;height:22px;flex:none;border-radius:6px;box-shadow:inset 0 0 0 2.2px var(--c);transition:background .15s}
+.tk.c{border-radius:50%}
+.tk.b{background:var(--c)}
+.dn .tk{background:var(--c)}
+.tn,.in{flex:1;min-width:0;text-align:left;display:flex;flex-direction:column}
+.tn b,.in b{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tn small,.in small{color:var(--mut);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tn em,.in em{font-style:normal;font-weight:700}
+.dn b{text-decoration:line-through;color:var(--mut)}
+.it .dl{font-size:11.5px;font-weight:700;white-space:nowrap;display:flex;gap:3px;align-items:center}
+.it.od .dl{color:var(--red)}
+.wl-d{margin-bottom:6px}
+.wl-h{display:flex;justify-content:space-between;align-items:baseline;width:100%;padding:12px 0 4px;text-align:left;gap:8px}
+.wl-h b{font-weight:800}
+.wl-h span{color:var(--mut);font-size:11.5px}
+.wl-d.now .wl-h b{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.wl-e{color:var(--mut);font-size:12px;padding:4px 0 6px}
+.lnk{font-weight:700;font-size:12.5px}
+.bb{display:flex;flex-direction:column;gap:6px}
+.bb-r{display:flex;align-items:center;gap:8px;font-size:12px}
+.bb-r span{width:96px;color:var(--mut);font-weight:600;white-space:nowrap}
+.bb-t{flex:1;height:6px;border-radius:3px;background:var(--soft);overflow:hidden;display:block}
+.bb-t i{display:block;height:100%;border-radius:3px}
+.bb-r b{width:48px;text-align:right;font-weight:700}
+.bb-r small{color:var(--mut);font-weight:500}
+.ll{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap}
+.ll b{font-weight:800;color:var(--c)}
+.hz-r{display:flex;align-items:center;gap:10px;width:100%;padding:8px 0;border-bottom:1px solid var(--line);text-align:left}
+.hz-l{width:50px;display:flex;flex-direction:column;flex:none}
+.hz-l b{font-size:13px}
+.hz-l small{color:var(--mut);font-size:10.5px}
+.hz-r.now .hz-l b{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.hz-b{flex:1;height:14px;display:flex;gap:1px;border-radius:4px;overflow:hidden;background:var(--soft)}
+.hz-b i{display:block;height:100%;flex:none}
+.hz-b i.fr{background:repeating-linear-gradient(135deg,var(--res) 0 2px,transparent 2px 5px);opacity:.6}
+.hz-t{width:104px;display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;font-size:11px;font-weight:700;flex:none}
+.hz-t em{font-style:normal;white-space:nowrap}
+.ld{font-style:normal;color:var(--c);box-shadow:inset 0 0 0 1.5px var(--c);border-radius:5px;padding:0 4px;font-size:10.5px;font-weight:800}
+.hz-k{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin:12px 0;align-items:center}
+.pl-top{display:flex;gap:8px;margin:4px 0 8px;flex-wrap:wrap}
+.pl-opt{height:36px;padding:0 14px;border-radius:18px;background:var(--fg);color:var(--bg);font-weight:700}
+.pl-opt em{font-style:normal;background:var(--bg);color:var(--fg);border-radius:9px;padding:1px 6px;margin-left:4px;font-size:11px}
+.pl-res{height:36px;padding:0 12px;border-radius:18px;background:var(--soft);font-weight:700;display:flex;align-items:center;gap:4px;font-size:13px}
+.pl-c{margin:4px 0 12px}
+.pl-ch{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0 6px}
+.pl-ch b{font-weight:800;font-size:13px}
+.pl-ch span{color:var(--mut);font-size:11.5px}
+.pl-p{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;column-gap:10px;row-gap:6px;align-items:center;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border-radius:14px;background:var(--card)}
+.pl-n{display:flex;flex-direction:column;min-width:0}
+.pl-n b{font-weight:700}
+.pl-n small{color:var(--mut);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-m{display:flex;flex-direction:column;align-items:flex-end;font-size:11.5px}
+.pl-m em{font-style:normal;font-weight:700}
+.pl-m small{color:var(--mut);white-space:nowrap}
+.pl-bar{grid-column:1/4;height:4px;border-radius:2px;background:var(--soft);overflow:hidden}
+.pl-bar i{display:block;height:100%;background:var(--c)}
+.pl-park{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--mut);padding:2px 0}
+.pl-park>span{margin-right:2px;font-weight:600}
+.pl-park button{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:14px;background:var(--soft);font-weight:700;color:var(--fg);font-size:12px}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 8px}
+.kp div{background:var(--soft);border-radius:12px;padding:8px 10px;min-width:0}
+.kp small{display:block;color:var(--mut);font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kp b{font-size:18px;font-weight:800}
+.seg{display:flex;background:var(--soft);border-radius:10px;padding:3px;margin:6px 0}
+.seg button{flex:1;height:30px;border-radius:8px;font-weight:600;font-size:12.5px;color:var(--mut)}
+.seg button.on{background:var(--card);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.logs{display:flex;gap:6px;margin:8px 0 4px}
+.lg{flex:1;height:46px;border-radius:12px;background:var(--c);color:#fff;font-weight:800;font-size:16px}
+.lg.ghost{background:var(--soft);color:var(--fg);flex:.8}
+.note{font-size:12.5px;color:var(--mut);background:var(--soft);border-radius:10px;padding:9px 11px;margin:6px 0}
+.tip{border-left:4px solid var(--c);padding:6px 0 6px 12px;margin:12px 0}
+.tip p{font-weight:600;margin-bottom:8px}
+.rng{width:100%;accent-color:var(--fg);margin:4px 0}
+@keyframes su{from{transform:translateY(40px);opacity:.5}}
+@keyframes fi{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#hd .t small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+:root{--bg:#EEEEEA;--fg:#141518;--mut:#74757B;--line:#E0DFD9;--card:#fff;--soft:#ECEBE6;--ff:Inter,system-ui,sans-serif;--rs:27px}
+#hd{background:#141518;color:#fff;padding:calc(env(safe-area-inset-top) + 16px) 14px 12px;display:flex;align-items:flex-end;gap:6px}
+#hd .t{flex:1;min-width:0}#hd .t b{display:block;font-size:23px;font-weight:800;letter-spacing:-.025em}
+#hd .t small{color:#ffffff99;font-size:12px;white-space:nowrap}
+.hb{height:34px;min-width:34px;border-radius:10px;background:#ffffff1a;color:#fff;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center}
+.pad{padding:6px 14px 18px}
+.wk{padding:10px 12px 8px;display:flex;flex-direction:column;min-height:100%}
+.wk>.r10{margin:0 2px 10px}
+.days{display:flex;flex-direction:column;gap:5px;flex:1}
+.dy{flex:1;max-height:92px;display:flex;gap:12px;background:var(--card);border-radius:14px;padding:9px 10px 9px 12px;min-height:66px;align-items:center;cursor:pointer}
+.dy.now{box-shadow:inset 0 0 0 2px var(--fg)}
+.dy.off{opacity:.5}
+.dl0{width:30px;flex:none;display:flex;flex-direction:column;align-items:center}
+.dl0 small{font-size:10.5px;font-weight:700;color:var(--mut)}
+.dl0 b{font-size:21px;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+.dr{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.cps{display:flex;gap:4px;overflow:hidden;align-items:center;min-height:24px}
+.cp{height:24px;padding:0 8px;border-radius:7px;background:var(--c);color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;flex:none;transition:opacity .15s}
+.cp.q{background:none;color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--c)}
+.cp.dn{background:none;color:var(--mut);box-shadow:inset 0 0 0 1.5px var(--line);text-decoration:line-through}
+.cp.dim{opacity:.18}
+.em{font-size:12px;color:var(--mut)}
+.rsq{display:flex;align-items:center;gap:3px;min-height:10px}
+.rsq small{margin-left:auto;font-size:11px;color:var(--mut);font-weight:600;white-space:nowrap}
+.dock{display:flex;gap:8px;margin-top:auto;padding:10px 0 8px}
+.dk{flex:1;height:56px;border-radius:15px;background:var(--c);color:#fff;display:flex;align-items:center;gap:8px;padding:0 8px 0 14px;text-align:left}
+.dk span{display:flex;flex-direction:column}.dk b{font-size:14.5px;font-weight:800}.dk small{font-size:11px;opacity:.82;font-weight:600}
+.dk i{margin-left:auto;font-style:normal;font-weight:800;font-size:16px;background:#ffffff2b;border-radius:10px;padding:6px 10px}
+.dock.one{background:var(--c);border-radius:15px;padding:6px;color:#fff;margin-top:auto;margin-bottom:8px}
+.dock.one .dk-n{flex:1;text-align:left;padding-left:8px;display:flex;flex-direction:column}
+.dock.one .dk-n b{font-weight:800}.dock.one .dk-n small{font-size:11px;opacity:.85}
+.dock.one .dk-b{width:52px;height:44px;border-radius:11px;background:#ffffff2b;color:#fff;font-weight:800;font-size:16px}
+.lls{display:flex;gap:14px;justify-content:center;padding:2px 0 4px;font-size:12.5px}.rf{color:var(--mut);font-weight:600}
+</style></head><body>
+<div id="app"></div><div id="sh"></div><div id="to" role="status" aria-live="polite"></div>
+<script>/* Hours ×10 — shared core. Keeps its own copy of the Hours data (format v3). Never writes 'hours-v4'. */
+'use strict';
+const H=(()=>{
+const DEMO={"v":3,"bud":{"Research":14,"Teaching":12,"Chair & Admin":10,"Personal":4},"p":[{"id":"7z20grh","cat":"Research","name":"MIZN","c":"#2E7D4F","st":[{"n":"Question","g":"open","t":[{"id":"crzobns","n":"Write the claim in one sentence","h":10,"d":0}]},{"n":"Initial model","g":"open","t":[{"id":"ahik99i","n":"Set up the economy","h":17,"d":0},{"id":"v7vrz09","n":"Solve the baseline","h":17,"d":0},{"id":"3rip7c5","n":"Prove the main property","h":16,"d":0}]},{"n":"Story","g":"open","t":[{"id":"s2fiktg","n":"Introduction and positioning","h":18,"d":0},{"id":"h1u6zrt","n":"Intuition and interpretation","h":12,"d":0}]},{"n":"Numerics and extensions","g":"open","t":[{"id":"9dtbe1h","n":"Robustness checks","h":20,"d":0},{"id":"9tly6h5","n":"Extensions","h":25,"d":0},{"id":"5zqr6za","n":"Review the AI output","h":15,"d":0}]},{"n":"Submit and revise","g":"open","t":[{"id":"asmypl6","n":"Polish and seminars","h":30,"d":0},{"id":"vpx42z6","n":"Submit","h":10,"d":0},{"id":"gswdkhf","n":"Referee rounds","h":60,"d":0}]}]},{"id":"ii6fzmg","cat":"Research","name":"TSI","c":"#5AA469","st":[{"n":"Question","g":"passed","t":[]},{"n":"Initial model","g":"open","t":[{"id":"ruajpv4","n":"Set up the economy","h":10,"d":0},{"id":"kdzenh8","n":"Solve the baseline","h":10,"d":0},{"id":"9y8pv97","n":"Prove the main property","h":10,"d":0}]},{"n":"Story","g":"open","t":[{"id":"8nve20t","n":"Introduction and positioning","h":12,"d":0},{"id":"e8ayo9a","n":"Intuition and interpretation","h":8,"d":0}]},{"n":"Numerics and extensions","g":"open","t":[{"id":"eing82e","n":"Robustness checks","h":17,"d":0},{"id":"vwiy0bq","n":"Extensions","h":21,"d":0},{"id":"m6mfset","n":"Review the AI output","h":12,"d":0}]},{"n":"Submit and revise","g":"open","t":[{"id":"t8l4c0y","n":"Polish and seminars","h":30,"d":0},{"id":"73tufer","n":"Submit","h":10,"d":0},{"id":"rnnxmx7","n":"Referee rounds","h":60,"d":0}]}]},{"id":"1v7ofze","cat":"Research","name":"IRR","c":"#1B5E3A","st":[{"n":"Question","g":"open","t":[{"id":"sjv0uun","n":"Write the claim in one sentence","h":5,"d":0}]},{"n":"Initial model","g":"open","t":[{"id":"w0zes0z","n":"Set up the economy","h":12,"d":0},{"id":"444u6a1","n":"Solve the baseline","h":12,"d":0},{"id":"mf7jspo","n":"Prove the main property","h":11,"d":0}]},{"n":"Story","g":"open","t":[{"id":"5tbv47h","n":"Introduction and positioning","h":12,"d":0},{"id":"ngu0xim","n":"Intuition and interpretation","h":8,"d":0}]},{"n":"Numerics and extensions","g":"open","t":[{"id":"dj2ukbo","n":"Robustness checks","h":13,"d":0},{"id":"t33wlef","n":"Extensions","h":17,"d":0},{"id":"tgsx3t7","n":"Review the AI output","h":10,"d":0}]},{"n":"Submit and revise","g":"open","t":[{"id":"rk37jcb","n":"Polish and seminars","h":15,"d":0},{"id":"je13nhx","n":"Submit","h":5,"d":0},{"id":"owpdqh6","n":"Referee rounds","h":30,"d":0}]}],"sub":1},{"id":"jpxbuyp","cat":"Research","name":"KEZ","c":"#14482C","st":[{"n":"Question","g":"open","t":[{"id":"jfr6lf2","n":"Write the claim in one sentence","h":5,"d":0}]},{"n":"Initial model","g":"open","t":[{"id":"45ywu4b","n":"Set up the economy","h":12,"d":0},{"id":"utr30l5","n":"Solve the baseline","h":12,"d":0},{"id":"kfhi5e4","n":"Prove the main property","h":11,"d":0}]},{"n":"Story","g":"open","t":[{"id":"zemfowj","n":"Introduction and positioning","h":12,"d":0},{"id":"pc67x7z","n":"Intuition and interpretation","h":8,"d":0}]},{"n":"Numerics and extensions","g":"open","t":[{"id":"1jr8jz3","n":"Robustness checks","h":13,"d":0},{"id":"c7yqw4c","n":"Extensions","h":17,"d":0},{"id":"f2ek39k","n":"Review the AI output","h":10,"d":0}]},{"n":"Submit and revise","g":"open","t":[{"id":"lc1bslo","n":"Polish and seminars","h":15,"d":0},{"id":"6v21otu","n":"Submit","h":5,"d":0},{"id":"l313qi3","n":"Referee rounds","h":30,"d":0}]}],"sub":1},{"id":"oktf66n","cat":"Research","name":"BBP","c":"#7DBE8A","st":[{"n":"Question","g":"passed","t":[]},{"n":"Initial model","g":"passed","t":[]},{"n":"Story","g":"passed","t":[]},{"n":"Numerics and extensions","g":"passed","t":[]},{"n":"Submit and revise","g":"open","t":[{"id":"wr2i1m2","n":"Response letter and rewrite","h":50,"d":0},{"id":"r0o9oud","n":"Numerics the referees asked for","h":40,"d":0},{"id":"z3t1wmf","n":"Resubmit","h":10,"d":0}]}]},{"id":"3hz7ddk","cat":"Research","name":"WP0","c":"#9BCB7C","st":[{"n":"Question","g":"passed","t":[]},{"n":"Initial model","g":"passed","t":[]},{"n":"Story","g":"passed","t":[]},{"n":"Numerics and extensions","g":"passed","t":[]},{"n":"Submit and revise","g":"open","t":[{"id":"9u3n4mf","n":"Revise the paper","h":60,"d":0},{"id":"p3gce39","n":"Response letter","h":30,"d":0},{"id":"5otz6nf","n":"Resubmit","h":10,"d":0}]}]},{"id":"bb4qh24","cat":"Research","name":"WP1","c":"#3C9C86","st":[{"n":"Question","g":"passed","t":[]},{"n":"Initial model","g":"open","t":[{"id":"vi78t9m","n":"Set up the economy","h":9,"d":0},{"id":"b3cfbzk","n":"Solve the baseline","h":8,"d":0},{"id":"q0wcpkd","n":"Prove the main property","h":8,"d":0}]},{"n":"Story","g":"open","t":[{"id":"8ijz9bs","n":"Introduction and positioning","h":6,"d":0},{"id":"ukigq65","n":"Intuition and interpretation","h":4,"d":0}]},{"n":"Numerics and extensions","g":"open","t":[{"id":"a6lyy0j","n":"Robustness checks","h":5,"d":0},{"id":"rut33ms","n":"Extensions","h":6,"d":0},{"id":"uvornic","n":"Review the AI output","h":4,"d":0}]},{"n":"Submit and revise","g":"open","t":[{"id":"g35v9lb","n":"Polish and seminars","h":30,"d":0},{"id":"sptog78","n":"Submit","h":10,"d":0},{"id":"ps9j2t1","n":"Referee rounds","h":60,"d":0}]}]},{"id":"6xvxq3q","cat":"Research","name":"PhD supervision","c":"#3FAF72","st":[{"n":"Ongoing","g":"open","t":[{"id":"66sislt","n":"Meetings","h":10,"d":0},{"id":"ku38xoh","n":"Reading drafts","h":10,"d":0}]}]},{"id":"z6za8dl","cat":"Teaching","name":"BT","c":"#CB7239","st":[{"n":"Prepare","g":"open","t":[{"id":"ya8gfte","n":"Plan the sessions","h":10,"d":0},{"id":"d39hiww","n":"Syllabus and materials","h":20,"d":0}]},{"n":"Teach","g":"open","t":[{"id":"2gmbacq","n":"Lectures","h":25,"d":0}]},{"n":"Exam and grading","g":"open","t":[{"id":"ogv3rd0","n":"Write the exam","h":7,"d":0},{"id":"35xx33m","n":"Grade the exams","h":13,"d":0}]}]},{"id":"bznlqzb","cat":"Teaching","name":"EEOD","c":"#CB7239","st":[{"n":"Prepare","g":"open","t":[{"id":"hoq7kl8","n":"Plan the sessions","h":8,"d":0},{"id":"l3wkx93","n":"Syllabus and materials","h":16,"d":0}]},{"n":"Teach","g":"open","t":[{"id":"rm5v177","n":"Lectures","h":18,"d":0}]},{"n":"Exam and grading","g":"open","t":[{"id":"53avfhj","n":"Write the exam","h":6,"d":0},{"id":"oq2rwvc","n":"Grade the exams","h":12,"d":0}]}]},{"id":"8xvx92l","cat":"Teaching","name":"Theses","c":"#CB7239","st":[{"n":"Supervision","g":"open","t":[{"id":"fn31ocl","n":"Supervision","h":48,"d":0}]},{"n":"Reading","g":"open","t":[{"id":"3x914nh","n":"Reading","h":16,"d":0}]},{"n":"Defences","g":"open","t":[{"id":"ye2otun","n":"Defences","h":10,"d":0}]}]},{"id":"bjn2whk","cat":"Teaching","name":"Frankfurt","c":"#7B4FB3","st":[{"n":"Teach","g":"open","t":[{"id":"i3gevqe","n":"Lectures in Frankfurt","h":90,"d":0}]}],"dt":{"a":"2027-01-25","b":"2027-02-09"}},{"id":"aiklw0e","cat":"Chair & Admin","name":"Recruitment","c":"#2F6FB5","st":[{"n":"Profile","g":"open","t":[{"id":"eu4e9pa","n":"Profile","h":3,"d":0}]},{"n":"Applications","g":"open","t":[{"id":"rmjs53u","n":"Applications","h":8,"d":0}]},{"n":"Fly-outs","g":"open","t":[{"id":"8i26hog","n":"Fly-outs and talks","h":8,"d":0},{"id":"1fphklo","n":"Hiring second candidate","h":4,"d":0}]},{"n":"Decide","g":"open","t":[{"id":"c0bg0bf","n":"Decide","h":4,"d":0}]},{"n":"Offer","g":"open","t":[{"id":"cjsl06m","n":"Offer","h":3,"d":0}]}]},{"id":"w9vfbpn","cat":"Chair & Admin","name":"Teaching allocation","c":"#4F8AD0","st":[{"n":"Supply and demand","g":"open","t":[{"id":"2nmfb70","n":"Supply and demand","h":6,"d":0}]},{"n":"Draft","g":"open","t":[{"id":"xej6spt","n":"Draft","h":7,"d":0}]},{"n":"Agree","g":"open","t":[{"id":"p5oipxm","n":"Agree","h":7,"d":0}]}]},{"id":"iz8gh26","cat":"Chair & Admin","name":"New master","c":"#1F4E8C","st":[{"n":"Proposal","g":"open","t":[{"id":"uvrqhrn","n":"Proposal","h":8,"d":0}]},{"n":"Partner talks","g":"open","t":[{"id":"vu4svux","n":"Talks with the partner","h":4,"d":0},{"id":"k7kkgci","n":"Torino MSc","h":4,"d":0}]},{"n":"Curriculum","g":"open","t":[{"id":"bgjsa6l","n":"Curriculum","h":10,"d":0}]},{"n":"Approval","g":"open","t":[{"id":"wyd5dus","n":"Approval","h":4,"d":0}]}]},{"id":"7a8yn68","cat":"Chair & Admin","name":"Staff and MT","c":"#7BA7DE","st":[{"n":"Ongoing","g":"open","t":[{"id":"l2ucvro","n":"Staff matters","h":30,"d":0},{"id":"zylb0f1","n":"MT meetings","h":23,"d":0},{"id":"kfgsujy","n":"Ceremonies","h":7,"d":0}]}]},{"id":"sgwzh76","cat":"Chair & Admin","name":"Admin","c":"#8E9096","st":[{"n":"Ongoing","g":"open","t":[{"id":"6vbrlxa","n":"Committee work","h":30,"d":0},{"id":"ubxnchx","n":"Other admin","h":20,"d":0}]}],"admin":1},{"id":"x91wrwl","cat":"Personal","name":"Persian","c":"#7C8B7A","st":[{"n":"Ongoing","g":"open","t":[{"id":"z9o99oq","n":"Ongoing","h":60,"d":0}]}]},{"id":"x7eacac","cat":"Personal","name":"Sport","c":"#7C8B7A","st":[{"n":"Ongoing","g":"open","t":[{"id":"3wo414j","n":"Ongoing","h":100,"d":0}]}]},{"id":"9egzw93","cat":"Personal","name":"Home","c":"#7C8B7A","st":[{"n":"Ongoing","g":"open","t":[{"id":"jf19yqg","n":"Ongoing","h":40,"d":0}]}]}]};
+let S=null,A=null,SH=null,UNDO=[],TT=0;
+const U={tab:null,sel:null,wo:0,slot:0,bd:null,bh:1,bp:null,ld:null,qn:'',qh:.25,qp:null,pn:'',pc:'Research',rs:0};
+const $=s=>document.querySelector(s);
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sum=(a,f)=>a.reduce((s,x)=>s+(+(f?f(x):x)||0),0);
+const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+const rq=x=>Math.round(x*4)/4;
+/* dates: ISO yyyy-mm-dd, local time */
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const pd=s=>{const a=s.split('-');return new Date(+a[0],a[1]-1,+a[2])};
+const add=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return iso(d)};
+const td=()=>iso(new Date());
+const dow=s=>(pd(s).getDay()+6)%7;
+const mon=s=>add(s,-dow(s));
+const nextWork=s=>{while(dow(s)>4)s=add(s,1);return s};
+const W0=()=>{const t=td();return dow(t)>4?add(mon(t),7):mon(t)};
+const workDays=(a,n)=>{const o=[];for(let x=a;o.length<n;x=add(x,1))if(dow(x)<5)o.push(x);return o};
+const dd=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
+const DN=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fd=s=>DN[dow(s)]+' '+pd(s).getDate()+' '+MN[pd(s).getMonth()];
+const fdm=s=>pd(s).getDate()+' '+MN[pd(s).getMonth()];
+const fwd=s=>DN[dow(s)];
+const wkno=s=>{const th=pd(add(s,3-dow(s))),y=new Date(th.getFullYear(),0,1);return 1+Math.floor(Math.round((th-y)/864e5)/7)};
+const wkLabel=w0=>w0===mon(td())?'This week':w0===add(mon(td()),7)?'Next week':'Week '+wkno(w0);
+const fq=x=>{x=rq(+x||0);const w=Math.floor(x),f=x-w,q=f===.25?'¼':f===.5?'½':f===.75?'¾':'';return (w||!q?String(w):'')+q};
+const fh=x=>fq(x)+' h';
+const hm=m=>Math.floor(m/60)+':'+String(Math.round(m%60)).padStart(2,'0');
+/* projects */
+const CATS=['Research','Teaching','Chair & Admin','Personal'];
+const CC={Research:'#2E7D4F',Teaching:'#CB7239','Chair & Admin':'#2F6FB5',Personal:'#7C8B7A'};
+const live=()=>S.p.filter(p=>!p.dt);
+const P=id=>S.p.find(p=>p.id===id);
+const isRes=p=>!!p&&p.cat==='Research';
+const isOH=p=>!!p&&p.cat==='Chair & Admin';
+const AB={Theses:'Thes',Recruitment:'Rec','New master':'NMsc','Teaching allocation':'Alloc','Staff and MT':'Staff','PhD supervision':'PhD',Frankfurt:'Frank',Persian:'Pers'};
+const lab=p=>{if(!p)return '';if(AB[p.name])return AB[p.name];const n=String(p.name).trim();if(n.length<=5)return n;const w=n.split(/\s+/);return w.length>1?w.map(x=>x[0]).join('').toUpperCase().slice(0,4):n.slice(0,4)};
+const col=p=>(p&&(p.c||CC[p.cat]))||'#8E9096';
+const named=n=>live().find(p=>p.name.toLowerCase()===n.toLowerCase());
+const OH=()=>['Admin','Chair'].map(named).filter(Boolean);
+const row=()=>S.h10.row.map(P).filter(p=>p&&!p.dt);
+const act2=()=>S.h10.act.map(P).filter(Boolean);
+/* tasks */
+const stg=p=>(p.st||[]).filter(s=>!s.q);
+const tasks=p=>stg(p).flatMap(s=>(s.t||[]).filter(t=>!t.mx).map(t=>({p,s,t})));
+const left=t=>Math.max(0,(+t.h||0)-(+t.d||0));
+const open=t=>(+t.d||0)<(+t.h||0);
+const cur=p=>tasks(p).find(x=>open(x.t));
+const curStage=p=>stg(p).find(s=>(s.t||[]).some(t=>!t.mx&&open(t)));
+const sLeft=s=>sum((s.t||[]).filter(t=>!t.mx),left);
+const pLeft=p=>sum(tasks(p),x=>left(x.t));
+const findT=id=>{if(!id)return null;for(const p of S.p)for(const s of (p.st||[]))for(const t of (s.t||[]))if(t.id===id)return{p,s,t};return null};
+const nextDl=p=>tasks(p).filter(x=>open(x.t)&&x.t.dl).sort((a,b)=>a.t.dl<b.t.dl?-1:1)[0];
+const allOpen=()=>live().flatMap(p=>tasks(p).filter(x=>open(x.t)));
+/* logged hours: S.fn.ov[date] = [[projectId, kind, hours, quarters?], ...] */
+const ov=()=>{S.fn=S.fn||{};S.fn.ov=S.fn.ov||{};return S.fn.ov};
+const dayL=d=>{const o=ov();return o[d]=o[d]||[]};
+const xh=x=>x[3]&&x[3].length?x[3].length*.25:(+x[2]||0);
+const hOn=(d,f)=>sum((ov()[d]||[]).filter(x=>x[1]!==2&&x[1]!==3&&(!f||f(x[0]))),xh);
+const hRange=(a,b,f)=>{let s=0;for(let x=a;x<=b;x=add(x,1))s+=hOn(x,f);return s};
+const wk=(w0,f)=>hRange(w0,add(w0,6),f);
+const fP=id=>x=>x===id,fCat=c=>x=>{const p=P(x);return !!p&&p.cat===c},fRes=x=>isRes(P(x));
+function logH(pid,h,d){d=d||td();const L=dayL(d);let r=h;for(const x of L){if(r<=1e-9)break;if(x[0]===pid&&x[1]===0&&!(x[3]&&x[3].length)&&(+x[2]||0)<1){const k=Math.min(r,1-(+x[2]||0));x[2]=(+x[2]||0)+k;r-=k}}while(r>1e-9){const k=Math.min(1,r);L.push([pid,0,k]);r-=k}}
+function unlogH(pid,h,d){d=d||td();const L=dayL(d);let r=h;for(let i=L.length-1;i>=0&&r>1e-9;i--){const x=L[i];if(x[0]===pid&&x[1]===0&&!(x[3]&&x[3].length)&&(+x[2]||0)>0){const k=Math.min(r,+x[2]);x[2]=+x[2]-k;r-=k;if(x[2]<=1e-9)L.splice(i,1)}}}
+/* budgets and research capacity */
+const bud=c=>+S.bud[c]||0;
+const budT=()=>sum(CATS,bud)||40;
+const capDay=()=>budT()/5;
+const nrNeed=()=>Math.max(0,budT()-bud('Research'))/5;
+function resFree(d){if(dow(d)>4||d<td()||S.h10.off[d])return 0;const B=S.bk.filter(b=>b.d===d);const nr=sum(B.filter(b=>!isRes(P(b.p))),b=>b.h);let f=Math.max(0,capDay()-Math.max(nr,nrNeed()));if(d===td())f=Math.max(0,f-hOn(d,fRes));return f}
+const resWeek=w0=>{let s=0;for(let i=0;i<5;i++)s+=resFree(add(w0,i));return s};
+/* landing of the current stage of the two active research projects */
+let LC=null;
+function landing(){if(LC)return LC;const X=S.h10,ps=act2(),s=cl(+X.split,0,1),T=td(),M=mon(T),end=add(T,7*52);const R={};
+ ps.forEach((p,i)=>{const cs=curStage(p);R[p.id]={p,stage:cs?cs.n:null,left:cs?sLeft(cs):0,all:pLeft(p),acc:0,date:null,dateAll:null,wk:Array(26).fill(0),sh:i?1-s:s}});
+ const L=ps.map(p=>R[p.id]);
+ for(let d=T;d<=end;d=add(d,1)){const run=L.filter(r=>r.acc<r.all-1e-9);if(!run.length)break;const f=resFree(d);if(f<=0)continue;const B=S.bk.filter(x=>x.d===d);
+  const ded=run.map(r=>Math.min(f,sum(B.filter(x=>x.p===r.p.id),x=>x.h)));const rest=Math.max(0,f-sum(ded));const shs=sum(run,r=>r.sh);
+  run.forEach((r,i)=>{const h=ded[i]+rest*(run.length===1?1:shs?r.sh/shs:.5);r.acc+=h;const wi=Math.floor(dd(M,d)/7);if(wi<26)r.wk[wi]+=h;if(!r.date&&r.left>0&&r.acc>=r.left-1e-9)r.date=d;if(!r.dateAll&&r.acc>=r.all-1e-9)r.dateAll=d})}
+ return LC=R}
+const landingOf=id=>landing()[id]||null;
+const inW=d=>d?Math.max(0,Math.round(dd(td(),d)/7)):0;
+/* week items: tasks due or blocked this week, sessions, quick tasks */
+function weekItems(w0){const w1=add(w0,6),T=td(),X=S.h10,o=[];
+ live().forEach(p=>tasks(p).forEach(({s,t})=>{const op=open(t),dn=X.dn[t.id];const dnW=!op&&dn&&dn>=w0&&dn<=w1;if(!op&&!dnW)return;
+  const bk=S.bk.filter(b=>b.t===t.id&&b.d>=w0&&b.d<=w1);const due=t.dl&&t.dl<=w1&&(op||t.dl>=w0);if(!due&&!bk.length&&!dnW)return;
+  const day=bk.length?bk.map(b=>b.d).sort()[0]:t.dl&&t.dl>=w0&&t.dl<=w1?t.dl:dnW?dn:w0;
+  o.push({k:'t',id:t.id,p,s,t,n:t.n,h:op?left(t):+t.h||0,dl:t.dl||null,day,bh:sum(bk,b=>b.h),od:op&&!!t.dl&&t.dl<T,done:!op})}));
+ S.bk.forEach(b=>{if(b.d<w0||b.d>w1||(b.t&&findT(b.t)))return;const p=P(b.p);if(!p||p.dt)return;o.push({k:'b',id:b.id,p,b,n:b.n||p.name,h:+b.h||0,day:b.d,done:b.d<T})});
+ (S.qk||[]).forEach(q=>{if(q.at&&!(q.at>=w0&&q.at<=w1))return;const p=P(q.p);if(!p)return;o.push({k:'q',id:q.id,p,q,n:q.n,h:+q.h||0,day:q.at||null,done:!!q.at})});
+ const key=x=>(x.day||'~')+(x.done?'1':'0')+(x.dl||'~');return o.sort((a,b)=>key(a)<key(b)?-1:key(a)>key(b)?1:0)}
+/* weeks ahead: blocked time, research room, deadlines */
+function weeks(n,w0){w0=w0||W0();const o=[],O=allOpen();for(let i=0;i<n;i++){const a=add(w0,7*i),b=add(a,6);const B=S.bk.filter(x=>x.d>=a&&x.d<=b);o.push({i,w0:a,bk:B,bh:sum(B,x=>x.h),bnr:sum(B.filter(x=>!isRes(P(x.p))),x=>x.h),res:resWeek(a),dl:O.filter(x=>x.t.dl&&x.t.dl>=a&&x.t.dl<=b).sort((x,y)=>x.t.dl<y.t.dl?-1:1),logged:a<=td()?hRange(a,b):0})}return o}
+/* auto blocks for one day */
+function autoPlan(d,seed,used0){seed=seed||0;const fix=[],out=[];let cap=capDay()-(used0||0);
+ S.bk.filter(b=>b.d===d).forEach(b=>{const p=P(b.p);if(!p||p.dt)return;const x=findT(b.t);fix.push({p:b.p,t:x?x.t.id:null,n:x?x.t.n:(b.n||p.name),h:+b.h||1,k:'fix'});cap-=+b.h||1});
+ const used=new Set(fix.map(f=>f.t));
+ allOpen().filter(x=>x.t.dl&&x.t.dl<=add(d,4)&&!used.has(x.t.id)).sort((a,b)=>a.t.dl<b.t.dl?-1:1).forEach(x=>{if(cap<.5)return;const h=rq(Math.min(left(x.t),x.t.dl<=add(d,1)?2:1,cap));if(h>=.25){out.push({p:x.p.id,t:x.t.id,n:x.t.n,h,k:'dl',dl:x.t.dl});cap-=h;used.add(x.t.id)}});
+ const oh=OH(),ohDay=bud('Chair & Admin')/5-sum([...fix,...out].filter(o=>isOH(P(o.p))),o=>o.h);
+ const ohB=[];if(oh.length&&ohDay>=.5){const each=Math.max(.5,Math.round(ohDay/oh.length*2)/2);oh.forEach(p=>{const h=Math.min(each,cap);if(h>=.5){ohB.push({p:p.id,t:null,n:p.name==='Admin'?'Admin and email':'Chair work',h,k:'oh'});cap-=h}})}
+ const rs=[];const nrB=sum(S.bk.filter(b=>b.d===d&&!isRes(P(b.p))),b=>b.h),base=d===td()?resFree(d):(dow(d)>4||S.h10.off[d]?0:Math.max(0,capDay()-Math.max(nrB,nrNeed())));const rh=Math.min(cap,Math.max(0,base-sum(fix.filter(f=>isRes(P(f.p))),f=>f.h)));
+ const A2=act2();if(rh>=.5&&A2.length){const s=cl(+S.h10.split,0,1);const ha=A2.length>1?Math.round(rh*s*2)/2:rq(rh),parts=[[A2[0],ha],[A2[1],rq(rh-ha)]];if(seed%2)parts.reverse();parts.forEach(([p,h])=>{if(p&&h>=.5){const c=cur(p);rs.push({p:p.id,t:c?c.t.id:null,n:c?c.t.n:p.name,h,k:'res'});cap-=h}})}
+ const te=[];live().filter(p=>p.cat==='Teaching').map(p=>({p,c:cur(p),dl:nextDl(p)})).filter(x=>x.c).sort((a,b)=>(a.dl?a.dl.t.dl:'~')<(b.dl?b.dl.t.dl:'~')?-1:1).slice(0,2).forEach(x=>{if(cap>=1&&!used.has(x.c.t.id)){te.push({p:x.p.id,t:x.c.t.id,n:x.c.t.n,h:1,k:'tea'});cap-=1}});
+ let seq=[...(ohB[0]?[ohB[0]]:[]),...out,...rs.slice(0,1),...fix,...rs.slice(1),...te,...ohB.slice(1)];
+ if(seed>1){const head=seq.filter(x=>x.k==='dl'||x.k==='fix'),tail=seq.filter(x=>x.k!=='dl'&&x.k!=='fix');for(let i=0;i<seed;i++)tail.push(tail.shift());seq=[...tail.slice(0,1),...head,...tail.slice(1)]}
+ return seq.map(x=>Object.assign({id:uid(),st:0},x))}
+function planTimes(L){let m=9*60;return L.map(x=>{const a=m;m+=x.h*60;if(a<12.5*60&&m>12.5*60)m+=30;return Object.assign({a,b:m},x)})}
+/* optimisation tips for the Planner */
+function tips(){const o=[],T=td(),w0=mon(T),X=S.h10;
+ allOpen().filter(x=>x.t.dl&&x.t.dl>=T&&x.t.dl<=add(T,14)).sort((a,b)=>a.t.dl<b.t.dl?-1:1).forEach(x=>{const bk=sum(S.bk.filter(b=>b.t===x.t.id&&b.d>=T),b=>b.h),need=left(x.t)-bk;if(need>.25&&o.length<3){const d=nextWork(T===x.t.dl?T:add(T,dow(T)<5&&new Date().getHours()<15?0:1));o.push({m:`${lab(x.p)}: ${x.t.n} needs ${fh(need)} more before ${fwd(x.t.dl)} ${fdm(x.t.dl)}`,b:`Block ${fh(Math.min(2,rq(need)))} ${fwd(d)}`,a:'tipblk',t:x.t.id,p:x.p.id,d,h:Math.min(2,rq(need)),c:col(x.p)})}});
+ const oh=wk(w0,fCat('Chair & Admin'));if(oh>bud('Chair & Admin'))o.push({m:`Chair & Admin is at ${fh(oh)} of ${fh(bud('Chair & Admin'))} this week`,b:'Open week',a:'weeksh',c:CC['Chair & Admin']});
+ act2().forEach(p=>{if(hRange(add(T,-7),T,fP(p.id))===0){const d=workDays(nextWork(T),5).find(x=>resFree(x)>=2)||nextWork(T);o.push({m:`No ${lab(p)} hours logged in the last 7 days`,b:`Block 2 h ${fwd(d)}`,a:'tipblk',p:p.id,t:cur(p)?cur(p).t.id:null,d,h:2,c:col(p)})}});
+ live().filter(p=>isRes(p)&&!X.act.includes(p.id)).forEach(p=>{const n=nextDl(p);if(n&&n.t.dl<=add(T,42))o.push({m:`${lab(p)} is parked but has a deadline on ${fdm(n.t.dl)}`,b:'Swap it in',a:'swap',c:col(p)})});
+ act2().forEach(p=>{const c=cur(p);if(c&&!nextDl(p))o.push({m:`${lab(p)}: set a deadline for ${curStage(p).n}`,b:'Set deadline',a:'task',t:c.t.id,c:col(p)})});
+ return o.slice(0,6)}
+/* ---------- state ---------- */
+function load(){let o=null;try{o=JSON.parse(localStorage.getItem(A.key)||'null')}catch(e){}
+ if(!o||o.v!==3){let src='demo';try{const h=JSON.parse(localStorage.getItem('hours-v4')||'null');if(h&&h.v===3){o=h;src='hours'}}catch(e){}if(!o||o.v!==3)o=JSON.parse(JSON.stringify(DEMO));o.h10={src,at:td()}}
+ S=o;prep();save()}
+function prep(){S.p=S.p||[];S.fn=S.fn||{};S.fn.ov=S.fn.ov||{};S.bk=S.bk||[];S.qk=S.qk||[];S.bud=Object.assign({Research:14,Teaching:12,'Chair & Admin':10,Personal:4},S.bud||{});
+ const X=S.h10=S.h10||{src:'demo',at:td()};['dn','ap','ss','ui','off','pdn'].forEach(k=>{if(!X[k]||typeof X[k]!=='object')X[k]={}});if(!Array.isArray(X.feed))X.feed=[];
+ if(!live().some(p=>/^chair$/i.test(p.name)))S.p.push({id:uid(),name:'Chair',cat:'Chair & Admin',c:'#5B7DB8',st:[{n:'Chair work',t:[{id:uid(),n:'Chair work',h:0,d:0,mx:1}]}]});
+ const R=live().filter(isRes);if(!Array.isArray(X.act)||X.act.length!==Math.min(2,R.length)||!X.act.every(id=>R.some(p=>p.id===id))){const a=['MIZN','TSI'].map(n=>R.find(p=>p.name===n)).filter(Boolean);R.filter(p=>!/phd|supervis/i.test(p.name)).sort((x,y)=>pLeft(y)-pLeft(x)).forEach(p=>{if(a.length<2&&!a.includes(p))a.push(p)});X.act=a.slice(0,2).map(p=>p.id)}
+ if(!Array.isArray(X.row)||!X.row.length||!X.row.every(id=>P(id)&&!P(id).dt))X.row=pickRow();syncRow();if(X.split==null)X.split=.5;LC=null}
+function pickRow(){const L=live(),o=[];['BT','EEOD','Theses','Recruitment','New master','Chair','Admin','Home'].forEach(n=>{const p=L.find(x=>x.name===n);if(p&&o.length<8)o.push(p.id)});['Teaching','Chair & Admin','Personal'].forEach(c=>L.filter(p=>p.cat===c).forEach(p=>{if(o.length<8&&!o.includes(p.id))o.push(p.id)}));return o}
+function syncRow(){const X=S.h10,ord=p=>CATS.indexOf(p.cat);let o=X.row.filter(id=>!isRes(P(id)));if(o.length>8)o=o.slice(0,8);if(o.length<8)live().filter(p=>!isRes(p)).forEach(p=>{if(o.length<8&&!o.includes(p.id))o.push(p.id)});o=o.map(P).sort((a,b)=>ord(a)-ord(b)).map(p=>p.id);X.row=[...X.act,...o]}
+function save(){LC=null;try{localStorage.setItem(A.key,JSON.stringify(S))}catch(e){toast('Could not save on this device')}}
+function act(msg,fn,o){o=o||{};if(o.undo!==false){UNDO.push(JSON.stringify(S));if(UNDO.length>40)UNDO.shift()}fn();if(msg){S.h10.feed.unshift({t:Date.now(),d:td(),m:msg});S.h10.feed.length=Math.min(S.h10.feed.length,80)}save();draw();if(msg&&o.toast!==false)toast(msg,o.undo!==false);buzz()}
+function undo(){const s=UNDO.pop();if(!s)return toast('Nothing to undo');S=JSON.parse(s);save();draw();toast('Undone')}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}}
+function toast(m,u){const el=$('#to');if(!el)return;el.innerHTML=`<span>${esc(m)}</span>${u?'<button data-a="undo">Undo</button>':''}`;el.classList.add('on');clearTimeout(TT);TT=setTimeout(()=>el.classList.remove('on'),u?4200:2400)}
+/* ---------- rendering ---------- */
+const ICON={
+ day:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>',
+ week:'<svg viewBox="0 0 24 24"><rect x="3" y="9" width="4" height="6" rx="1"/><rect x="10" y="9" width="4" height="6" rx="1"/><rect x="17" y="9" width="4" height="6" rx="1"/></svg>',
+ hz:'<svg viewBox="0 0 24 24"><path d="M4 18V12M9 18V8M14 18V10M19 18V5"/></svg>',
+ plan:'<svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2"/><circle cx="6" cy="17" r="2"/><path d="M11 7h9M11 17h9"/></svg>',
+ log:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>',
+ run:'<svg viewBox="0 0 24 24"><path d="M3 8h12M3 16h17"/><circle cx="17" cy="8" r="2"/><circle cx="21" cy="16" r="1.5"/></svg>',
+ grid:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16"/></svg>',
+ list:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="3" height="3" rx=".6"/><rect x="4" y="11" width="3" height="3" rx=".6"/><rect x="4" y="17" width="3" height="3" rx=".6"/><path d="M10 6.5h10M10 12.5h10M10 18.5h7"/></svg>',
+ deck:'<svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M3 7v10M21 7v10"/></svg>',
+ inbox:'<svg viewBox="0 0 24 24"><path d="M4 13l2.5-7h11l2.5 7v5H4z"/><path d="M4 13h5l1 2h4l1-2h5"/></svg>',
+ focus:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>',
+ cmd:'<svg viewBox="0 0 24 24"><path d="M5 8l4 4-4 4M12 16h7"/></svg>'};
+const ring=(c,s,f)=>`<i class="o r" style="--c:${c};--s:${s||12}px;--f:${Math.round((f||0)*100)}%"></i>`;
+const dot=(c,s)=>`<i class="o d" style="--c:${c};--s:${s||12}px"></i>`;
+const sq=(c,s,o)=>`<i class="o q" style="--c:${c};--s:${s||12}px${o!=null&&o<1?';opacity:'+o:''}"></i>`;
+const sqo=(c,s)=>`<i class="o qo" style="--c:${c};--s:${s||12}px"></i>`;
+const tri=c=>`<i class="o t"${c?` style="color:${c}"`:''}>▲</i>`;
+function circles(h,c,s,max){max=max||12;h=Math.max(0,rq(h));const n=Math.floor(h+1e-9),f=h-n;let o='';for(let i=0;i<Math.min(n,max);i++)o+=dot(c,s);if(f>1e-6&&n<max)o+=ring(c,s,f);if(n>max)o+=`<small class="more">+${n-max}</small>`;return o}
+function rings(n,filled,c,s){let o='';for(let i=0;i<n;i++){const f=cl(filled-i,0,1);o+=f>=1?dot(c,s):ring(c,s,f)}return o}
+function row10(o){o=o||{};return `<div class="r10${o.cls?' '+o.cls:''}">`+row().map(p=>{const on=o.sel===p.id||(o.on&&o.on(p));return `<button class="r1${on?' on':''}${isRes(p)?' rs':''}" data-a="${o.a||'sel'}" data-p="${p.id}" style="--c:${col(p)}"><i class="rd"></i><b>${esc(lab(p))}</b>${o.badge?o.badge(p):''}</button>`}).join('')+'</div>'}
+function taskRow(x,o){o=o||{};const {p,t}=x,op=open(t);return `<div class="tr${op?'':' dn'}"><button class="tk" data-a="tick" data-t="${t.id}" style="--c:${col(p)}" aria-label="Done"></button><button class="tn" data-a="task" data-t="${t.id}"><b>${esc(t.n)}</b><small>${o.lab?`<em style="color:${col(p)}">${esc(lab(p))}</em> `:''}${fq(t.d||0)} of ${fh(t.h)}${t.dl?' '+tri(op&&t.dl<td()?'var(--red)':'')+' '+fdm(t.dl):''}</small></button></div>`}
+function itemRow(x,o){o=o||{};const c=col(x.p),L=`<em style="color:${c}">${esc(lab(x.p))}</em>`;
+ if(x.k==='q')return `<div class="it${x.done?' dn':''}"><button class="tk c" data-a="qtick" data-q="${x.id}" style="--c:${c}" aria-label="Done"></button><button class="in" data-a="qedit" data-q="${x.id}"><b>${esc(x.n)}</b><small>${L} ${fh(x.h)}</small></button></div>`;
+ if(x.k==='b')return `<div class="it bk${x.done?' dn':''}"><span class="tk b" style="--c:${c}"></span><button class="in" data-a="day" data-d="${x.day}"><b>${esc(x.n)}</b><small>${L} ${fh(x.h)} session</small></button></div>`;
+ return `<div class="it${x.done?' dn':''}${x.od?' od':''}"><button class="tk" data-a="tick" data-t="${x.id}" style="--c:${c}" aria-label="Done"></button><button class="in" data-a="task" data-t="${x.id}"><b>${esc(x.n)}</b><small>${L} ${fh(x.h)}${x.bh?` · ${sq(c,8)} ${fh(x.bh)}`:''}</small></button>${x.dl?`<span class="dl">${tri(x.od?'var(--red)':'')}${o.short?fwd(x.dl):fdm(x.dl)}</span>`:''}</div>`}
+function weekList(w0,o){o=o||{};const it=weekItems(w0);let h='';for(let i=0;i<7;i++){const d=add(w0,i),L=it.filter(x=>x.day===d);if(i>4&&!L.length)continue;const fr=resFree(d),lg=d<=td()?hOn(d):0;
+  h+=`<div class="wl-d${d===td()?' now':''}"><button class="wl-h" data-a="day" data-d="${d}"><b>${fd(d)}</b><span>${lg?fh(lg)+' logged ':''}${fr?fh(fr)+' free for research':''}</span></button>${L.map(x=>itemRow(x,{short:1})).join('')||'<div class="wl-e">Nothing planned</div>'}</div>`}
+ const q=it.filter(x=>!x.day);if(q.length||o.q)h+=`<div class="wl-d"><div class="wl-h"><b>Quick tasks</b><button class="lnk" data-a="qadd">+ Add</button></div>${q.map(x=>itemRow(x)).join('')}</div>`;return h}
+function weekStats(w0){const it=weekItems(w0).filter(x=>x.k!=='b');return {n:it.length,done:it.filter(x=>x.done).length}}
+function budBars(w0){return `<div class="bb">`+CATS.map(c=>{const u=wk(w0,fCat(c)),b=bud(c);return `<div class="bb-r"><span>${c==='Chair & Admin'?'Chair & Admin':c}</span><i class="bb-t"><i style="width:${b?Math.min(100,u/b*100):0}%;background:${CC[c]}"></i></i><b>${fq(u)}<small>/${fq(b)}</small></b></div>`}).join('')+'</div>'}
+function landLine(o){o=o||{};const L=landing();return act2().map(p=>{const r=L[p.id];return `<button class="ll" data-a="${o.a||'swap'}" data-p="${p.id}" style="--c:${col(p)}">${dot(col(p),9)}<b>${esc(lab(p))}</b><span>${r&&r.date?(o.long?esc(r.stage)+' ':'')+'lands '+fdm(r.date):r&&!r.stage?'no open tasks':'after '+fdm(add(td(),364))}</span></button>`}).join('')}
+function horizonRows(n,o){o=o||{};const W=weeks(n||12,o.w0),mx=Math.max(capDay()*5,...W.map(w=>w.bh+w.res));const L=landing();
+ return `<div class="hz">`+W.map(w=>{const by={};w.bk.forEach(b=>by[b.p]=(by[b.p]||0)+b.h);const lands=act2().filter(p=>L[p.id]&&L[p.id].date&&L[p.id].date>=w.w0&&L[p.id].date<=add(w.w0,6));
+  return `<button class="hz-r${w.w0===mon(td())?' now':''}" data-a="hzw" data-v="${w.i}" data-d="${w.w0}"><span class="hz-l"><b>${fdm(w.w0)}</b><small>wk ${wkno(w.w0)}</small></span><span class="hz-b">${Object.entries(by).map(([id,h])=>`<i style="width:${h/mx*100}%;background:${col(P(id))}"></i>`).join('')}<i class="fr" style="width:${w.res/mx*100}%"></i></span><span class="hz-t">${lands.map(p=>`<em class="ld" style="--c:${col(p)}">${esc(lab(p))}</em>`).join('')}${w.dl.slice(0,2).map(x=>`<em style="color:${col(x.p)}">${tri()}${esc(lab(x.p))}</em>`).join('')}${w.dl.length>2?`<em>+${w.dl.length-2}</em>`:''}</span></button>`}).join('')+`</div><div class="hz-k">${sq('var(--mut)',9)} booked ${sqo(CC.Research,9)} free for research ${tri()} deadline <em class="ld" style="--c:var(--fg)">lands</em></div>`}
+function plRow(p){const cs=curStage(p),c=cur(p),nd=nextDl(p);const ts=cs?(cs.t||[]).filter(t=>!t.mx):[];const tot=sum(ts,t=>+t.h||0),dn=sum(ts,t=>Math.min(+t.d||0,+t.h||0));
+ return `<button class="pl-p" data-a="proj" data-p="${p.id}" style="--c:${col(p)}">${dot(col(p),12)}<span class="pl-n"><b>${esc(p.name)}</b><small>${cs?esc(cs.n)+(c?': '+esc(c.t.n):''):'No open tasks'}</small></span><span class="pl-m">${nd?`<em>${tri()} ${fdm(nd.t.dl)}</em>`:''}<small>${fh(pLeft(p))} left</small></span><span class="pl-bar"><i style="width:${tot?Math.round(dn/tot*100):0}%"></i></span></button>`}
+function planner(){const X=S.h10,T=tips(),w0=mon(td());let h=`<div class="pl-top"><button class="pl-opt" data-a="tips">✦ Optimise${T.length?` <em>${T.length}</em>`:''}</button><button class="pl-res" data-a="swap">${act2().map(p=>dot(col(p),10)+' '+esc(lab(p))).join('  ')} <span>⇄</span></button></div>`;
+ CATS.forEach(c=>{const L=live().filter(p=>p.cat===c);if(!L.length)return;const on=L.filter(p=>!isRes(p)||X.act.includes(p.id)),park=L.filter(p=>isRes(p)&&!X.act.includes(p.id));
+  h+=`<div class="pl-c"><div class="pl-ch"><b>${c}</b><span>${fq(wk(w0,fCat(c)))} of ${fh(bud(c))} this week</span></div>${on.map(plRow).join('')}${park.length?`<div class="pl-park"><span>Parked</span>${park.map(p=>`<button data-a="proj" data-p="${p.id}">${ring(col(p),10)} ${esc(lab(p))}</button>`).join('')}</div>`:''}</div>`});
+ return h+`<button class="btn ghost wide" data-a="newproj">+ Project</button>`}
+/* ---------- sheets ---------- */
+function sheet(fn){SH=fn;renderSheet(1)}
+function renderSheet(first){const el=$('#sh');if(!el)return;if(!SH){el.classList.remove('on');el.innerHTML='';return}const b=el.querySelector('.shb'),st=b?b.scrollTop:0;el.innerHTML=`<div class="shbg" data-a="close"></div><div class="shp">${SH()}</div>`;el.classList.add('on');const nb=el.querySelector('.shb');if(nb&&!first)nb.scrollTop=st}
+function close(){SH=null;renderSheet()}
+const shHead=(t,sub,c)=>`<div class="shh" style="--c:${c||'var(--fg)'}"><div><b>${esc(t)}</b>${sub?`<small>${esc(sub)}</small>`:''}</div><button class="shx" data-a="close" aria-label="Close">×</button></div>`;
+const stepper=(k,id,v,st,unit)=>`<div class="stp"><button data-a="stp" data-k="${k}" data-id="${id}" data-v="${-st}">−</button><b>${fq(v)}${unit==null?' h':unit}</b><button data-a="stp" data-k="${k}" data-id="${id}" data-v="${st}">+</button></div>`;
+const chipDays=(sel,n,from)=>workDays(nextWork(from||td()),n||8).map(d=>`<button class="chip${sel===d?' on':''}" data-a="bd" data-v="${d}">${d===td()?'Today':fwd(d)+' '+pd(d).getDate()}</button>`).join('');
+function taskSheet(id){U.bd=null;sheet(()=>{const x=findT(id);if(!x)return shHead('Task removed')+'<div class="shb"></div>';const {p,s,t}=x,c=col(p);const bks=S.bk.filter(b=>b.t===t.id&&b.d>=td()).sort((a,b)=>a.d<b.d?-1:1);const pct=t.h?Math.min(100,(t.d||0)/t.h*100):0;const day=U.bd||nextWork(td());
+ return shHead(p.name,s.n,c)+`<div class="shb"><input class="inp big" data-c="tname" data-t="${t.id}" value="${esc(t.n)}" aria-label="Task name">
+ <div class="fl"><span>Estimate</span>${stepper('th',t.id,t.h||0,.5)}</div><div class="fl"><span>Done</span>${stepper('tdn',t.id,t.d||0,.25)}</div><div class="pbar"><i style="width:${pct}%;background:${c}"></i></div>
+ <div class="fl"><span>${tri()} Deadline</span><span class="fr2"><input type="date" class="inp" data-c="tdl" data-t="${t.id}" value="${t.dl||''}">${t.dl?`<button class="chip" data-a="tdlx" data-t="${t.id}">Clear</button>`:''}</span></div>
+ <div class="sl">Block time for it</div><div class="chips">${chipDays(day)}</div><div class="chips">${[.5,1,2,3].map(h=>`<button class="chip sqc" style="--c:${c}" data-a="tblk" data-t="${t.id}" data-h="${h}">${sq(c,10)} ${fh(h)} ${fwd(day)}</button>`).join('')}</div>
+ ${bks.map(b=>`<div class="li">${sq(c,12)}<b>${fd(b.d)}</b><span>${fh(b.h)}</span><button class="x" data-a="ublk" data-b="${b.id}" aria-label="Remove">×</button></div>`).join('')}
+ <div class="row2"><button class="btn" style="--acc:${c}" data-a="tick" data-t="${t.id}">${open(t)?'Mark done':'Reopen'}</button><button class="btn ghost" data-a="tdel" data-t="${t.id}">Delete</button></div></div>`})}
+function projSheet(id){U.ld=null;sheet(()=>{const p=P(id);if(!p)return shHead('Project removed')+'<div class="shb"></div>';const c=col(p),w0=mon(td()),ld=U.ld||td(),r=isRes(p)?landingOf(p.id):null;const actv=S.h10.act.includes(p.id);
+ return shHead(p.name,p.cat+(isRes(p)?(actv?' · active':' · parked'):''),c)+`<div class="shb"><div class="kp"><div><small>Today</small><b>${fh(hOn(td(),fP(p.id)))}</b></div><div><small>This week</small><b>${fh(wk(w0,fP(p.id)))}</b></div><div><small>${r?'Lands':'Left'}</small><b>${r?(r.date?fdm(r.date):'—'):fh(pLeft(p))}</b></div></div>
+ <div class="seg"><button class="${ld===td()?'on':''}" data-a="ld" data-v="${td()}">Today</button><button class="${ld===add(td(),-1)?'on':''}" data-a="ld" data-v="${add(td(),-1)}">Yesterday</button><button class="${ld===add(td(),-2)?'on':''}" data-a="ld" data-v="${add(td(),-2)}">${fwd(add(td(),-2))}</button></div>
+ <div class="logs">${[.25,.5,1,2].map(h=>`<button class="lg" style="--c:${c}" data-a="log" data-p="${p.id}" data-h="${h}" data-d="${ld}">+${fq(h)}</button>`).join('')}<button class="lg ghost" data-a="unlog" data-p="${p.id}" data-h=".25" data-d="${ld}">−¼</button></div>
+ ${isRes(p)&&!actv?`<button class="btn ghost wide" data-a="swapin" data-p="${p.id}">Make active (swap with ${esc(lab(P(S.h10.act[U.slot||0])))})</button>`:''}
+ ${stg(p).map(s=>{const ts=(s.t||[]).filter(t=>!t.mx);if(!ts.length)return '';const dn=!ts.some(open);return `<div class="sl">${esc(s.n)}<span>${dn?'done':fh(sLeft(s))+' left'}</span></div>`+(dn?'':ts.map(t=>taskRow({p,s,t})).join(''))}).join('')}
+ <div class="row2"><button class="btn ghost" data-a="newtask" data-p="${p.id}">+ Task</button><button class="btn ghost" data-a="blk" data-p="${p.id}">${sq(c,10)} Block time</button></div></div>`})}
+function swapSheet(){sheet(()=>{const X=S.h10,R=live().filter(isRes),L=landing();return shHead('Research','Two projects active at a time')+`<div class="shb"><div class="sl">Active · tap one, then a parked project to swap</div>
+ ${X.act.map((id,i)=>{const p=P(id),r=L[id];return p?`<button class="li sel${(U.slot||0)===i?' on':''}" data-a="slot" data-v="${i}" style="--c:${col(p)}">${dot(col(p),16)}<b>${esc(p.name)}</b><span>${r&&r.date?esc(r.stage)+' lands '+fdm(r.date):''}</span></button>`:''}).join('')}
+ <div class="sl">Parked</div>${R.filter(p=>!X.act.includes(p.id)).map(p=>`<button class="li" data-a="swapin" data-p="${p.id}">${ring(col(p),16)}<b>${esc(p.name)}</b><span>${fh(pLeft(p))} left${nextDl(p)?' · '+tri()+' '+fdm(nextDl(p).t.dl):''}</span></button>`).join('')}
+ ${act2().length>1?`<div class="sl">Split of research time</div><input type="range" class="rng" min="0" max="100" step="10" value="${Math.round(X.split*100)}" data-c="split" aria-label="Split"><div class="fl"><span>${esc(lab(act2()[0]))} ${Math.round(X.split*100)}%</span><span>${esc(lab(act2()[1]))} ${100-Math.round(X.split*100)}%</span></div>`:''}
+ <div class="fl"><span>Research per week</span>${stepper('bud','Research',bud('Research'),1)}</div></div>`})}
+function settingsSheet(){sheet(()=>{const X=S.h10,has=!!localStorage.getItem('hours-v4');return shHead('Settings',A.name)+`<div class="shb">
+ <div class="note">${X.src==='hours'?'Your data was copied from Hours on '+fdm(X.at)+'.':'Demo data. Open this app on the same site as Hours to copy your own data.'} This app keeps its own copy and never changes Hours.</div>
+ <div class="row2">${has?'<button class="btn ghost" data-a="reimp">Copy again from Hours</button>':''}<button class="btn ghost" data-a="export">Export</button></div>
+ <div class="sl">Hours per week</div>${CATS.map(c=>`<div class="fl"><span>${dot(CC[c],10)} ${c}</span>${stepper('bud',c,bud(c),1)}</div>`).join('')}
+ <div class="sl">Projects</div><div class="row2"><button class="btn ghost" data-a="swap">Research ⇄</button><button class="btn ghost" data-a="rowed">Edit the row</button></div>
+ <div class="row2"><a class="btn ghost" href="../index.html">Open Hours</a><a class="btn ghost" href="index.html">All 10 apps</a></div>
+ <button class="btn ghost wide warn" data-a="reset">${U.rs?'Tap again to reset':'Reset this app'}</button></div>`})}
+function rowSheet(){sheet(()=>{const X=S.h10,on=new Set(X.row);return shHead('The row','2 active research + 8 projects')+`<div class="shb">${CATS.filter(c=>c!=='Research').map(c=>`<div class="sl">${c}</div>`+live().filter(p=>p.cat===c).map(p=>`<button class="li${on.has(p.id)?' on':''}" data-a="rowt" data-p="${p.id}">${on.has(p.id)?dot(col(p),16):ring(col(p),16)}<b>${esc(p.name)}</b><span>${esc(lab(p))}</span></button>`).join('')).join('')}<div class="note">${X.row.length-X.act.length} of 8 chosen. Research slots follow the active pair.</div></div>`})}
+function blockSheet(d,pid,tid){U.bd=d||U.bd||nextWork(td());U.bp=pid||U.bp||(row()[0]||{}).id;U.bh=U.bh||1;U.bt=tid||null;sheet(()=>{const p=P(U.bp),c=col(p),x=U.bt?findT(U.bt):p?cur(p):null;const on=S.bk.filter(b=>b.d===U.bd);
+ return shHead('Block time',fd(U.bd))+`<div class="shb">${row10({sel:U.bp,a:'bp',cls:'sm'})}<div class="sl">Day</div><div class="chips">${chipDays(U.bd,10,U.bd<td()?td():(dow(U.bd)>4?U.bd:mon(U.bd)<td()?td():mon(U.bd)))}</div>
+ <div class="sl">Hours</div><div class="chips">${[.5,1,1.5,2,3,4].map(h=>`<button class="chip${U.bh===h?' on':''}" data-a="bh" data-v="${h}">${fh(h)}</button>`).join('')}</div>
+ <button class="btn wide" style="--acc:${c}" data-a="badd">${sq('#fff',10)} Block ${fh(U.bh)} ${p?esc(lab(p)):''}${x&&x.t?': '+esc(x.t.n):''}</button>
+ ${on.length?`<div class="sl">Booked on ${fd(U.bd)}</div>`+on.map(b=>{const q=P(b.p);return `<div class="li">${sq(col(q),12)}<b>${esc(b.n||(q&&q.name))}</b><span>${fh(b.h)}</span><button class="x" data-a="ublk" data-b="${b.id}" aria-label="Remove">×</button></div>`}).join(''):''}</div>`})}
+function daySheet(d){sheet(()=>{const L={};(ov()[d]||[]).forEach(x=>{if(x[1]===2||x[1]===3)return;L[x[0]]=(L[x[0]]||0)+xh(x)});const B=S.bk.filter(b=>b.d===d),D=allOpen().filter(x=>x.t.dl===d);
+ return shHead(fd(d),d===td()?'Today':wkLabel(mon(d)))+`<div class="shb"><div class="sl">Logged<span>${fh(hOn(d))}</span></div>${Object.keys(L).length?Object.entries(L).map(([id,h])=>{const p=P(id);return p?`<div class="li">${circles(h,col(p),11,8)}<b>${esc(lab(p))}</b><span>${fh(h)}</span><button class="x" data-a="unlog" data-p="${id}" data-h=".25" data-d="${d}" aria-label="Less">−</button><button class="x" data-a="log" data-p="${id}" data-h=".25" data-d="${d}" aria-label="More">+</button></div>`:''}).join(''):'<div class="note">Nothing logged.</div>'}
+ <div class="sl">Log to</div>${row10({a:'dlog',cls:'sm'})}
+ <div class="sl">Booked<span>${fh(sum(B,b=>b.h))}</span></div>${B.map(b=>{const p=P(b.p);return `<div class="li">${sq(col(p),12)}<b>${esc(b.n||(p&&p.name))}</b><span>${fh(b.h)}</span><button class="x" data-a="ublk" data-b="${b.id}" aria-label="Remove">×</button></div>`}).join('')}<button class="btn ghost wide" data-a="blk" data-d="${d}">+ Block time</button>
+ ${D.length?`<div class="sl">${tri()} Due</div>`+D.map(x=>taskRow(x,{lab:1})).join(''):''}
+ ${dow(d)<5?`<button class="btn ghost wide" data-a="off" data-d="${d}">${S.h10.off[d]?'Back to a work day':'Mark as day off'}</button>`:''}</div>`})}
+function quickSheet(pid){U.qp=pid||U.qp||(OH()[0]||row()[0]).id;U.qn='';sheet(()=>`${shHead('Quick task','Small things, ticked off with a circle')}<div class="shb"><input class="inp big" data-i="qn" data-enter="qnew" placeholder="What needs doing?" value="${esc(U.qn)}" aria-label="Quick task">${row10({sel:U.qp,a:'qp',cls:'sm'})}<div class="chips">${[.25,.5,1].map(h=>`<button class="chip${U.qh===h?' on':''}" data-a="qh" data-v="${h}">${fh(h)}</button>`).join('')}</div><button class="btn wide" data-a="qnew">Add quick task</button></div>`);setTimeout(()=>{const i=document.querySelector('#sh .inp');i&&i.focus()},60)}
+function tipsSheet(){sheet(()=>{const T=tips();return shHead('✦ Optimise','Suggestions from your deadlines, budget and research')+`<div class="shb">${T.length?T.map((t,i)=>`<div class="tip" style="--c:${t.c||'var(--fg)'}"><p>${esc(t.m)}</p><button class="chip on" data-a="tipdo" data-v="${i}">${esc(t.b)}</button></div>`).join(''):'<div class="note">Nothing to fix. The plan fits.</div>'}</div>`})}
+function weekSheet(w0){w0=w0||W0();sheet(()=>shHead(wkLabel(w0),fdm(w0)+' – '+fdm(add(w0,4)))+`<div class="shb">${weekList(w0,{q:1})}</div>`)}
+function newProjSheet(){U.pn='';sheet(()=>shHead('New project')+`<div class="shb"><input class="inp big" data-i="pn" data-enter="pnew" placeholder="Name" aria-label="Project name"><div class="chips">${CATS.map(c=>`<button class="chip${U.pc===c?' on':''}" data-a="pc" data-v="${c}">${dot(CC[c],10)} ${c}</button>`).join('')}</div><button class="btn wide" data-a="pnew">Create</button></div>`)}
+/* ---------- mutations ---------- */
+function tick(id){const x=findT(id);if(!x)return;const {p,t}=x,X=S.h10;act(open(t)?'Done: '+t.n:'Reopened '+t.n,()=>{if(open(t)){X.pdn[t.id]=+t.d||0;t.d=+t.h||0;X.dn[t.id]=td()}else{t.d=Math.min(X.pdn[t.id]||0,Math.max(0,(+t.h||0)-.25));delete X.dn[t.id]}});if(!open(t)&&A.done)A.done(p,t)}
+function qtick(id){const q=(S.qk||[]).find(x=>x.id===id);if(!q)return;act(q.at?'Reopened '+q.n:'Done: '+q.n,()=>{if(q.at){q.d=0;delete q.at}else{q.d=q.h;q.at=td()}})}
+function newTask(pid,o){o=o||{};const p=P(pid);if(!p)return null;let s=curStage(p)||stg(p).slice(-1)[0];if(!s){s={n:'Tasks',t:[]};p.st=p.st||[];p.st.push(s)}const t={id:uid(),n:o.n||'New task',h:o.h||1,d:0};if(o.dl)t.dl=o.dl;s.t=s.t||[];const mi=s.t.findIndex(x=>x.mx);if(mi>=0)s.t.splice(mi,0,t);else s.t.push(t);if(o.day)S.bk.push({id:uid(),d:o.day,h:o.bh||o.h||1,p:pid,n:t.n,t:t.id});return t}
+function addBlock(pid,d,h,tid){const p=P(pid);if(!p)return;const x=tid?findT(tid):cur(p);S.bk.push({id:uid(),d,h,p:pid,n:x?x.t.n:p.name,t:x?x.t.id:null})}
+const ACT={
+ tab:d=>{U.tab=d.v;S.h10.ui.tab=d.v;save();SH=null;renderSheet();draw();const m=$('#mn');m&&(m.scrollTop=0)},
+ close:()=>close(),undo:()=>undo(),
+ sel:d=>{U.sel=U.sel===d.p?null:d.p;draw()},
+ log:d=>{const p=P(d.p),h=+d.h,dy=d.d||td();act('+'+fh(h)+' '+lab(p)+(dy!==td()?' on '+fwd(dy):''),()=>logH(d.p,h,dy))},
+ unlog:d=>{const p=P(d.p),dy=d.d||td();if(hOn(dy,fP(d.p))<=0)return toast('Nothing logged for '+lab(p));act('−'+fh(+d.h)+' '+lab(p),()=>unlogH(d.p,+d.h,dy))},
+ dlog:d=>{const dy=SH&&U.dsd||td();act('+¼ h '+lab(P(d.p)),()=>logH(d.p,.25,dy))},
+ ld:d=>{U.ld=d.v;renderSheet()},
+ proj:d=>projSheet(d.p),task:d=>taskSheet(d.t),
+ newtask:d=>{let t;act('Added a task to '+lab(P(d.p)),()=>{t=newTask(d.p)},{toast:false});if(t){taskSheet(t.id);setTimeout(()=>{const i=document.querySelector('#sh .inp.big');if(i){i.focus();i.select()}},80)}},
+ tick:d=>tick(d.t),qtick:d=>qtick(d.q),
+ qedit:d=>{const q=S.qk.find(x=>x.id===d.q);if(!q)return;sheet(()=>shHead('Quick task',lab(P(q.p)),col(P(q.p)))+`<div class="shb"><input class="inp big" data-c="qname" data-q="${q.id}" value="${esc(q.n)}"><div class="row2"><button class="btn" data-a="qtick" data-q="${q.id}">${q.at?'Reopen':'Done'}</button><button class="btn ghost" data-a="qdel" data-q="${q.id}">Delete</button></div></div>`)},
+ qdel:d=>{act('Deleted quick task',()=>{S.qk=S.qk.filter(x=>x.id!==d.q)});close()},
+ qadd:d=>quickSheet(d.p),qp:d=>{U.qp=d.p;renderSheet()},qh:d=>{U.qh=+d.v;renderSheet()},
+ qnew:()=>{const n=(U.qn||'').trim();if(!n)return toast('Type a task first');act('Quick task: '+n,()=>{S.qk.unshift({id:uid(),n,h:U.qh||.25,d:0,p:U.qp})});U.qn='';renderSheet();const i=document.querySelector('#sh .inp');i&&i.focus()},
+ swap:()=>swapSheet(),slot:d=>{U.slot=+d.v;renderSheet()},
+ swapin:d=>{const X=S.h10;if(X.act.includes(d.p))return;const i=U.slot||0,old=P(X.act[i]);act(lab(P(d.p))+' is active, '+lab(old)+' parked',()=>{X.act[i]=d.p;syncRow()})},
+ set:()=>{U.rs=0;settingsSheet()},rowed:()=>rowSheet(),
+ rowt:d=>{const X=S.h10;const o=X.row.filter(id=>!X.act.includes(id));if(o.includes(d.p)){if(o.length<=1)return;act('Removed '+lab(P(d.p))+' from the row',()=>{X.row=X.row.filter(id=>id!==d.p)})}else{if(o.length>=8)return toast('The row holds 8 projects plus 2 research. Remove one first.');act('Added '+lab(P(d.p)),()=>{X.row.push(d.p);syncRow()})}},
+ reimp:()=>{const h=JSON.parse(localStorage.getItem('hours-v4')||'null');if(!h||h.v!==3)return toast('No Hours data on this device');act('Copied again from Hours',()=>{const X=S.h10;S=h;S.h10={src:'hours',at:td(),ui:X.ui,split:X.split,act:X.act,row:X.row};prep()})},
+ export:()=>{const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=A.key+'-'+td()+'.json';document.body.appendChild(a);a.click();a.remove()},
+ reset:()=>{if(!U.rs){U.rs=1;return renderSheet()}localStorage.removeItem(A.key);location.reload()},
+ blk:d=>blockSheet(d.d,d.p,d.t),bd:d=>{U.bd=d.v;renderSheet()},bh:d=>{U.bh=+d.v;renderSheet()},bp:d=>{U.bp=d.p;U.bt=null;renderSheet()},
+ badd:()=>{const p=P(U.bp);if(!p)return;act(fh(U.bh)+' '+lab(p)+' blocked on '+fwd(U.bd),()=>addBlock(U.bp,U.bd,U.bh,U.bt))},
+ ublk:d=>act('Block removed',()=>{S.bk=S.bk.filter(b=>b.id!==d.b)}),
+ day:d=>{U.dsd=d.d;daySheet(d.d)},off:d=>act(S.h10.off[d.d]?'Work day again':'Day off',()=>{if(S.h10.off[d.d])delete S.h10.off[d.d];else S.h10.off[d.d]=1}),
+ wk:d=>{U.wo=d.v==='0'?0:U.wo+(+d.v);draw()},
+ tips:()=>tipsSheet(),
+ tipdo:d=>{const t=tips()[+d.v];if(!t)return;if(t.a==='tipblk')act(fh(t.h)+' '+lab(P(t.p))+' blocked on '+fwd(t.d),()=>addBlock(t.p,t.d,t.h,t.t));else if(t.a==='swap')swapSheet();else if(t.a==='task')taskSheet(t.t);else if(t.a==='weeksh')weekSheet(mon(td()))},
+ weeksh:d=>weekSheet(d.d||W0()),hzw:d=>weekSheet(d.d),
+ stp:d=>{const v=+d.v;if(d.k==='bud')return act(null,()=>{S.bud[d.id]=Math.max(0,bud(d.id)+v)},{undo:true});const x=findT(d.id);if(!x)return;const t=x.t;act(null,()=>{if(d.k==='th')t.h=Math.max(0,rq((+t.h||0)+v));if(d.k==='tdn')t.d=cl(rq((+t.d||0)+v),0,Math.max(+t.h||0,0));if(open(t))delete S.h10.dn[t.id];else S.h10.dn[t.id]=S.h10.dn[t.id]||td()})},
+ tdlx:d=>{const x=findT(d.t);x&&act('Deadline cleared',()=>{delete x.t.dl})},
+ tblk:d=>{const x=findT(d.t);if(!x)return;const day=U.bd||nextWork(td());act(fh(+d.h)+' blocked '+fwd(day)+' for '+x.t.n,()=>S.bk.push({id:uid(),d:day,h:+d.h,p:x.p.id,n:x.t.n,t:x.t.id}))},
+ tdel:d=>{const x=findT(d.t);if(!x)return;act('Deleted '+x.t.n,()=>{x.s.t=x.s.t.filter(t=>t.id!==d.t);S.bk=S.bk.filter(b=>b.t!==d.t)});close()},
+ newproj:()=>newProjSheet(),pc:d=>{U.pc=d.v;renderSheet()},
+ pnew:()=>{const n=(U.pn||'').trim();if(!n)return toast('Give the project a name');let id;act('New project '+n,()=>{id=uid();S.p.push({id,name:n,cat:U.pc,c:CC[U.pc],st:[{n:'Tasks',t:[{id:uid(),n:'First task',h:1,d:0}]}]})});projSheet(id)}};
+const CHG={
+ tname:(v,d)=>{const x=findT(d.t);if(x&&v.trim()&&v!==x.t.n)act(null,()=>{x.t.n=v.trim();S.bk.forEach(b=>{if(b.t===x.t.id)b.n=x.t.n})})},
+ tdl:(v,d)=>{const x=findT(d.t);if(x)act(v?'Deadline '+fdm(v):'Deadline cleared',()=>{if(v)x.t.dl=v;else delete x.t.dl})},
+ qname:(v,d)=>{const q=S.qk.find(x=>x.id===d.q);if(q&&v.trim())act(null,()=>{q.n=v.trim()})},
+ split:v=>act(null,()=>{S.h10.split=cl(+v/100,0,1)},{undo:true})};
+const INP={qn:v=>{U.qn=v},pn:v=>{U.pn=v}};
+/* ---------- app shell ---------- */
+function nav(){return `<nav id="nv">${A.tabs.map(t=>`<button class="${U.tab===t.id?'on':''}" data-a="tab" data-v="${t.id}">${ICON[t.ic]||''}<span>${t.l}</span></button>`).join('')}</nav>`}
+function draw(){LC=null;const app=$('#app');if(!app||!A)return;A.before&&A.before(U.tab);const r=A.render(U.tab)||{};app.className='tab-'+U.tab;app.innerHTML=(r.hd!=null?`<header id="hd">${r.hd}</header>`:'')+`<main id="mn">${r.mn||''}</main>`+(r.ft?`<footer id="ft">${r.ft}</footer>`:'')+(A.nav===false?'':nav());if(SH)renderSheet();A.after&&A.after(U.tab)}
+function find(a){return (A.act&&A.act[a])||ACT[a]}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=find(el.dataset.a);if(!f)return;e.preventDefault();f(el.dataset,el,e)});
+document.addEventListener('change',e=>{const el=e.target.closest('[data-c]');if(!el)return;const f=(A.chg&&A.chg[el.dataset.c])||CHG[el.dataset.c];f&&f(el.value,el.dataset,el)});
+document.addEventListener('input',e=>{const el=e.target.closest('[data-i]');if(!el)return;const f=(A.inp&&A.inp[el.dataset.i])||INP[el.dataset.i];f&&f(el.value,el.dataset,el)});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const el=e.target.closest('[data-enter]');if(!el)return;const f=find(el.dataset.enter);if(f){e.preventDefault();f(el.dataset,el,e)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&SH)close()});
+function start(app){A=app;load();const t=S.h10.ui.tab;U.tab=A.tabs.some(x=>x.id===t)?t:A.tabs[0].id;A.init&&A.init();draw();setInterval(()=>{if(A.tick)A.tick()},1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()})}
+return{start,draw,act,save,toast,sheet,close,renderSheet,get S(){return S},U,
+ $,uid,esc,sum,cl,rq,iso,pd,add,td,dow,mon,nextWork,W0,workDays,dd,DN,MN,fd,fdm,fwd,wkno,wkLabel,fq,fh,hm,
+ CATS,CC,live,P,isRes,isOH,lab,col,named,OH,row,act2,stg,tasks,left,open,cur,curStage,sLeft,pLeft,findT,nextDl,allOpen,
+ hOn,hRange,wk,fP,fCat,fRes,logH,unlogH,bud,budT,capDay,resFree,resWeek,landing,landingOf,inW,weekItems,weeks,autoPlan,planTimes,tips,
+ ICON,ring,dot,sq,sqo,tri,circles,rings,row10,taskRow,itemRow,weekList,weekStats,budBars,landLine,horizonRows,planner,plRow,
+ shHead,stepper,taskSheet,projSheet,swapSheet,settingsSheet,blockSheet,daySheet,quickSheet,tipsSheet,weekSheet,
+ tick,qtick,newTask,addBlock,ACT}})();
+</script><script>
+const HDR=(t,s,r)=>`<div class="t"><b>${t}</b><small>${s}</small></div>${r||''}<button class="hb" data-a="set" aria-label="Settings">⚙</button>`;
+H.start({key:'hx10-week',name:'Week',
+ tabs:[{id:'w',l:'Week',ic:'week'},{id:'h',l:'Horizon',ic:'hz'},{id:'p',l:'Planner',ic:'plan'}],
+ act:{hzw:d=>{H.U.wo=+d.v;H.ACT.tab({v:'w'})},home:()=>{H.U.wo=0;H.draw()}},
+ render(tab){const U=H.U,T=H.td();
+  if(tab==='h')return{hd:HDR('Horizon','12 weeks: booked time, room for research, deadlines'),mn:`<div class="pad">${H.horizonRows(12)}</div>`};
+  if(tab==='p')return{hd:HDR('Planner','Projects, stages and tasks'),mn:`<div class="pad">${H.planner()}</div>`};
+  const w0=H.add(H.W0(),7*U.wo),it=H.weekItems(w0),st=H.weekStats(w0);let free=0;for(let i=0;i<5;i++)free+=H.resFree(H.add(w0,i));
+  const days=[0,1,2,3,4].map(i=>{const d=H.add(w0,i),L=it.filter(x=>x.day===d),fr=H.resFree(d),past=d<=T,rl=past?H.hOn(d,H.fRes):0,lg=past?H.hOn(d):0,off=H.S.h10.off[d];
+   const chips=L.slice(0,3).map(x=>{const a=x.k==='t'?`data-a="task" data-t="${x.id}"`:x.k==='q'?`data-a="qedit" data-q="${x.id}"`:`data-a="day" data-d="${d}"`;return `<button class="cp${x.done?' dn':''}${x.k==='q'?' q':''}${U.sel&&x.p.id!==U.sel?' dim':''}" style="--c:${H.col(x.p)}" ${a}>${x.dl===d&&!x.done?'▲ ':''}${H.esc(x.n)}</button>`}).join('')+(L.length>3?`<span class="more">+${L.length-3}</span>`:'');
+   const sqs=Array.from({length:Math.round(rl*2)},()=>H.sq(H.CC.Research,9)).join('')+Array.from({length:Math.round(fr*2)},()=>H.sqo(H.CC.Research,9)).join('');
+   return `<div class="dy${d===T?' now':''}${off?' off':''}" data-a="day" data-d="${d}"><div class="dl0"><small>${H.fwd(d)}</small><b>${H.pd(d).getDate()}</b></div><div class="dr"><div class="cps">${chips||`<span class="em">${off?'Day off':'Nothing booked'}</span>`}</div><div class="rsq">${sqs}<small>${off?'Day off':lg?H.fh(lg)+' logged':fr?H.fh(fr)+' for research':''}</small></div></div></div>`}).join('');
+  const sel=U.sel?H.P(U.sel):null,m0=H.mon(T);
+  const dock=sel?`<div class="dock one" style="--c:${H.col(sel)}"><button class="dk-n" data-a="proj" data-p="${sel.id}"><b>${H.esc(sel.name)}</b><small>${H.fh(H.wk(m0,H.fP(sel.id)))} this week</small></button>${[.25,.5,1].map(h=>`<button class="dk-b" data-a="log" data-p="${sel.id}" data-h="${h}">+${H.fq(h)}</button>`).join('')}</div>`
+   :`<div class="dock">${H.OH().map(p=>`<button class="dk" style="--c:${H.col(p)}" data-a="log" data-p="${p.id}" data-h=".25"><span><b>${H.esc(p.name)}</b><small>${H.fh(H.wk(m0,H.fP(p.id)))} this week</small></span><i>+¼</i></button>`).join('')}</div>`;
+  return{hd:HDR(`<button data-a="home">Week ${H.wkno(w0)}</button>`,`${H.fdm(w0)} – ${H.fdm(H.add(w0,4))} · ${st.done} of ${st.n} done`,`<button class="hb" data-a="wk" data-v="-1" aria-label="Previous week">‹</button><button class="hb" data-a="wk" data-v="1" aria-label="Next week">›</button>`),
+   mn:`<div class="wk">${H.row10({sel:U.sel})}<div class="days">${days}</div>${dock}<div class="lls">${H.landLine()}</div></div>`}}});
+</script></body></html>
